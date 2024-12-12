@@ -1,0 +1,1 @@
+I am making a website where that will allow users to do speed networking. The users will upload an image of them selves and their name, then they can do speed networking where they get data from a server showing them the profile of the person they should go talk to.
