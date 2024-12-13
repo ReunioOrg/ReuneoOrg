@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   assetsInclude: ['**/*.mp3'],
-  // base: '/WebTagFrontend/',
+  base: '/MeetFrontend/',
   // base: '192.168.1.70:8080/',
   server: {
     host: true,
