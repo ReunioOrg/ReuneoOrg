@@ -11,8 +11,8 @@ import LobbyScreen from './core/lobby/lobby.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
-      <Router>
-        <Routes basename="/MeetFrontend">
+      <Router basename="/MeetFrontend">
+        <Routes>
           <Route path="/" element={<App />} />
           <Route path="/login" element={<LoginSignupPage />} />
           <Route path="/logout" element={<LogoutPage />} />
