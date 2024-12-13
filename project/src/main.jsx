@@ -12,7 +12,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
       <Router>
-        <Routes>
+        <Routes basename="/MeetFrontend">
           <Route path="/" element={<App />} />
           <Route path="/login" element={<LoginSignupPage />} />
           <Route path="/logout" element={<LogoutPage />} />
