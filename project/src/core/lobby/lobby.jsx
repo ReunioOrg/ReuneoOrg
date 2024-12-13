@@ -16,7 +16,9 @@ const LobbyScreen = () => {
     const [opponentProfile, setOpponentProfile] = useState(null);
     const roundPosition = useRef(null);
 
-    const playat=220;
+    // const playat=220;
+    const playat=300;
+
 
     useEffect(() => {
         const interval = setInterval(async () => {
@@ -32,8 +34,10 @@ const LobbyScreen = () => {
                     const data = await response.json();
                     setOpponentProfile(data.opponent_profile);
                     roundPosition.current = data.round_time_left;
-                    if (roundPosition.current!=null) {
+                    console.log(data.lobby_state);
+                    if ((roundPosition.current!=null) && (data.lobby_state=="active")) {
                         seekTo(playat-roundPosition.current);
+                        console.log("seeking to", playat-roundPosition.current);
                     }
                 }
             } catch (error) {
