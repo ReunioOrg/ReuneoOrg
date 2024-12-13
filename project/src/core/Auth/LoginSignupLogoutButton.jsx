@@ -1,4 +1,7 @@
+import { useNavigate } from 'react-router-dom';
+
 const LoginSignupLogoutButton = ({ user }) => {
+    const navigate = useNavigate();
 
     return (
         <div>
@@ -11,7 +14,7 @@ const LoginSignupLogoutButton = ({ user }) => {
                 <div>
                     <button
                     className="login-button"
-                    onClick={() => window.location.href = '/login'}
+                    onClick={() => navigate('/login')}
                     >
                     Login/Signup
                     </button>
@@ -20,7 +23,7 @@ const LoginSignupLogoutButton = ({ user }) => {
                 <div>
                     <button 
                     className="login-button"
-                    onClick={() => window.location.href = '/logout'}
+                    onClick={() => navigate('/logout')}
                     >
                     Logout
                     </button>

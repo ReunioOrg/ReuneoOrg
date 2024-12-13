@@ -5,17 +5,22 @@ import usePlaySound from './core/playsound';
 import AuthProvider from './core/Auth/AuthContext';
 import { AuthContext } from './core/Auth/AuthContext';
 import LoginSignupLogoutButton from './core/Auth/LoginSignupLogoutButton';
-
+import { useNavigate } from 'react-router-dom';
 const App = () => {
   const [showProfileCreation, setShowProfileCreation] = useState(false);
   const [profileData, handleProfileSubmit] = useState(null);
   const { audioRef, error, playSound, loadSound } = usePlaySound();
-  const { user, userProfile } = useContext(AuthContext);
+  const { user, userProfile, checkAuth } = useContext(AuthContext);
+  const navigate = useNavigate();
   // const handleProfileSubmit = (profileData) => {
   //   // Here you would typically send the data to your server
   //   setUserProfile(profileData);
   //   setShowProfileCreation(false);
   // };
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
 
   return (
@@ -59,7 +64,7 @@ const App = () => {
           <p>Date: December 1, 2023</p>
           <p>Time: 2:00 PM - 4:00 PM</p>
           <p>Join professionals from various industries for rapid-fire networking.</p>
-          <button className="primary-button" onClick={() => window.location.href = '/lobby'}>Join Event</button>
+          <button className="primary-button" onClick={() => navigate('/lobby')}>Join Event</button>
         </div>
 
         <div className="event-item">

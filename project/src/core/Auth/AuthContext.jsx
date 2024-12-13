@@ -48,6 +48,11 @@ export const AuthProvider = ({ children }) => {
             // Token invalid - clean up
             console.log("TOKEN INVALID");
             localStorage.removeItem('token');
+            setUser(null);
+            setUserProfile(null);
+            setAccessToken(null);
+            setRefreshToken(null);
+            setIsAuthenticated(false);
           }
         } catch (error) {
           // Handle error
@@ -88,6 +93,10 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
       setUser(null);
+      setUserProfile(null);
+      setAccessToken(null);
+      setRefreshToken(null);
+      setIsAuthenticated(false);
     };
 
     return (
