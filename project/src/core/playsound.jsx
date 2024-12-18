@@ -19,6 +19,7 @@ function usePlaySound() {
           audioRef.current.currentTime = 0;
           setAudioLoaded(true);
           setIsPlaying(true);
+          playSound();
         }).catch(e => {
           console.error('Error loading audio:', e);
           setError('Failed to load audio. Please check the file path and format.');
