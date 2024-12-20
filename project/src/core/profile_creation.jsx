@@ -50,7 +50,7 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
         headers: {
           'Authorization': `Bearer ${token}`
         },
-        credentials: 'include',
+        // credentials: 'include',
         body: JSON.stringify(jsonDataToSend)
       });
 

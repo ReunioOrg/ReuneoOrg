@@ -33,7 +33,9 @@ export const AuthProvider = ({ children }) => {
         try {
           // Verify token with your backend
           const response = await fetch(window.server_url+'/load_user', {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { 
+              'Authorization': `Bearer ${token}` 
+            }
           });
           
           if (response.ok) {
