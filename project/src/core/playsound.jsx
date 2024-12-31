@@ -10,6 +10,13 @@ function usePlaySound() {
     const [audioLoaded, setAudioLoaded] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [error, setError] = useState(null);
+    const [soundEnabled, setSoundEnabled] = useState(false);
+
+    // useEffect(() => {
+    //     if (checkSound()) {
+            
+    //     }
+    // }, []);
 
     function loadSound() {
         setError(null);
@@ -19,12 +26,23 @@ function usePlaySound() {
           audioRef.current.currentTime = 0;
           setAudioLoaded(true);
           setIsPlaying(true);
+          setSoundEnabled(true);
           playSound();
         }).catch(e => {
           console.error('Error loading audio:', e);
           setError('Failed to load audio. Please check the file path and format.');
+          setSoundEnabled(false);
         });
     };
+
+    function checkSound(){
+        if (audioRef.current) {
+            if (!audioRef.current.paused) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     function playSound() {
         if (audioRef.current.paused) {
@@ -36,13 +54,22 @@ function usePlaySound() {
             audioRef.current.currentTime = 0;
         }
     }
+
+    function cancelSound() {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+            audioRef.current.src = '';
+            audioRef.current = null;
+        }
+    }
     
     function seekTo(time) { 
         audioRef.current.currentTime = time;
     }
 
 
-    return { audioRef, error , playSound, loadSound, seekTo};
+    return { audioRef, error , playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled};
 }
 
 export default usePlaySound;

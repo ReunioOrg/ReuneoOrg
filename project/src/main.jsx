@@ -8,6 +8,8 @@ import { AuthProvider } from './core/Auth/AuthContext.jsx'
 import LoginSignupPage from './core/Auth/LoginSignupPage.jsx'
 import LogoutPage from './core/Auth/LogoutPage.jsx'
 import LobbyScreen from './core/lobby/lobby.jsx'
+import AdminLobbyView from './core/lobby/admin_lobby_view.jsx'
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
@@ -17,6 +19,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/login" element={<LoginSignupPage />} />
           <Route path="/logout" element={<LogoutPage />} />
           <Route path="/lobby" element={<LobbyScreen />} />
+          <Route path="/admin_lobby_view" element={<AdminLobbyView />} />
         </Routes>
         </Router>
       </AuthProvider>

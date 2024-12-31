@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
     const [accessToken, setAccessToken] = useState(null);
     const [refreshToken, setRefreshToken] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [permissions, setPermissions] = useState(null);
 
     // useEffect(() => {
     //   // Check for cached user data (e.g., from localStorage or cookies)
@@ -35,7 +36,9 @@ export const AuthProvider = ({ children }) => {
           const response = await fetch(window.server_url+'/load_user', {
             headers: { 
               'Authorization': `Bearer ${token}` 
-            }
+            },
+            // credentials: 'include',
+            // mode: 'no-cors',
           });
           
           if (response.ok) {
@@ -45,6 +48,8 @@ export const AuthProvider = ({ children }) => {
             console.log("USER DATA:", userData);
             setUser(userData.username);
             setUserProfile(userData.profile);
+            setPermissions(userData.permissions);
+            console.log("PERMISSIONS:", userData.permissions);
             // setUser(userData);
           } else {
             // Token invalid - clean up
@@ -71,6 +76,7 @@ export const AuthProvider = ({ children }) => {
       setUser(userData.username);
       setAccessToken(userData.access_token);
       setRefreshToken(userData.refresh_token);
+      setPermissions(userData.permissions);
       console.log("PRE SAVE USERNAME:", userData.username);
 
       localStorage.setItem('user', userData.username);
@@ -102,7 +108,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, signup, logout, userProfile, checkAuth}}>
+        <AuthContext.Provider value={{ user, login, signup, logout, userProfile, checkAuth, permissions}}>
             {children}
         </AuthContext.Provider>
     );
