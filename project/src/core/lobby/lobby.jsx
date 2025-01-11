@@ -16,6 +16,12 @@ const LobbyScreen = () => {
 
     const [opponentProfile, setOpponentProfile] = useState(null);
     const [prevOpponentProfile, setPrevOpponentProfile] = useState(null);
+
+    const [opponentName, setOpponentName] = useState(null);
+    const [prevOpponentName, setPrevOpponentName] = useState(null);
+
+    const isFetchingProfile=useRef(false);
+
     const roundPosition = useRef(null);
     const [lobbyState, setLobbyState] = useState(null);
     const [roundTimeLeft, setRoundTimeLeft] = useState(null);
@@ -23,6 +29,7 @@ const LobbyScreen = () => {
 
     // const playat=220;
     const playat=300;
+    const isFetchingCounter=useRef(0);
 
     const navigate = useNavigate();
 
@@ -49,9 +56,17 @@ const LobbyScreen = () => {
 
         const interval = setInterval(async () => {
             try {
+
+                isFetchingCounter.current+=1;
+                if (isFetchingCounter.current>5) {
+                    isFetchingCounter.current=0;
+                    isFetchingProfile.current=false;
+                }
                 const token = localStorage.getItem('access_token');
                 const isTabVisible = !document.hidden;
-                const response = await fetch(window.server_url+'/lobby?is_visible='+isTabVisible, {
+                // const response = await fetch(window.server_url+'/lobby?is_visible='+isTabVisible, {
+                const response = await fetch(window.server_url+'/lobby?is_visible=true', {
+
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'is_visible_t_f': (isTabVisible)?"t":"f"
@@ -66,10 +81,30 @@ const LobbyScreen = () => {
                         navigate('/');
 
                     }
-                    if (opponentProfile!=null) {
-                        setPrevOpponentProfile(opponentProfile);
+                    if (opponentName!=null) {
+                        setPrevOpponentName(opponentName);
                     }
-                    setOpponentProfile(data.opponent_profile);
+                    if ((opponentName!=data.opponent_name) || (opponentProfile==null)) {
+                        if (!isFetchingProfile.current) {
+                            isFetchingProfile.current=true;
+                            console.log("fetching profile");
+                            const profile_response=await fetch(window.server_url+'/paired_player_profile', {
+                                headers: {
+                                    'Authorization': `Bearer ${token}`
+                                }
+                            });
+                            if (profile_response.ok) {
+                                const profile_data=await profile_response.json();
+                                setOpponentProfile(profile_data);
+                                console.log("profile fetched:", profile_data.name);
+                            }else{
+                                console.log("profile fetch failed");
+                            }
+                            isFetchingProfile.current=false;
+                        }
+                    }
+                    setOpponentName(data.opponent_name);
+
                     setLobbyState(data.lobby_state);
                     roundPosition.current = data.round_time_left;
                     setRoundTimeLeft(data.round_time_left);
