@@ -35,15 +35,24 @@ const LobbyScreen = () => {
 
 
     async function leaveLobby(){
-        const token = localStorage.getItem('access_token');
-        cancelSound();
-        const response = await fetch(window.server_url+'/disconnect_lobby', {
-            headers: {
-                'Authorization': `Bearer ${token}`
+        try {
+            const token = localStorage.getItem('access_token');
+            cancelSound();
+            const response = await fetch(window.server_url+'/disconnect_lobby', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                navigate('/');
             }
-        });
-        if (response.ok) {
+        } catch (error) {
+            console.error("Error disconnecting from lobby:", error);
             navigate('/');
+        } finally {
+            cancelSound();
+            navigate('/');
+            console.log("finally");
         }
     }
 
@@ -75,17 +84,36 @@ const LobbyScreen = () => {
                 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(data);
+                    console.log("LOBBY PAIR DATA:", data);
                     if (data.status=="inactive"){
                         cancelSound();
                         navigate('/');
+                    }
 
+                    setOpponentName(data.opponent_name);
+                    if (data.opponent_name==null) {
+                        setOpponentProfile(null);
                     }
-                    if (opponentName!=null) {
-                        setPrevOpponentName(opponentName);
+                    setLobbyState(data.lobby_state);
+                    roundPosition.current = data.round_time_left;
+                    setRoundTimeLeft(data.round_time_left);
+             
+                    if ((roundPosition.current!=null) && (data.lobby_state=="active")) {
+                        seekTo(playat-roundPosition.current);
+                        console.log("seeking to", playat-roundPosition.current);
                     }
+
+
+                    // if (opponentName!=null) {
+                    //     setPrevOpponentName(opponentName);
+                    // }else{
+                    //     setOpponentName(null);
+                    //     //setOpponentProfile(null);
+                    // }
+
+
                     if ((opponentName!=data.opponent_name) || (opponentProfile==null)) {
-                        if (!isFetchingProfile.current) {
+                        if ((!isFetchingProfile.current) && (data.opponent_name!=null)) {
                             isFetchingProfile.current=true;
                             console.log("fetching profile");
                             const profile_response=await fetch(window.server_url+'/paired_player_profile', {
@@ -102,16 +130,6 @@ const LobbyScreen = () => {
                             }
                             isFetchingProfile.current=false;
                         }
-                    }
-                    setOpponentName(data.opponent_name);
-
-                    setLobbyState(data.lobby_state);
-                    roundPosition.current = data.round_time_left;
-                    setRoundTimeLeft(data.round_time_left);
-             
-                    if ((roundPosition.current!=null) && (data.lobby_state=="active")) {
-                        seekTo(playat-roundPosition.current);
-                        console.log("seeking to", playat-roundPosition.current);
                     }
                 }
             } catch (error) {
