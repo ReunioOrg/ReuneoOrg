@@ -27,14 +27,14 @@ const PlayerCard = ({player}) => {
                     marginBottom: '15px'
                 }} 
             />
-            {/* <QRCodeSVG 
+            <QRCodeSVG 
                 value={player.name}
                 size={128}
                 bgColor="#ffffff"
                 fgColor="#000000"
                 level="L"
                 includeMargin={false}
-            /> */}
+            />
         </div>
     )
 }
