@@ -1,4 +1,4 @@
-
+import { QRCodeSVG } from 'qrcode.react';
 
 const PlayerCard = ({player}) => {
     return (
@@ -23,8 +23,17 @@ const PlayerCard = ({player}) => {
                 style={{
                     objectFit: "cover",
                     borderRadius: '4px',
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                    marginBottom: '15px'
                 }} 
+            />
+            <QRCodeSVG 
+                value={player.name}
+                size={128}
+                bgColor="#ffffff"
+                fgColor="#000000"
+                level="L"
+                includeMargin={false}
             />
         </div>
     )

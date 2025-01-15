@@ -207,7 +207,7 @@ const LobbyScreen = () => {
                         {lobbyState === "active" 
                             ? "Round: Active\n" 
                             : "Waiting for Next Round"}
-                        {roundTimeLeft && <span className="time-left">Time Left: {roundTimeLeft}s</span>}
+                        {roundTimeLeft && <span className="time-left">Time Left: {parseInt(roundTimeLeft)}s</span>}
                     </h1>
                 </div>
 
@@ -217,7 +217,7 @@ const LobbyScreen = () => {
                             <PlayerCard player={opponentProfile} />
                         ) : (
                             <div className="status-message">
-                                <h2>Looking for opponent...</h2>
+                                <h2>No pair, waiting for next round...</h2>
                             </div>
                         )
                     ) : (
