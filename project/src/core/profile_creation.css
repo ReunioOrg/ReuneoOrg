@@ -31,6 +31,7 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
+  color: #144dff;
   background: none;
   border: none;
   font-size: 1.5rem;
@@ -38,9 +39,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .close-button {
-    color: #ffffff;
-  }
+  
 }
 
 .form-group {
@@ -53,19 +52,14 @@
 }
 
 .form-group input {
+  color:#144dff;
+  background-color: #ffffff;
   width: 100%;
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
-@media (prefers-color-scheme: dark) {
-  .form-group input {
-    background-color: #333;
-    border-color: #666;
-    color: #ffffff;
-  }
-}
 
 .image-preview {
   margin-top: 1rem;

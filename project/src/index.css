@@ -36,6 +36,13 @@ h1 {
   line-height: 1.1;
 }
 
+
+h1, h2, h3, h4, label {
+  color: #144dff;
+}
+
+
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;

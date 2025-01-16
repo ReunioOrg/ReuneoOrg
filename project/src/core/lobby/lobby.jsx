@@ -164,6 +164,7 @@ const LobbyScreen = () => {
                     <button 
                         onClick={() => setShowSoundPrompt(false)}
                         style={{
+                            color: '#144fff',
                             position: 'absolute',
                             right: '10px',
                             top: '10px',
@@ -173,10 +174,12 @@ const LobbyScreen = () => {
                             cursor: 'pointer'
                         }}
                     >
-                        ×
+                    X   
                     </button>
                     <h2 style={{ marginTop: '20px' }}>Enable Sound</h2>
-                    <p>Please enable sound for the best experience</p>
+                    <p style={{
+                            color: '#144dff',
+                        }}>Please enable sound for the best experience</p>
                     <button 
                         onClick={() => {
                             loadSound();
@@ -186,7 +189,7 @@ const LobbyScreen = () => {
                             padding: '10px 20px',
                             marginTop: '20px',
                             backgroundColor: '#007bff',
-                            color: 'white',
+                            color: '#ffffff',
                             border: 'none',
                             borderRadius: '4px',
                             cursor: 'pointer'
