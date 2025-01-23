@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import './profile_creation.css';
 import { useContext } from 'react';
 import { AuthContext } from './Auth/AuthContext';
+import Cropper from 'react-easy-crop';
+import getCroppedImg from './cropImage'; // Utility function for cropping
 
 const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
 
@@ -10,8 +12,14 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
   const [formData, setFormData] = useState({
     name: userProfile?.name || '',
     image: userProfile?.image_data || null,
-    imagePreview: userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : null
+    imagePreview: userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : null,
+    croppedImage: null,
   });
+
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [cropArea, setCropArea] = useState(null);
+  const [isCropping, setIsCropping] = useState(false);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -21,37 +29,63 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
         image: file,
         imagePreview: URL.createObjectURL(file)
       });
+      setIsCropping(true);
+    }
+  };
+
+  const handleCropComplete = (croppedArea, croppedAreaPixels) => {
+    setCropArea(croppedAreaPixels);
+  };
+
+  const handleSaveCroppedImage = async () => {
+    try {
+      const croppedImage = await getCroppedImg(formData.imagePreview, cropArea);
+      console.log('Cropped Image:', croppedImage); // Log the cropped image URL
+      setFormData({ ...formData, croppedImage });
+      setIsCropping(false);
+    } catch (error) {
+      console.error('Error cropping the image:', error);
     }
   };
 
   async function handleSubmit(e) {
     e.preventDefault();
 
-    // Convert image to base64 string for easier handling
-    const imageBuffer = await formData.image.arrayBuffer();
-    const base64Image = btoa(
-      new Uint8Array(imageBuffer)
-        .reduce((data, byte) => data + String.fromCharCode(byte), '')
-    );
+    let base64Image;
+
+    // Handle cropped image (base64) or original image (File)
+    if (formData.croppedImage) {
+      // Cropped image is already in base64 format
+      base64Image = formData.croppedImage.split(',')[1]; // Remove the "data:image/jpeg;base64," prefix
+    } else if (formData.image instanceof File) {
+      // Original image is a File object, convert to base64
+      const imageBuffer = await formData.image.arrayBuffer();
+      base64Image = btoa(
+        new Uint8Array(imageBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+      );
+    } else {
+      console.error('No valid image provided');
+      return; // Exit if no image is available
+    }
 
     const jsonDataToSend = {
       name: formData.name,
-      image_data: base64Image
+      image_data: base64Image,
     };
 
-    console.log("Image data (first 100 chars):", base64Image.substring(0, 100));
+    console.log('Image data (first 100 chars):', base64Image.substring(0, 100));
 
     // Get access token from localStorage
     const token = localStorage.getItem('access_token');
 
     try {
-      const response = await fetch(window.server_url+'/update_profile', {
+      const response = await fetch(`${window.server_url}/update_profile`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        // credentials: 'include',
-        body: JSON.stringify(jsonDataToSend)
+        body: JSON.stringify(jsonDataToSend),
       });
 
       if (!response.ok) {
@@ -61,11 +95,10 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
       const result = await response.json();
       await checkAuth();
       console.log('Profile updated successfully:', result);
-
-      
     } catch (error) {
       console.error('Error updating profile:', error);
     }
+
   };
 
   return (
@@ -92,14 +125,46 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
               accept="image/*"
               onChange={handleImageChange}
             />
-            {formData.imagePreview && (
+            {isCropping && formData.imagePreview && (
+              <div className="crop-container">
+                <Cropper
+                  image={formData.imagePreview}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={handleCropComplete}
+                />
+
+                <div className="slider-container">
+                  <label htmlFor="zoom">Zoom</label>
+                  <input
+                    id="zoom"
+                    type="range"
+                    min={1}
+                    max={3}
+                    step={0.1}
+                    value={zoom}
+                    onChange={(e) => setZoom(e.target.value)}
+                  />
+                </div>
+
+                <button type="button" onClick={handleSaveCroppedImage}>
+                  Save Cropped Image
+                </button> 
+              </div>
+            )}
+
+            {formData.croppedImage && (
               <img
-                src={formData.imagePreview}
-                alt="Profile Preview"
+                src={formData.croppedImage}
+                alt="Cropped Preview"
                 className="profile-image-preview"
-                style={{width: '50%', height: '50%'}}
+                style={{ width: '50%', height: '50%' }}
               />
             )}
+
           </div>
           <button type="submit" className="submit-button">
             {existingProfile ? 'Update Profile' : 'Create Profile'}
