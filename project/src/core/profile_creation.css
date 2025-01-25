@@ -1,3 +1,13 @@
+.image-preview-container {
+  display: flex; /* Enable Flexbox */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  width: 100%; /* Ensure the container spans the available space */
+  height: auto; /* Adjust as needed for your layout */
+  margin-top: 1rem; /* Optional: Add spacing above the container */
+}
+
+
 .crop-container {
   position: relative;
   width: 100%;
@@ -43,11 +53,11 @@ button {
 }
 
 .profile-image-preview {
-  margin-top: 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  max-width: 100%; /* Prevent image overflow */
+  max-height: 300px; /* Optional: Limit the height of the preview */
+  object-fit: contain; /* Ensure the image is fully visible */
+  border-radius: 8px; /* Optional: Add rounded corners */
 }
-
 
 
 .profile-creation-overlay {
@@ -125,7 +135,7 @@ button {
 }
 
 .submit-button {
-  background-color: #007bff;
+  background-color: #144dff                                ;
   color: white;
   padding: 0.5rem 1rem;
   border: none;
@@ -153,7 +163,7 @@ button {
   position: fixed;
   top: 1rem;
   right: 1rem;
-  background-color: #007bff;
+  background-color: #144dff;
   color: white;
   padding: 0.5rem 1rem;
   border: none;

@@ -1,6 +1,7 @@
 import { createCanvas } from 'canvas';
 
 export default async function getCroppedImg(imageSrc, crop) {
+  console.log('Image source being cropped:', imageSrc); // Log the image source
   return new Promise((resolve, reject) => {
     const image = new Image();
 

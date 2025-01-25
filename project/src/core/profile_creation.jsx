@@ -12,7 +12,9 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
   const [formData, setFormData] = useState({
     name: userProfile?.name || '',
     image: userProfile?.image_data || null,
-    imagePreview: userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : null,
+    imagePreview: userProfile?.image_data
+      ? `data:image/jpeg;base64,${userProfile.image_data}`
+      : '/path/to/default-placeholder.png', // Add a fallback placeholder
     croppedImage: null,
   });
 
@@ -55,14 +57,17 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
 
     // Handle cropped image (base64) or original image (File)
     if (formData.croppedImage) {
-      // Cropped image is already in base64 format
-      base64Image = formData.croppedImage.split(',')[1]; // Remove the "data:image/jpeg;base64," prefix
+      // Use cropped image (base64)
+      base64Image = formData.croppedImage.split(',')[1];
     } else if (formData.image instanceof File) {
-      // Original image is a File object, convert to base64
+      // Convert new image to base64
       const imageBuffer = await formData.image.arrayBuffer();
       base64Image = btoa(
         new Uint8Array(imageBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
       );
+    } else if (userProfile?.image_data) {
+      // Use existing image data
+      base64Image = userProfile.image_data;
     } else {
       console.error('No valid image provided');
       return; // Exit if no image is available
@@ -125,6 +130,11 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
               accept="image/*"
               onChange={handleImageChange}
             />
+            {formData.imagePreview && !isCropping && (
+              <button type="button" onClick={() => setIsCropping(true)}>
+                Crop Image
+              </button>
+            )}
             {isCropping && formData.imagePreview && (
               <div className="crop-container">
                 <Cropper
@@ -136,7 +146,6 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
                   onZoomChange={setZoom}
                   onCropComplete={handleCropComplete}
                 />
-
                 <div className="slider-container">
                   <label htmlFor="zoom">Zoom</label>
                   <input
@@ -149,21 +158,34 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
                     onChange={(e) => setZoom(e.target.value)}
                   />
                 </div>
-
                 <button type="button" onClick={handleSaveCroppedImage}>
                   Save Cropped Image
-                </button> 
+                </button>
               </div>
             )}
 
-            {formData.croppedImage && (
-              <img
-                src={formData.croppedImage}
-                alt="Cropped Preview"
-                className="profile-image-preview"
-                style={{ width: '50%', height: '50%' }}
-              />
-            )}
+            <div className="image-preview-container">
+              {formData.croppedImage ? (
+                // Show cropped image
+                <img
+                  src={formData.croppedImage}
+                  alt="Cropped Preview"
+                  className="profile-image-preview"
+                  style={{ width: '50%', height: '50%' }}
+                />
+              ) : formData.imagePreview ? (
+                // Show existing image (or new uploaded image preview)
+                <img
+                  src={formData.imagePreview}
+                  alt="Existing Profile Preview"
+                  className="profile-image-preview"
+                  style={{ width: '50%', height: '50%' }}
+                />
+              ) : (
+                // Show fallback if no image
+                <p>No profile image available</p>
+              )}
+            </div>
 
           </div>
           <button type="submit" className="submit-button">

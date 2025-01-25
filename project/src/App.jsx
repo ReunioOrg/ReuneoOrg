@@ -16,8 +16,10 @@ const App = () => {
   const { audioRef, error, playSound, loadSound, cancelSound } = usePlaySound();
   const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
   const [player_count, setPlayerCount] = useState(null);
+
   const navigate = useNavigate();
   useGetLobbyMetadata(setPlayerCount);
+
   // const handleProfileSubmit = (profileData) => {
   //   // Here you would typically send the data to your server
   //   setUserProfile(profileData);
@@ -84,19 +86,21 @@ const App = () => {
             textAlign: 'center',
           }}
         >
-          {userProfile && userProfile.name && userProfile.picture ? (
+          {userProfile && userProfile.name ? (
             <div className="main-content">
-              <h3>Welcome, {userProfile.name}!</h3>
+              <h3 style={{ color: '#ffffff' }}>
+                Welcome {userProfile.name.length > 30 ? `${userProfile.name.slice(0, 15)}` : userProfile.name}, you've arrived!
+              </h3>
             </div>
           ) : (
             <div className="main-content">
               <h3 style={{color: '#ffffff' }}>
-                Login to create an account</h3>
+                Welcome, you've arrived</h3>
             </div>
           )}
         </div>
 
-        <div className="events-list" style={{ marginTop: '1rem', width: '94%', left: '3%' }}>
+        <div className="events-list" style={{ marginTop: '2rem', width: '94%', marginLeft: 'auto', marginRight: 'auto' }}>
           <h2 style={{ textAlign: 'center', width: '100%', color: '#ffffff' }}>
             Active Lobbies
           </h2>
