@@ -6,6 +6,7 @@ const LoginSignupPage = () => {
     const { login, signup, user, logout, checkAuth } = useContext(AuthContext);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [displayName, setDisplayName] = useState('');
     const [error, setError] = useState('');
     const [isLoginMode, setIsLoginMode] = useState(true);
 
@@ -53,7 +54,7 @@ const LoginSignupPage = () => {
             <button onClick={() => {
                 navigate('/');
             }}>Homescreen</button>
-            <h1>Login/Signup</h1>
+            <h1>Login</h1>
             <div className="login-container">
                 {error && <div className="error-message">{error}</div>}
                 
@@ -78,21 +79,31 @@ const LoginSignupPage = () => {
                             required
                         />
                     </div>
+
+                    {/* <div className="form-group">
+                        <input
+                            type="text"
+                            placeholder="If signing up, Display Name (Full name)" 
+                            className="login-input"
+                            value={displayName}
+                            onChange={(e) => setDisplayName(e.target.value)}
+                        />
+                    </div> */}
                     <div>
                         <button type="submit" className="primary-button">
                             Login
                         </button>
-                        <button 
+                        {/* <button 
                             type="submit" 
                             className="primary-button"
                             onClick={() => setIsLoginMode(!isLoginMode)}
                         >
                             Signup
-                        </button>
+                        </button> */}
                     </div>
                 </form>
                 
-                <div className="divider">
+                {/* <div className="divider">
                     <span>OR</span>
                 </div>
 
@@ -106,7 +117,7 @@ const LoginSignupPage = () => {
                         className="google-icon"
                     />
                     Login with Google
-                </button>
+                </button> */}
             </div>
         </div>
     );
