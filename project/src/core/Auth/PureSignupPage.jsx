@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { AuthContext } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-const LoginSignupPage = () => {
+const PureSignupPage = () => {
     const { login, signup, user, logout, checkAuth } = useContext(AuthContext);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -10,14 +10,17 @@ const LoginSignupPage = () => {
     const [error, setError] = useState('');
     const [isLoginMode, setIsLoginMode] = useState(true);
 
+    const [isLoading, setIsLoading] = useState(false);
+
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
+        setIsLoading(true);
         e.preventDefault();
         setError('');
 
         try {
-            const endpoint = isLoginMode ? '/login' : '/signup';
+            const endpoint = '/signup';
             const response = await fetch(window.server_url+endpoint, {
                 method: 'POST',
                 headers: { 
@@ -38,6 +41,30 @@ const LoginSignupPage = () => {
                     login(userData);
                     checkAuth();
                 }
+
+                const token = localStorage.getItem('access_token');
+  
+                try {
+                    const profile_creation = await fetch(`${window.server_url}/update_profile`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({name: displayName, image_data: ""}),
+                    });
+                
+                    if (!profile_creation.ok) {
+                        throw new Error('Failed to update profile');
+                    }
+                
+                    const result = await profile_creation.json();
+                    await checkAuth(); // Update UI with new profile
+                    console.log('Profile updated successfully:', result);
+                } catch (error) {
+                    console.error('Error updating profile:', error);
+                }
+
                 navigate('/');
             } else {
                 const errorData = await response.json();
@@ -47,6 +74,7 @@ const LoginSignupPage = () => {
             setError('Network error occurred. Please try again.');
             console.error('Error:', error);
         }
+        setIsLoading(false);
     };
 
     return (
@@ -54,7 +82,7 @@ const LoginSignupPage = () => {
             <button onClick={() => {
                 navigate('/');
             }}>Homescreen</button>
-            <h1>Login</h1>
+            <h1>Signup</h1>
             <div className="login-container">
                 {error && <div className="error-message">{error}</div>}
                 
@@ -80,26 +108,23 @@ const LoginSignupPage = () => {
                         />
                     </div>
 
-                    {/* <div className="form-group">
+                    <div className="form-group">
                         <input
                             type="text"
-                            placeholder="If signing up, Display Name (Full name)" 
+                            placeholder="Display Name (Full name)" 
                             className="login-input"
                             value={displayName}
                             onChange={(e) => setDisplayName(e.target.value)}
                         />
-                    </div> */}
+                    </div>
                     <div>
-                        <button type="submit" className="primary-button">
-                            Login
-                        </button>
-                        {/* <button 
+                        <button 
                             type="submit" 
                             className="primary-button"
-                            onClick={() => setIsLoginMode(!isLoginMode)}
+                            disabled={isLoading}
                         >
-                            Signup
-                        </button> */}
+                            {isLoading ? 'Loading...' : 'Signup'}
+                        </button>
                     </div>
                 </form>
                 
@@ -123,59 +148,6 @@ const LoginSignupPage = () => {
     );
 };
 
-export default LoginSignupPage;
+export default PureSignupPage;
 
 
-
-
-
-
-
-
-
-// const LoginSignupPage = () => {
-//     const { login, user, logout } = useContext(AuthContext);
-//     const [username, setUsername] = useState('');
-//     const [password, setPassword] = useState('');
-//     const [error, setError] = useState('');
-
-//     const navigate = useNavigate();
-
-  
-//     const handleLogin = async (e) => {
-//         e.preventDefault();
-//         setError('');
-
-//         try {
-//             const response = await fetch(window.server_url+'/login', {
-//                 method: 'POST',
-//                 headers: { 'Content-Type': 'application/json' },
-//                 body: JSON.stringify({ "username": username, "password": password }),
-//             });
-
-//             if (response.ok) {
-//                 const userData = await response.json();
-//                 console.log("LOGGED IN, userData:", userData);
-//                 login(userData);
-//                 console.log(user);
-//             } else {
-//                 const errorData = await response.json();
-//                 setError(errorData.message || 'Login failed');
-//             }
-//         } catch (error) {
-//             setError('Network error occurred. Please try again.');
-//             console.error('Error:', error);
-//         }
-//     };
-
-//     const handleSignup = async (e) => {
-
-//     const handleGoogleLogin = async () => {
-//         try {
-//             // Redirect to Google OAuth endpoint
-//             window.location.href = '/api/auth/google';
-//         } catch (error) {
-//             setError('Google login failed. Please try again.');
-//             console.error('Error:', error);
-//         }
-//     };

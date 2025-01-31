@@ -103,6 +103,8 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
     } catch (error) {
       console.error('Error updating profile:', error);
     }
+
+    onClose();
   }
   // async function handleSubmit(e) {
   //   e.preventDefault();
