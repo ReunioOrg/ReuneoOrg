@@ -47,6 +47,8 @@ const AdminLobbyView = () => {
 
     const [pairedPlayers, setPairedPlayers] = useState(null);
     const [lobbyData, setLobbyData] = useState(null);
+    const [lobbyTimer, setLobbyTimer] = useState(null);
+    const [lobbyState, setLobbyState] = useState(null);
 
     const navigate = useNavigate();
 
@@ -69,6 +71,8 @@ const AdminLobbyView = () => {
                 console.log("Admin lobby data:", data);
                 setLobbyData(data.unpaired_players);
                 setPairedPlayers(data.pairs_data);
+                setLobbyTimer(data.round_time_left);
+                setLobbyState(data.lobby_state);
                 //setPairedPlayers(pairedPlayers_test_data);
             })
             .catch(error => {
@@ -82,6 +86,24 @@ const AdminLobbyView = () => {
     return (
         <div>
             <h1>Admin Lobby View</h1>
+            <button onClick={() => {
+                fetch(window.server_url + '/reset_lobby_timer', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    }
+                })
+            }}>Reset Lobby Timer</button>
+            
+            <div>
+                <h2>Lobby Timer: {lobbyTimer} for {lobbyState}</h2>
+                <div>
+                    <h3>Lobby Stats:</h3>
+                    <h3>Total Players: {(lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0)}</h3>
+                    <h3>Paired Players: {pairedPlayers?.length * 2 || 0}</h3>
+                    <h3>Unpaired Players: {lobbyData?.length || 0}</h3>
+                </div>
+            </div>
+            
             {pairedPlayers?
                 <div style={{ 
                     width: '100%',
@@ -97,7 +119,7 @@ const AdminLobbyView = () => {
                         width: "100%"
                     }}>
                         {pairedPlayers.map((player, index) => (
-                            <div key={index}>
+                            <div key={index} style={{color: "green", border: "2px solid green", marginBottom: "10px"}}>
                                 {lobbyPairedCard(player[0], player[1])}
                             </div>
                         ))}
@@ -113,13 +135,13 @@ const AdminLobbyView = () => {
             {lobbyData?
                 <div>
                     <h2>Lobby Data</h2>
-                    <div className="lobby-profiles">
+                    <div className="lobby-profiles" style={{color: "green",}}>
                         {lobbyData.map((profile, index) => (
-                            <div key={index} className="profile-icon">
+                            <div key={index} className="profile-icon" style={{color: "green", border: "2px solid green", marginBottom: "10px"}}>
                                 <div className="avatar">
                                     <img src={`data:image/jpeg;base64,${profile.image_data}`} alt={profile.name} width="200" height="200" style={{objectFit: "cover"}} />
                                 </div>
-                                <p>{profile.name}</p>
+                                <h3>{profile.name}</h3>
                             </div>
                         ))}
                     </div>
@@ -159,7 +181,7 @@ const lobbyPairedCard = (player1, player2) => {
                         }} 
                     />
                 </div>
-                <p>{player1.name}</p>
+                <h3>{player1.name}</h3>
             </div>
             <div style={{
                 flex: 1,
@@ -177,7 +199,7 @@ const lobbyPairedCard = (player1, player2) => {
                         }}
                     />
                 </div>
-                <p>{player2.name}</p>
+                <h3>{player2.name}</h3>
             </div>
         </div>
     );

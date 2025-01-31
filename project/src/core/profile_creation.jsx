@@ -176,7 +176,7 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
               onChange={(e) => setFormData({...formData, name: e.target.value})}
             />
           </div>
-          <div className="form-group">
+          {/* <div className="form-group">
             <label htmlFor="image">Profile Image</label>
             <input
               type="file"
@@ -244,7 +244,7 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
               )}
             </div>
 
-          </div>
+          </div> */}
           <button type="submit" className="submit-button">
             {existingProfile ? 'Update Profile' : 'Create Profile'}
           </button>
