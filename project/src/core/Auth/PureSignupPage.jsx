@@ -31,8 +31,16 @@ const PureSignupPage = () => {
                 mode: 'cors'
             });
 
+            const userData = await response.json();
+            console.log(userData);
+            if (userData.error === "Username already taken") {
+                console.log("Username is taken");
+                setError("Username is taken");
+                setIsLoading(false);
+                return;
+            }
+
             if (response.ok) {
-                const userData = await response.json();
                 if (isLoginMode) {
                     login(userData);
                     checkAuth();
@@ -84,7 +92,19 @@ const PureSignupPage = () => {
             }}>Homescreen</button>
             <h1>Signup</h1>
             <div className="login-container">
-                {error && <div className="error-message">{error}</div>}
+                {error && (
+                    <div className="error-message" style={{
+                        backgroundColor: '#ffebee',
+                        color: '#d32f2f',
+                        padding: '10px',
+                        borderRadius: '4px',
+                        marginBottom: '15px',
+                        textAlign: 'center',
+                        border: '1px solid #ef9a9a'
+                    }}>
+                        {error}
+                    </div>
+                )}
                 
                 <form className="login-signup-form" onSubmit={handleSubmit}>
                     <div className="form-group">

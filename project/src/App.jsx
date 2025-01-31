@@ -91,20 +91,20 @@ const App = () => {
         >
           {userProfile && userProfile.name ? (
             <div className="main-content">
-              <h1 style={{ color: '#ffffff', backgroundColor: 'rgba(0, 0, 0, 0.8)'}}>
+              <h3 style={{ color: '#ffffff', backgroundColor: 'rgba(0, 0, 0, 0.8)'}}>
                 Welcome {userProfile.name.length > 30 ? `${userProfile.name.slice(0, 15)}` : userProfile.name}, you've arrived!
-              </h1>
+              </h3>
             </div>
           ) : (
             user ? (
               <div className="main-content">
-                <h1 style={{color: '#ffffff', backgroundColor: 'rgba(0, 0, 0, 0.8)'}}>
-                  Please create your profile using the profile button →</h1>
+                <h3 style={{color: '#ffffff', backgroundColor: 'rgba(0, 0, 0, 0.8)'}}>
+                  Please create your profile using the profile button →</h3>
               </div>
             ) : (
               <div className="main-content" style={{backgroundColor: 'rgba(0, 0, 0, 0.8)'}}>
-                <h1 style={{color: '#ffffff' }}>
-                  Welcome! Signup with a username, password, and display name ↗</h1>
+                <h3 style={{color: '#ffffff' }}>
+                  Welcome! Signup with a username, password, and display name ↗</h3>
               </div>
             )
           )}
