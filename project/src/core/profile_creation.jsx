@@ -14,7 +14,8 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
     image: userProfile?.image_data || null,
     imagePreview: userProfile?.image_data
       ? `data:image/jpeg;base64,${userProfile.image_data}`
-      : '/path/to/default-placeholder.png', // Add a fallback placeholder
+      : '/assets/fakeprofile.png',//CHANGE THIS BACK AFTER THE EVENT
+      //: '/path/to/default-placeholder.png', // Add a fallback placeholder
     croppedImage: null,
   });
 
@@ -50,39 +51,38 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
     }
   };
 
+  //CHANGE THIS BACK AFTER THE EVENT
   async function handleSubmit(e) {
     e.preventDefault();
-
+  
     let base64Image;
-
-    // Handle cropped image (base64) or original image (File)
+  
     if (formData.croppedImage) {
-      // Use cropped image (base64)
       base64Image = formData.croppedImage.split(',')[1];
     } else if (formData.image instanceof File) {
-      // Convert new image to base64
       const imageBuffer = await formData.image.arrayBuffer();
       base64Image = btoa(
         new Uint8Array(imageBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
       );
-    } else if (userProfile?.image_data) {
-      // Use existing image data
-      base64Image = userProfile.image_data;
     } else {
-      console.error('No valid image provided');
-      return; // Exit if no image is available
+      // Convert default profile image (fakeprofile.png) to base64
+      const response = await fetch('/assets/fakeprofile.png');
+      const blob = await response.blob();
+      const imageBuffer = await blob.arrayBuffer();
+      base64Image = btoa(
+        new Uint8Array(imageBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+      );
     }
-
+  
     const jsonDataToSend = {
       name: formData.name,
-      image_data: base64Image,
+      image_data: base64Image, // Send the selected or default image
     };
-
-    console.log('Image data (first 100 chars):', base64Image.substring(0, 100));
-
-    // Get access token from localStorage
+  
+    console.log("JSON Data to Send:", jsonDataToSend);
+  
     const token = localStorage.getItem('access_token');
-
+  
     try {
       const response = await fetch(`${window.server_url}/update_profile`, {
         method: 'POST',
@@ -92,19 +92,73 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
         },
         body: JSON.stringify(jsonDataToSend),
       });
-
+  
       if (!response.ok) {
         throw new Error('Failed to update profile');
       }
-
+  
       const result = await response.json();
-      await checkAuth();
+      await checkAuth(); // Update UI with new profile
       console.log('Profile updated successfully:', result);
     } catch (error) {
       console.error('Error updating profile:', error);
     }
+  }
+  // async function handleSubmit(e) {
+  //   e.preventDefault();
 
-  };
+  //   let base64Image;
+
+  //   // Handle cropped image (base64) or original image (File)
+  //   if (formData.croppedImage) {
+  //     // Use cropped image (base64)
+  //     base64Image = formData.croppedImage.split(',')[1];
+  //   } else if (formData.image instanceof File) {
+  //     // Convert new image to base64
+  //     const imageBuffer = await formData.image.arrayBuffer();
+  //     base64Image = btoa(
+  //       new Uint8Array(imageBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+  //     );
+  //   } else if (userProfile?.image_data) {
+  //     // Use existing image data
+  //     base64Image = userProfile.image_data;
+  //   } else {
+  //     console.error('No valid image provided');
+  //     return; // Exit if no image is available
+  //   }
+
+  //   const jsonDataToSend = {
+  //     name: formData.name,
+  //     image_data: base64Image,
+  //   };
+
+  //   console.log('Image data (first 100 chars):', base64Image.substring(0, 100));
+
+  //   // Get access token from localStorage
+  //   const token = localStorage.getItem('access_token');
+
+  //   try {
+  //     const response = await fetch(`${window.server_url}/update_profile`, {
+  //       method: 'POST',
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(jsonDataToSend),
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error('Failed to update profile');
+  //     }
+
+  //     const result = await response.json();
+  //     await checkAuth();
+  //     console.log('Profile updated successfully:', result);
+  //   } catch (error) {
+  //     console.error('Error updating profile:', error);
+  //   }
+
+  // };
 
   return (
     <div className="profile-creation-overlay">
@@ -182,8 +236,11 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
                   style={{ width: '50%', height: '50%' }}
                 />
               ) : (
-                // Show fallback if no image
-                <p>No profile image available</p>
+                <img
+                  src="/assets/fakeprofile.png" // Default image for display CHANGE THIS BACK AFTER THE EVENT
+                  alt="Default Profile"
+                  className="profile-image-preview"
+                />
               )}
             </div>
 

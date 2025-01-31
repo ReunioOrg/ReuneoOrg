@@ -4,7 +4,7 @@ const PlayerCard = ({ player }) => {
     return (
       <div
         style={{
-          backgroundColor: '#7679EE',
+          background: 'linear-gradient(135deg, #007FFF 0%, #00308F 100%)',
           padding: '20px',
           borderRadius: '16px', // Smooth rounded corners for the card
           display: 'flex',
@@ -32,7 +32,6 @@ const PlayerCard = ({ player }) => {
           src={`data:image/jpeg;base64,${player.image_data}`}
           alt={player.name}
           style={{
-            position: 'absolute',
             width: '300px', // Larger square size
             height: '300px', // Ensures a square aspect ratio
             objectFit: 'cover', // Makes sure the image fills the space without distortion
