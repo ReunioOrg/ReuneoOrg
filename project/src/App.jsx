@@ -18,10 +18,12 @@ const App = () => {
   const [profileData, handleProfileSubmit] = useState(null);
   const { audioRef, error, playSound, loadSound, cancelSound } = usePlaySound();
   const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
+
   const [player_count, setPlayerCount] = useState(null);
+  const [lobby_state, setLobbyState] = useState(null);
 
   const navigate = useNavigate();
-  useGetLobbyMetadata(setPlayerCount);
+  useGetLobbyMetadata(setPlayerCount, setLobbyState);
 
   // const handleProfileSubmit = (profileData) => {
   //   // Here you would typically send the data to your server
@@ -146,10 +148,18 @@ const App = () => {
                 fontSize: '.8em',
               }}
             >
-              {player_count} in lobby
+              {lobby_state === 'terminate' ? 'Lobby closed' : `${player_count} in lobby`}
             </p>
             <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
-              <button className="primary-button" onClick={() => navigate('/lobby')}>
+              <button 
+                className="primary-button" 
+                onClick={() => navigate('/lobby')}
+                disabled={player_count === null || lobby_state === 'terminate'}
+                style={{
+                  opacity: (player_count === null || lobby_state === 'terminate') ? 0.5 : 1,
+                  cursor: (player_count === null || lobby_state === 'terminate') ? 'not-allowed' : 'pointer'
+                }}
+              >
                 Join Event
               </button>
               {permissions === 'admin' && (

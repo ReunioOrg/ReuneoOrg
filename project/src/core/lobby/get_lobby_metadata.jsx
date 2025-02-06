@@ -2,15 +2,22 @@
 
 import { useEffect } from 'react';
 
-const useGetLobbyMetadata = (setPlayerCount) => {
+const useGetLobbyMetadata = (setPlayerCount, setLobbyState) => {
   useEffect(() => {
     const fetchLobbyMetadata = async () => {
       const response = await fetch(`${server_url}/display_lobby_metadata`);
       const data = await response.json();
       setPlayerCount(data.player_count);
+      setLobbyState(data.lobby_state);
     };
-    fetchLobbyMetadata();
-  }, [setPlayerCount]);
+
+    fetchLobbyMetadata(); // Initial fetch
+    
+    const interval = setInterval(fetchLobbyMetadata, 1000); // Fetch every second
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, [setPlayerCount, setLobbyState]);
+
 };
 
 export default useGetLobbyMetadata;

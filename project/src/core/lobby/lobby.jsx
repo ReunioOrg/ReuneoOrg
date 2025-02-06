@@ -212,9 +212,11 @@ const LobbyScreen = () => {
                 <div className="lobby-header">
                     <h1>
                         {lobbyState === "active" 
-                            ? "Round: Active\n" 
-                            : "Waiting for Next Round"}
-                        {roundTimeLeft && <span className="time-left">Time Left: {parseInt(roundTimeLeft)}s</span>}
+                            ? "Round: Active\n"
+                            : lobbyState === "checkin"
+                                ? "You are checked in, waiting for rounds to start"
+                                : "Waiting for Next Round"}
+                        {lobbyState !== "checkin" && roundTimeLeft && <span className="time-left">Time Left: {parseInt(roundTimeLeft)}s</span>}
                     </h1>
                 </div>
 

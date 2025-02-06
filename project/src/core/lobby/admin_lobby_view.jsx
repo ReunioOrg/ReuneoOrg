@@ -87,13 +87,47 @@ const AdminLobbyView = () => {
         <div>
             <h1>Admin Lobby View</h1>
             <button onClick={() => {
-                fetch(window.server_url + '/reset_lobby_timer', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                    }
-                })
+                if (window.confirm('Are you sure you want to reset the lobby timer?')) {
+                    fetch(window.server_url + '/reset_lobby_timer', {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                        }
+                    })
+                }
             }}>Reset Lobby Timer</button>
+
+            <button onClick={() => {
+                if (window.confirm('Are you sure you want to reset the entire lobby?')) {
+                    fetch(window.server_url + '/reset_lobby', {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                        }
+                    })
+                }
+            }}>Reset Lobby</button>
+
+            <button onClick={() => { //start_rounds
+                if (window.confirm('Are you sure you want to start the rounds?')) {
+                    fetch(window.server_url + '/start_rounds', {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                        }
+                    })
+                }
+            }}>Start Rounds</button>
             
+
+            <button onClick={() => {
+                if (window.confirm('Are you sure you want to terminate the rounds?')) {
+                    fetch(window.server_url + '/terminate_lobby', {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                        }
+                    })
+                }
+            }}>Terminate Rounds</button>
+
+
             <div>
                 <h2>Lobby Timer: {lobbyTimer} for {lobbyState}</h2>
                 <div>
