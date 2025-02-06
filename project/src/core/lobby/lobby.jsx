@@ -20,6 +20,8 @@ const LobbyScreen = () => {
     const [opponentName, setOpponentName] = useState(null);
     const [prevOpponentName, setPrevOpponentName] = useState(null);
 
+    const [tableNumber, setTableNumber] = useState(null);
+
     const isFetchingProfile=useRef(false);
 
     const roundPosition = useRef(null);
@@ -97,6 +99,8 @@ const LobbyScreen = () => {
                     setLobbyState(data.lobby_state);
                     roundPosition.current = data.round_time_left;
                     setRoundTimeLeft(data.round_time_left);
+
+                    setTableNumber(data.table_number);
              
                     if ((roundPosition.current!=null) && (data.lobby_state=="active")) {
                         seekTo(playat-roundPosition.current);
@@ -217,12 +221,19 @@ const LobbyScreen = () => {
                 <div className="player-section">
                     {lobbyState === "active" ? (
                         opponentProfile ? (
-                            <PlayerCard player={opponentProfile} />
+                            <>
+                                <div className="table-number">
+                                    <h2>Table Number: {tableNumber}</h2>
+                                </div>
+                                <PlayerCard player={opponentProfile} />
+                            </>
+
                         ) : (
                             <div className="status-message">
                                 <h2>No pair, waiting for next round...</h2>
                             </div>
                         )
+
                     ) : (
                         <div className="status-message">
                             {prevOpponentProfile ? (
