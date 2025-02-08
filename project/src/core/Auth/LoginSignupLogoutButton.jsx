@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import './LoginSignupLogoutButton.css';
 
 const LoginSignupLogoutButton = ({ user }) => {
     const navigate = useNavigate();
@@ -17,11 +18,11 @@ const LoginSignupLogoutButton = ({ user }) => {
                         Login
                         </button>
                         <button
-                        className="login-button"
+                        className="login-button bounce-animation"
                         onClick={() => navigate('/signup')}
                         style={{ borderColor: 'white', borderWidth: '1px', borderStyle: 'solid', borderRadius: '5px' }}
                         >
-                        Signup
+                        Sign Up
                         </button>
                     </div>
                     :

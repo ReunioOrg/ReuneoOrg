@@ -9,7 +9,7 @@ import LoginSignupLogoutButton from './core/Auth/LoginSignupLogoutButton';
 import PureSignupPage from './core/Auth/PureSignupPage';
 
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
-import backgroundVideo from './assets/bluespace_homevideo.mp4';
+import backgroundVideo from './assets/app_home_video.mp4';
 
 
 import { useNavigate } from 'react-router-dom';
@@ -39,17 +39,17 @@ const App = () => {
     <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
       {/* Background Video */}
       <video className="background-video" autoPlay loop muted playsInline>
-        <source src="/MeetFrontend/assets/bluespace_homevideo.mp4" type="video/mp4" />
+        <source src="/MeetFrontend/assets/app_home_video.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
       
       {/* Main App Content */}
       <div style={{ position: 'relative', zIndex: 1, color: 'white' }}>
-      <div style={{ position: 'absolute', top: '3rem', left: '50%', transform: 'translateX(-50%)' }}>
+      <div style={{ position: 'absolute', top: '2rem', left: '50%', transform: 'translateX(-50%)' }}>
         <img
-          src="/MeetFrontend/assets/Reunio-white-4K.png"
+          src="/MeetFrontend/assets/reunio-logo-with-depth.png"
           alt="Logo"
-          style={{width: '150px',height: '150px',objectFit: 'contain'}}
+          style={{width: '250px',height: '250px',objectFit: 'contain'}}
         />
       </div>
 
@@ -93,77 +93,145 @@ const App = () => {
         >
           {userProfile && userProfile.name ? (
             <div className="main-content">
-              <h3 style={{ color: '#ffffff', backgroundColor: 'rgba(0, 0, 0, 0.8)'}}>
+              <h3 style={{ 
+                color: '#ffffff', 
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                padding: '0.25rem 0.5rem',
+                display: 'inline-block',
+                borderRadius: '0.5rem'
+              }}>
                 Welcome {userProfile.name.length > 30 ? `${userProfile.name.slice(0, 15)}` : userProfile.name}, you've arrived!
               </h3>
             </div>
           ) : (
             user ? (
               <div className="main-content">
-                <h3 style={{color: '#ffffff', backgroundColor: 'rgba(0, 0, 0, 0.8)'}}>
+                <h3 style={{
+                  color: '#ffffff', 
+                  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                  padding: '0.25rem 0.5rem',
+                  display: 'inline-block',
+                  borderRadius: '0.5rem'
+                }}>
                   Please create your profile using the profile button →</h3>
               </div>
             ) : (
-              <div className="main-content" style={{backgroundColor: 'rgba(0, 0, 0, 0.8)'}}>
-                <h3 style={{color: '#ffffff' }}>
-                  Welcome! Signup with a username, password, and display name ↗</h3>
+              <div className="main-content">
+                
               </div>
             )
           )}
         </div>
 
-        <div className="events-list" style={{ marginTop: '2rem', width: '94%', marginLeft: 'auto', marginRight: 'auto' }}>
-          <h2 style={{ textAlign: 'center', width: '100%', color: '#ffffff' }}>
+        <div className="events-list" style={{ marginTop: '5rem', width: '94%', marginLeft: 'auto', marginRight: 'auto' }}>
+          <h2 style={{ 
+            textAlign: 'center', 
+            width: '100%', 
+            color: '#ffffff',
+            fontSize: '2.2em',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+            marginBottom: '.25rem'
+          }}>
             Active Lobbies
           </h2>
           <div
             className="event-item"
             style={{
-              width: '85%',
-              maxWidth: '600px',
+              width: '50%', // Reduced from 70%
+              maxWidth: '400px', // Reduced from 500px
               margin: '0 auto',
-              padding: '20px',
-              backgroundColor: 'white',
-              borderRadius: '8px',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              padding: '15px', // Reduced from 20px
+              background: '#ffffff',
+              borderRadius: '16px',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
               marginBottom: '20px',
-              border: '1px solid #ccc',
+              border: '1px solid rgba(255, 255, 255, 0.5)',
+              transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+              cursor: 'pointer',
+              ':hover': {
+                transform: 'translateY(-5px)'
+              }
             }}
           >
             <p
               style={{
-                margin: '0 0 0px 0',
-                color: 'black',
-                fontWeight: 'bold',
-                fontSize: '1.2em',
+                margin: '0 0 8px 0',
+                color: '#2d3748',
+                fontWeight: '600',
+                fontSize: '1.1em',
+                letterSpacing: '0.5px'
               }}
             >
-              Speed Networking 1
+              
             </p>
             <p
               style={{
-                margin: '0 0 0px 0',
-                color: 'blue',
-                fontWeight: 'bold',
-                fontSize: '.8em',
+                margin: '0 0 15px 0',
+                color: '#4299e1',
+                fontWeight: '500',
+                fontSize: '0.9em',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
               }}
             >
+              <span style={{
+                display: 'inline-block',
+                width: '8px',
+                height: '8px',
+                backgroundColor: '#4299e1',
+                borderRadius: '50%',
+                marginRight: '5px'
+              }}></span>
               {lobby_state === 'terminate' ? 'Lobby closed' : `${player_count} in lobby`}
             </p>
-            <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: '12px', 
+              flexDirection: 'column' 
+            }}>
               <button 
                 className="primary-button" 
                 onClick={() => navigate('/lobby')}
                 disabled={player_count === null || lobby_state === 'terminate'}
                 style={{
                   opacity: (player_count === null || lobby_state === 'terminate') ? 0.5 : 1,
-                  cursor: (player_count === null || lobby_state === 'terminate') ? 'not-allowed' : 'pointer'
+                  cursor: (player_count === null || lobby_state === 'terminate') ? 'not-allowed' : 'pointer',
+                  padding: '12px 24px',
+                  backgroundColor: '#144dff',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  transition: 'all 0.2s ease',
+                  ':hover': {
+                    backgroundColor: '#535bf2',
+                    transform: 'scale(1.02)'
+                  }
                 }}
               >
                 Join Event
               </button>
               {permissions === 'admin' && (
-                <button className="primary-button" onClick={() => navigate('/admin_lobby_view')}>
+                <button 
+                  className="primary-button" 
+                  onClick={() => navigate('/admin_lobby_view')}
+                  style={{
+                    padding: '12px 24px',
+                    backgroundColor: '#2d3748',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    transition: 'all 0.2s ease',
+                    ':hover': {
+                      backgroundColor: '#1a202c',
+                      transform: 'scale(1.02)'
+                    }
+                  }}
+                >
                   Admin Lobby View
                 </button>
               )}
