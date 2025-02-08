@@ -49,7 +49,7 @@ const App = () => {
         <img
           src="/MeetFrontend/assets/reunio-logo-with-depth.png"
           alt="Logo"
-          style={{width: '250px',height: '250px',objectFit: 'contain'}}
+          style={{width: '300px',height: '300px',objectFit: 'contain'}}
         />
       </div>
 
@@ -87,15 +87,15 @@ const App = () => {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            marginTop: '38%',
+            marginTop: '50%',
             textAlign: 'center',
           }}
         >
-          {userProfile && userProfile.name ? (
+          {user && userProfile && userProfile.name && (
             <div className="main-content">
               <h3 style={{ 
                 color: '#ffffff', 
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                backgroundColor: 'rgba(0, 122, 255, 0.5)',
                 padding: '0.25rem 0.5rem',
                 display: 'inline-block',
                 borderRadius: '0.5rem'
@@ -103,38 +103,21 @@ const App = () => {
                 Welcome {userProfile.name.length > 30 ? `${userProfile.name.slice(0, 15)}` : userProfile.name}, you've arrived!
               </h3>
             </div>
-          ) : (
-            user ? (
-              <div className="main-content">
-                <h3 style={{
-                  color: '#ffffff', 
-                  backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                  padding: '0.25rem 0.5rem',
-                  display: 'inline-block',
-                  borderRadius: '0.5rem'
-                }}>
-                  Please create your profile using the profile button →</h3>
-              </div>
-            ) : (
-              <div className="main-content">
-                
-              </div>
-            )
           )}
         </div>
 
-        <div className="events-list" style={{ marginTop: '5rem', width: '94%', marginLeft: 'auto', marginRight: 'auto' }}>
+        <div className="events-list" style={{ marginTop: '2.5rem', width: '94%', marginLeft: 'auto', marginRight: 'auto' }}>
           <h2 style={{ 
             textAlign: 'center', 
             width: '100%', 
             color: '#ffffff',
-            fontSize: '2.2em',
+            fontSize: '1.2em',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
-            textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-            marginBottom: '.25rem'
+            textShadow: '4px 4px 8px rgba(0,0,0,0.75)', // Enhanced shadow
+            marginBottom: '1rem'
           }}>
-            Active Lobbies
+            Pair up with new friends
           </h2>
           <div
             className="event-item"
