@@ -1,4 +1,19 @@
+@keyframes jump {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-5px);
+  }
+  60% {
+    transform: translateY(-3px);
+  }
+}
 
+.glow-button {
+  box-shadow: 0 0 10px #144dff, 0 0 20px #144dff, 0 0 30px #144dff;
+  animation: jump 2.5s infinite;
+}
 .logo {
   height: 6em;
   padding: 1.5em;
