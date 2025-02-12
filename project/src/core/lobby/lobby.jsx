@@ -8,13 +8,17 @@ import './lobby.css';
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 
 const AVAILABLE_TAGS = [
-    "Founder",
-    "Business",
-    "Engineer",
-    "Artist or Designer",
-    "Sales or Marketing",
-    "Finance",
-    "Law"
+    "Founder 👑",
+    "Software Engineer 💻",
+    "Content Creator 📸",
+    "Business 💼",
+    "AI 🤖",
+    "Engineer 🛠️",
+    "Artist or Designer 🎨",
+    "Investor 💰",
+    "Sales or Marketing 📢",
+    "Finance 💰",
+    "Law ⚖️"
 ];
 
 
@@ -273,10 +277,27 @@ const LobbyScreen = () => {
     return (
         <div className="lobby-container">
             <div className="lobby-content">
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    marginBottom: '0',
+                    marginTop: '0.5rem'
+                }}>
+                    <img 
+                        src="/MeetFrontend/assets/Reunio-color-4K.png"
+                        alt="Reunio Logo"
+                        style={{
+                            maxWidth: '100px',
+                            height: 'auto',
+                            objectFit: 'contain'
+                        }}
+                    />
+                </div>
+
                 <div className="lobby-header">
-                    <h1>
+                    <h2>
                         {lobbyState === "checkin" ? (
-                            "Youre in! Please wait for your Host to start the session."
+                            "You're in! Please wait for your Host to start the session."
                         ) : lobbyState === "active" ? (
                             opponentName 
                                 ? `Pair up with ${opponentName}`
@@ -288,56 +309,51 @@ const LobbyScreen = () => {
                         ) : (
                             "Please wait for the next round to start"
                         )}
-                    </h1>
+                    </h2>
                 </div>
-                <div className="time-left" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'white'}}>
-                    {((lobbyState === "checkin" || lobbyState === "active" || lobbyState === "interrim") && roundTimeLeft) ? (
-                        <>
-                            <CountdownCircleTimer
-                                key={`${lobbyState}-${Math.floor(roundTimeLeft)}`}
-                                isPlaying={lobbyState === "active"}
-                                duration={300}
-                                initialRemainingTime={roundTimeLeft}
-                                colors={["#144dff"]} 
-                                size={100}
-                                strokeWidth={10}
-                                trailColor="#f5f7ff"
-                                onComplete={() => {
-                                    return { shouldRepeat: false }
-                                }}
-                            >
-                                {({ remainingTime }) => (
-                                    <span style={{ fontSize: '1.2rem', color: '#144dff', fontWeight: 600 }}>
-                                        {Math.ceil(remainingTime)}s
-                                    </span>
+                {lobbyState !== "checkin" && (
+                    <div className="time-left" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'white'}}>
+                        {((lobbyState === "active" || lobbyState === "interrim") && roundTimeLeft) ? (
+                            <>
+                                <CountdownCircleTimer
+                                    key={`${lobbyState}-${Math.floor(roundTimeLeft)}`}
+                                    isPlaying={lobbyState === "active"}
+                                    duration={300}
+                                    initialRemainingTime={roundTimeLeft}
+                                    colors={["#144dff"]} 
+                                    size={105}
+                                    strokeWidth={10}
+                                    trailColor="#f5f7ff"
+                                    onComplete={() => {
+                                        return { shouldRepeat: false }
+                                    }}
+                                >
+                                    {({ remainingTime }) => (
+                                        <span style={{ fontSize: '1.2rem', color: '#144dff', fontWeight: 600 }}>
+                                            {Math.ceil(remainingTime)}s
+                                        </span>
+                                    )}
+                                </CountdownCircleTimer>
+                                {/* <span style={{color: '#144dff'}}>{parseInt(roundTimeLeft)}s</span> */}
+                                <span style={{ fontSize: '0.9em', marginTop: '4px', opacity: '0.8', color: '#144dff' }}>time remaining</span>
+                                <div style={{ height: '12px' }}></div>
+                                {opponentProfile && (
+                                    <div className="table-number">
+                                        <h3>Go to table number: {tableNumber}</h3>
+                                    </div>
                                 )}
-                            </CountdownCircleTimer>
-                            {/* <span style={{color: '#144dff'}}>{parseInt(roundTimeLeft)}s</span> */}
-                            <span style={{ fontSize: '0.9em', marginTop: '4px', opacity: '0.8', color: '#144dff' }}>time remaining</span>
-                        </>
-                    ) : (
-                        <span className="time-left-text"></span>
-                    )}
-                </div>
-                <div className="player-section">
+                            </>
+                        ) : (
+                            <span className="time-left-text"></span>
+                        )}
+                    </div>
+                )}
+                <div>
                     {(lobbyState === "active" || lobbyState === "interrim") ? (
                         opponentProfile ? (
-                            <>
-                                <div className="table-number">
-                                    <h2>Table Number: {tableNumber}</h2>
-                                </div>
-                                <div style={{ 
-                                    width: '100%', 
-                                    maxWidth: '500px', 
-                                    margin: '0 auto',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }}>
-                                    <PlayerCard player={opponentProfile} />
-                                </div>
-                            </>
-
+                            <div style={{marginTop: '-2rem'}}>
+                                <PlayerCard player={opponentProfile} />
+                            </div>
                         ) : (
                            <>
                            
@@ -352,57 +368,80 @@ const LobbyScreen = () => {
                         )
 
                     ) : (
-                        <div className="status-message">
-                            <h2>Please wait for your Host to start the session</h2>
-                        </div>
+                        lobbyState === "terminated" ? (
+                            <div className="status-message">
+                                <h2>This session has ended.
+                                <br />Thank you for participating!</h2>
+                            </div>
+                        ) : null
                     )}
                 </div>
                 <button className="leave-lobby-button" onClick={leaveLobby}>Leave Lobby</button>
-                <div className="top-buttons">
-                    <button className="secondary-button" onClick={loadSound}>
-                        {soundEnabled ? 'Sound On' : 'Sound Off'}
-                    </button>
-                    <button className="primary-button" onClick={test_fetch}>test</button>
-                </div>
 
                 <form onSubmit={(e) => {
                     e.preventDefault();
                     define_profile_info(selfTags.join(','), desiringTags.join(','));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}>
-                    <div className="tags-section">
+                    <div className="tags-section">  
                         <div className="tag-group">
-                            <h3>Who do you do?</h3>
-                            {AVAILABLE_TAGS.map(tag => (
-                                <label key={`self-${tag}`} className="tag-label">
-                                    <input
-                                        type="checkbox"
-                                        checked={selfTags.includes(tag)}
-                                        onChange={() => handleTagChange('self', tag)}
-                                    />
-                                    {tag}
-                                </label>
-                            ))}
+                            <div className="bounce-wrapper">
+                                <h3>Help us match you with the right people.</h3>
+                            </div>
+                            <div className="bounce-wrapper">
+                                <h3>What do you do?</h3>
+                            </div>
+                            <div className="tag-labels-container">
+                                {AVAILABLE_TAGS.map(tag => (
+                                    <label key={`self-${tag}`} className="tag-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={selfTags.includes(tag)}
+                                            onChange={() => handleTagChange('self', tag)}
+                                        />
+                                        {tag}
+                                    </label>
+                                ))}
+                            </div>
                         </div>
                         <div className="tag-group">
-                            <h3>Looking For?</h3>
-                            {AVAILABLE_TAGS.map(tag => (
-                                <label key={`desiring-${tag}`} className="tag-label">
-                                    <input
-                                        type="checkbox"
-                                        checked={desiringTags.includes(tag)}
-                                        onChange={() => handleTagChange('desiring', tag)}
-                                    />
-                                    {tag}
-                                </label>
-                            ))}
+                            <div className="bounce-wrapper">
+                                <h3>What are you looking for?</h3>
+                            </div>
+                            <div className="tag-labels-container">
+                                {AVAILABLE_TAGS.map(tag => (
+                                    <label key={`desiring-${tag}`} className="tag-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={desiringTags.includes(tag)}
+                                            onChange={() => handleTagChange('desiring', tag)}
+                                        />
+                                        {tag}
+                                    </label>
+                                ))}
+                            </div>
                         </div>
                     </div>
                     <div className="button-group">
                         <button className="primary-button" type="submit">
-                            Define Profile
+                            Save Profile
                         </button>
                     </div>
                 </form>
+
+                <div className="bottom-buttons" style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '1rem',
+                    marginTop: '1rem',
+                    flexWrap: 'wrap',
+                    padding: '0 1rem'
+                }}>
+                    {/* <button className="primary-button" onClick={test_fetch}>test</button> */}
+                    <button className="secondary-button" onClick={loadSound}>
+                        {soundEnabled ? 'Sound On' : 'Sound Off'}
+                    </button>
+                </div>
             </div>
 
             {(soundEnabled || !showSoundPrompt) ? null : <SoundPrompt />}

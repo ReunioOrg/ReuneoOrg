@@ -41,7 +41,7 @@
     font-size: 3.5em;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    text-shadow: 4px 4px 8px rgba(88, 83, 245, 0.4);
+    text-shadow: 4px 4px 8px rgb(255, 255, 255);
     margin-bottom: 1rem;
     font-weight: bold;
     font-family: Helvetica, Arial, sans-serif;
