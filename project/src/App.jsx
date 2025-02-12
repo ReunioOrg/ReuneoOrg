@@ -45,7 +45,7 @@ const App = () => {
       
       {/* Main App Content */}
       <div style={{ position: 'relative', zIndex: 1, color: 'white' }}>
-      <div style={{ position: 'absolute', top: '2rem', left: '50%', transform: 'translateX(-50%)' }}>
+      <div style={{ position: 'absolute', top: '.5rem', left: '50%', transform: 'translateX(-50%)' }}>
         <img
           src="/MeetFrontend/assets/reunio-logo-with-depth.png"
           alt="Logo"
@@ -180,10 +180,10 @@ const App = () => {
               <button 
                 className="primary-button" 
                 onClick={() => navigate('/lobby')}
-                disabled={player_count === null || lobby_state === 'terminate'}
+                disabled={!user || player_count === null || lobby_state === 'terminate'}
                 style={{
-                  opacity: (player_count === null || lobby_state === 'terminate') ? 0.5 : 1,
-                  cursor: (player_count === null || lobby_state === 'terminate') ? 'not-allowed' : 'pointer',
+                  opacity: (!user || player_count === null || lobby_state === 'terminate') ? 1 : 1,
+                  cursor: (!user || player_count === null || lobby_state === 'terminate') ? 'not-allowed' : 'pointer',
                   padding: '12px 24px',
                   backgroundColor: '#144dff',
                   color: 'white',
@@ -197,7 +197,7 @@ const App = () => {
                   }
                 }}
               >
-                Join Event
+                {!user ? 'Signup to Join' : 'Join Event'}
               </button>
               {permissions === 'admin' && (
                 <button 
