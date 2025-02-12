@@ -31,15 +31,40 @@ const PureSignupPage = () => {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setProfileImage(file);
-            // Create preview URL
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Calculate new dimensions maintaining aspect ratio
+                    let width = img.width;
+                    let height = img.height;
+                    const maxDimension = 1500;
+
+                    if (width > height && width > maxDimension) {
+                        height = (height * maxDimension) / width;
+                        width = maxDimension;
+                    } else if (height > width && height > maxDimension) {
+                        width = (width * maxDimension) / height;
+                        height = maxDimension;
+                    }
+
+                    // Create canvas and resize image
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Convert to base64 and set states
+                    const resizedImage = canvas.toDataURL('image/jpeg', 0.75);
+                    setProfileImage(file);
+                    setImagePreview(resizedImage);
+                    setIsCropping(true);
+                };
+                img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         }
-        setIsCropping(true);
     };
     
     const handleCropComplete = (croppedArea, croppedAreaPixels) => {
@@ -97,17 +122,20 @@ const PureSignupPage = () => {
             // 4️⃣ Convert the image to base64 before sending
             let base64Image = null;
             if (profileImage) {
-                if (isCropping && cropArea) {
-                    // Convert cropped image to base64
-                    base64Image = await getCroppedImg(imagePreview, cropArea);
-                    base64Image = base64Image.split(',')[1]; // Remove the "data:image/jpeg;base64," prefix
-                } else {
-                    // Convert the original image to base64
-                    const imageBuffer = await profileImage.arrayBuffer();
-                    base64Image = btoa(
-                        new Uint8Array(imageBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
-                    );
-                }
+                base64Image=imagePreview;
+                base64Image = base64Image.split(',')[1];
+                // if (isCropping && cropArea) {
+                //     // Convert cropped image to base64
+                //     //base64Image = await getCroppedImg(imagePreview, cropArea);
+                //     //base64Image = base64Image.split(',')[1]; // Remove the "data:image/jpeg;base64," prefix
+                //     base64Image=imagePreview;
+                // } else {
+                //     // Convert the original image to base64
+                //     const imageBuffer = await profileImage.arrayBuffer();
+                //     base64Image = btoa(
+                //         new Uint8Array(imageBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+                //     );
+                //}
             } else {
                 // 5️⃣ If no image is uploaded, use the default "fakeprofile.png"
                 const response = await fetch('/assets/fakeprofile.png');
@@ -179,7 +207,7 @@ const PureSignupPage = () => {
             >
                 Home
             </button>
-            
+
             <img 
                 src="/MeetFrontend/assets/Reunio-color-4K.png"
                 alt="Reunio Logo"
@@ -191,7 +219,7 @@ const PureSignupPage = () => {
                     objectFit: 'contain'
                 }}
             />
-            
+
             <h1 className="signup-header" style={{
                 fontSize: 'clamp(1.8rem, 6vw, 2.5rem)',
                 marginTop: '0.5rem',
