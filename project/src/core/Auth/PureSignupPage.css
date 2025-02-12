@@ -1,0 +1,86 @@
+.bounce-animation {
+    animation: bounce 1s infinite;
+    transition: all 0.8s ease;
+}
+
+@keyframes bounce {
+    0%, 100% { 
+        transform: translateY(0); 
+    }
+    50% { 
+        transform: translateY(-10px); 
+    }
+}
+
+@keyframes textGlow {
+    0%, 70% {
+        text-shadow: 0 0 4px rgba(255, 255, 255, 0.7),
+                    0 0 8px rgba(255, 255, 255, 0.7),
+                    0 0 12px rgba(255, 255, 255, 0.7);
+    }
+    50% {
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.9),
+                    0 0 16px rgba(255, 255, 255, 0.9),
+                    0 0 24px rgba(255, 255, 255, 0.9);
+    }
+}
+
+.primary-button {
+    transition: all 0.3s ease;
+}
+
+.bounce-animation {
+    animation: bounce 1s infinite, textGlow 2s infinite;
+}
+
+
+.signup-header {
+    text-align: center;
+    width: 100%;
+    color: #144dff;
+    font-size: 3.5em;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-shadow: 4px 4px 8px rgba(88, 83, 245, 0.4);
+    margin-bottom: 1rem;
+    font-weight: bold;
+    font-family: Helvetica, Arial, sans-serif;
+    position: relative;
+}
+
+.homescreen-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 10px 20px;
+    background-color: #144dff;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    color: #ffffff;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.homescreen-button:hover {
+    background-color: #e9ecef;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.signup-container {
+    padding-top: 60px; /* Add space for the absolute positioned button */
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    color: #495057;
+    font-size: 1rem;
+}

@@ -129,7 +129,7 @@ const AdminLobbyView = () => {
 
 
             <div>
-                <h2>Lobby Timer: {lobbyTimer} for {lobbyState}</h2>
+                <h2>Lobby Timer: {Math.floor(lobbyTimer)} for {lobbyState}</h2>
                 <div>
                     <h3>Lobby Stats:</h3>
                     <h3>Total Players: {(lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0)}</h3>

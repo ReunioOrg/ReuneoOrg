@@ -4,6 +4,8 @@ import usePlaySound from '../playsound';
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PlayerCard from './playerCard';
+import './lobby.css';
+import { CountdownCircleTimer } from "react-countdown-circle-timer";
 
 const AVAILABLE_TAGS = [
     "Founder",
@@ -274,12 +276,38 @@ const LobbyScreen = () => {
                 <div className="lobby-header">
                     <h1>
                         {lobbyState === "active" 
-                            ? "Round: Active\n"
+                            ? opponentName 
+                                ? `Pair up with ${opponentName}`
+                                : "You will be paired with someone in the next round."
                             : lobbyState === "checkin"
-                                ? "You are checked in, waiting for rounds to start"
-                                : "Waiting for Next Round"}
-                        {lobbyState !== "checkin" && roundTimeLeft && <span className="time-left">Time Left: {parseInt(roundTimeLeft)}s</span>}
+                                ? "You made it. Get ready to pair up!"
+                                : "Please wait for the next round to start"}
                     </h1>
+                    {lobbyState !== "checkin" && roundTimeLeft && (
+                        <div className="time-left" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'white'}}>
+                            <CountdownCircleTimer
+                                key={`${lobbyState}-${Math.floor(roundTimeLeft)}`}
+                                isPlaying={lobbyState === "active"}
+                                duration={300}
+                                initialRemainingTime={roundTimeLeft}
+                                colors={["#144dff"]} 
+                                size={100}
+                                strokeWidth={10}
+                                trailColor="#f5f7ff"
+                                onComplete={() => {
+                                    return { shouldRepeat: false }
+                                }}
+                            >
+                                {({ remainingTime }) => (
+                                    <span style={{ fontSize: '1.2rem', color: '#144dff', fontWeight: 600 }}>
+                                        {Math.ceil(remainingTime)}s
+                                    </span>
+                                )}
+                            </CountdownCircleTimer>
+                            {/* <span style={{color: '#144dff'}}>{parseInt(roundTimeLeft)}s</span> */}
+                            <span style={{ fontSize: '0.9em', marginTop: '4px', opacity: '0.8', color: '#144dff' }}>time remaining</span>
+                        </div>
+                    )}
                 </div>
 
                 <div className="player-section">
@@ -294,68 +322,66 @@ const LobbyScreen = () => {
 
                         ) : (
                             <div className="status-message">
-                                <h2>No pair, waiting for next round...</h2>
+                                <h2>
+                                {prevOpponentProfile ? 
+                                 `Previous round was with ${prevOpponentProfile.name}` :
+                                 'Get ready to meet someone new!'}
+                                </h2>
                             </div>
                         )
 
                     ) : (
                         <div className="status-message">
-                            {prevOpponentProfile ? (
-                                <h2>Previous round was with {prevOpponentProfile.name}</h2>
-                            ) : (
-                                <h2>Get ready for your first round!</h2>
-                            )}
+                            <h2>Please wait for your Host to start the session</h2>
                         </div>
                     )}
                 </div>
-
-                <div className="button-group">
-                    <button className="primary-button" onClick={leaveLobby}>Leave Lobby</button>
+                <button className="leave-lobby-button" onClick={leaveLobby}>Leave Lobby</button>
+                <div className="top-buttons">
                     <button className="secondary-button" onClick={loadSound}>
                         {soundEnabled ? 'Sound On' : 'Sound Off'}
                     </button>
+                    <button className="primary-button" onClick={test_fetch}>test</button>
+                </div>
 
-                    <button className="primary-button" onClick={test_fetch}>
-                        test
-                    </button>
-
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-                        define_profile_info(selfTags.join(','), desiringTags.join(','));
-                    }}>
-                        <div className="tags-section">
-                            <div className="tag-group">
-                                <h3>Who do you do?</h3>
-                                {AVAILABLE_TAGS.map(tag => (
-                                    <label key={`self-${tag}`} className="tag-label">
-                                        <input
-                                            type="checkbox"
-                                            checked={selfTags.includes(tag)}
-                                            onChange={() => handleTagChange('self', tag)}
-                                        />
-                                        {tag}
-                                    </label>
-                                ))}
-                            </div>
-                            <div className="tag-group">
-                                <h3>Looking For?</h3>
-                                {AVAILABLE_TAGS.map(tag => (
-                                    <label key={`desiring-${tag}`} className="tag-label">
-                                        <input
-                                            type="checkbox"
-                                            checked={desiringTags.includes(tag)}
-                                            onChange={() => handleTagChange('desiring', tag)}
-                                        />
-                                        {tag}
-                                    </label>
-                                ))}
-                            </div>
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+                    define_profile_info(selfTags.join(','), desiringTags.join(','));
+                }}>
+                    <div className="tags-section">
+                        <div className="tag-group">
+                            <h3>Who do you do?</h3>
+                            {AVAILABLE_TAGS.map(tag => (
+                                <label key={`self-${tag}`} className="tag-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={selfTags.includes(tag)}
+                                        onChange={() => handleTagChange('self', tag)}
+                                    />
+                                    {tag}
+                                </label>
+                            ))}
                         </div>
+                        <div className="tag-group">
+                            <h3>Looking For?</h3>
+                            {AVAILABLE_TAGS.map(tag => (
+                                <label key={`desiring-${tag}`} className="tag-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={desiringTags.includes(tag)}
+                                        onChange={() => handleTagChange('desiring', tag)}
+                                    />
+                                    {tag}
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="button-group">
                         <button className="primary-button" type="submit">
                             Define Profile
                         </button>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
 
             {(soundEnabled || !showSoundPrompt) ? null : <SoundPrompt />}

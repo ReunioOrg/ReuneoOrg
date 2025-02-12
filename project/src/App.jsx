@@ -55,19 +55,21 @@ const App = () => {
 
         <div style = {{marginTop: '10%',display: 'flex',flexDirection: 'column'}}>
         <LoginSignupLogoutButton user={user}/>
-        <button
-          style={{
-            position: 'absolute',
-            top: '3.5rem',
-            right: '3%',
-            width: '25%',
-            gap: '1rem',
-          }}
-          className="profile-button"
-          onClick={() => setShowProfileCreation(true)}
-        >
-          Profile
-        </button>
+        {user && (  // Only render the Profile button if user exists
+          <button
+            style={{
+              position: 'absolute',
+              top: '3.5rem',
+              right: '3%',
+              width: '25%',
+              gap: '1rem',
+            }}
+            className="profile-button"
+            onClick={() => setShowProfileCreation(true)}
+          >
+            Profile
+          </button>
+        )}
         </div>
         
         {showProfileCreation && (

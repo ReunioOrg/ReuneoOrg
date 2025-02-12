@@ -185,3 +185,59 @@ button {
     background-color: #003d80;
   }
 }
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    text-shadow: 0 0 5px #fff,
+                 0 0 10px #fff,
+                 0 0 15px #fff;
+  }
+  50% {
+    text-shadow: 0 0 10px #fff,
+                 0 0 20px #fff,
+                 0 0 30px #fff;
+  }
+}
+
+.save-profile-button.glow-bounce {
+  animation: bounce 1s ease-in-out infinite, glow 1s ease-in-out infinite;
+ 
+}
+
+/* Remove the animation when hovering */
+.save-profile-button.glow-bounce:hover {
+  animation: none;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(20,77,255,0.3);
+}
+
+.save-button {
+  padding: 1rem;
+  background: linear-gradient(45deg, #144dff, #2979ff);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+}
+
+.save-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(20,77,255,0.3);
+}
+
+.save-button-active {
+  animation: bounce 2s infinite, glow 2s infinite;
+}
