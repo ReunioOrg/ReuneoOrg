@@ -275,16 +275,24 @@ const LobbyScreen = () => {
             <div className="lobby-content">
                 <div className="lobby-header">
                     <h1>
-                        {lobbyState === "active" 
-                            ? opponentName 
+                        {lobbyState === "checkin" ? (
+                            "Youre in! Please wait for your Host to start the session."
+                        ) : lobbyState === "active" ? (
+                            opponentName 
                                 ? `Pair up with ${opponentName}`
                                 : "You will be paired with someone in the next round."
-                            : lobbyState === "checkin"
-                                ? "You made it. Get ready to pair up!"
-                                : "Please wait for the next round to start"}
+                        ) : lobbyState === "interrim" ? (
+                            "Get ready for the next round!"
+                        ) : lobbyState === "terminate" ? (
+                            "This session has ended. Thank you for participating!"
+                        ) : (
+                            "Please wait for the next round to start"
+                        )}
                     </h1>
-                    {lobbyState !== "checkin" && roundTimeLeft && (
-                        <div className="time-left" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'white'}}>
+                </div>
+                <div className="time-left" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'white'}}>
+                    {((lobbyState === "checkin" || lobbyState === "active" || lobbyState === "interrim") && roundTimeLeft) ? (
+                        <>
                             <CountdownCircleTimer
                                 key={`${lobbyState}-${Math.floor(roundTimeLeft)}`}
                                 isPlaying={lobbyState === "active"}
@@ -306,28 +314,41 @@ const LobbyScreen = () => {
                             </CountdownCircleTimer>
                             {/* <span style={{color: '#144dff'}}>{parseInt(roundTimeLeft)}s</span> */}
                             <span style={{ fontSize: '0.9em', marginTop: '4px', opacity: '0.8', color: '#144dff' }}>time remaining</span>
-                        </div>
+                        </>
+                    ) : (
+                        <span className="time-left-text"></span>
                     )}
                 </div>
-
                 <div className="player-section">
-                    {lobbyState === "active" ? (
+                    {(lobbyState === "active" || lobbyState === "interrim") ? (
                         opponentProfile ? (
                             <>
                                 <div className="table-number">
                                     <h2>Table Number: {tableNumber}</h2>
                                 </div>
-                                <PlayerCard player={opponentProfile} />
+                                <div style={{ 
+                                    width: '100%', 
+                                    maxWidth: '500px', 
+                                    margin: '0 auto',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                }}>
+                                    <PlayerCard player={opponentProfile} />
+                                </div>
                             </>
 
                         ) : (
-                            <div className="status-message">
-                                <h2>
-                                {prevOpponentProfile ? 
-                                 `Previous round was with ${prevOpponentProfile.name}` :
-                                 'Get ready to meet someone new!'}
-                                </h2>
-                            </div>
+                           <>
+                           
+                           </>
+                            // {/* <div className="status-message">
+                            //     <h2>
+                            //     {prevOpponentProfile ? 
+                            //      `Previous round was with ${prevOpponentProfile.name}` :
+                            //      'Get ready to meet someone new!'}
+                            //     </h2>
+                            // </div> */}
                         )
 
                     ) : (

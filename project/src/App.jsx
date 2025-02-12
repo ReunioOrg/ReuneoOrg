@@ -180,10 +180,10 @@ const App = () => {
               <button 
                 className="primary-button" 
                 onClick={() => navigate('/lobby')}
-                disabled={player_count === null || lobby_state === 'terminate'}
+                disabled={player_count === null || lobby_state === 'terminate' || !user}
                 style={{
-                  opacity: (player_count === null || lobby_state === 'terminate') ? 0.5 : 1,
-                  cursor: (player_count === null || lobby_state === 'terminate') ? 'not-allowed' : 'pointer',
+                  opacity: (player_count === null || lobby_state === 'terminate' || !user) ? 0.8 : 1,
+                  cursor: (player_count === null || lobby_state === 'terminate' || !user) ? 'not-allowed' : 'pointer',
                   padding: '12px 24px',
                   backgroundColor: '#144dff',
                   color: 'white',

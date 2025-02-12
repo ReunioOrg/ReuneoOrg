@@ -48,6 +48,13 @@
     display: inline-block;
     box-shadow: 0 4px 15px rgba(20, 77, 255, 0.2);
 }
+.time-left-text {
+    color: #144dff;
+    padding: 0.5rem 1.5rem;
+    margin-left: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
 
 .player-section {
     background: white;
