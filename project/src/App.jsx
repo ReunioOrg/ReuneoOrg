@@ -39,7 +39,7 @@ const App = () => {
     <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
       {/* Background Video */}
       <video className="background-video" autoPlay loop muted playsInline>
-        <source src="/MeetFrontend/assets/app_home_video.mp4" type="video/mp4" />
+        <source src="/assets/app_home_video.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
       
@@ -47,7 +47,7 @@ const App = () => {
       <div style={{ position: 'relative', zIndex: 1, color: 'white' }}>
       <div style={{ position: 'absolute', top: '.5rem', left: '50%', transform: 'translateX(-50%)' }}>
         <img
-          src="/MeetFrontend/assets/reunio-logo-with-depth.png"
+          src="/assets/reunio-logo-with-depth.png"
           alt="Logo"
           style={{width: '300px',height: '300px',objectFit: 'contain'}}
         />

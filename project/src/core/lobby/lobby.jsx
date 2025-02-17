@@ -284,7 +284,7 @@ const LobbyScreen = () => {
                     marginTop: '0.5rem'
                 }}>
                     <img 
-                        src="/MeetFrontend/assets/Reunio-color-4K.png"
+                        src="/assets/Reunio-color-4K.png"
                         alt="Reunio Logo"
                         style={{
                             maxWidth: '100px',

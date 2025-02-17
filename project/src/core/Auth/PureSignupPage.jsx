@@ -209,7 +209,7 @@ const PureSignupPage = () => {
             </button>
 
             <img 
-                src="/MeetFrontend/assets/Reunio-color-4K.png"
+                src="/assets/Reunio-color-4K.png"
                 alt="Reunio Logo"
                 style={{
                     width: 'auto',
