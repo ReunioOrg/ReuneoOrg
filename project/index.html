@@ -27,7 +27,7 @@
         var query = window.location.search;
         if (query.includes('?p=/')) {
           var path = query.split('?p=/')[1];
-          window.history.replaceState(null, null, '/MeetFrontend/' + path);
+          window.history.replaceState(null, null, '/' + path);
         }
       })();
     </script>
