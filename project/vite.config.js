@@ -5,7 +5,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   assetsInclude: ['**/*.mp3', '**/*.mp4'],
-  base: '/MeetFrontend/',
+  //base: '/MeetFrontend/',
+  base: '/',
   // base: '192.168.1.70:8080/',
   server: {
     host: true,

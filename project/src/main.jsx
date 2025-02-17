@@ -13,7 +13,7 @@ import PureSignupPage from './core/Auth/PureSignupPage.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
-      <Router basename="/MeetFrontend">
+      <Router basename="/">
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/login" element={<LoginSignupPage />} />
