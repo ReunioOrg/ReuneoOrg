@@ -303,3 +303,22 @@
         flex: 0 0 100%; /* Full width on mobile */
     }
 } 
+
+.timer-glow {
+    filter: drop-shadow(0 0 15px rgba(20, 77, 255, 0.8)); /* Blue Glow */
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+    }
+    50% {
+      transform: scale(1.1);
+      text-shadow: 0 0 20px rgba(255, 0, 0, 1);
+    }
+    100% {
+      transform: scale(1);
+      text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+    }
+  }

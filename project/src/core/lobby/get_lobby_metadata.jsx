@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 
+const fetchLobbyDataTime=5000;
+
 const useGetLobbyMetadata = (setPlayerCount, setLobbyState) => {
   useEffect(() => {
     const fetchLobbyMetadata = async () => {
@@ -13,7 +15,7 @@ const useGetLobbyMetadata = (setPlayerCount, setLobbyState) => {
 
     fetchLobbyMetadata(); // Initial fetch
     
-    const interval = setInterval(fetchLobbyMetadata, 1000); // Fetch every second
+    const interval = setInterval(fetchLobbyMetadata, fetchLobbyDataTime); // Fetch every 5 second
 
     return () => clearInterval(interval); // Cleanup on unmount
   }, [setPlayerCount, setLobbyState]);

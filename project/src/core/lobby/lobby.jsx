@@ -8,18 +8,20 @@ import './lobby.css';
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 
 const AVAILABLE_TAGS = [
-    "Founder 👑",
-    "Software Engineer 💻",
-    "Content Creator 📸",
-    "Business 💼",
-    "AI 🤖",
-    "Engineer 🛠️",
-    "Artist or Designer 🎨",
-    "Investor 💰",
-    "Sales or Marketing 📢",
-    "Finance 💰",
-    "Law ⚖️"
+    "Founder",
+    "Software Engineer",
+    "Content Creator",
+    "Business",
+    "AI",
+    "Engineer",
+    "Artist or Designer",
+    "Investor",
+    "Sales or Marketing",
+    "Finance",
+    "Law"
 ];
+
+const useEffectTime=5000;
 
 
 
@@ -191,7 +193,7 @@ const LobbyScreen = () => {
             } catch (error) {
                 console.error("Error fetching lobby data:", error);
             }
-        }, 1000);
+        }, useEffectTime);
 
         return () => clearInterval(interval);
     }, []);
