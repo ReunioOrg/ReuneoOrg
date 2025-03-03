@@ -11,8 +11,11 @@ import PureSignupPage from './core/Auth/PureSignupPage';
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
 import backgroundVideo from './assets/app_home_video.mp4';
 
-
 import { useNavigate } from 'react-router-dom';
+// import CreateLobbyButton from './core/lobby/CreateLobbyButton';
+// import CreateLobby from './core/lobby/create_lobby';
+// import './core/lobby/create_lobby.css';
+
 const App = () => {
   const [showProfileCreation, setShowProfileCreation] = useState(false);
   const [profileData, handleProfileSubmit] = useState(null);
@@ -45,13 +48,13 @@ const App = () => {
       
       {/* Main App Content */}
       <div style={{ position: 'relative', zIndex: 1, color: 'white' }}>
-      <div style={{ position: 'absolute', top: '.5rem', left: '50%', transform: 'translateX(-50%)' }}>
-        <img
-          src="/assets/reunio-logo-with-depth.png"
-          alt="Logo"
-          style={{width: '300px',height: '300px',objectFit: 'contain'}}
-        />
-      </div>
+        <div style={{ position: 'absolute', top: '-2rem', left: '50%', transform: 'translateX(-50%)' }}>
+          <img  
+            src="/assets/reunio-logo-with-depth.png"
+            alt="Logo"
+            style={{width: '250px',height: '250px',objectFit: 'contain'}}
+          />
+        </div>
 
         <div style = {{marginTop: '10%',display: 'flex',flexDirection: 'column'}}>
         <LoginSignupLogoutButton user={user}/>
@@ -59,10 +62,14 @@ const App = () => {
           <button
             style={{
               position: 'absolute',
-              top: '3.5rem',
+              top: '.6rem',
               right: '3%',
               width: '25%',
               gap: '1rem',
+              borderColor: 'white',
+              borderWidth: '1px',
+              borderStyle: 'solid',
+              borderRadius: '5px'
             }}
             className="profile-button"
             onClick={() => setShowProfileCreation(true)}
@@ -89,7 +96,7 @@ const App = () => {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            marginTop: '50%',
+            marginTop: '35%',
             textAlign: 'center',
           }}
         >

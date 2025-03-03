@@ -283,7 +283,7 @@ const LobbyScreen = () => {
                     display: 'flex',
                     justifyContent: 'center',
                     marginBottom: '0',
-                    marginTop: '0.5rem'
+                    marginTop: '1.5rem'
                 }}>
                     <img 
                         src="/assets/Reunio-color-4K.png"
@@ -296,10 +296,48 @@ const LobbyScreen = () => {
                     />
                 </div>
 
-                <div className="lobby-header">
+                {lobbyState !== "checkin" && (
+                    <div className="time-left" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'white'}}>
+                        {((lobbyState === "active" || lobbyState === "interrim") && roundTimeLeft) ? (
+                            <>
+                                <CountdownCircleTimer
+                                    key={`${lobbyState}-${Math.floor(roundTimeLeft)}`}
+                                    isPlaying={lobbyState === "active"}
+                                    duration={300}
+                                    initialRemainingTime={roundTimeLeft}
+                                    colors={["#144dff"]} 
+                                    size={80}
+                                    strokeWidth={10}
+                                    trailColor="#f5f7ff"
+                                    onComplete={() => {
+                                        return { shouldRepeat: false }
+                                    }}
+                                >
+                                    {({ remainingTime }) => (
+                                        <span style={{ fontSize: '.95rem', color: '#144dff', fontWeight: 600 }}>
+                                            {Math.ceil(remainingTime)}s
+                                        </span>
+                                    )}
+                                </CountdownCircleTimer>
+                                {/* <span style={{color: '#144dff'}}>{parseInt(roundTimeLeft)}s</span> */}
+                                <span style={{ fontSize: '0.9em', marginTop: '4px', opacity: '1', color: '#144dff' }}>time remaining</span>
+                                <div style={{ height: '10px' }}></div>
+                                {opponentProfile && (
+                                    <div className="table-number">
+                                        <h3>Go to table number: {tableNumber}</h3>
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <span className="time-left-text"></span>
+                        )}
+                    </div>
+                )}
+
+                <div className="lobby-header" style={{marginTop: '-30px'}}>
                     <h2>
                         {lobbyState === "checkin" ? (
-                            "You're in! Please wait for your Host to start the session."
+                            "You're in! Please wait for your host to start the session."
                         ) : lobbyState === "active" ? (
                             opponentName 
                                 ? `Pair up with ${opponentName}`
@@ -313,47 +351,11 @@ const LobbyScreen = () => {
                         )}
                     </h2>
                 </div>
-                {lobbyState !== "checkin" && (
-                    <div className="time-left" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'white'}}>
-                        {((lobbyState === "active" || lobbyState === "interrim") && roundTimeLeft) ? (
-                            <>
-                                <CountdownCircleTimer
-                                    key={`${lobbyState}-${Math.floor(roundTimeLeft)}`}
-                                    isPlaying={lobbyState === "active"}
-                                    duration={300}
-                                    initialRemainingTime={roundTimeLeft}
-                                    colors={["#144dff"]} 
-                                    size={105}
-                                    strokeWidth={10}
-                                    trailColor="#f5f7ff"
-                                    onComplete={() => {
-                                        return { shouldRepeat: false }
-                                    }}
-                                >
-                                    {({ remainingTime }) => (
-                                        <span style={{ fontSize: '1.2rem', color: '#144dff', fontWeight: 600 }}>
-                                            {Math.ceil(remainingTime)}s
-                                        </span>
-                                    )}
-                                </CountdownCircleTimer>
-                                {/* <span style={{color: '#144dff'}}>{parseInt(roundTimeLeft)}s</span> */}
-                                <span style={{ fontSize: '0.9em', marginTop: '4px', opacity: '0.8', color: '#144dff' }}>time remaining</span>
-                                <div style={{ height: '12px' }}></div>
-                                {opponentProfile && (
-                                    <div className="table-number">
-                                        <h3>Go to table number: {tableNumber}</h3>
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <span className="time-left-text"></span>
-                        )}
-                    </div>
-                )}
-                <div>
+
+                <div style={{display: 'flex', justifyContent: 'center', width: '100%', margin: '0 auto'}}>
                     {(lobbyState === "active" || lobbyState === "interrim") ? (
                         opponentProfile ? (
-                            <div style={{marginTop: '-2rem'}}>
+                            <div style={{marginTop: '-2rem', width: '100%', display: 'flex', justifyContent: 'center'}}>
                                 <PlayerCard player={opponentProfile} />
                             </div>
                         ) : (

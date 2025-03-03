@@ -3,9 +3,9 @@ import { QRCodeSVG } from 'qrcode.react';
 const PlayerCard = ({ player }) => {
     return (
       <div
-        style={{background:'#144dff',borderRadius:'50px',
+        style={{
         display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center',width:'350px',height:'350px',
-        boxShadow:'0 8px 16px rgba(0,0,0,0.3)',margin:'0 auto'}}
+        margin:'0 auto'}}
       >
         {/* <h2
           style={{
@@ -23,7 +23,7 @@ const PlayerCard = ({ player }) => {
           alt={player.name}
           style={{
             width: '300px', // Larger square size
-            height: '300px', // Ensures a square aspect ratio
+            height: '700px', // Ensures a square aspect ratio
             objectFit: 'cover', // Makes sure the image fills the space without distortion
             borderRadius: '50px', // Rounded corners for a sleek look
             boxShadow: '0 6px 12px rgba(0, 0, 0, 0.3)', // Depth for the image
