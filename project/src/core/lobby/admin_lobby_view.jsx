@@ -8,6 +8,66 @@ import { useNavigate } from 'react-router-dom';
 //load asset image earthart.jpg
 import { returnBase64TestImg } from '../misc/misc';
 
+// Modal component for kick confirmation
+const KickConfirmationModal = ({ isOpen, onClose, onConfirm, userName }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+        }}>
+            <div style={{
+                backgroundColor: 'white',
+                padding: '20px',
+                borderRadius: '8px',
+                maxWidth: '400px',
+                width: '100%',
+                textAlign: 'center'
+            }}>
+                <h2>Kick User</h2>
+                <p style={{ color: "#144dff" }}>Are you sure you want to kick {userName} from the lobby?</p>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
+                    <button 
+                        onClick={onConfirm}
+                        style={{
+                            padding: '8px 16px',
+                            backgroundColor: '#dc3545',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Yes
+                    </button>
+                    <button 
+                        onClick={onClose}
+                        style={{
+                            padding: '8px 16px',
+                            backgroundColor: '#6c757d',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        No
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const AdminLobbyView = () => {
     const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
 
@@ -43,7 +103,9 @@ const AdminLobbyView = () => {
     //     ]);
     // }, [earthartBase64]);
 
-
+    // State for kick user modal
+    const [isKickModalOpen, setIsKickModalOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
 
     const [pairedPlayers, setPairedPlayers] = useState(null);
     const [lobbyData, setLobbyData] = useState(null);
@@ -82,6 +144,47 @@ const AdminLobbyView = () => {
 
         return () => clearInterval(interval);
     }, []);
+
+    // Function to handle opening the kick modal
+    const handleOpenKickModal = (user) => {
+        setSelectedUser(user);
+        setIsKickModalOpen(true);
+    };
+
+    // Function to handle closing the kick modal
+    const handleCloseKickModal = () => {
+        setIsKickModalOpen(false);
+        setSelectedUser(null);
+    };
+
+    // Function to handle kicking a user
+    const handleKickUser = () => {
+        if (!selectedUser) return;
+
+        fetch(window.server_url + '/kick_user', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: selectedUser.id
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log(`User ${selectedUser.name} kicked successfully`);
+            } else {
+                console.error(`Failed to kick user ${selectedUser.name}`);
+            }
+        })
+        .catch(error => {
+            console.error("Error kicking user:", error);
+        })
+        .finally(() => {
+            handleCloseKickModal();
+        });
+    };
 
     return (
         <div>
@@ -154,7 +257,7 @@ const AdminLobbyView = () => {
                     }}>
                         {pairedPlayers.map((player, index) => (
                             <div key={index} style={{color: "green", border: "2px solid green", marginBottom: "10px"}}>
-                                {lobbyPairedCard(player[0], player[1])}
+                                {lobbyPairedCard(player[0], player[1], handleOpenKickModal)}
                             </div>
                         ))}
                     </div>
@@ -171,7 +274,17 @@ const AdminLobbyView = () => {
                     <h2>Lobby Data</h2>
                     <div className="lobby-profiles" style={{color: "green",}}>
                         {lobbyData.map((profile, index) => (
-                            <div key={index} className="profile-icon" style={{color: "green", border: "2px solid green", marginBottom: "10px"}}>
+                            <div 
+                                key={index} 
+                                className="profile-icon" 
+                                style={{
+                                    color: "green", 
+                                    border: "2px solid green", 
+                                    marginBottom: "10px",
+                                    cursor: "pointer"
+                                }}
+                                onClick={() => handleOpenKickModal(profile)}
+                            >
                                 <div className="avatar">
                                     <img src={`data:image/jpeg;base64,${profile.image_data}`} alt={profile.name} width="200" height="200" style={{objectFit: "cover"}} />
                                 </div>
@@ -183,12 +296,20 @@ const AdminLobbyView = () => {
                 :
                 null
             }
+
+            {/* Kick Confirmation Modal */}
+            <KickConfirmationModal 
+                isOpen={isKickModalOpen}
+                onClose={handleCloseKickModal}
+                onConfirm={handleKickUser}
+                userName={selectedUser?.name || "this user"}
+            />
         </div>
     );
 }
 
 
-const lobbyPairedCard = (player1, player2) => {
+const lobbyPairedCard = (player1, player2, onKickUser) => {
     return (
         <div style={{
             display: "flex", 
@@ -198,12 +319,16 @@ const lobbyPairedCard = (player1, player2) => {
             overflow: "hidden",
             height: "100%"
         }}>
-            <div style={{
-                flex: 1,
-                padding: "8px",
-                background: "rgba(50,80,180,0.5)",
-                borderRight: "2px solid #ccc"
-            }}>
+            <div 
+                style={{
+                    flex: 1,
+                    padding: "8px",
+                    background: "rgba(50,80,180,0.5)",
+                    borderRight: "2px solid #ccc",
+                    cursor: "pointer"
+                }}
+                onClick={() => onKickUser(player1)}
+            >
                 <div className="avatar">
                     <img 
                         src={`data:image/jpeg;base64,${player1.image_data}`} 
@@ -217,11 +342,15 @@ const lobbyPairedCard = (player1, player2) => {
                 </div>
                 <h3>{player1.name}</h3>
             </div>
-            <div style={{
-                flex: 1,
-                padding: "8px",
-                background: "rgba(40,180,180,0.5)"
-            }}>
+            <div 
+                style={{
+                    flex: 1,
+                    padding: "8px",
+                    background: "rgba(40,180,180,0.5)",
+                    cursor: "pointer"
+                }}
+                onClick={() => onKickUser(player2)}
+            >
                 <div className="avatar">
                     <img 
                         src={`data:image/jpeg;base64,${player2.image_data}`} 
