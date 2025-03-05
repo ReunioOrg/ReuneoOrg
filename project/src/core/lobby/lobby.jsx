@@ -26,7 +26,8 @@ const useEffectTime=5000;
 
 
 const LobbyScreen = () => {
-    const { audioRef, error, playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled } = usePlaySound();
+    
+    const { audioRef, error, playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying } = usePlaySound();
 
     const { user, userProfile, checkAuth } = useContext(AuthContext);
 
@@ -121,7 +122,6 @@ const LobbyScreen = () => {
 
         const interval = setInterval(async () => {
             try {
-
                 isFetchingCounter.current+=1;
                 if (isFetchingCounter.current>5) {
                     isFetchingCounter.current=0;
@@ -131,14 +131,13 @@ const LobbyScreen = () => {
                 const isTabVisible = !document.hidden;
                 // const response = await fetch(window.server_url+'/lobby?is_visible='+isTabVisible, {
                 const response = await fetch(window.server_url+'/lobby?is_visible=true', {
-
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'is_visible_t_f': (isTabVisible)?"t":"f"
                     }
                 });
                 
-                if (response.ok) {
+                if (response.ok) {                    
                     const data = await response.json();
                     console.log("LOBBY PAIR DATA:", data);
                     if (data.status=="inactive"){
@@ -157,8 +156,10 @@ const LobbyScreen = () => {
                     setTableNumber(data.table_number);
              
                     if ((roundPosition.current!=null) && (data.lobby_state=="active")) {
-                        seekTo(playat-roundPosition.current);
-                        console.log("seeking to", playat-roundPosition.current);
+                        if (roundPosition.current!=0) {
+                            seekTo(playat-roundPosition.current);
+                            console.log("seeking to", playat-roundPosition.current);
+                        }
                     }
 
 

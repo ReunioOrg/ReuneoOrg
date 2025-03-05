@@ -49,6 +49,7 @@ const AdminLobbyView = () => {
     const [lobbyData, setLobbyData] = useState(null);
     const [lobbyTimer, setLobbyTimer] = useState(null);
     const [lobbyState, setLobbyState] = useState(null);
+    const [profilePictures, setProfilePictures] = useState({}); // Cache for profile pictures
 
     const navigate = useNavigate();
 
@@ -60,28 +61,90 @@ const AdminLobbyView = () => {
             return;
         }
 
-        const interval = setInterval(() => {
-            fetch(window.server_url + '/admin_lobby_data', {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        const fetchProfilePicture = async (username) => {
+            // Check if we already have this profile picture cached
+            if (profilePictures[username]) {
+                return profilePictures[username];
+            }
+            
+            try {
+                const response = await fetch(`${window.server_url}/pfp_small_icon?username=${encodeURIComponent(username)}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    }
+                });
+                if (response.ok) {
+                    // Get the base64 data from the response
+                    let base64Data = await response.text();
+                    
+                    // Remove any quotes that might be wrapping the data
+                    if (base64Data.startsWith('"') && base64Data.endsWith('"')) {
+                        base64Data = base64Data.slice(1, -1);
+                    }
+                    
+                    // Make sure the base64 data has the proper image prefix
+                    const formattedData = base64Data.startsWith('data:image') 
+                        ? base64Data 
+                        : `data:image/jpeg;base64,${base64Data}`;
+                        
+                    // Update the cache
+                    setProfilePictures(prev => ({
+                        ...prev,
+                        [username]: formattedData
+                    }));
+                    return formattedData;
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Admin lobby data:", data);
-                setLobbyData(data.unpaired_players);
-                setPairedPlayers(data.pairs_data);
-                setLobbyTimer(data.round_time_left);
-                setLobbyState(data.lobby_state);
-                //setPairedPlayers(pairedPlayers_test_data);
-            })
-            .catch(error => {
+                return null;
+            } catch (error) {
+                console.error(`Error fetching profile picture for ${username}:`, error);
+                return null;
+            }
+        };
+
+        const interval = setInterval(async () => {
+            try {
+                const response = await fetch(window.server_url + '/admin_lobby_data', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("Admin lobby data:", data);
+                    
+                    // Process unpaired players to add profile pictures
+                    const unpairedWithPfp = await Promise.all(data.unpaired_players.map(async (player) => {
+                        const pfpData = await fetchProfilePicture(player.username);
+                        return {
+                            ...player,
+                            pfp_data: pfpData
+                        };
+                    }));
+                    
+                    // Process paired players to add profile pictures
+                    const pairsWithPfp = await Promise.all(data.pairs_data.map(async (pair) => {
+                        const player1PfpData = await fetchProfilePicture(pair[0].name);
+                        const player2PfpData = await fetchProfilePicture(pair[1].name);
+                        
+                        return [
+                            { ...pair[0], pfp_data: player1PfpData },
+                            { ...pair[1], pfp_data: player2PfpData }
+                        ];
+                    }));
+                    
+                    setLobbyData(unpairedWithPfp);
+                    setPairedPlayers(pairsWithPfp);
+                    setLobbyTimer(data.round_time_left);
+                    setLobbyState(data.lobby_state);
+                }
+            } catch (error) {
                 console.error("Error fetching admin lobby data:", error);
-            });
+            }
         }, 1000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [profilePictures]); // Add profilePictures to dependency array
 
     return (
         <div>
@@ -173,7 +236,13 @@ const AdminLobbyView = () => {
                         {lobbyData.map((profile, index) => (
                             <div key={index} className="profile-icon" style={{color: "green", border: "2px solid green", marginBottom: "10px"}}>
                                 <div className="avatar">
-                                    <img src={`data:image/jpeg;base64,${profile.image_data}`} alt={profile.name} width="200" height="200" style={{objectFit: "cover"}} />
+                                    <img 
+                                        src={profile.pfp_data} 
+                                        alt={profile.name} 
+                                        width="200" 
+                                        height="200" 
+                                        style={{objectFit: "cover"}} 
+                                    />
                                 </div>
                                 <h3>{profile.name}</h3>
                             </div>
@@ -206,7 +275,7 @@ const lobbyPairedCard = (player1, player2) => {
             }}>
                 <div className="avatar">
                     <img 
-                        src={`data:image/jpeg;base64,${player1.image_data}`} 
+                        src={player1.pfp_data} 
                         alt={player1.name} 
                         style={{
                             width: "100%",
@@ -224,7 +293,7 @@ const lobbyPairedCard = (player1, player2) => {
             }}>
                 <div className="avatar">
                     <img 
-                        src={`data:image/jpeg;base64,${player2.image_data}`} 
+                        src={player2.pfp_data} 
                         alt={player2.name}
                         style={{
                             width: "100%",

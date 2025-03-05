@@ -1,15 +1,49 @@
-import { useRef, useState } from 'react';
-
+import { useRef, useState, useEffect  } from 'react';
+import { useNavigate } from 'react-router-dom';
 function usePlaySound() {
 
     const ASSET_PATH="./assets";
     const AUDIO_FILE = "/sounds/banger.mp3";
+    const navigate = useNavigate();
 
     const audioRef = useRef(new Audio(ASSET_PATH + AUDIO_FILE));
     const [audioLoaded, setAudioLoaded] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [error, setError] = useState(null);
     const [soundEnabled, setSoundEnabled] = useState(false);
+    const [loop, setLoop] = useState(false);
+
+
+    useEffect(() => {
+        const audio = audioRef.current;
+        const handleEnded = () => {
+            audio.pause();
+            audio.currentTime = 0;
+            setIsPlaying(false);
+            cancelSound();
+            navigate('/');
+        //     console.log("Audio ended. Checking if user has been inactive for too long.");
+        //   // Check if user has been inactive for too long
+        //   if (lastActiveTimestamp && (Date.now() - lastActiveTimestamp > inactivityThreshold)) {
+        //     console.log("User has been inactive for too long. Pausing audio.");
+        //     audio.pause();
+        //     audio.currentTime = 0;
+        //     setIsPlaying(false);
+        //     cancelSound();
+        //     navigate('/');
+
+        //     // The navigation will be handled in the component using this hook
+        //   } else if (!loop) {
+        //     audio.pause();
+        //     audio.currentTime = 0;
+        //   } else {
+        //     audio.play(); // Loop manually if needed
+        //   }
+        };
+    
+        audio.addEventListener("ended", handleEnded);
+        return () => audio.removeEventListener("ended", handleEnded);
+    }, [loop]);
 
     // useEffect(() => {
     //     if (checkSound()) {
@@ -68,7 +102,7 @@ function usePlaySound() {
     }
 
 
-    return { audioRef, error , playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled};
+    return { audioRef, error , playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying };
 }
 
 export default usePlaySound;
