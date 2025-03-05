@@ -319,7 +319,20 @@ const PureSignupPage = () => {
                         />
                     </div>
                     <div className="form-group" style={{width: '100%'}}>
+                        <label 
+                            htmlFor="profile-image" 
+                            style={{
+                                display: 'block',
+                                marginBottom: '8px',
+                                fontSize: '0.9rem',
+                                fontWeight: '600',
+                                color: '#144dff'
+                            }}
+                        >
+                            Upload Image
+                        </label>
                         <input
+                            id="profile-image"
                             type="file"
                             accept="image/*"
                             onChange={handleImageChange}

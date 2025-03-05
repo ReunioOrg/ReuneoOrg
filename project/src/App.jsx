@@ -31,7 +31,7 @@ const App = () => {
   // const handleProfileSubmit = (profileData) => {
   //   // Here you would typically send the data to your server
   //   setUserProfile(profileData);
-  //   setShowProfileCreation(false);
+  //   setShowProfileCreation(false); 
   // };
 
   useEffect(() => {
@@ -48,16 +48,18 @@ const App = () => {
       
       {/* Main App Content */}
       <div style={{ position: 'relative', zIndex: 1, color: 'white' }}>
-        <div style={{ position: 'absolute', top: '-2rem', left: '50%', transform: 'translateX(-50%)' }}>
+        
+        <div style={{ position: 'absolute', top: '-4.5rem', left: '50%', transform: 'translateX(-50%)' }}>
           <img  
             src="/assets/reunio-logo-with-depth.png"
             alt="Logo"
-            style={{width: '250px',height: '250px',objectFit: 'contain'}}
+            style={{width: '200px',height: '200px',objectFit: 'contain'}}
           />
         </div>
 
         <div style = {{marginTop: '10%',display: 'flex',flexDirection: 'column'}}>
         <LoginSignupLogoutButton user={user}/>
+        
         {user && (  // Only render the Profile button if user exists
           <button
             style={{
@@ -69,7 +71,7 @@ const App = () => {
               borderColor: 'white',
               borderWidth: '1px',
               borderStyle: 'solid',
-              borderRadius: '5px'
+              borderRadius: '25px'
             }}
             className="profile-button"
             onClick={() => setShowProfileCreation(true)}
@@ -103,13 +105,16 @@ const App = () => {
           {user && userProfile && userProfile.name && (
             <div className="main-content">
               <h3 style={{ 
-                color: '#ffffff', 
-                backgroundColor: 'rgba(0, 122, 255, 0.5)',
-                padding: '0.25rem 0.5rem',
+                color: '#ffffff',
+                backgroundColor: 'rgba(20, 77, 255, 0.5)',
+                padding: '0.3rem 0.6rem',
                 display: 'inline-block',
-                borderRadius: '0.5rem'
+                borderRadius: '0.8rem',
+                fontSize: '1rem',
+                marginTop: '-0.5rem',
+                marginBottom: '0'
               }}>
-                Welcome {userProfile.name.length > 30 ? `${userProfile.name.slice(0, 15)}` : userProfile.name}, you've arrived!
+                Welcome {userProfile.name.length > 30 ? `${userProfile.name.slice(0, 15)}` : userProfile.name}✨
               </h3>
             </div>
           )}
@@ -142,6 +147,7 @@ const App = () => {
               border: '1px solid rgba(255, 255, 255, 0.5)',
               transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
               cursor: 'pointer',
+              opacity: .92,
               ':hover': {
                 transform: 'translateY(-5px)'
               }
@@ -186,11 +192,11 @@ const App = () => {
             }}>
               <button 
                 className="primary-button" 
-                onClick={() => navigate('/lobby')}
-                disabled={!user || player_count === null || lobby_state === 'terminate'}
+                onClick={() => user ? navigate('/lobby') : navigate('/signup')}
+                disabled={player_count === null || lobby_state === 'terminate'}
                 style={{
-                  opacity: (!user || player_count === null || lobby_state === 'terminate') ? 1 : 1,
-                  cursor: (!user || player_count === null || lobby_state === 'terminate') ? 'not-allowed' : 'pointer',
+                  opacity: (player_count === null || lobby_state === 'terminate') ? 1 : 1,
+                  cursor: (player_count === null || lobby_state === 'terminate') ? 'not-allowed' : 'pointer',
                   padding: '12px 24px',
                   backgroundColor: '#144dff',
                   color: 'white',
@@ -204,7 +210,26 @@ const App = () => {
                   }
                 }}
               >
-                {!user ? 'Signup to Join' : 'Join Event'}
+                {!user ? 'Signup to Join' : 'Join Lobby'}
+              </button>
+              <button
+                className="primary-button"
+                onClick={() => navigate('/product-selection')}
+                style={{
+                  padding: '12px 24px',
+                  backgroundColor: '#144dff', 
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  transition: 'all 0.2s ease',
+                  ':hover': {
+                    backgroundColor: '#535bf2',
+                    transform: 'scale(1.02)'
+                  }
+                }}
+              >
+                Become Organizer
               </button>
               {permissions === 'admin' && (
                 <button 

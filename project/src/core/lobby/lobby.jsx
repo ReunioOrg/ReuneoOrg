@@ -145,10 +145,14 @@ const LobbyScreen = () => {
                         navigate('/');
                     }
 
+                    // Store previous state to detect changes
+                    const prevState = lobbyState;
+                    
                     setOpponentName(data.opponent_name);
                     if (data.opponent_name==null) {
                         setOpponentProfile(null);
                     }
+                    
                     setLobbyState(data.lobby_state);
                     roundPosition.current = data.round_time_left;
                     setRoundTimeLeft(data.round_time_left);
@@ -162,14 +166,50 @@ const LobbyScreen = () => {
                         }
                     }
 
-
-                    // if (opponentName!=null) {
-                    //     setPrevOpponentName(opponentName);
-                    // }else{
-                    //     setOpponentName(null);
-                    //     //setOpponentProfile(null);
-                    // }
-
+                    // If lobby state changed, immediately fetch data again after a short delay
+                    if (prevState !== data.lobby_state && data.lobby_state !== null) {
+                        console.log("Lobby state changed from", prevState, "to", data.lobby_state);
+                        // Wait a short time before fetching again to ensure server state is updated
+                        setTimeout(async () => {
+                            try {
+                                const token = localStorage.getItem('access_token');
+                                const response = await fetch(window.server_url+'/lobby?is_visible=true', {
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`,
+                                        'is_visible_t_f': (!document.hidden)?"t":"f"
+                                    }
+                                });
+                                
+                                if (response.ok) {
+                                    const data = await response.json();
+                                    console.log("STATE CHANGE UPDATE - LOBBY DATA:", data);
+                                    
+                                    if (data.status=="inactive"){
+                                        cancelSound();
+                                        navigate('/');
+                                        return;
+                                    }
+                                    
+                                    setOpponentName(data.opponent_name);
+                                    if (data.opponent_name==null) {
+                                        setOpponentProfile(null);
+                                    }
+                                    
+                                    setLobbyState(data.lobby_state);
+                                    roundPosition.current = data.round_time_left;
+                                    setRoundTimeLeft(data.round_time_left);
+                                    setTableNumber(data.table_number);
+                                    
+                                    if ((roundPosition.current!=null) && (data.lobby_state=="active")) {
+                                        seekTo(playat-roundPosition.current);
+                                        console.log("seeking to", playat-roundPosition.current);
+                                    }
+                                }
+                            } catch (error) {
+                                console.error("Error in state change update:", error);
+                            }
+                        }, 1000);
+                    }
 
                     if ((opponentName!=data.opponent_name) || (opponentProfile==null)) {
                         if ((!isFetchingProfile.current) && (data.opponent_name!=null)) {
