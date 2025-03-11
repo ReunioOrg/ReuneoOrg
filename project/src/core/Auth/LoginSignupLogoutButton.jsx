@@ -12,14 +12,14 @@ const LoginSignupLogoutButton = ({ user }) => {
                         <button
                             className="login-button"
                             onClick={() => navigate('/login')}
-                            style={{ borderColor: 'white', borderWidth: '1px', borderStyle: 'solid', borderRadius: '25px' }}
+                            style={{ borderColor: 'white', borderWidth: '1px', borderStyle: 'solid', borderRadius: '12px' }}
                         >
                             Login
                         </button>
                         <button
                             className="login-button bounce-animation"
                             onClick={() => navigate('/signup')}
-                            style={{ borderColor: 'white', borderWidth: '1px', borderStyle: 'solid', borderRadius: '25px' }}
+                            style={{ borderColor: 'white', borderWidth: '1px', borderStyle: 'solid', borderRadius: '12px' }}
                         >
                             Sign Up
                         </button>
@@ -29,7 +29,7 @@ const LoginSignupLogoutButton = ({ user }) => {
                         <button 
                             className="login-button"
                             onClick={() => navigate('/logout')}
-                            style={{ borderColor: 'white', borderWidth: '1px', borderStyle: 'solid', borderRadius: '25px' }}
+                            style={{ borderColor: 'white', borderWidth: '1px', borderStyle: 'solid', borderRadius: '12px' }}
                         >
                             Logout
                         </button>
