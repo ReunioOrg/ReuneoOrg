@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from './AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import getCroppedImg from '../cropImage'; // Utility function for cropping
 import ReactCropper from 'react-easy-crop';
 import './PureSignupPage.css';
@@ -23,6 +23,11 @@ const PureSignupPage = () => {
     const [isFormComplete, setIsFormComplete] = useState(false);
 
     const navigate = useNavigate();
+    const location = useLocation();
+    
+    // Extract redirect parameter from URL
+    const searchParams = new URLSearchParams(location.search);
+    const redirectTo = searchParams.get('redirect');
 
     useEffect(() => {
         setIsFormComplete(username && password && displayName && profileImage);
@@ -164,7 +169,15 @@ const PureSignupPage = () => {
             }
     
             await checkAuth(); // Update UI with new profile
-            navigate('/');
+            
+            // Check if we need to redirect to a specific page
+            if (redirectTo === 'lobby') {
+                navigate('/lobby');
+            } else if (redirectTo === 'product-selection') {
+                navigate('/product-selection');
+            } else {
+                navigate('/');
+            }
     
         } catch (error) {
             console.error('Error:', error);
