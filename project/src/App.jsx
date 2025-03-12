@@ -71,7 +71,7 @@ const App = () => {
               borderColor: 'white',
               borderWidth: '1px',
               borderStyle: 'solid',
-              borderRadius: '25px'
+              borderRadius: '12px'
             }}
             className="profile-button"
             onClick={() => setShowProfileCreation(true)}
@@ -106,15 +106,15 @@ const App = () => {
             <div className="main-content">
               <h3 style={{ 
                 color: '#ffffff',
-                backgroundColor: 'rgba(20, 77, 255, 0.5)',
+                backgroundColor: 'rgba(20, 77, 255, 0.65)',
                 padding: '0.3rem 0.6rem',
                 display: 'inline-block',
-                borderRadius: '0.8rem',
+                borderRadius: '0.5rem',
                 fontSize: '1rem',
                 marginTop: '-0.5rem',
                 marginBottom: '0'
               }}>
-                Welcome {userProfile.name.length > 30 ? `${userProfile.name.slice(0, 15)}` : userProfile.name}✨
+                Welcome {userProfile.name.length > 30 ? `${userProfile.name.slice(0, 15)}` : userProfile.name}
               </h3>
             </div>
           )}
@@ -210,11 +210,11 @@ const App = () => {
                   }
                 }}
               >
-                {!user ? 'Signup to Join' : 'Join Lobby'}
+                {!user ? 'Join Lobby' : 'Join Lobby'}
               </button>
               <button
                 className="primary-button"
-                onClick={() => navigate('/product-selection')}
+                onClick={() => user ? navigate('/product-selection') : navigate('/signup')}
                 style={{
                   padding: '12px 24px',
                   backgroundColor: '#144dff', 
@@ -229,7 +229,7 @@ const App = () => {
                   }
                 }}
               >
-                Become Organizer
+                Create Events
               </button>
               {permissions === 'admin' && (
                 <button 

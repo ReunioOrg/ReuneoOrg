@@ -223,8 +223,31 @@ const PureSignupPage = () => {
             <h1 className="signup-header" style={{
                 fontSize: 'clamp(1.8rem, 6vw, 2.5rem)',
                 marginTop: '0.5rem',
-                marginBottom: '1.5rem'
+                marginBottom: '0.5rem'
             }}>Signup</h1>
+
+            <p style={{
+                fontSize: '0.9rem',
+                color: '#555',
+                marginBottom: '1.5rem',
+                textAlign: 'center'
+            }}>
+                Already have an account? <a 
+                    href="#" 
+                    onClick={(e) => {
+                        e.preventDefault();
+                        navigate('/login');
+                    }}
+                    style={{
+                        color: '#144dff',
+                        textDecoration: 'none',
+                        fontWeight: '600'
+                    }}
+                >
+                    Login here
+                </a>
+            </p>
+
             <div className="login-container" style={{
                 background: 'rgba(255,255,255,0.95)',
                 borderRadius: '20px',

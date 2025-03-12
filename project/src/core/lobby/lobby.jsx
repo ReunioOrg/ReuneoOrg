@@ -145,8 +145,6 @@ const LobbyScreen = () => {
                         navigate('/');
                     }
 
-                    // Store previous state to detect changes
-                    const prevState = lobbyState;
                     
                     setOpponentName(data.opponent_name);
                     if (data.opponent_name==null) {
@@ -164,51 +162,6 @@ const LobbyScreen = () => {
                             seekTo(playat-roundPosition.current);
                             console.log("seeking to", playat-roundPosition.current);
                         }
-                    }
-
-                    // If lobby state changed, immediately fetch data again after a short delay
-                    if (prevState !== data.lobby_state && data.lobby_state !== null) {
-                        console.log("Lobby state changed from", prevState, "to", data.lobby_state);
-                        // Wait a short time before fetching again to ensure server state is updated
-                        setTimeout(async () => {
-                            try {
-                                const token = localStorage.getItem('access_token');
-                                const response = await fetch(window.server_url+'/lobby?is_visible=true', {
-                                    headers: {
-                                        'Authorization': `Bearer ${token}`,
-                                        'is_visible_t_f': (!document.hidden)?"t":"f"
-                                    }
-                                });
-                                
-                                if (response.ok) {
-                                    const data = await response.json();
-                                    console.log("STATE CHANGE UPDATE - LOBBY DATA:", data);
-                                    
-                                    if (data.status=="inactive"){
-                                        cancelSound();
-                                        navigate('/');
-                                        return;
-                                    }
-                                    
-                                    setOpponentName(data.opponent_name);
-                                    if (data.opponent_name==null) {
-                                        setOpponentProfile(null);
-                                    }
-                                    
-                                    setLobbyState(data.lobby_state);
-                                    roundPosition.current = data.round_time_left;
-                                    setRoundTimeLeft(data.round_time_left);
-                                    setTableNumber(data.table_number);
-                                    
-                                    if ((roundPosition.current!=null) && (data.lobby_state=="active")) {
-                                        seekTo(playat-roundPosition.current);
-                                        console.log("seeking to", playat-roundPosition.current);
-                                    }
-                                }
-                            } catch (error) {
-                                console.error("Error in state change update:", error);
-                            }
-                        }, 1000);
                     }
 
                     if ((opponentName!=data.opponent_name) || (opponentProfile==null)) {
@@ -238,6 +191,56 @@ const LobbyScreen = () => {
 
         return () => clearInterval(interval);
     }, []);
+
+    // Add this new useEffect that runs whenever lobbyState changes
+    useEffect(() => {
+        
+        const fetchLobbyDataOnStateChange = async () => {
+            try {
+                console.log("Lobby state changed to:", lobbyState);
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(window.server_url+'/lobby?is_visible=true', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'is_visible_t_f': (!document.hidden)?"t":"f"
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("STATE CHANGE UPDATE - LOBBY DATA:", data);
+                    
+                    if (data.status=="inactive"){
+                        cancelSound();
+                        navigate('/');
+                        return;
+                    }
+                    
+                    setOpponentName(data.opponent_name);
+                    if (data.opponent_name==null) {
+                        setOpponentProfile(null);
+                    }
+                    
+                    setLobbyState(data.lobby_state);
+                    roundPosition.current = data.round_time_left;
+                    setRoundTimeLeft(data.round_time_left);
+                    setTableNumber(data.table_number);
+                    
+                    if ((roundPosition.current!=null) && (data.lobby_state=="active")) {
+                        seekTo(playat-roundPosition.current);
+                        console.log("seeking to", playat-roundPosition.current);
+                    }
+                }
+            } catch (error) {
+                console.error("Error in state change update:", error);
+            }
+        };
+
+        // Add a small delay to ensure server state is updated
+        const timeoutId = setTimeout(fetchLobbyDataOnStateChange, 1000);
+        
+        return () => clearTimeout(timeoutId);
+    }, [lobbyState]); // This will run whenever lobbyState changes
 
     const SoundPrompt = () => {
         return (
@@ -375,6 +378,28 @@ const LobbyScreen = () => {
                     </div>
                 )}
 
+                <div style={{display: 'flex', justifyContent: 'center', width: '100%', margin: '0 auto'}}>
+                    {(lobbyState === "active" || lobbyState === "interrim") ? (
+                        opponentProfile ? (
+                            <div style={{marginTop: '-3.5rem', width: '100%', display: 'flex', justifyContent: 'center'}}>
+                                <PlayerCard player={opponentProfile} />
+                            </div>
+                        ) : (
+                           <>
+                           
+                           </>
+                        )
+
+                    ) : (
+                        lobbyState === "terminated" ? (
+                            <div className="status-message">
+                                <h2>This session has ended.
+                                <br />Thank you for participating!</h2>
+                            </div>
+                        ) : null
+                    )}
+                </div>
+
                 <div className="lobby-header" style={{marginTop: '-30px'}}>
                     <h2>
                         {lobbyState === "checkin" ? (
@@ -393,34 +418,6 @@ const LobbyScreen = () => {
                     </h2>
                 </div>
 
-                <div style={{display: 'flex', justifyContent: 'center', width: '100%', margin: '0 auto'}}>
-                    {(lobbyState === "active" || lobbyState === "interrim") ? (
-                        opponentProfile ? (
-                            <div style={{marginTop: '-2rem', width: '100%', display: 'flex', justifyContent: 'center'}}>
-                                <PlayerCard player={opponentProfile} />
-                            </div>
-                        ) : (
-                           <>
-                           
-                           </>
-                            // {/* <div className="status-message">
-                            //     <h2>
-                            //     {prevOpponentProfile ? 
-                            //      `Previous round was with ${prevOpponentProfile.name}` :
-                            //      'Get ready to meet someone new!'}
-                            //     </h2>
-                            // </div> */}
-                        )
-
-                    ) : (
-                        lobbyState === "terminated" ? (
-                            <div className="status-message">
-                                <h2>This session has ended.
-                                <br />Thank you for participating!</h2>
-                            </div>
-                        ) : null
-                    )}
-                </div>
                 <button className="leave-lobby-button" onClick={leaveLobby}>Leave Lobby</button>
 
                 <form onSubmit={(e) => {
