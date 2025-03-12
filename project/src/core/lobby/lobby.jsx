@@ -319,6 +319,41 @@ const LobbyScreen = () => {
         }
     };
 
+    const fetchLatestLobbyData = async () => {
+        try {
+            const token = localStorage.getItem('access_token');
+            const response = await fetch(window.server_url+'/lobby?is_visible=true', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'is_visible_t_f': (!document.hidden)?"t":"f"
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log("TIMER COMPLETE - FETCHING UPDATED DATA:", data);
+                
+                if (data.status=="inactive"){
+                    cancelSound();
+                    navigate('/');
+                    return;
+                }
+                
+                setOpponentName(data.opponent_name);
+                if (data.opponent_name==null) {
+                    setOpponentProfile(null);
+                }
+                
+                setLobbyState(data.lobby_state);
+                roundPosition.current = data.round_time_left;
+                setRoundTimeLeft(data.round_time_left);
+                setTableNumber(data.table_number);
+            }
+        } catch (error) {
+            console.error("Error fetching updated lobby data:", error);
+        }
+    };
+
     return (
         <div className="lobby-container">
             <div className="lobby-content">
@@ -326,13 +361,13 @@ const LobbyScreen = () => {
                     display: 'flex',
                     justifyContent: 'center',
                     marginBottom: '0',
-                    marginTop: '1.5rem'
+                    marginTop: '.5rem'
                 }}>
                     <img 
                         src="/assets/Reunio-color-4K.png"
                         alt="Reunio Logo"
                         style={{
-                            maxWidth: '100px',
+                            maxWidth: '80px',
                             height: 'auto',
                             objectFit: 'contain'
                         }}
@@ -353,8 +388,10 @@ const LobbyScreen = () => {
                                     strokeWidth={10}
                                     trailColor="#f5f7ff"
                                     onComplete={() => {
+                                        fetchLatestLobbyData();
                                         return { shouldRepeat: false }
                                     }}
+                                    
                                 >
                                     {({ remainingTime }) => (
                                         <span style={{ fontSize: '.95rem', color: '#144dff', fontWeight: 600 }}>
@@ -363,11 +400,11 @@ const LobbyScreen = () => {
                                     )}
                                 </CountdownCircleTimer>
                                 {/* <span style={{color: '#144dff'}}>{parseInt(roundTimeLeft)}s</span> */}
-                                <span style={{ fontSize: '0.9em', marginTop: '4px', opacity: '1', color: '#144dff' }}>time remaining</span>
+                                <span style={{ fontSize: '0.7em', marginTop: '4px', opacity: '1', color: '#144dff' }}>time remaining</span>
                                 <div style={{ height: '10px' }}></div>
                                 {opponentProfile && (
                                     <div className="table-number">
-                                        <h3>Go to table number: {tableNumber}</h3>
+                                        <h3>Go to table: {tableNumber}</h3>
                                     </div>
                                 )}
                             </>

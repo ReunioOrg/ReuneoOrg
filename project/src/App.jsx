@@ -192,7 +192,7 @@ const App = () => {
             }}>
               <button 
                 className="primary-button" 
-                onClick={() => user ? navigate('/lobby') : navigate('/signup')}
+                onClick={() => user ? navigate('/lobby') : navigate('/signup?redirect=lobby')}
                 disabled={player_count === null || lobby_state === 'terminate'}
                 style={{
                   opacity: (player_count === null || lobby_state === 'terminate') ? 1 : 1,
@@ -214,7 +214,7 @@ const App = () => {
               </button>
               <button
                 className="primary-button"
-                onClick={() => user ? navigate('/product-selection') : navigate('/signup')}
+                onClick={() => navigate('/product-selection')}
                 style={{
                   padding: '12px 24px',
                   backgroundColor: '#144dff', 
