@@ -30,8 +30,8 @@ const ProductSelection = () => {
           <h2>Available Plans</h2>
           
           <div className="plan-card">
-            <h3>Basic Organizer Plan</h3>
-            <div className="plan-price">$20/mo</div>
+            <h3>Organizer Plan</h3>
+            {/* <div className="plan-price">$20/mo</div> */}
             <div className="plan-description">
               <p>Create experiences for your community with our beta plan.</p>
               <ul>
@@ -44,7 +44,7 @@ const ProductSelection = () => {
               className="purchase-button"
               onClick={handlePurchase}
             >
-              Join Waitlist
+              Contact Us
             </button>
           </div>
         </div>
