@@ -233,11 +233,11 @@ const PureSignupPage = () => {
                 }}
             />
 
-            <h1 className="signup-header" style={{
+            <h3 className="signup-header" style={{
                 fontSize: 'clamp(1.8rem, 6vw, 2.5rem)',
                 marginTop: '0.5rem',
                 marginBottom: '0.5rem'
-            }}>Signup</h1>
+            }}>Signup to join</h3>
 
             <p style={{
                 fontSize: '0.9rem',
@@ -365,7 +365,7 @@ const PureSignupPage = () => {
                                 color: '#144dff'
                             }}
                         >
-                            Upload Image
+                            Upload Image (a profile picture with your face)
                         </label>
                         <input
                             id="profile-image"
