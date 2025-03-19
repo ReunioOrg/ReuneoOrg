@@ -49,11 +49,11 @@ const App = () => {
       {/* Main App Content */}
       <div style={{ position: 'relative', zIndex: 1, color: 'white' }}>
         
-        <div style={{ position: 'absolute', top: '-4.5rem', left: '50%', transform: 'translateX(-50%)' }}>
+        <div style={{ position: 'absolute', top: '-1rem', left: '50%', transform: 'translateX(-50%)' }}>
           <img  
-            src="/assets/reunio-logo-with-depth.png"
+            src="/assets/reunio-logo-v3.png"
             alt="Logo"
-            style={{width: '200px',height: '200px',objectFit: 'contain'}}
+            style={{width: '85px',height: '85px',objectFit: 'contain'}}
           />
         </div>
 
@@ -68,10 +68,9 @@ const App = () => {
               right: '3%',
               width: '25%',
               gap: '1rem',
-              borderColor: 'white',
-              borderWidth: '1px',
-              borderStyle: 'solid',
-              borderRadius: '12px'
+              borderRadius: '12px',
+              boxShadow: '0 0 10px rgba(74, 58, 58, 0.4)',
+              outline: '1px solid rgba(74, 58, 58, 0.4)'
             }}
             className="profile-button"
             onClick={() => setShowProfileCreation(true)}
@@ -106,13 +105,17 @@ const App = () => {
             <div className="main-content">
               <h3 style={{ 
                 color: '#ffffff',
-                backgroundColor: 'rgba(20, 77, 255, 0.65)',
-                padding: '0.3rem 0.6rem',
+                background: 'linear-gradient(45deg, rgba(20, 77, 255, 0.7), rgba(0, 200, 255, 0.7))',
+                padding: '0.2rem 0.6rem', // Reduced padding
                 display: 'inline-block',
-                borderRadius: '0.5rem',
-                fontSize: '1rem',
+                borderRadius: '0.8rem', // Slightly reduced border radius
+                fontSize: '1.2rem',
                 marginTop: '-0.5rem',
-                marginBottom: '0'
+                marginBottom: '0',
+                boxShadow: '0 4px 15px rgba(20, 77, 255, 0.4)',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                backdropFilter: 'blur(5px)'
               }}>
                 Welcome {userProfile.name.length > 30 ? `${userProfile.name.slice(0, 15)}` : userProfile.name}
               </h3>
@@ -128,7 +131,7 @@ const App = () => {
             fontSize: '1.2em',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
-            textShadow: '4px 4px 8px rgba(0,0,0,0.75)', // Enhanced shadow
+            textShadow: '4px 4px 8px rgba(0,0,0,0.9)', // Enhanced shadow
             marginBottom: '1rem'
           }}>
             Pair up with new friends
@@ -142,12 +145,12 @@ const App = () => {
               padding: '15px', // Reduced from 20px
               background: '#ffffff',
               borderRadius: '16px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
               marginBottom: '20px',
               border: '1px solid rgba(255, 255, 255, 0.5)',
               transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
               cursor: 'pointer',
-              opacity: .92,
+              opacity: 1,
               ':hover': {
                 transform: 'translateY(-5px)'
               }
@@ -229,7 +232,7 @@ const App = () => {
                   }
                 }}
               >
-                Create Events
+                Create Lobby
               </button>
               {permissions === 'admin' && (
                 <button 

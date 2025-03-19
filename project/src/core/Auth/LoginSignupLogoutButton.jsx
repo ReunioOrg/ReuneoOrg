@@ -12,14 +12,22 @@ const LoginSignupLogoutButton = ({ user }) => {
                         <button
                             className="login-button"
                             onClick={() => navigate('/login')}
-                            style={{ borderColor: 'white', borderWidth: '1px', borderStyle: 'solid', borderRadius: '12px' }}
+                            style={{ 
+                                borderRadius: '12px',
+                                boxShadow: '0 0 10px rgba(74, 58, 58, 0.4)',
+                                outline: '1px solid rgba(74, 58, 58, 0.4)'
+                            }}
                         >
                             Login
                         </button>
                         <button
                             className="login-button bounce-animation"
                             onClick={() => navigate('/signup')}
-                            style={{ borderColor: 'white', borderWidth: '1px', borderStyle: 'solid', borderRadius: '12px' }}
+                            style={{ 
+                                borderRadius: '12px',
+                                boxShadow: '0 0 10px rgba(74, 58, 58, 0.4)', 
+                                outline: '1px solid rgba(74, 58, 58, 0.4)'
+                            }}
                         >
                             Sign Up
                         </button>
@@ -29,7 +37,11 @@ const LoginSignupLogoutButton = ({ user }) => {
                         <button 
                             className="login-button"
                             onClick={() => navigate('/logout')}
-                            style={{ borderColor: 'white', borderWidth: '1px', borderStyle: 'solid', borderRadius: '12px' }}
+                            style={{ 
+                                borderRadius: '12px',
+                                boxShadow: '0 0 10px rgba(74, 58, 58, 0.4)',
+                                outline: '1px solid rgba(74, 58, 58, 0.4)'
+                            }}
                         >
                             Logout
                         </button>
