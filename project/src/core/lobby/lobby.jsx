@@ -55,6 +55,9 @@ const LobbyScreen = () => {
     const [selfTags, setSelfTags] = useState([]);
     const [desiringTags, setDesiringTags] = useState([]);
 
+    // Add this new state to track page visibility
+    const [isPageVisible, setIsPageVisible] = useState(!document.hidden);
+
     async function test_fetch(){
         const token = localStorage.getItem('access_token');
         const response = await fetch(window.server_url+'/player_info', {
@@ -87,6 +90,8 @@ const LobbyScreen = () => {
         console.log("SET PROFILE INFO:", data);
 
     }
+
+
 
 
 
@@ -241,6 +246,27 @@ const LobbyScreen = () => {
         
         return () => clearTimeout(timeoutId);
     }, [lobbyState]); // This will run whenever lobbyState changes
+
+    // When page becomes visible again, fetch latest lobby data
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            const isVisible = !document.hidden;
+            
+            // If page is becoming visible (was hidden before), fetch latest
+            if (isVisible && !isPageVisible) {
+                console.log("Page became visible - fetching latest data");
+                fetchLatestLobbyData();
+            }
+            
+            setIsPageVisible(isVisible);
+        };
+        
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        
+        return () => {
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
+    }, [isPageVisible]);
 
     const SoundPrompt = () => {
         return (
@@ -523,7 +549,7 @@ const LobbyScreen = () => {
                 </div>
             </div>
 
-            {(soundEnabled || !showSoundPrompt) ? null : <SoundPrompt />}
+            {(soundEnabled || !showSoundPrompt) || (lobbyState == "checkin") || (lobbyState == null) ? null : <SoundPrompt />}
         </div>
     );
 }

@@ -186,8 +186,8 @@ const AdminLobbyView = () => {
                     
                     // Process paired players to add profile pictures
                     const pairsWithPfp = await Promise.all(data.pairs_data.map(async (pair) => {
-                        const player1PfpData = await fetchProfilePicture(pair[0].name);
-                        const player2PfpData = await fetchProfilePicture(pair[1].name);
+                        const player1PfpData = await fetchProfilePicture(pair[0].username);
+                        const player2PfpData = await fetchProfilePicture(pair[1].username);
                         
                         return [
                             { ...pair[0], pfp_data: player1PfpData },
