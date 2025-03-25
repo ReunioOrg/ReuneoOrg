@@ -52,8 +52,11 @@ const LobbyScreen = () => {
 
     const navigate = useNavigate();
 
-    const [selfTags, setSelfTags] = useState([]);
-    const [desiringTags, setDesiringTags] = useState([]);
+    const [selfTags, setSelfTags] = useState(null);
+    const [desiringTags, setDesiringTags] = useState(null);
+
+    const [serverselfTags, setServerselfTags] = useState([]);
+    const [serverdesiringTags, setServerdesiringTags] = useState([]);
 
     // Add this new state to track page visibility
     const [isPageVisible, setIsPageVisible] = useState(!document.hidden);
@@ -80,8 +83,8 @@ const LobbyScreen = () => {
             },
             mode: 'cors',
             body: JSON.stringify({
-                tags_work: [self_tags],
-                tags_desiring_work: [desiring_tags]
+                tags_work: self_tags,
+                tags_desiring_work: desiring_tags
             })
 
         });
@@ -118,6 +121,84 @@ const LobbyScreen = () => {
         }
     }
 
+    async function fetchLobbyData(){
+        try {
+            isFetchingCounter.current+=1;
+            if (isFetchingCounter.current>5) {
+                isFetchingCounter.current=0;
+                isFetchingProfile.current=false;
+            }
+            const token = localStorage.getItem('access_token');
+            const isTabVisible = !document.hidden;
+            // const response = await fetch(window.server_url+'/lobby?is_visible='+isTabVisible, {
+            const response = await fetch(window.server_url+'/lobby?is_visible='+isTabVisible, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'is_visible_t_f': (isTabVisible)?"t":"f"
+                }
+            });
+            
+            if (response.ok) {                    
+                const data = await response.json();
+                console.log("LOBBY PAIR DATA:", data);
+                if (data.status=="inactive"){
+                    cancelSound();
+                    navigate('/');
+                }
+
+                
+                setOpponentName(data.opponent_name);
+                if (data.opponent_name==null) {
+                    setOpponentProfile(null);
+                }
+                
+                setLobbyState(data.lobby_state);
+                roundPosition.current = data.round_time_left;
+                setRoundTimeLeft(data.round_time_left);
+
+                setTableNumber(data.table_number);
+
+
+                // Set Tags
+                if ((data.player_tags!=null) && (data.player_tags.tags_work!=null)) {
+                    setServerselfTags(data.player_tags.tags_work);
+                }
+                if ((data.player_tags!=null) && (data.player_tags.desiring_tags_work!=null)) {
+                    setServerdesiringTags(data.player_tags.desiring_tags_work);
+                }
+    
+                if ((roundPosition.current!=null) && (data.lobby_state=="active")) {
+                    if (roundPosition.current!=0) {
+                        seekTo(playat-roundPosition.current);
+                        console.log("seeking to", playat-roundPosition.current);
+                    }
+                }
+
+                if ((opponentName!=data.opponent_name) || (opponentProfile==null)) {
+                    if ((!isFetchingProfile.current) && (data.opponent_name!=null)) {
+                        isFetchingProfile.current=true;
+                        console.log("fetching profile");
+                        const profile_response=await fetch(window.server_url+'/paired_player_profile', {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        if (profile_response.ok) {
+                            const profile_data=await profile_response.json();
+                            setOpponentProfile(profile_data);
+                            console.log("profile fetched:", profile_data.name);
+                        }else{
+                            console.log("profile fetch failed");
+                        }
+                        isFetchingProfile.current=false;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching lobby data:", error);
+        }
+    }
+
     useEffect(() => {
         if (!checkSound()) {
             setSoundEnabled(false);
@@ -126,72 +207,7 @@ const LobbyScreen = () => {
         }
 
         const interval = setInterval(async () => {
-            try {
-                isFetchingCounter.current+=1;
-                if (isFetchingCounter.current>5) {
-                    isFetchingCounter.current=0;
-                    isFetchingProfile.current=false;
-                }
-                const token = localStorage.getItem('access_token');
-                const isTabVisible = !document.hidden;
-                // const response = await fetch(window.server_url+'/lobby?is_visible='+isTabVisible, {
-                const response = await fetch(window.server_url+'/lobby?is_visible=true', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'is_visible_t_f': (isTabVisible)?"t":"f"
-                    }
-                });
-                
-                if (response.ok) {                    
-                    const data = await response.json();
-                    console.log("LOBBY PAIR DATA:", data);
-                    if (data.status=="inactive"){
-                        cancelSound();
-                        navigate('/');
-                    }
-
-                    
-                    setOpponentName(data.opponent_name);
-                    if (data.opponent_name==null) {
-                        setOpponentProfile(null);
-                    }
-                    
-                    setLobbyState(data.lobby_state);
-                    roundPosition.current = data.round_time_left;
-                    setRoundTimeLeft(data.round_time_left);
-
-                    setTableNumber(data.table_number);
-             
-                    if ((roundPosition.current!=null) && (data.lobby_state=="active")) {
-                        if (roundPosition.current!=0) {
-                            seekTo(playat-roundPosition.current);
-                            console.log("seeking to", playat-roundPosition.current);
-                        }
-                    }
-
-                    if ((opponentName!=data.opponent_name) || (opponentProfile==null)) {
-                        if ((!isFetchingProfile.current) && (data.opponent_name!=null)) {
-                            isFetchingProfile.current=true;
-                            console.log("fetching profile");
-                            const profile_response=await fetch(window.server_url+'/paired_player_profile', {
-                                headers: {
-                                    'Authorization': `Bearer ${token}`
-                                }
-                            });
-                            if (profile_response.ok) {
-                                const profile_data=await profile_response.json();
-                                setOpponentProfile(profile_data);
-                                console.log("profile fetched:", profile_data.name);
-                            }else{
-                                console.log("profile fetch failed");
-                            }
-                            isFetchingProfile.current=false;
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error("Error fetching lobby data:", error);
-            }
+            fetchLobbyData();
         }, useEffectTime);
 
         return () => clearInterval(interval);
@@ -199,50 +215,9 @@ const LobbyScreen = () => {
 
     // Add this new useEffect that runs whenever lobbyState changes
     useEffect(() => {
-        
-        const fetchLobbyDataOnStateChange = async () => {
-            try {
-                console.log("Lobby state changed to:", lobbyState);
-                const token = localStorage.getItem('access_token');
-                const response = await fetch(window.server_url+'/lobby?is_visible=true', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'is_visible_t_f': (!document.hidden)?"t":"f"
-                    }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log("STATE CHANGE UPDATE - LOBBY DATA:", data);
-                    
-                    if (data.status=="inactive"){
-                        cancelSound();
-                        navigate('/');
-                        return;
-                    }
-                    
-                    setOpponentName(data.opponent_name);
-                    if (data.opponent_name==null) {
-                        setOpponentProfile(null);
-                    }
-                    
-                    setLobbyState(data.lobby_state);
-                    roundPosition.current = data.round_time_left;
-                    setRoundTimeLeft(data.round_time_left);
-                    setTableNumber(data.table_number);
-                    
-                    if ((roundPosition.current!=null) && (data.lobby_state=="active")) {
-                        seekTo(playat-roundPosition.current);
-                        console.log("seeking to", playat-roundPosition.current);
-                    }
-                }
-            } catch (error) {
-                console.error("Error in state change update:", error);
-            }
-        };
 
         // Add a small delay to ensure server state is updated
-        const timeoutId = setTimeout(fetchLobbyDataOnStateChange, 1000);
+        const timeoutId = setTimeout(fetchLobbyData, 1000);
         
         return () => clearTimeout(timeoutId);
     }, [lobbyState]); // This will run whenever lobbyState changes
@@ -255,7 +230,7 @@ const LobbyScreen = () => {
             // If page is becoming visible (was hidden before), fetch latest
             if (isVisible && !isPageVisible) {
                 console.log("Page became visible - fetching latest data");
-                fetchLatestLobbyData();
+                fetchLobbyData();
             }
             
             setIsPageVisible(isVisible);
@@ -331,6 +306,12 @@ const LobbyScreen = () => {
     };
 
     const handleTagChange = (tagType, tag) => {
+        if (selfTags==null) {
+            setSelfTags(serverselfTags);
+        }
+        if (desiringTags==null) {
+            setDesiringTags(serverdesiringTags);
+        }
         if (tagType === 'self') {
             setSelfTags(prev => 
                 prev.includes(tag) 
@@ -346,40 +327,11 @@ const LobbyScreen = () => {
         }
     };
 
-    const fetchLatestLobbyData = async () => {
-        try {
-            const token = localStorage.getItem('access_token');
-            const response = await fetch(window.server_url+'/lobby?is_visible=true', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'is_visible_t_f': (!document.hidden)?"t":"f"
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                console.log("TIMER COMPLETE - FETCHING UPDATED DATA:", data);
-                
-                if (data.status=="inactive"){
-                    cancelSound();
-                    navigate('/');
-                    return;
-                }
-                
-                setOpponentName(data.opponent_name);
-                if (data.opponent_name==null) {
-                    setOpponentProfile(null);
-                }
-                
-                setLobbyState(data.lobby_state);
-                roundPosition.current = data.round_time_left;
-                setRoundTimeLeft(data.round_time_left);
-                setTableNumber(data.table_number);
-            }
-        } catch (error) {
-            console.error("Error fetching updated lobby data:", error);
+    useEffect(() => {
+        if ((selfTags!=null) && (desiringTags!=null)) {
+            define_profile_info(selfTags, desiringTags);
         }
-    };
+    }, [selfTags, desiringTags]);
 
     return (
         <div className="lobby-container">
@@ -415,7 +367,7 @@ const LobbyScreen = () => {
                                     strokeWidth={10}
                                     trailColor="#f5f7ff"
                                     onComplete={() => {
-                                        fetchLatestLobbyData();
+                                        fetchLobbyData();
                                         return { shouldRepeat: false }
                                     }}
                                     
@@ -485,7 +437,13 @@ const LobbyScreen = () => {
 
                 <form onSubmit={(e) => {
                     e.preventDefault();
-                    define_profile_info(selfTags.join(','), desiringTags.join(','));
+                    console.log("SELF TAGS:", selfTags);
+                    console.log("DESIRING TAGS:", desiringTags);
+                    if ((selfTags!=null) && (desiringTags!=null)) {
+                        define_profile_info(selfTags, desiringTags);
+                    } else{
+                        define_profile_info(serverselfTags, serverdesiringTags);
+                    }
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}>
                     <div className="tags-section">  
@@ -501,7 +459,9 @@ const LobbyScreen = () => {
                                     <label key={`self-${tag}`} className="tag-label">
                                         <input
                                             type="checkbox"
-                                            checked={selfTags.includes(tag)}
+                                            //checked={false}
+                                            //checked={serverselfTags.includes('Founder')}
+                                            checked={(selfTags!=null)?selfTags.includes(tag):serverselfTags.includes(tag)}
                                             onChange={() => handleTagChange('self', tag)}
                                         />
                                         {tag}
@@ -518,7 +478,8 @@ const LobbyScreen = () => {
                                     <label key={`desiring-${tag}`} className="tag-label">
                                         <input
                                             type="checkbox"
-                                            checked={desiringTags.includes(tag)}
+                                            //checked={(serverselfTags!=null)?serverselfTags.includes(tag):serverdesiringTags.includes(tag)}
+                                            checked={(desiringTags!=null)?desiringTags.includes(tag):serverdesiringTags.includes(tag)}
                                             onChange={() => handleTagChange('desiring', tag)}
                                         />
                                         {tag}
@@ -527,11 +488,11 @@ const LobbyScreen = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="button-group">
+                    {/* <div className="button-group">
                         <button className="primary-button" type="submit">
                             Save Profile
                         </button>
-                    </div>
+                    </div> */}
                 </form>
 
                 <div className="bottom-buttons" style={{
@@ -549,7 +510,7 @@ const LobbyScreen = () => {
                 </div>
             </div>
 
-            {(soundEnabled || !showSoundPrompt) || (lobbyState == "checkin") || (lobbyState == null) ? null : <SoundPrompt />}
+            {(soundEnabled || !showSoundPrompt) || (lobbyState == "checkin") || (lobbyState == null) || isPlaying ? null : <SoundPrompt />}
         </div>
     );
 }
