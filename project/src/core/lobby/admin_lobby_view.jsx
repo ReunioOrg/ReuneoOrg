@@ -111,6 +111,7 @@ const AdminLobbyView = () => {
     const [lobbyData, setLobbyData] = useState(null);
     const [lobbyTimer, setLobbyTimer] = useState(null);
     const [lobbyState, setLobbyState] = useState(null);
+    const [roundCounter, setRoundCounter] = useState(null);
 
     const navigate = useNavigate();
 
@@ -135,6 +136,7 @@ const AdminLobbyView = () => {
                 setPairedPlayers(data.pairs_data);
                 setLobbyTimer(data.round_time_left);
                 setLobbyState(data.lobby_state);
+                setRoundCounter(data.round_counter);
                 //setPairedPlayers(pairedPlayers_test_data);
             })
             .catch(error => {
@@ -235,6 +237,7 @@ const AdminLobbyView = () => {
                 <h2>Lobby Timer: {Math.floor(lobbyTimer)} for {lobbyState}</h2>
                 <div>
                     <h3>Lobby Stats:</h3>
+                    <h3>Round: {roundCounter}</h3>
                     <h3>Total Players: {(lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0)}</h3>
                     <h3>Paired Players: {pairedPlayers?.length * 2 || 0}</h3>
                     <h3>Unpaired Players: {lobbyData?.length || 0}</h3>
