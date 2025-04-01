@@ -418,7 +418,7 @@ const LobbyScreen = () => {
                 <div className="lobby-header" style={{marginTop: '-30px'}}>
                     <h2>
                         {lobbyState === "checkin" ? (
-                            "You're in! Please wait for your host to start the session."
+                            `You're in ${userProfile.name.length > 30 ? `${userProfile.name.slice(0, 15)}` : userProfile.name}! Please wait for your host to start the session.`
                         ) : lobbyState === "active" ? (
                             opponentName 
                                 ? `Pair up with ${opponentName}`

@@ -4,6 +4,7 @@ import ProfileCreation from './core/profile_creation';
 import usePlaySound from './core/playsound';
 import AuthProvider from './core/Auth/AuthContext';
 import { AuthContext } from './core/Auth/AuthContext';
+import './App.css';
 
 import LoginSignupLogoutButton from './core/Auth/LoginSignupLogoutButton';
 import PureSignupPage from './core/Auth/PureSignupPage';
@@ -41,19 +42,22 @@ const App = () => {
   return (
     <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
       {/* Background Video */}
-      <video className="background-video" autoPlay loop muted playsInline>
-        <source src="/assets/app_home_video.mp4" type="video/mp4" />
+      <video className="background-video" autoPlay loop muted playsInline poster="/assets/app_home_screenshot.png">
+        <source src="/assets/app_home_video_2.mp4" type="video/mp4" />
+        <source src="/assets/app_home_video_2.webm" type="video/webm" />
+        {/* Fallback for browsers that don't support video at all */}
+        <img src="/assets/app_home_screenshot.png" alt="Background fallback" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         Your browser does not support the video tag.
       </video>
       
       {/* Main App Content */}
       <div style={{ position: 'relative', zIndex: 1, color: 'white' }}>
         
-        <div style={{ position: 'absolute', top: '-1rem', left: '50%', transform: 'translateX(-50%)' }}>
+        <div style={{ position: 'absolute', top: '-2rem', left: '50%', transform: 'translateX(-50%)' }}>
           <img  
-            src="/assets/reunio-logo-v3.png"
+            src="/assets/reunio-logo-v5.png"
             alt="Logo"
-            style={{width: '85px',height: '85px',objectFit: 'contain'}}
+            style={{width: '110px',height: '110px',objectFit: 'contain'}}
           />
         </div>
 
@@ -69,7 +73,7 @@ const App = () => {
               width: '25%',
               gap: '1rem',
               borderRadius: '12px',
-              boxShadow: '0 0 10px rgba(74, 58, 58, 0.4)',
+              boxShadow: '0 0 10px rgba(74, 58, 58, 0.5)',
               outline: '1px solid rgba(74, 58, 58, 0.4)'
             }}
             className="profile-button"
@@ -90,40 +94,41 @@ const App = () => {
           />
         )}
 
-        <div
-          style={{
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginTop: '35%',
-            textAlign: 'center',
-          }}
-        >
+        <div style={{ 
+          marginTop: '12rem',  // Consistent top margin from the top of the page
+          width: '94%', 
+          marginLeft: 'auto', 
+          marginRight: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem'  // Creates consistent spacing between elements
+        }}>
+          {/* Welcome message - will only take up space when present */}
           {user && userProfile && userProfile.name && (
-            <div className="main-content">
-              <h3 style={{ 
-                color: '#ffffff',
-                background: 'linear-gradient(45deg, rgba(20, 77, 255, 0.7), rgba(0, 200, 255, 0.7))',
-                padding: '0.2rem 0.6rem', // Reduced padding
-                display: 'inline-block',
-                borderRadius: '0.8rem', // Slightly reduced border radius
-                fontSize: '1.2rem',
-                marginTop: '-0.5rem',
-                marginBottom: '0',
-                boxShadow: '0 4px 15px rgba(20, 77, 255, 0.4)',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                backdropFilter: 'blur(5px)'
-              }}>
-                Welcome {userProfile.name.length > 30 ? `${userProfile.name.slice(0, 15)}` : userProfile.name}
+            <div style={{ 
+              width: '100%', 
+              textAlign: 'center',
+            }}>
+              <h3 className="welcome-header">
+                {(() => {
+                  const text = `Welcome ${userProfile.name.length > 30 ? userProfile.name.slice(0, 15) : userProfile.name}`;
+                  return text.split("").map((char, index) => (
+                    <span 
+                      key={index} 
+                      style={{ 
+                        "--i": index + 1,
+                        ...(char === " " ? { marginRight: "0.5em" } : {}) // Add extra space after "Welcome"
+                      }}
+                    >
+                      {char}
+                    </span>
+                  ));
+                })()}
               </h3>
             </div>
           )}
-        </div>
 
-        <div className="events-list" style={{ marginTop: '2.5rem', width: '94%', marginLeft: 'auto', marginRight: 'auto' }}>
+          {/* Pair up header */}
           <h2 style={{ 
             textAlign: 'center', 
             width: '100%', 
@@ -131,18 +136,20 @@ const App = () => {
             fontSize: '1.2em',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
-            textShadow: '4px 4px 8px rgba(0,0,0,0.9)', // Enhanced shadow
-            marginBottom: '1rem'
+            textShadow: '4px 4px 8px rgba(0,0,0,0.9)',
+            margin: 0  // Remove default margins
           }}>
             Pair up with new friends
           </h2>
+
+          {/* Event item */}
           <div
             className="event-item"
             style={{
-              width: '50%', // Reduced from 70%
-              maxWidth: '400px', // Reduced from 500px
+              width: '50%',
+              maxWidth: '400px',
               margin: '0 auto',
-              padding: '15px', // Reduced from 20px
+              padding: '14px 8px',
               background: '#ffffff',
               borderRadius: '16px',
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
@@ -151,23 +158,16 @@ const App = () => {
               transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
               cursor: 'pointer',
               opacity: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
               ':hover': {
                 transform: 'translateY(-5px)'
               }
             }}
           >
-            <p
-              style={{
-                margin: '0 0 8px 0',
-                color: '#2d3748',
-                fontWeight: '600',
-                fontSize: '1.1em',
-                letterSpacing: '0.5px'
-              }}
-            >
-              
-            </p>
-            <p
+            {/* Keep the commented lobby count code */}
+            {/* <p
               style={{
                 margin: '0 0 15px 0',
                 color: '#4299e1',
@@ -187,7 +187,7 @@ const App = () => {
                 marginRight: '5px'
               }}></span>
               {lobby_state === 'terminate' ? 'Lobby closed' : `${player_count} in lobby`}
-            </p>
+            </p> */}
             <div style={{ 
               display: 'flex', 
               gap: '12px', 
@@ -204,8 +204,9 @@ const App = () => {
                   backgroundColor: '#144dff',
                   color: 'white',
                   border: 'none',
-                  borderRadius: '8px',
+                  borderRadius: '14px',
                   fontWeight: '600',
+                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
                   transition: 'all 0.2s ease',
                   ':hover': {
                     backgroundColor: '#535bf2',
@@ -223,8 +224,9 @@ const App = () => {
                   backgroundColor: '#144dff', 
                   color: 'white',
                   border: 'none',
-                  borderRadius: '8px',
+                  borderRadius: '14px',
                   fontWeight: '600',
+                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
                   transition: 'all 0.2s ease',
                   ':hover': {
                     backgroundColor: '#535bf2',

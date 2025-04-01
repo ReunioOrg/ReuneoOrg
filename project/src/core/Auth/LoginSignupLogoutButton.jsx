@@ -14,7 +14,7 @@ const LoginSignupLogoutButton = ({ user }) => {
                             onClick={() => navigate('/login')}
                             style={{ 
                                 borderRadius: '12px',
-                                boxShadow: '0 0 10px rgba(74, 58, 58, 0.4)',
+                                boxShadow: '0 0 10px rgba(74, 58, 58, 0.5)',
                                 outline: '1px solid rgba(74, 58, 58, 0.4)'
                             }}
                         >
@@ -25,7 +25,7 @@ const LoginSignupLogoutButton = ({ user }) => {
                             onClick={() => navigate('/signup')}
                             style={{ 
                                 borderRadius: '12px',
-                                boxShadow: '0 0 10px rgba(74, 58, 58, 0.4)', 
+                                boxShadow: '0 0 10px rgba(74, 58, 58, 0.5)', 
                                 outline: '1px solid rgba(74, 58, 58, 0.4)'
                             }}
                         >
@@ -39,7 +39,7 @@ const LoginSignupLogoutButton = ({ user }) => {
                             onClick={() => navigate('/logout')}
                             style={{ 
                                 borderRadius: '12px',
-                                boxShadow: '0 0 10px rgba(74, 58, 58, 0.4)',
+                                boxShadow: '0 0 10px rgba(74, 58, 58, 0.5)',
                                 outline: '1px solid rgba(74, 58, 58, 0.4)'
                             }}
                         >
