@@ -70,6 +70,7 @@ const KickConfirmationModal = ({ isOpen, onClose, onConfirm, userName }) => {
 
 const AdminLobbyView = () => {
     const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
+    const [lobbyCode, setLobbyCode] = useState('test');
 
     // const [earthartBase64, setEarthartBase64] = useState('');
 
@@ -115,6 +116,24 @@ const AdminLobbyView = () => {
 
     const navigate = useNavigate();
 
+    const CreateLobby = async () => {
+        const response = await fetch(window.server_url + '/create_lobby', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                lobby_code: lobbyCode
+            })
+        })
+
+        if (response.ok) {
+            console.log("Lobby created successfully");
+        } else {
+            console.error("Failed to create lobby");
+        }
+    }
     useEffect(() => {
         checkAuth();
 
@@ -167,8 +186,9 @@ const AdminLobbyView = () => {
             try {
                 const response = await fetch(window.server_url + '/admin_lobby_data', {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                    }
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'lobby_code': lobbyCode
+                    },
                 });
                 
                 if (response.ok) {
@@ -231,7 +251,8 @@ const AdminLobbyView = () => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                user_id: selectedUser.id
+                user_id: selectedUser.id,
+                lobby_code: lobbyCode
             })
         })
         .then(response => {
@@ -255,18 +276,25 @@ const AdminLobbyView = () => {
             <button onClick={() => {
                 if (window.confirm('Are you sure you want to reset the lobby timer?')) {
                     fetch(window.server_url + '/reset_lobby_timer', {
+                        method: 'GET',
                         headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                            'lobby_code': lobbyCode
                         }
                     })
                 }
             }}>Reset Lobby Timer</button>
 
+            <button onClick={CreateLobby}>Create Lobby</button>
+
+
             <button onClick={() => {
                 if (window.confirm('Are you sure you want to reset the entire lobby?')) {
                     fetch(window.server_url + '/reset_lobby', {
+                        method: 'GET',
                         headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                            'lobby_code': lobbyCode
                         }
                     })
                 }
@@ -275,21 +303,31 @@ const AdminLobbyView = () => {
             <button onClick={() => { //start_rounds
                 if (window.confirm('Are you sure you want to start the rounds?')) {
                     fetch(window.server_url + '/start_rounds', {
+                        method: 'GET',
                         headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                            'lobby_code': lobbyCode
                         }
                     })
                 }
             }}>Start Rounds</button>
             
 
-            <button onClick={() => {
+            <button onClick={async () => {
                 if (window.confirm('Are you sure you want to terminate the rounds?')) {
-                    fetch(window.server_url + '/terminate_lobby', {
+                    const response = await fetch(window.server_url + '/terminate_lobby', {
+                        method: 'GET',
                         headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                            'lobby_code': lobbyCode
                         }
                     })
+                    if (response.ok) {
+                        console.log("Lobby terminated successfully");
+                        navigate('/');
+                    } else {
+                        console.error("Failed to terminate lobby");
+                    }
                 }
             }}>Terminate Rounds</button>
 

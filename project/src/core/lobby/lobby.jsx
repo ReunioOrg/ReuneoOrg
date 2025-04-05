@@ -28,6 +28,7 @@ const useEffectTime=5000;
 const LobbyScreen = () => {
     
     const { audioRef, error, playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying } = usePlaySound();
+    const [lobbyCode, setLobbyCode] = useState('test');
 
     const { user, userProfile, checkAuth } = useContext(AuthContext);
 
@@ -105,7 +106,8 @@ const LobbyScreen = () => {
             cancelSound();
             const response = await fetch(window.server_url+'/disconnect_lobby', {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'lobby_code': lobbyCode
                 }
             });
             if (response.ok) {
