@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { AuthContext } from '../Auth/AuthContext';
 import usePlaySound from '../playsound';
 import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 
 //load asset image earthart.jpg
@@ -70,39 +70,22 @@ const KickConfirmationModal = ({ isOpen, onClose, onConfirm, userName }) => {
 
 const AdminLobbyView = () => {
     const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
-    const [lobbyCode, setLobbyCode] = useState('test');
+    const navigate = useNavigate();
+    const location = useLocation();
+    
+    // Extract lobby code from URL parameters
+    const params = new URLSearchParams(location.search);
+    const codeParam = params.get('code');
+    const [lobbyCode, setLobbyCode] = useState(codeParam || 'test');
 
-    // const [earthartBase64, setEarthartBase64] = useState('');
-
-    // const loadBase64 = async () => {
-    //     setEarthartBase64(await returnBase64TestImg());
-    // }
-    // loadBase64();
-
-    // useEffect(() => {
-    //     setPairedPlayers([
-    //         [
-    //             {name: "Player 1", image_data: earthartBase64},
-    //             {name: "Player 2", image_data: earthartBase64}
-    //         ],
-    //         [
-    //             {name: "Player 3", image_data: earthartBase64},
-    //             {name: "Player 4", image_data: earthartBase64}
-    //         ],
-    //         [
-    //             {name: "Player 5", image_data: earthartBase64},
-    //             {name: "Player 6", image_data: earthartBase64}
-    //         ],
-    //         [
-    //             {name: "Player 7", image_data: earthartBase64},
-    //             {name: "Player 8", image_data: earthartBase64}
-    //         ],
-    //         [
-    //             {name: "Player 9", image_data: earthartBase64},
-    //             {name: "Player 10", image_data: earthartBase64}
-    //         ]
-    //     ]);
-    // }, [earthartBase64]);
+    // Check if lobby code is missing and redirect if needed
+    useEffect(() => {
+        if (!codeParam) {
+            console.error("No lobby code found in URL");
+            // Don't redirect, just use the default 'test' value
+            // navigate('/');
+        }
+    }, [codeParam]);
 
     // State for kick user modal
     const [isKickModalOpen, setIsKickModalOpen] = useState(false);
@@ -113,8 +96,6 @@ const AdminLobbyView = () => {
     const [lobbyTimer, setLobbyTimer] = useState(null);
     const [lobbyState, setLobbyState] = useState(null);
     const [profilePictures, setProfilePictures] = useState({}); // Cache for profile pictures
-
-    const navigate = useNavigate();
 
     const CreateLobby = async () => {
         const response = await fetch(window.server_url + '/create_lobby', {
@@ -137,7 +118,7 @@ const AdminLobbyView = () => {
     useEffect(() => {
         checkAuth();
 
-        if (permissions!="admin"){
+        if (permissions!="admin" && permissions!="organizer"){
             navigate('/');
             return;
         }
@@ -193,32 +174,41 @@ const AdminLobbyView = () => {
                 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("Admin lobby data:", data);
+                    console.log("Admin lobby data:", lobbyCode, data);
                     
-                    // Process unpaired players to add profile pictures
-                    const unpairedWithPfp = await Promise.all(data.unpaired_players.map(async (player) => {
-                        const pfpData = await fetchProfilePicture(player.username);
-                        return {
-                            ...player,
-                            pfp_data: pfpData
-                        };
-                    }));
-                    
-                    // Process paired players to add profile pictures
-                    const pairsWithPfp = await Promise.all(data.pairs_data.map(async (pair) => {
-                        const player1PfpData = await fetchProfilePicture(pair[0].username);
-                        const player2PfpData = await fetchProfilePicture(pair[1].username);
+                    // Check if data has the expected structure
+                    if (data && data.unpaired_players) {
+                        // Process unpaired players to add profile pictures
+                        const unpairedWithPfp = await Promise.all(data.unpaired_players.map(async (player) => {
+                            const pfpData = await fetchProfilePicture(player.username);
+                            return {
+                                ...player,
+                                pfp_data: pfpData
+                            };
+                        }));
                         
-                        return [
-                            { ...pair[0], pfp_data: player1PfpData },
-                            { ...pair[1], pfp_data: player2PfpData }
-                        ];
-                    }));
-                    
-                    setLobbyData(unpairedWithPfp);
-                    setPairedPlayers(pairsWithPfp);
-                    setLobbyTimer(data.round_time_left);
-                    setLobbyState(data.lobby_state);
+                        // Process paired players to add profile pictures
+                        const pairsWithPfp = await Promise.all((data.pairs_data || []).map(async (pair) => {
+                            const player1PfpData = await fetchProfilePicture(pair[0].username);
+                            const player2PfpData = await fetchProfilePicture(pair[1].username);
+                            
+                            return [
+                                { ...pair[0], pfp_data: player1PfpData },
+                                { ...pair[1], pfp_data: player2PfpData }
+                            ];
+                        }));
+                        
+                        setLobbyData(unpairedWithPfp);
+                        setPairedPlayers(pairsWithPfp);
+                        setLobbyTimer(data.round_time_left);
+                        setLobbyState(data.lobby_state);
+                    } else {
+                        console.error("Invalid lobby data structure:", data);
+                        setLobbyData([]);
+                        setPairedPlayers([]);
+                    }
+                } else {
+                    console.error("Failed to fetch admin lobby data:", response.status);
                 }
             } catch (error) {
                 console.error("Error fetching admin lobby data:", error);

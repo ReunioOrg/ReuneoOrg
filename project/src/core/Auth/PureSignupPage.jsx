@@ -97,7 +97,7 @@ const PureSignupPage = () => {
                     'Access-Control-Allow-Origin': '*'
                 },
                 body: JSON.stringify({ username, password }),
-                mode: 'cors'
+                
             });
     
             const userData = await response.json();

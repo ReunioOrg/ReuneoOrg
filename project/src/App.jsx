@@ -215,26 +215,28 @@ const App = () => {
               >
                 {!user ? 'Join Lobby' : 'Join Lobby'}
               </button>
-              <button
-                className="primary-button"
-                onClick={() => navigate('/product-selection')}
-                style={{
-                  padding: '12px 24px',
-                  backgroundColor: '#144dff', 
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontWeight: '600',
-                  transition: 'all 0.2s ease',
-                  ':hover': {
-                    backgroundColor: '#535bf2',
-                    transform: 'scale(1.02)'
-                  }
-                }}
-              >
-                Create Lobby
-              </button>
-              {permissions === 'admin' && (
+              {(permissions === 'admin' || permissions === 'organizer') && (
+                <button
+                  className="primary-button"
+                  onClick={() => navigate('/create_lobby')}
+                  style={{
+                    padding: '12px 24px',
+                    backgroundColor: '#144dff', 
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    transition: 'all 0.2s ease',
+                    ':hover': {
+                      backgroundColor: '#535bf2',
+                      transform: 'scale(1.02)'
+                    }
+                  }}
+                >
+                  Create Lobby
+                </button>
+              )}
+              {(permissions === 'admin' || permissions === 'organizer') && (
                 <button 
                   className="primary-button" 
                   onClick={() => navigate('/admin_lobby_view')}

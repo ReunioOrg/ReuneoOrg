@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { AuthContext } from '../Auth/AuthContext';
 import usePlaySound from '../playsound';
 import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import PlayerCard from './playerCard';
 import './lobby.css';
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
@@ -22,13 +22,14 @@ const AVAILABLE_TAGS = [
 ];
 
 const useEffectTime=5000;
-
+const params = new URLSearchParams(window.location.search);
+const codeParam = params.get('code');
 
 
 const LobbyScreen = () => {
     
     const { audioRef, error, playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying } = usePlaySound();
-    const [lobbyCode, setLobbyCode] = useState('test');
+    const [lobbyCode, setLobbyCode] = useState(codeParam);
 
     const { user, userProfile, checkAuth } = useContext(AuthContext);
 
@@ -62,6 +63,8 @@ const LobbyScreen = () => {
     // Add this new state to track page visibility
     const [isPageVisible, setIsPageVisible] = useState(!document.hidden);
 
+    
+
     async function test_fetch(){
         const token = localStorage.getItem('access_token');
         const response = await fetch(window.server_url+'/player_info', {
@@ -94,10 +97,6 @@ const LobbyScreen = () => {
         console.log("SET PROFILE INFO:", data);
 
     }
-
-
-
-
 
 
     async function leaveLobby(){
@@ -136,13 +135,14 @@ const LobbyScreen = () => {
             const response = await fetch(window.server_url+'/lobby?is_visible='+isTabVisible, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'is_visible_t_f': (isTabVisible)?"t":"f"
+                    'is_visible_t_f': (isTabVisible)?"t":"f",
+                    'lobby_code': lobbyCode
                 }
             });
             
             if (response.ok) {                    
                 const data = await response.json();
-                console.log("LOBBY PAIR DATA:", data);
+                console.log("LOBBY PAIR DATA:",lobbyCode, data);
                 if (data.status=="inactive"){
                     cancelSound();
                     navigate('/');
@@ -244,6 +244,8 @@ const LobbyScreen = () => {
             document.removeEventListener("visibilitychange", handleVisibilityChange);
         };
     }, [isPageVisible]);
+
+    
 
     const SoundPrompt = () => {
         return (
