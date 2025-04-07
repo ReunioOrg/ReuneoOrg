@@ -55,7 +55,7 @@ const App = () => {
         
         <div style={{ position: 'absolute', top: '-2rem', left: '50%', transform: 'translateX(-50%)' }}>
           <img  
-            src="/assets/reunio-game-logo-1.png"
+            src="/assets/reunio-game-logo-3.png"
             alt="Logo"
             style={{width: '100px',height: '100px',objectFit: 'contain'}}
           />
@@ -272,8 +272,8 @@ const App = () => {
                   border: 'none',
                   outline: '2px solid rgba(58, 53, 53, 0.8)',
                   borderRadius: '14px',
-                  fontWeight: '800',
-                  fontSize: '1.1rem',
+                  fontWeight: '900',
+                  fontSize: '1.2rem',
                   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
                   transition: 'all 0.2s ease',
                   ':hover': {

@@ -34,7 +34,7 @@ const PureSignupPage = () => {
     const redirectTo = searchParams.get('redirect');
 
     const validateUsername = (username) => {
-        return username.length >= 4; // Simple minimum length check
+        return username.length >= 2; // Simple minimum length check
     };
 
     const validatePassword = (password) => {
@@ -54,8 +54,20 @@ const PureSignupPage = () => {
 
     const handlePreviousStep = () => {
         if (currentStep > 0) {
-            setCurrentStep(prev => prev - 1);
-            setCanProceed(false);
+            const previousStep = currentStep - 1;
+            setCurrentStep(previousStep);
+            
+            // Check if the previous field was valid
+            const previousField = steps[previousStep];
+            if (previousField.validate) {
+                const value = previousField.value;
+                if (previousField.validate(value)) {
+                    setCanProceed(true);
+                }
+            } else {
+                // For non-validating fields (like file upload), maintain canProceed state
+                setCanProceed(true);
+            }
         }
     };
 
@@ -84,7 +96,7 @@ const PureSignupPage = () => {
             setCanProceed(true);
         } else {
             setFieldSuccess(prev => ({ ...prev, [steps[currentStep].id]: false }));
-            setFieldErrors(prev => ({ ...prev, [steps[currentStep].id]: `Must be at least 4 characters` }));
+            setFieldErrors(prev => ({ ...prev, [steps[currentStep].id]: `Must be at least 2 characters` }));
             setCanProceed(false);
         }
     };
@@ -144,6 +156,17 @@ const PureSignupPage = () => {
         setCropArea(croppedAreaPixels);
     };
 
+    const handleSaveCroppedImage = async () => {
+        try {
+            const croppedImage = await getCroppedImg(imagePreview, cropArea);
+            setImagePreview(croppedImage);
+            setIsCropping(false);
+        } catch (error) {
+            console.error('Error cropping the image:', error);
+            setError('Failed to crop image. Please try again.');
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
@@ -151,6 +174,12 @@ const PureSignupPage = () => {
     
         if (!username || !password || !displayName) {
             setError('All fields are required');
+            setIsLoading(false);
+            return;
+        }
+    
+        if (!profileImage || !imagePreview) {
+            setError('Your profile picture is required👆🏼');
             setIsLoading(false);
             return;
         }
@@ -243,7 +272,7 @@ const PureSignupPage = () => {
             value: username,
             onChange: handleUsernameChange,
             type: 'text',
-            placeholder: 'People will see this when you join experiences.',
+            placeholder: 'Enter a username',
             validate: validateUsername
         },
         {
@@ -251,7 +280,7 @@ const PureSignupPage = () => {
             label: 'Password',
             value: password,
             onChange: handlePasswordChange,
-            type: 'password',
+            type: 'text',
             placeholder: 'Create a password',
             validate: validatePassword
         },
@@ -283,13 +312,13 @@ const PureSignupPage = () => {
             </button>
 
             <img 
-                src="/assets/reunio-game-logo-1.png"
+                src="/assets/reunio-game-logo-3.png"
                 alt="Reunio Logo"
                 className="logo-image"
                 style={{width: '100px',height: '100px',objectFit: 'contain'}}
             />
 
-            <h3 className="signup-header">Signup to join</h3>
+            <h3 className="signup-header">Sign Up to Join</h3>
 
             <p className="login-link-text">
                 Already have an account? <a 
@@ -349,12 +378,67 @@ const PureSignupPage = () => {
                                         }}
                                     >
                                         {steps[currentStep].type === 'file' ? (
-                                            <input
-                                                type="file"
-                                                onChange={steps[currentStep].onChange}
-                                                accept={steps[currentStep].accept}
-                                                className="step-input"
-                                            />
+                                            <div className="image-upload-container">
+                                                {!isCropping ? (
+                                                    <>
+                                                        <input
+                                                            type="file"
+                                                            onChange={steps[currentStep].onChange}
+                                                            accept={steps[currentStep].accept}
+                                                            className="step-input"
+                                                        />
+                                                        {imagePreview && (
+                                                            <div className="image-preview">
+                                                                <img
+                                                                    src={imagePreview}
+                                                                    alt="Profile preview"
+                                                                    style={{
+                                                                        width: '100%',
+                                                                        height: '200px',
+                                                                        objectFit: 'cover',
+                                                                        borderRadius: '12px',
+                                                                        marginTop: '12px'
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <div className="cropper-container">
+                                                        <div className="cropper-wrapper">
+                                                            <ReactCropper
+                                                                image={imagePreview}
+                                                                crop={crop}
+                                                                zoom={zoom}
+                                                                aspect={1}
+                                                                onCropComplete={handleCropComplete}
+                                                                onCropChange={setCrop}
+                                                                onZoomChange={setZoom}
+                                                            />
+                                                        </div>
+                                                        <div className="cropper-controls">
+                                                            <button
+                                                                type="button"
+                                                                onClick={handleSaveCroppedImage}
+                                                                className="save-crop-button"
+                                                            >
+                                                                Good
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setIsCropping(false);
+                                                                    setImagePreview(null);
+                                                                    setProfileImage(null);
+                                                                }}
+                                                                className="cancel-crop-button"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
                                         ) : (
                                             <input
                                                 type={steps[currentStep].type}
