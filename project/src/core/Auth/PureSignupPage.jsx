@@ -51,9 +51,20 @@ const PureSignupPage = () => {
             // and display name is empty, set it to username
             if (currentStep === 0 && !displayName) {
                 setDisplayName(username);
+                // Since we know the username is valid (as Next was clickable),
+                // we can set the success state for display name
+                setFieldSuccess(prev => ({ ...prev, displayName: true }));
+                setFieldErrors(prev => ({ ...prev, displayName: '' }));
             }
+            
+            // If we're moving to the display name step and it's pre-filled
+            if (currentStep === 1 && displayName && displayName.length >= 4) {
+                setCanProceed(true);
+            } else {
+                setCanProceed(false);
+            }
+            
             setCurrentStep(prev => prev + 1);
-            setCanProceed(false);
         }
     };
 
