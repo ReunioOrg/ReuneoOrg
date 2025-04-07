@@ -243,84 +243,19 @@
     flex-direction: column;
 }
 
-.back-button-container {
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    top: 90px;
-    padding-left: 4px;
-}
-
-.back-button {
-    background: #144dff;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.15s ease;
-    position: relative;
-    overflow: hidden;
-    -webkit-tap-highlight-color: transparent; /* Removes mobile tap highlight */
-    user-select: none; /* Prevents text selection */
-}
-
-.back-button:hover {
-    background: #2979ff;
-}
-
-.back-button:active {
-    transform: scale(0.97);
-    background: #0d3cc5;
-}
-
-.back-button:focus {
-    outline: none;
-}
-
-.back-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.1);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.back-button:active::before {
-    opacity: 1;
-}
-
 .button-container {
     width: 100%;
     display: flex;
     justify-content: space-between;
     position: absolute;
-    top: 120px;
+    top: 110px;
     padding: 0 4px;
     align-items: center;
-}
-
-.left-button {
-    flex: 1;
     display: flex;
-    justify-content: flex-start;
-    align-items: center;
+    flex-direction: row;
 }
 
-.right-button {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-}
-
-.back-button {
+.backz-button {
     background: #144dff;
     color: white;
     border: none;
@@ -330,7 +265,7 @@
     font-size: 0.9rem;
     font-weight: 500;
     transition: all 0.15s ease;
-    position: relative;
+    position: static;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
@@ -338,9 +273,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    align-self: flex-start;
 }
 
-.next-button {
+.nextz-button {
     background: #144dff;
     color: white;
     border: none;
@@ -350,7 +286,7 @@
     font-size: 0.9rem;
     font-weight: 500;
     transition: all 0.15s ease;
-    position: relative;
+    position: static;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
@@ -358,22 +294,24 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0;
+    align-self: flex-end;
 }
 
-.next-button:hover {
+.nextz-button:hover, .backz-button:hover {
     background: #2979ff;
 }
 
-.next-button:active {
+.nextz-button:active, .backz-button:active {
     transform: scale(0.97);
     background: #0d3cc5;
 }
 
-.next-button:focus {
+.nextz-button:focus, .backz-button:focus {
     outline: none;
 }
 
-.next-button::before {
+.nextz-button::before, .backz-button::before {
     content: '';
     position: absolute;
     top: 0;
@@ -385,7 +323,7 @@
     transition: opacity 0.2s ease;
 }
 
-.next-button:active::before {
+.nextz-button:active::before, .backz-button:active::before {
     opacity: 1;
 }
 
@@ -403,7 +341,7 @@
     margin: 0 auto;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .cropper-container {
