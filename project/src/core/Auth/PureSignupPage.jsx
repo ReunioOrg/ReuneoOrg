@@ -47,6 +47,11 @@ const PureSignupPage = () => {
 
     const handleNextStep = () => {
         if (currentStep < steps.length - 1) {
+            // If we're on username step (0) and moving to password step (1)
+            // and display name is empty, set it to username
+            if (currentStep === 0 && !displayName) {
+                setDisplayName(username);
+            }
             setCurrentStep(prev => prev + 1);
             setCanProceed(false);
         }
@@ -388,7 +393,7 @@ const PureSignupPage = () => {
                                                             className="step-input"
                                                         />
                                                         {imagePreview && (
-                                                            <div className="image-preview">
+                                                            <div className="image-preview" style={{ marginTop: '50px' }}>
                                                                 <img
                                                                     src={imagePreview}
                                                                     alt="Profile preview"
@@ -397,7 +402,7 @@ const PureSignupPage = () => {
                                                                         height: '200px',
                                                                         objectFit: 'cover',
                                                                         borderRadius: '12px',
-                                                                        marginTop: '12px'
+                                                                        marginTop: '15px'
                                                                     }}
                                                                 />
                                                             </div>
@@ -479,8 +484,8 @@ const PureSignupPage = () => {
                                 </motion.div>
                             </div>
 
-                            <div className="button-container">
-                                <div className="left-button">
+                            {!isCropping && (
+                                <div className="button-container">
                                     {currentStep > 0 && (
                                         <motion.button
                                             initial={{ opacity: 0 }}
@@ -488,13 +493,14 @@ const PureSignupPage = () => {
                                             transition={{ delay: 0.3 }}
                                             type="button"
                                             onClick={handlePreviousStep}
-                                            className="back-button"
+                                            className="backz-button"
+                                            style={{
+                                                marginRight: '10px'
+                                            }}
                                         >
                                             ← Back
                                         </motion.button>
                                     )}
-                                </div>
-                                <div className="right-button">
                                     {canProceed && currentStep < steps.length - 1 && (
                                         <motion.button
                                             initial={{ opacity: 0 }}
@@ -502,13 +508,16 @@ const PureSignupPage = () => {
                                             transition={{ delay: 0.3 }}
                                             type="button"
                                             onClick={handleNextStep}
-                                            className="next-button"
+                                            className="nextz-button"
+                                            style={{
+                                                marginLeft: '10px'
+                                            }}
                                         >
                                             Next →
                                         </motion.button>
                                     )}
                                 </div>
-                            </div>
+                            )}
                         </motion.div>
                     </AnimatePresence>
 

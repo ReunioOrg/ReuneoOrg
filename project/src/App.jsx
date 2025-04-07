@@ -42,11 +42,11 @@ const App = () => {
   return (
     <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
       {/* Background Video */}
-      <video className="background-video" autoPlay loop muted playsInline poster="/assets/app_home_screenshot.png">
-        <source src="/assets/app_home_video_4.mp4" type="video/mp4" />
+      <video className="background-video" autoPlay loop muted playsInline poster="/assets/app_home_screenshot_5.png">
+        <source src="/assets/app_home_video_5.mp4" type="video/mp4" />
         <source src="/assets/app_home_video_2.webm" type="video/webm" />
         {/* Fallback for browsers that don't support video at all */}
-        <img src="/assets/app_home_screenshot.png" alt="Background fallback" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <img src="/assets/app_home_screenshot_5.png" alt="Background fallback" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         Your browser does not support the video tag.
       </video>
       
@@ -259,7 +259,7 @@ const App = () => {
                   WebkitTextStroke: '0.5px rgba(58, 53, 53, 0.4)',
                   color: 'inherit'
                 }}>
-                  {!user ? 'Join' : 'Join Lobby'}
+                  {!user ? 'Join' : 'Join'}
                 </span>
               </button>
               <button
