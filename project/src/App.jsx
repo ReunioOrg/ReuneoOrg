@@ -118,7 +118,7 @@ const App = () => {
   }, []);
 
   // Function to navigate to a specific lobby
-  const navigateToLobby = (lobbyCode) => {
+  const navigateToAdminLobby = (lobbyCode) => {
     if (permissions === 'admin' || permissions === 'organizer') {
       navigate(`/admin_lobby_view?code=${lobbyCode}`);
     } else {
@@ -396,7 +396,7 @@ const App = () => {
                       position: 'relative',
                       overflow: 'hidden'
                     }}
-                    onClick={() => navigateToLobby(lobbyCode)}
+                    onClick={() => navigateToAdminLobby(lobbyCode)}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.transform = 'translateY(-5px)';
                       e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.7)';
