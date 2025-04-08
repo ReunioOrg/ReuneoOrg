@@ -38,11 +38,11 @@ const PureSignupPage = () => {
     };
 
     const validatePassword = (password) => {
-        return password.length >= 4;
+        return password.length >= 2;
     };
 
     const validateDisplayName = (name) => {
-        return name.length >= 4;
+        return name.length >= 2;
     };
 
     const handleNextStep = () => {
