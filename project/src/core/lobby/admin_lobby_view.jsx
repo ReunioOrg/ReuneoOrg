@@ -81,9 +81,39 @@ const AdminLobbyView = () => {
     // Check if lobby code is missing and redirect if needed
     useEffect(() => {
         if (!codeParam) {
-            console.error("No lobby code found in URL");
-            // Don't redirect, just use the default 'test' value
-            // navigate('/');
+            console.log("No lobby code found in URL, using default 'test' value");
+            // If no code in URL, try to fetch the active lobby
+            const fetchActiveLobby = async () => {
+                try {
+                    const token = localStorage.getItem('access_token');
+                    const response = await fetch(window.server_url + '/view_my_active_lobbies', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        // Parse the response as JSON
+                        const data = await response.json();
+                        console.log("Active lobbies response:", data);
+                        
+                        // Check if the response has a lobbies array with at least one lobby
+                        if (data && data.lobbies && data.lobbies.length > 0) {
+                            // Use the first lobby in the array
+                            const lobbyCode = data.lobbies[0];
+                            
+                            // Update the lobby code state
+                            setLobbyCode(lobbyCode);
+                            // Update the URL without refreshing the page
+                            window.history.replaceState({}, '', `/admin_lobby_view?code=${lobbyCode}`);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error fetching active lobby:", error);
+                }
+            };
+            
+            fetchActiveLobby();
         }
     }, [codeParam]);
 
@@ -118,7 +148,7 @@ const AdminLobbyView = () => {
     useEffect(() => {
         checkAuth();
 
-        if (permissions!="admin" && permissions!="organizer"){
+        if (permissions !== "admin" && permissions !== "organizer") {
             navigate('/');
             return;
         }

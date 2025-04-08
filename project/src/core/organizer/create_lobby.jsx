@@ -10,6 +10,8 @@ const CreateLobbyView = () => {
     const [lobbyCode, setLobbyCode] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [showValidationPopup, setShowValidationPopup] = useState(false);
+    const [validationMessage, setValidationMessage] = useState('');
 
     const navigate = useNavigate();
 
@@ -21,8 +23,43 @@ const CreateLobbyView = () => {
         }
     }, [user]);
 
+    // Function to validate lobby code (only letters and numbers allowed)
+    const validateLobbyCode = (code) => {
+        // Regular expression to match only letters and numbers
+        const validCodeRegex = /^[a-zA-Z0-9]*$/;
+        return validCodeRegex.test(code);
+    };
+
+    // Handle lobby code input change with validation
+    const handleLobbyCodeChange = (e) => {
+        const newValue = e.target.value;
+        
+        // If the new value is valid or empty, update the state
+        if (validateLobbyCode(newValue) || newValue === '') {
+            setLobbyCode(newValue);
+            setShowValidationPopup(false);
+        } else {
+            // If invalid, show the popup with an error message
+            setValidationMessage("Only letters and numbers are allowed. No spaces, special characters, or symbols.");
+            setShowValidationPopup(true);
+            
+            // Hide the popup after 3 seconds
+            setTimeout(() => {
+                setShowValidationPopup(false);
+            }, 3000);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Validate lobby code before submission
+        if (!validateLobbyCode(lobbyCode)) {
+            setValidationMessage("Lobby code can only contain letters and numbers.");
+            setShowValidationPopup(true);
+            return;
+        }
+        
         setIsLoading(true);
         setError('');
 
@@ -79,14 +116,25 @@ const CreateLobbyView = () => {
                         type="text"
                         id="lobbyCode"
                         value={lobbyCode}
-                        onChange={(e) => setLobbyCode(e.target.value)}
-                        placeholder="Enter lobby code"
+                        onChange={handleLobbyCodeChange}
+                        placeholder="Enter lobby code (letters and numbers only)"
                         required
                         className="form-input"
                     />
+                    <div className="input-hint">Only letters and numbers are allowed</div>
                 </div>
                 
                 {error && <div className="error-message">{error}</div>}
+                
+                {/* Validation Popup */}
+                {showValidationPopup && (
+                    <div className="validation-popup">
+                        <div className="validation-popup-content">
+                            <p>{validationMessage}</p>
+                            <button onClick={() => setShowValidationPopup(false)}>Close</button>
+                        </div>
+                    </div>
+                )}
                 
                 <div className="button-group">
                     <button 

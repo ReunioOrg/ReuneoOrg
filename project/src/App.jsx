@@ -24,9 +24,88 @@ const App = () => {
 
   const [player_count, setPlayerCount] = useState(null);
   const [lobby_state, setLobbyState] = useState(null);
+  const [activeLobbies, setActiveLobbies] = useState([]);
+  const [isLoadingLobbies, setIsLoadingLobbies] = useState(false);
 
   const navigate = useNavigate();
   useGetLobbyMetadata(setPlayerCount, setLobbyState);
+
+  // Function to fetch and redirect to admin's active lobby
+  const redirectToAdminLobby = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(window.server_url + '/view_my_active_lobbies', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        // Parse the response as JSON
+        const data = await response.json();
+        console.log("Active lobbies response:", data);
+        
+        // Check if the response has a lobbies array with at least one lobby
+        if (data && data.lobbies && data.lobbies.length > 0) {
+          // Use the first lobby in the array
+          const lobbyCode = data.lobbies[0];
+          
+          // Redirect to admin lobby view with the lobby code
+          navigate(`/admin_lobby_view?code=${lobbyCode}`);
+        } else {
+          // If no active lobby found, just navigate to the admin lobby view page
+          navigate('/admin_lobby_view');
+        }
+      } else {
+        console.error("Failed to fetch active lobby");
+        navigate('/admin_lobby_view');
+      }
+    } catch (error) {
+      console.error("Error fetching active lobby:", error);
+      navigate('/admin_lobby_view');
+    }
+  };
+
+  // Function to fetch user's active lobbies
+  const fetchActiveLobbies = async () => {
+    if (!user) return;
+    
+    setIsLoadingLobbies(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(window.server_url + '/view_my_active_lobbies', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log("User's active lobbies:", data);
+        
+        if (data && data.lobbies && Array.isArray(data.lobbies)) {
+          setActiveLobbies(data.lobbies);
+        } else {
+          setActiveLobbies([]);
+        }
+      } else {
+        console.error("Failed to fetch user's active lobbies");
+        setActiveLobbies([]);
+      }
+    } catch (error) {
+      console.error("Error fetching user's active lobbies:", error);
+      setActiveLobbies([]);
+    } finally {
+      setIsLoadingLobbies(false);
+    }
+  };
+
+  // Fetch active lobbies when user is authenticated
+  useEffect(() => {
+    if (user) {
+      fetchActiveLobbies();
+    }
+  }, [user]);
 
   // const handleProfileSubmit = (profileData) => {
   //   // Here you would typically send the data to your server
@@ -37,6 +116,15 @@ const App = () => {
   useEffect(() => {
     checkAuth();
   }, []);
+
+  // Function to navigate to a specific lobby
+  const navigateToLobby = (lobbyCode) => {
+    if (permissions === 'admin' || permissions === 'organizer') {
+      navigate(`/admin_lobby_view?code=${lobbyCode}`);
+    } else {
+      navigate(`/lobby?code=${lobbyCode}`);
+    }
+  };
 
   return (
     <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
@@ -239,7 +327,7 @@ const App = () => {
               {(permissions === 'admin' || permissions === 'organizer') && (
                 <button 
                   className="primary-button" 
-                  onClick={() => navigate('/admin_lobby_view')}
+                  onClick={redirectToAdminLobby}
                   style={{
                     padding: '12px 24px',
                     backgroundColor: '#2d3748',
@@ -260,6 +348,136 @@ const App = () => {
             </div>
           </div>
         </div>
+
+        {/* Active Lobbies Section */}
+        {user && (
+          <div className="events-list" style={{ marginTop: '2rem', width: '94%', marginLeft: 'auto', marginRight: 'auto', marginBottom: '2rem' }}>
+            <h2 style={{ 
+              textAlign: 'center', 
+              width: '100%', 
+              color: '#ffffff',
+              fontSize: '1.2em',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              textShadow: '4px 4px 8px rgba(0,0,0,0.9)',
+              marginBottom: '1rem'
+            }}>
+              Your Active Lobbies
+            </h2>
+            
+            {isLoadingLobbies ? (
+              <div style={{ textAlign: 'center', color: 'white' }}>
+                <p>Loading your lobbies...</p>
+              </div>
+            ) : activeLobbies.length > 0 ? (
+              <div style={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                justifyContent: 'center', 
+                gap: '1rem' 
+              }}>
+                {activeLobbies.map((lobbyCode, index) => (
+                  <div
+                    key={index}
+                    className="card"
+                    style={{
+                      width: '200px',
+                      background: '#ffffff',
+                      borderRadius: '16px',
+                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
+                      border: '1px solid rgba(255, 255, 255, 0.5)',
+                      transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                      cursor: 'pointer',
+                      padding: '1.5rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}
+                    onClick={() => navigateToLobby(lobbyCode)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-5px)';
+                      e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.7)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.6)';
+                    }}
+                  >
+                    <div className="glow-button" style={{ 
+                      width: '40px', 
+                      height: '40px', 
+                      borderRadius: '50%', 
+                      backgroundColor: '#144dff',
+                      marginBottom: '1rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontWeight: 'bold'
+                    }}>
+                      {lobbyCode && lobbyCode.length > 0 ? lobbyCode.charAt(0).toUpperCase() : '?'}
+                    </div>
+                    <h3 style={{ 
+                      margin: '0 0 0.5rem 0', 
+                      color: '#2d3748',
+                      fontWeight: '600',
+                      fontSize: '1.1em',
+                      textAlign: 'center'
+                    }}>
+                      Lobby {lobbyCode || 'Unknown'}
+                    </h3>
+                    <p style={{ 
+                      margin: '0', 
+                      color: '#4299e1',
+                      fontWeight: '500',
+                      fontSize: '0.9em',
+                      textAlign: 'center'
+                    }}>
+                      Click to join
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ 
+                textAlign: 'center', 
+                color: 'white',
+                background: 'rgba(0, 0, 0, 0.3)',
+                padding: '1rem',
+                borderRadius: '8px',
+                maxWidth: '400px',
+                margin: '0 auto'
+              }}>
+                <p>You don't have any active lobbies.</p>
+                {(permissions === 'admin' || permissions === 'organizer') && (
+                  <button
+                    className="primary-button"
+                    onClick={() => navigate('/create_lobby')}
+                    style={{
+                      marginTop: '1rem',
+                      padding: '8px 16px',
+                      backgroundColor: '#144dff', 
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: '600',
+                      transition: 'all 0.2s ease',
+                      ':hover': {
+                        backgroundColor: '#535bf2',
+                        transform: 'scale(1.02)'
+                      }
+                    }}
+                  >
+                    Create a Lobby
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
