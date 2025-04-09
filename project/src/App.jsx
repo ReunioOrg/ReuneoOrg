@@ -145,7 +145,7 @@ const App = () => {
     // navigate(`/lobby?code=${lobbyCodeInput.trim()}&name=${name}`);
     console.log(name);
     setLobbyCodeInput(name);
-    setLobbyCode(name);
+    //setLobbyCode(name);
     navigate(`/lobby?code=${name}`);
     setLobbyCodeInput('');
     setLobbyCodeError('');

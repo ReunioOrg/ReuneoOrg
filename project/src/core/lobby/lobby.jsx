@@ -23,24 +23,27 @@ const AVAILABLE_TAGS = [
 
 const useEffectTime=5000;
 
-const params = new URLSearchParams(window.location.search);
-const codeParam = params.get('code');
 
 const LobbyScreen = () => {
     
     const { audioRef, error, playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying } = usePlaySound();
-    const [lobbyCode, setLobbyCode] = useState(codeParam);
+    const [lobbyCode, setLobbyCode] = useState('yonder');
     const navigate = useNavigate();
+    const { code } = useParams();
 
-    // Add this useEffect to get the code from URL parameters
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const codeParam = params.get('code');
-        if (codeParam) {
+        const checkParams = () => {
+            const params = new URLSearchParams(window.location.search);
+            const codeParam = params.get('code') || code;         
             setLobbyCode(codeParam);
-            console.log("lobby code:", codeParam);
-        }
-    }, []);
+        };
+        checkParams(); // Initial check        
+        // Set up interval to check every 100ms
+        const interval = setInterval(checkParams, 200);
+        
+        // Cleanup interval on unmount
+        return () => clearInterval(interval);
+    }, [code, lobbyCode]);
 
     const { user, userProfile, checkAuth } = useContext(AuthContext);
 
@@ -140,7 +143,12 @@ const LobbyScreen = () => {
             }
             const token = localStorage.getItem('access_token');
             const isTabVisible = !document.hidden;
-            console.log("lobby code:", lobbyCode);
+            console.log("lobby code fr:", lobbyCode);
+            if (lobbyCode=="yonder") {
+                console.log("lobby code is not set");
+                return;
+            }
+
             // const response = await fetch(window.server_url+'/lobby?is_visible='+isTabVisible, {
             const response = await fetch(`${window.server_url}/lobby?is_visible=${isTabVisible}`, {
                 headers: {
@@ -232,7 +240,7 @@ const LobbyScreen = () => {
         const timeoutId = setTimeout(fetchLobbyData, 1000);
         
         return () => clearTimeout(timeoutId);
-    }, [lobbyState]); // This will run whenever lobbyState changes
+    }, [lobbyState, lobbyCode]); // This will run whenever lobbyState changes
 
     // When page becomes visible again, fetch latest lobby data
     useEffect(() => {
