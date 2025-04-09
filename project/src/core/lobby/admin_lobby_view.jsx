@@ -271,7 +271,7 @@ const AdminLobbyView = () => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                user_id: selectedUser.id,
+                username: selectedUser.username,
                 lobby_code: lobbyCode
             })
         })
