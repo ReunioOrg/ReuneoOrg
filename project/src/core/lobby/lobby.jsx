@@ -23,12 +23,24 @@ const AVAILABLE_TAGS = [
 
 const useEffectTime=5000;
 
-
+const params = new URLSearchParams(window.location.search);
+const codeParam = params.get('code');
 
 const LobbyScreen = () => {
     
     const { audioRef, error, playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying } = usePlaySound();
-    const [lobbyCode, setLobbyCode] = useState('test');
+    const [lobbyCode, setLobbyCode] = useState(codeParam);
+    const navigate = useNavigate();
+
+    // Add this useEffect to get the code from URL parameters
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const codeParam = params.get('code');
+        if (codeParam) {
+            setLobbyCode(codeParam);
+            console.log("lobby code:", codeParam);
+        }
+    }, []);
 
     const { user, userProfile, checkAuth } = useContext(AuthContext);
 
@@ -50,8 +62,6 @@ const LobbyScreen = () => {
     // const playat=220;
     const playat=300;
     const isFetchingCounter=useRef(0);
-
-    const navigate = useNavigate();
 
     const [selfTags, setSelfTags] = useState(null);
     const [desiringTags, setDesiringTags] = useState(null);
@@ -132,11 +142,13 @@ const LobbyScreen = () => {
             }
             const token = localStorage.getItem('access_token');
             const isTabVisible = !document.hidden;
+            console.log("lobby code:", lobbyCode);
             // const response = await fetch(window.server_url+'/lobby?is_visible='+isTabVisible, {
-            const response = await fetch(window.server_url+'/lobby?is_visible='+isTabVisible, {
+            const response = await fetch(`${window.server_url}/lobby?is_visible=${isTabVisible}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'is_visible_t_f': (isTabVisible)?"t":"f"
+                    'is_visible_t_f': (isTabVisible)?"t":"f",
+                    'lobby_code': lobbyCode
                 }
             });
             
