@@ -371,13 +371,13 @@ const LobbyScreen = () => {
                     display: 'flex',
                     justifyContent: 'center',
                     marginBottom: '0',
-                    marginTop: '.5rem'
+                    marginTop: '-1.5rem'
                 }}>
                     <img 
                         src="/assets/reunio-game-logo-1.png"
                         alt="Reunio Logo"
                         style={{
-                            maxWidth: '100px',
+                            maxWidth: '85px',
                             height: 'auto',
                             objectFit: 'contain'
                         }}
@@ -385,7 +385,7 @@ const LobbyScreen = () => {
                 </div>
 
                 {lobbyState !== "checkin" && (
-                    <div className="time-left" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'white'}}>
+                    <div className="time-left" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'white', marginTop: '-2rem'}}>
                         {((lobbyState === "active" || lobbyState === "interrim") && roundTimeLeft) ? (
                             <>
                                 <CountdownCircleTimer
@@ -427,7 +427,7 @@ const LobbyScreen = () => {
                 <div style={{display: 'flex', justifyContent: 'center', width: '100%', margin: '0 auto'}}>
                     {(lobbyState === "active" || lobbyState === "interrim") ? (
                         opponentProfile ? (
-                            <div style={{marginTop: '-3.5rem', width: '100%', display: 'flex', justifyContent: 'center'}}>
+                            <div style={{marginTop: '-4.5rem', width: '100%', display: 'flex', justifyContent: 'center'}}>
                                 <PlayerCard player={opponentProfile} />
                             </div>
                         ) : (
@@ -446,23 +446,47 @@ const LobbyScreen = () => {
                     )}
                 </div>
 
-                <div className="lobby-header" style={{marginTop: '-30px'}}>
+                <div className="lobby-header" style={{marginTop: '-70px'}}>
                     <h2>
                         {lobbyState === "checkin" ? (
-                            `You're in ${userProfile.name.length > 30 ? `${userProfile.name.slice(0, 15)}` : userProfile.name}! Please wait for your host to start the session.`
-                        ) : lobbyState === "active" ? (
-                            opponentName 
-                                ? `Pair up with ${opponentName}`
-                                : "You will be paired with someone in the next round."
+                            `You're in ${userProfile.name.length > 30 ? `${userProfile.name.slice(0, 15)}` : userProfile.name}! While you wait, select your tags to help us match you with the right people.`
+                        ) : lobbyState === "active" && !opponentProfile ? (
+                            "You will be paired with someone in the next round."
                         ) : lobbyState === "interrim" ? (
                             "Get ready for the next round!"
-                        ) : lobbyState === "terminate" ? (
+                        ) : lobbyState === "terminated" ? (
                             "This session has ended. Thank you for participating!"
                         ) : (
-                            "Please wait for the next round to start"
+                            ""
                         )}
                     </h2>
                 </div>
+
+                {/* Display tags in checkin or active state */}
+                {(lobbyState === "checkin" || lobbyState === "active") && (
+                    <div className="selected-tags-container">
+                        {(selfTags && selfTags.length > 0) && (
+                            <div className="tag-category">
+                                <h4>What I do:</h4>
+                                <div className="tag-list">
+                                    {selfTags.map(tag => (
+                                        <span key={`self-${tag}`} className="tag-item">{tag}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        {(desiringTags && desiringTags.length > 0) && (
+                            <div className="tag-category">
+                                <h4>Looking for:</h4>
+                                <div className="tag-list">
+                                    {desiringTags.map(tag => (
+                                        <span key={`desiring-${tag}`} className="tag-item">{tag}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 <button className="leave-lobby-button" onClick={leaveLobby}>Leave Lobby</button>
 

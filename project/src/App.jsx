@@ -122,6 +122,19 @@ const App = () => {
     checkAuth();
   }, []);
 
+  // Check for showLobbyModal query parameter and open the modal if present
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const showLobbyModal = searchParams.get('showLobbyModal');
+    
+    if (showLobbyModal === 'true' && user) {
+      setShowLobbyCodeModal(true);
+      // Remove the query parameter from the URL without refreshing the page
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [user]);
+
   // Function to navigate to a specific lobby
   const navigateToAdminLobby = (lobbyCode) => {
     if (permissions === 'admin' || permissions === 'organizer') {
@@ -444,7 +457,7 @@ const App = () => {
                   Create Lobby
                 </button>
               )}
-              {(permissions === 'admin' || permissions === 'organizer') && (
+              {/* {(permissions === 'admin' || permissions === 'organizer') && (
                 <button 
                   className="primary-button" 
                   onClick={redirectToAdminLobby}
@@ -470,7 +483,7 @@ const App = () => {
                     Admin Lobby View
                   </span>
                 </button>
-              )}
+              )} */}
             </div>
           </div>
         </div>

@@ -275,7 +275,7 @@ const PureSignupPage = () => {
             await checkAuth();
             
             if (redirectTo === 'lobby') {
-                navigate('/lobby');
+                navigate('/?showLobbyModal=true');
             } else if (redirectTo === 'product-selection') {
                 navigate('/product-selection');
             } else {

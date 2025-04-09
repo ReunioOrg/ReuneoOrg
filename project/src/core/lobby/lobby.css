@@ -27,6 +27,7 @@
     border-radius: 16px;
     box-shadow: none;
     margin-top: .5rem;
+    font-size: .75rem;
 }
 
 .lobby-header h1 {
@@ -263,7 +264,7 @@
     left: 20px;
     z-index: 100;
     padding: 0.8rem 1.6rem;
-    border-radius: 10px;
+    border-radius: 14px;
     border: none;
     cursor: pointer;
     font-weight: bold;
@@ -294,7 +295,7 @@
     }
     
     .leave-lobby-button {
-        top: 10px;
+        top: 105x;
         left: 10px;
         padding: 0.8rem 1.5rem;  /* Slightly smaller padding on mobile */
     }
@@ -302,4 +303,46 @@
     .tag-label {
         flex: 0 0 100%; /* Full width on mobile */
     }
+}
+
+/* Add these styles at the end of the file */
+.selected-tags-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: -30px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.tag-category {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.tag-category h4 {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.tag-item {
+    background-color: #264ada;
+    color: #ffffff;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
 } 

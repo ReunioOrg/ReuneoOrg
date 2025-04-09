@@ -292,6 +292,23 @@ const AdminLobbyView = () => {
 
     return (
         <div>
+            <div style={{
+                position: 'absolute',
+                top: '20px',
+                left: '20px',
+                zIndex: 1000
+            }}>
+                <button onClick={() => navigate('/')} style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#144dff',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                    fontWeight: 'bold'
+                }}>← Back to Home</button>
+            </div>
             <h1>Admin Lobby View</h1>
             <button onClick={() => {
                 if (window.confirm('Are you sure you want to reset the lobby timer?')) {
