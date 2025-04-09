@@ -33,6 +33,15 @@ const PureSignupPage = () => {
     const searchParams = new URLSearchParams(location.search);
     const redirectTo = searchParams.get('redirect');
 
+    // Check if displayName is valid when currentStep changes to the display name step
+    useEffect(() => {
+        if (currentStep === 2 && displayName && validateDisplayName(displayName)) {
+            setCanProceed(true);
+            setFieldSuccess(prev => ({ ...prev, displayName: true }));
+            setFieldErrors(prev => ({ ...prev, displayName: '' }));
+        }
+    }, [currentStep, displayName]);
+
     const validateUsername = (username) => {
         return username.length >= 2; // Simple minimum length check
     };
@@ -58,7 +67,7 @@ const PureSignupPage = () => {
             }
             
             // If we're moving to the display name step and it's pre-filled
-            if (currentStep === 1 && displayName && displayName.length >= 4) {
+            if (currentStep === 1 && displayName && displayName.length >= 2) {
                 setCanProceed(true);
             } else {
                 setCanProceed(false);
@@ -331,7 +340,6 @@ const PureSignupPage = () => {
                 src="/assets/reunio-game-logo-3.png"
                 alt="Reunio Logo"
                 className="logo-image"
-                style={{width: '100px',height: '100px',objectFit: 'contain'}}
             />
 
             <h3 className="signup-header">Sign Up to Join</h3>
@@ -404,17 +412,11 @@ const PureSignupPage = () => {
                                                             className="step-input"
                                                         />
                                                         {imagePreview && (
-                                                            <div className="image-preview" style={{ marginTop: '50px' }}>
+                                                            <div className="image-preview">
                                                                 <img
                                                                     src={imagePreview}
                                                                     alt="Profile preview"
-                                                                    style={{
-                                                                        width: '100%',
-                                                                        height: '200px',
-                                                                        objectFit: 'cover',
-                                                                        borderRadius: '12px',
-                                                                        marginTop: '15px'
-                                                                    }}
+                                                                    className="profile-preview-image"
                                                                 />
                                                             </div>
                                                         )}
@@ -505,9 +507,6 @@ const PureSignupPage = () => {
                                             type="button"
                                             onClick={handlePreviousStep}
                                             className="backz-button"
-                                            style={{
-                                                marginRight: '10px'
-                                            }}
                                         >
                                             ← Back
                                         </motion.button>
@@ -520,9 +519,6 @@ const PureSignupPage = () => {
                                             type="button"
                                             onClick={handleNextStep}
                                             className="nextz-button"
-                                            style={{
-                                                marginLeft: '10px'
-                                            }}
                                         >
                                             Next →
                                         </motion.button>
@@ -538,17 +534,6 @@ const PureSignupPage = () => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 10 }}
                             className="error-message"
-                            style={{
-                        backgroundColor: '#ffebee',
-                        color: '#d32f2f',
-                        padding: '10px',
-                        borderRadius: '10px',
-                        marginBottom: '15px',
-                        textAlign: 'center',
-                        border: '1px solid #ef9a9a',
-                        animation: 'shake 0.5s ease-in-out',
-                        fontSize: '0.9rem'
-                            }}
                         >
                             {error}
                         </motion.div>
@@ -562,20 +547,6 @@ const PureSignupPage = () => {
                             type="submit" 
                             className="primary-button"
                             disabled={isLoading}
-                            style={{
-                                width: '100%',
-                                padding: '12px',
-                                borderRadius: '25px',
-                                border: 'none',
-                                background: 'linear-gradient(45deg, #144dff, #2979ff)',
-                                color: 'white',
-                                fontSize: '1rem',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease',
-                                boxShadow: '0 4px 15px rgba(20,77,255,0.2)',
-                                marginTop: '0px'
-                            }}
                         >
                             {isLoading ? 'Loading...' : 'Complete Signup'}
                         </motion.button>

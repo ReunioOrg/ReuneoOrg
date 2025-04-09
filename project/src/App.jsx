@@ -156,87 +156,39 @@ const App = () => {
     if (!showLobbyCodeModal) return null;
 
     return (
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000
-      }}>
-        <div style={{
-          backgroundColor: 'white',
-          padding: '2rem',
-          borderRadius: '16px',
-          width: '90%',
-          maxWidth: '400px',
-          position: 'relative'
-        }}>
+      <div className="lobby-modal-overlay">
+        <div className="lobby-modal-container">
           <button 
             onClick={() => {
               setShowLobbyCodeModal(false);
               setLobbyCodeInput('');
               setLobbyCodeError('');
             }}
-            style={{
-              position: 'absolute',
-              right: '1rem',
-              top: '1rem',
-              border: 'none',
-              background: 'none',
-              fontSize: '1.5rem',
-              cursor: 'pointer',
-              color: '#666'
-            }}
+            className="lobby-modal-close"
           >
             ×
           </button>
-          <h2 style={{ 
-            color: '#2d3748',
-            marginTop: 0,
-            marginBottom: '1.5rem',
-            textAlign: 'center'
-          }}>
+          <h2 className="lobby-modal-title">
             Join a Lobby
           </h2>
-          <form onSubmit={handleJoinLobby} style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ marginBottom: '1rem' }}>
+          <form onSubmit={handleJoinLobby} className="lobby-form">
+            <div className="lobby-input-container">
               <input
                 type="text"
                 name="name"
-                placeholder="First Name"
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  borderRadius: '8px',
-                  border: '2px solid #e2e8f0',
-                  fontSize: '1rem',
-                  outline: 'none',
-                  marginBottom: '1rem'
-                }}
+                placeholder="Enter Lobby Code"
+                className="lobby-input"
               />
+              <div className="lobby-input-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="currentColor"/>
+                  <path d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z" fill="currentColor"/>
+                </svg>
+              </div>
             </div>
             <button
               type="submit"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                backgroundColor: '#144dff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '1rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s',
-                ':hover': {
-                  backgroundColor: '#535bf2'
-                }
-              }}
+              className="lobby-submit-button"
             >
               Join Lobby
             </button>
@@ -393,7 +345,7 @@ const App = () => {
               width: '50%',
               maxWidth: '400px',
               margin: '0 auto',
-              padding: '20px 4px',
+              padding: '10px 12px',
               background: '#ffffff',
               borderRadius: '16px',
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
@@ -455,6 +407,8 @@ const App = () => {
                   fontSize: '1.2rem',
                   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
                   transition: 'all 0.2s ease',
+                  minWidth: '180px',
+                  whiteSpace: 'nowrap',
                   ':hover': {
                     backgroundColor: '#535bf2',
                     transform: 'scale(1.02)'
@@ -466,7 +420,7 @@ const App = () => {
                   WebkitTextStroke: '0.5px rgba(58, 53, 53, 0.4)',
                   color: 'inherit'
                 }}>
-                  {!user ? 'Join' : 'Join Lobby'}
+                  {!user ? 'Join A Lobby' : 'Join A Lobby'}
                 </span>
               </button>
               {(permissions === 'admin' || permissions === 'organizer') && (
@@ -522,7 +476,7 @@ const App = () => {
         </div>
 
         {/* Active Lobbies Section */}
-        {user && (
+        {(permissions === 'admin' || permissions === 'organizer') && (
           <div className="events-list" style={{ marginTop: '2rem', width: '94%', marginLeft: 'auto', marginRight: 'auto', marginBottom: '2rem' }}>
             <h2 style={{ 
               textAlign: 'center', 
