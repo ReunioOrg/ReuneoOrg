@@ -34,8 +34,10 @@ const LobbyScreen = () => {
     useEffect(() => {
         const checkParams = () => {
             const params = new URLSearchParams(window.location.search);
-            const codeParam = params.get('code') || code;         
-            setLobbyCode(codeParam);
+            const codeParam = params.get('code') || code;      
+            if (codeParam) {
+                setLobbyCode(codeParam);
+            }
         };
         checkParams(); // Initial check        
         // Set up interval to check every 100ms
@@ -43,7 +45,7 @@ const LobbyScreen = () => {
         
         // Cleanup interval on unmount
         return () => clearInterval(interval);
-    }, [code, lobbyCode]);
+    }, [code]); // Remove lobbyCode from dependencies to prevent re-renders
 
     const { user, userProfile, checkAuth } = useContext(AuthContext);
 
@@ -75,7 +77,13 @@ const LobbyScreen = () => {
     // Add this new state to track page visibility
     const [isPageVisible, setIsPageVisible] = useState(!document.hidden);
 
-    
+    // Add this ref near your other state declarations
+    const lobbyCodeRef = useRef('yonder');
+
+    // Update the ref whenever lobbyCode changes
+    useEffect(() => {
+        lobbyCodeRef.current = lobbyCode;
+    }, [lobbyCode]);
 
     async function test_fetch(){
         const token = localStorage.getItem('access_token');
@@ -143,24 +151,25 @@ const LobbyScreen = () => {
             }
             const token = localStorage.getItem('access_token');
             const isTabVisible = !document.hidden;
-            console.log("lobby code fr:", lobbyCode);
-            if (lobbyCode=="yonder") {
+            // Use the ref value instead of the state directly
+            const currentLobbyCode = lobbyCodeRef.current;
+            console.log("lobby code fr:", currentLobbyCode);
+            if (currentLobbyCode=="yonder") {
                 console.log("lobby code is not set");
                 return;
             }
 
-            // const response = await fetch(window.server_url+'/lobby?is_visible='+isTabVisible, {
             const response = await fetch(`${window.server_url}/lobby?is_visible=${isTabVisible}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'is_visible_t_f': (isTabVisible)?"t":"f",
-                    'lobby_code': lobbyCode
+                    'lobby_code': currentLobbyCode
                 }
             });
             
             if (response.ok) {                    
                 const data = await response.json();
-                console.log("LOBBY PAIR DATA:",lobbyCode, data);
+                console.log("LOBBY PAIR DATA:",currentLobbyCode, data);
                 if (data.status=="inactive"){
                     cancelSound();
                     navigate('/');
@@ -231,7 +240,7 @@ const LobbyScreen = () => {
         }, useEffectTime);
 
         return () => clearInterval(interval);
-    }, []);
+    }, []); // Empty dependency array to create interval only once
 
     // Add this new useEffect that runs whenever lobbyState changes
     useEffect(() => {
