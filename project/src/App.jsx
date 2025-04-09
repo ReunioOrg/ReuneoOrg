@@ -19,6 +19,10 @@ import { useNavigate } from 'react-router-dom';
 
 const App = () => {
   const [showProfileCreation, setShowProfileCreation] = useState(false);
+  const [showLobbyCodeModal, setShowLobbyCodeModal] = useState(false);
+  const [lobbyCodeInput, setLobbyCodeInput] = useState('');
+  const [lobbyCodeError, setLobbyCodeError] = useState('');
+  const [nameInput, setNameInput] = useState('');
   const [profileData, handleProfileSubmit] = useState(null);
   const { audioRef, error, playSound, loadSound, cancelSound } = usePlaySound();
   const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
@@ -122,9 +126,124 @@ const App = () => {
   const navigateToAdminLobby = (lobbyCode) => {
     if (permissions === 'admin' || permissions === 'organizer') {
       navigate(`/admin_lobby_view?code=${lobbyCode}`);
-    } else {
-      navigate(`/lobby?code=${lobbyCode}`);
-    }
+    } 
+  };
+
+  // Function to handle lobby code submission
+  const handleJoinLobby = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const name = formData.get('name');
+    
+    // if (!lobbyCodeInput.trim()) {
+    //   setLobbyCodeError('Please enter a lobby code');
+    //   return;
+    // }
+    
+    setNameInput(name);
+    setShowLobbyCodeModal(false);
+    // navigate(`/lobby?code=${lobbyCodeInput.trim()}&name=${name}`);
+    console.log(name);
+    setLobbyCodeInput(name);
+    setLobbyCode(name);
+    navigate(`/lobby?code=${name}`);
+    setLobbyCodeInput('');
+    setLobbyCodeError('');
+  };
+
+  // LobbyCodeModal Component
+  const LobbyCodeModal = () => {
+    if (!showLobbyCodeModal) return null;
+
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          padding: '2rem',
+          borderRadius: '16px',
+          width: '90%',
+          maxWidth: '400px',
+          position: 'relative'
+        }}>
+          <button 
+            onClick={() => {
+              setShowLobbyCodeModal(false);
+              setLobbyCodeInput('');
+              setLobbyCodeError('');
+            }}
+            style={{
+              position: 'absolute',
+              right: '1rem',
+              top: '1rem',
+              border: 'none',
+              background: 'none',
+              fontSize: '1.5rem',
+              cursor: 'pointer',
+              color: '#666'
+            }}
+          >
+            ×
+          </button>
+          <h2 style={{ 
+            color: '#2d3748',
+            marginTop: 0,
+            marginBottom: '1.5rem',
+            textAlign: 'center'
+          }}>
+            Join a Lobby
+          </h2>
+          <form onSubmit={handleJoinLobby} style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ marginBottom: '1rem' }}>
+              <input
+                type="text"
+                name="name"
+                placeholder="First Name"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  borderRadius: '8px',
+                  border: '2px solid #e2e8f0',
+                  fontSize: '1rem',
+                  outline: 'none',
+                  marginBottom: '1rem'
+                }}
+              />
+            </div>
+            <button
+              type="submit"
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                backgroundColor: '#144dff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s',
+                ':hover': {
+                  backgroundColor: '#535bf2'
+                }
+              }}
+            >
+              Join Lobby
+            </button>
+          </form>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -321,7 +440,7 @@ const App = () => {
             }}>
               <button 
                 className="primary-button join-lobby-button" 
-                onClick={() => user ? navigate('/lobby') : navigate('/signup?redirect=lobby')}
+                onClick={() => user ? setShowLobbyCodeModal(true) : navigate('/signup?redirect=lobby')}
                 disabled={player_count === null || lobby_state === 'terminate'}
                 style={{
                   opacity: (player_count === null || lobby_state === 'terminate') ? 1 : 1,
@@ -347,7 +466,7 @@ const App = () => {
                   WebkitTextStroke: '0.5px rgba(58, 53, 53, 0.4)',
                   color: 'inherit'
                 }}>
-                  {!user ? 'Join' : 'Join'}
+                  {!user ? 'Join' : 'Join Lobby'}
                 </span>
               </button>
               {(permissions === 'admin' || permissions === 'organizer') && (
@@ -532,6 +651,8 @@ const App = () => {
           </div>
         )}
       </div>
+      
+      <LobbyCodeModal />
     </div>
   );
 
