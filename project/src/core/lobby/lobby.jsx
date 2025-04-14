@@ -7,6 +7,7 @@ import PlayerCard from './playerCard';
 import './lobby.css';
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import useGetLobbyMetadata from './get_lobby_metadata';
+import LobbyCountdown from './lobby_countdown';
 
 const AVAILABLE_TAGS = [
     "Founder",
@@ -418,6 +419,28 @@ const LobbyScreen = () => {
         }
     }, [selfTags, desiringTags]);
 
+    // Add this state to track if we should show the animation
+    const [showLobbyCountdown, setShowLobbyCountdown] = useState(false);
+    
+    // Add this effect to handle the interrim state
+    useEffect(() => {
+        if (lobbyState === "interrim") {
+            setShowLobbyCountdown(true);
+        } else if (lobbyState === "active") {
+            // Keep the animation visible for a moment after state changes to active
+            const timer = setTimeout(() => {
+                setShowLobbyCountdown(false);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [lobbyState]);
+    
+    // Add this handler for when the animation completes
+    const handleLobbyCountdownComplete = () => {
+        // You can add any additional logic here
+        console.log("Lobby countdown animation completed");
+    };
+
     return (
         <div className="lobby-container">
             <div className="lobby-content">
@@ -550,7 +573,11 @@ const LobbyScreen = () => {
                 <div className="lobby-header" style={{marginTop: '-50px'}}>
                     <h2>
                         {lobbyState === "checkin" ? (
-                            `You're in ${userProfile.name.length > 30 ? `${userProfile.name.slice(0, 15)}` : userProfile.name}! While you wait, select your tags to help us match you with the right people.`
+                            <>
+                                You're in {userProfile.name.length > 30 ? userProfile.name.slice(0, 15) : userProfile.name}!
+                                <br />
+                                Your host will start the game shorty.
+                            </>
                         ) : lobbyState === "active" && !opponentProfile ? (
                             "You will be paired with someone in the next round."
                         ) : lobbyState === "interrim" ? (
@@ -667,6 +694,11 @@ const LobbyScreen = () => {
             </div>
 
             {(soundEnabled || !showSoundPrompt) || (lobbyState == "checkin") || (lobbyState == null) || isPlaying ? null : <SoundPrompt />}
+
+            {/* Add the animation component */}
+            {showLobbyCountdown && (
+                <LobbyCountdown onComplete={handleLobbyCountdownComplete} />
+            )}
         </div>
     );
 }

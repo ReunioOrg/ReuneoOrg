@@ -10,7 +10,6 @@ import LoginSignupLogoutButton from './core/Auth/LoginSignupLogoutButton';
 import PureSignupPage from './core/Auth/PureSignupPage';
 
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
-import backgroundVideo from './assets/app_home_video.mp4';
 
 import { useNavigate } from 'react-router-dom';
 // import CreateLobbyButton from './core/lobby/CreateLobbyButton';
@@ -225,7 +224,7 @@ const App = () => {
         <source src="/assets/app_home_video_5.mp4" type="video/mp4" />
         <source src="/assets/app_home_video_2.webm" type="video/webm" />
         {/* Fallback for browsers that don't support video at all */}
-        <img src="/assets/app_home_screenshot_5.png" alt="Background fallback" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <img src="/assets/app_home_screenshot_5.jpg" alt="Background fallback" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         Your browser does not support the video tag.
       </video>
       

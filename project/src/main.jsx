@@ -12,6 +12,7 @@ import AdminLobbyView from './core/lobby/admin_lobby_view.jsx'
 import PureSignupPage from './core/Auth/PureSignupPage.jsx'
 import ProductSelection from './core/organizer/product-selection.jsx'
 import CreateLobby from './core/organizer/create_lobby.jsx'
+import LobbyCountdown from './core/lobby/lobby_countdown.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
@@ -25,6 +26,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/admin_lobby_view" element={<AdminLobbyView />} />
           <Route path="/create_lobby" element={<CreateLobby />} />
           <Route path="/product-selection" element={<ProductSelection />} />
+          
         </Routes>
         </Router>
       </AuthProvider>
