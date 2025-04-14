@@ -4,13 +4,38 @@ import { useEffect } from 'react';
 
 const fetchLobbyDataTime=5000;
 
-const useGetLobbyMetadata = (setPlayerCount, setLobbyState) => {
+const useGetLobbyMetadata = (setPlayerCount, setLobbyState = null, lobbyCode = null) => {
   useEffect(() => {
     const fetchLobbyMetadata = async () => {
-      const response = await fetch(`${server_url}/display_lobby_metadata`);
-      const data = await response.json();
-      setPlayerCount(data.player_count);
-      setLobbyState(data.lobby_state);
+      try {
+        // Include lobby code in the request if provided
+        const url = lobbyCode 
+          ? `${window.server_url}/display_lobby_metadata?lobby_code=${lobbyCode}`
+          : `${window.server_url}/display_lobby_metadata`;
+          
+        const token = localStorage.getItem('access_token');
+        const response = await fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'lobby_code': lobbyCode
+          }
+        });
+
+        if (!response.ok) {
+          console.error("Failed to fetch lobby metadata");
+          return;
+        }
+        
+        const data = await response.json();
+        setPlayerCount(data.player_count);
+        // console.log(data);
+        // Only call setLobbyState if it was provided
+        if (setLobbyState) {
+          setLobbyState(data.lobby_state);
+        }
+      } catch (error) {
+        console.error("Error fetching lobby metadata:", error);
+      }
     };
 
     fetchLobbyMetadata(); // Initial fetch
@@ -18,7 +43,7 @@ const useGetLobbyMetadata = (setPlayerCount, setLobbyState) => {
     const interval = setInterval(fetchLobbyMetadata, fetchLobbyDataTime); // Fetch every 5 second
 
     return () => clearInterval(interval); // Cleanup on unmount
-  }, [setPlayerCount, setLobbyState]);
+  }, [setPlayerCount, setLobbyState, lobbyCode]);
 
 };
 

@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import PlayerCard from './playerCard';
 import './lobby.css';
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
+import useGetLobbyMetadata from './get_lobby_metadata';
 
 const AVAILABLE_TAGS = [
     "Founder",
@@ -30,6 +31,8 @@ const LobbyScreen = () => {
     const [lobbyCode, setLobbyCode] = useState('yonder');
     const navigate = useNavigate();
     const { code } = useParams();
+    const [player_count, setPlayerCount] = useState(null);
+    useGetLobbyMetadata(setPlayerCount, null, lobbyCode);
 
     useEffect(() => {
         const checkParams = () => {
@@ -37,6 +40,21 @@ const LobbyScreen = () => {
             const codeParam = params.get('code') || code;      
             if (codeParam) {
                 setLobbyCode(codeParam);
+
+                // Immediate fetch when lobby code is set, this way we can get the player count immediately
+                const token = localStorage.getItem('access_token');
+                fetch(`${window.server_url}/display_lobby_metadata?lobby_code=${codeParam}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'lobby_code': codeParam
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    setPlayerCount(data.player_count);
+                })
+                .catch(error => console.error("Error fetching initial lobby metadata:", error));
+
             }
         };
         checkParams(); // Initial check        
@@ -84,6 +102,42 @@ const LobbyScreen = () => {
     useEffect(() => {
         lobbyCodeRef.current = lobbyCode;
     }, [lobbyCode]);
+
+    // Add this new state for the lobby profile images//TODO once API is ready
+    // const [profiles, setLobbyProfiles] = useState([]);
+    
+    // // Add this new function to fetch profile images
+    // const fetchLobbyProfiles = async () => {
+    //     try {
+    //         const token = localStorage.getItem('access_token');
+    //         const response = await fetch(`${window.server_url}/lobby_profiles`, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${token}`,
+    //                 'lobby_code': lobbyCode
+    //             }
+    //         });
+            
+    //         if (response.ok) {
+    //             const data = await response.json();
+    //             setLobbyProfiles(data.profiles || [{ id: 1 }, { id: 2 }, { id: 3 }]); // Add dummy profiles for testing
+    //         } else {
+    //             console.error("Failed to fetch lobby profiles");
+    //             setLobbyProfiles([{ id: 1 }, { id: 2 }, { id: 3 }]); // Add dummy profiles for testing
+    //         }
+    //     } catch (error) {
+    //         console.error("Error fetching lobby profiles:", error);
+    //         setLobbyProfiles([{ id: 1 }, { id: 2 }, { id: 3 }]); // Add dummy profiles for testing
+    //     }
+    // };
+
+    // Add useEffect to fetch profiles periodically
+    // useEffect(() => {
+    //     if (lobbyCode && (lobbyState === "checkin" || lobbyState === "active")) {
+    //         fetchLobbyProfiles();
+    //         const interval = setInterval(fetchLobbyProfiles, 5000); // Fetch every 5 seconds
+    //         return () => clearInterval(interval);
+    //     }
+    // }, [lobbyCode, lobbyState]);
 
     async function test_fetch(){
         const token = localStorage.getItem('access_token');
@@ -410,7 +464,7 @@ const LobbyScreen = () => {
                                     )}
                                 </CountdownCircleTimer>
                                 {/* <span style={{color: '#144dff'}}>{parseInt(roundTimeLeft)}s</span> */}
-                                <span style={{ fontSize: '0.7em', marginTop: '4px', opacity: '1', color: '#144dff' }}>time remaining</span>
+                                <span style={{ fontSize: '0.7em', marginTop: '4px', opacity: '1', color: '#144dff' }}>round time left</span>
                                 <div style={{ height: '10px' }}></div>
                                 {opponentProfile && (
                                     <div className="table-number">
@@ -432,7 +486,6 @@ const LobbyScreen = () => {
                             </div>
                         ) : (
                            <>
-                           
                            </>
                         )
 
@@ -446,7 +499,55 @@ const LobbyScreen = () => {
                     )}
                 </div>
 
-                <div className="lobby-header" style={{marginTop: '-70px'}}>
+                {/* Player Count Display */}
+                {((lobbyState === "checkin") || (lobbyState === "active" && !opponentProfile)) && player_count !== null && (
+                    <div className="player-count-container">
+                        <div className="player-count-bubble">
+                            <div className="player-count-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <img 
+                                    src="/assets/player_count_icon_shadow.png" 
+                                    alt="Players in lobby" 
+                                    className="player-count-img" 
+                                    style={{ width: '40px', height: '40px', objectFit: 'contain' }}
+                                />
+                            </div>
+                            <div className="player-count-text">
+                                <span className="player-count-number">{player_count}</span>
+                                <span className="player-count-label">
+                                    {player_count === 1 ? 'person' : 'people'} in {lobbyCode} lobby
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Profile Images to Display in Lobby*/}
+                {((lobbyState === "checkin") || (lobbyState === "active" && !opponentProfile)) && (
+                    <div className="lobby-profiles-container">
+                        <div className="lobby-profiles-grid">
+                            {player_count > 0 ? (
+                                Array.from({ length: player_count }).map((_, index) => (
+                                    <div 
+                                        key={`profile-${index}`}
+                                        className={`profile-icon-wrapper ${index === player_count - 1 ? 'pop-in' : ''}`}
+                                    >
+                                        <img 
+                                            src="/assets/player_count_icon_color.png"
+                                            alt={`Profile ${index + 1}`}
+                                            className="profile-icon"
+                                        />
+                                        <div className="profile-icon-glow"></div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div>No profiles to display</div>
+                            )}
+                        </div>
+                        
+                    </div>
+                )}
+
+                <div className="lobby-header" style={{marginTop: '-50px'}}>
                     <h2>
                         {lobbyState === "checkin" ? (
                             `You're in ${userProfile.name.length > 30 ? `${userProfile.name.slice(0, 15)}` : userProfile.name}! While you wait, select your tags to help us match you with the right people.`
