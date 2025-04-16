@@ -442,7 +442,7 @@ const App = () => {
                   {!user ? 'Join A Lobby' : 'Join A Lobby'}
                 </span>
               </button>
-              {(permissions === 'admin' || permissions === 'organizer') && (
+              {/* {(permissions === 'admin' || permissions === 'organizer') && (
                 <button
                   className="primary-button"
                   onClick={() => navigate('/create_lobby')}
@@ -462,7 +462,7 @@ const App = () => {
                 >
                   Create Lobby
                 </button>
-              )}
+              )} */}
               {/* {(permissions === 'admin' || permissions === 'organizer') && (
                 <button 
                   className="primary-button" 
@@ -497,7 +497,7 @@ const App = () => {
         {/* Active Lobbies Section */}
         {(permissions === 'admin' || permissions === 'organizer') && (
           <div className="events-list" style={{ marginTop: '2rem', width: '94%', marginLeft: 'auto', marginRight: 'auto', marginBottom: '2rem' }}>
-            <h2 style={{ 
+            {/* <h2 style={{ 
               textAlign: 'center', 
               width: '100%', 
               color: '#ffffff',
@@ -508,7 +508,7 @@ const App = () => {
               marginBottom: '1rem'
             }}>
               Your Active Lobbies
-            </h2>
+            </h2> */}
             
             {isLoadingLobbies ? (
               <div style={{ textAlign: 'center', color: 'white' }}>

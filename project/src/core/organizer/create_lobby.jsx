@@ -97,7 +97,7 @@ const CreateLobbyView = () => {
             <h1 className="create-lobby-title">Create a New Lobby</h1>
             
             <form onSubmit={handleSubmit} className="create-lobby-form">
-                <div className="form-group">
+                {/* <div className="form-group">
                     <label htmlFor="title">Lobby Title</label>
                     <input
                         type="text"
@@ -108,7 +108,7 @@ const CreateLobbyView = () => {
                         required
                         className="form-input"
                     />
-                </div>
+                </div> */}
                 
                 <div className="form-group">
                     <label htmlFor="lobbyCode">Lobby Code</label>

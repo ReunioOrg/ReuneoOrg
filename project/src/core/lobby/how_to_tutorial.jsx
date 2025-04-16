@@ -28,7 +28,7 @@ const HowToTutorial = ({ onComplete }) => {
       image: '/assets/how_to_pt3_3.svg',
       text: 'When the game starts, you\'ll be paired with someone for a conversation.',
       duration: 4000, // 4 seconds for third slide
-      animatedText: 'Click to take a break and to stop people matching with you.'
+      animatedText: 'Take a break and to stop people matching with you.'
     }
   ];
   

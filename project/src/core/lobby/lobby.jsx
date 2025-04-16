@@ -35,6 +35,7 @@ const LobbyScreen = () => {
     const { code } = useParams();
     const [player_count, setPlayerCount] = useState(null);
     useGetLobbyMetadata(setPlayerCount, null, lobbyCode);
+    const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
 
     useEffect(() => {
         const checkParams = () => {
@@ -66,8 +67,6 @@ const LobbyScreen = () => {
         // Cleanup interval on unmount
         return () => clearInterval(interval);
     }, [code]); // Remove lobbyCode from dependencies to prevent re-renders
-
-    const { user, userProfile, checkAuth } = useContext(AuthContext);
 
     const [opponentProfile, setOpponentProfile] = useState(null);
     const [prevOpponentProfile, setPrevOpponentProfile] = useState(null);
@@ -640,7 +639,15 @@ const LobbyScreen = () => {
                 )}
 
                 <button className="leave-lobby-button" onClick={leaveLobby}>Leave Lobby</button>
-                <button className="how-to-tutorial-button" onClick={() => setShowTutorial(true)}>Tutorial   </button>
+                <button className="how-to-tutorial-button" onClick={() => setShowTutorial(true)}>Tutorial</button>
+                {permissions === "admin" && (
+                    <button 
+                        className="admin-view-button" 
+                        onClick={() => navigate(`/admin_lobby_view?code=${lobbyCode}`)}
+                    >
+                        Admin View
+                    </button>
+                )}
 
                 <form onSubmit={(e) => {
                     e.preventDefault();

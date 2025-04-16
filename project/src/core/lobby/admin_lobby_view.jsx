@@ -310,7 +310,7 @@ const AdminLobbyView = () => {
     return (
         <div className="admin-lobby-container">
             <div className="admin-lobby-header">
-                <h1 className="admin-lobby-title">Admin View</h1>
+                <h1 className="admin-lobby-title">{user} Admin View</h1>
                 <div>
                     <h3>Lobby code: {lobbyCode}</h3>
                 </div>
@@ -359,7 +359,7 @@ const AdminLobbyView = () => {
                 <div className="admin-lobby-qr">
                     <QRCodeSVG 
                         value={`${window.location.origin}/lobby?code=${lobbyCode}`}
-                        size={90}
+                        size={130}
                         level="H"
                         includeMargin={true}
                         bgColor="#ffffff"
@@ -370,7 +370,7 @@ const AdminLobbyView = () => {
             </div>
 
             <div className="admin-lobby-actions">
-                <button 
+                {/* <button 
                     onClick={() => {
                         if (window.confirm('Are you sure you want to reset the lobby timer?')) {
                             fetch(window.server_url + '/reset_lobby_timer', {
@@ -385,16 +385,16 @@ const AdminLobbyView = () => {
                     className="admin-button admin-button-warning"
                 >
                     Reset Lobby Timer
-                </button>
+                </button> */}
 
-                <button 
+                {/* <button 
                     onClick={CreateLobby} 
                     className="admin-button admin-button-primary"
                 >
                     Create Lobby
-                </button>
+                </button> */}
 
-                <button 
+                {/* <button 
                     onClick={() => {
                         if (window.confirm('Are you sure you want to reset the entire lobby?')) {
                             fetch(window.server_url + '/reset_lobby', {
@@ -409,7 +409,7 @@ const AdminLobbyView = () => {
                     className="admin-button admin-button-warning"
                 >
                     Reset Lobby
-                </button>
+                </button> */}
 
                 <button 
                     onClick={() => {
