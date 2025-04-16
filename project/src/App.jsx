@@ -276,57 +276,31 @@ const App = () => {
           />
         )}
 
-        {/* Welcome message */}
-        {user && userProfile && userProfile.name && (
-          <div style={{ 
-            width: '100%', 
-            textAlign: 'center',
-            position: 'absolute',
-            top: '12rem',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 1
-          }}>
-            <h3 className="welcome-header">
-              {(() => {
-                const text = `Welcome ${userProfile.name.slice(0, 10)}`;
-                return text.split("").map((char, index) => (
-                  <span 
-                    key={index} 
-                    style={{ 
-                      "--i": index + 1,
-                      ...(char === " " ? { marginRight: "0.5em" } : {})
-                    }}
-                  >
-                    {char}
-                  </span>
-                ));
-              })()}
-            </h3>
-          </div>
-        )}
-
-        {/*Pair up header */}
+        {/* Consolidated header - either "Pair up" or "Welcome" based on user role */}
         <div style={{ 
           position: 'absolute', 
           top: '8rem', 
           left: '50%', 
           transform: 'translateX(-50%)',
-          width: '100%',
+          width: '90%',
+          maxWidth: '1200px',
           textAlign: 'center',
-          marginBottom: '4rem'
+          marginBottom: '4rem',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          zIndex: 1
         }}>
-          <h2 className={!user ? "welcome-header" : ""} style={{ 
+          <h2 className="welcome-header" style={{ 
             color: '#ffffff',
-            fontSize: '1.2em',
+            fontSize: '1rem',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             textShadow: '4px 4px 8px rgba(0,0,0,0.9)',
             margin: 0
           }}>
-            {!user ? (
+            {user && userProfile && (permissions === "admin" || permissions === "organizer") ? (
               (() => {
-                const text = "Pair up with new friends";
+                const text = `Elevate your events ${userProfile.name.slice(0, 10)}`;
                 return text.split("").map((char, index) => (
                   <span 
                     key={index} 
@@ -340,16 +314,27 @@ const App = () => {
                 ));
               })()
             ) : (
-              "Pair up with new friends"
+              (() => {
+                const text = user && userProfile ? `Break the Ice ${userProfile.name.slice(0, 10)}` : "Break the Ice";
+                return text.split("").map((char, index) => (
+                  <span 
+                    key={index} 
+                    style={{ 
+                      "--i": index + 1,
+                      marginRight: char === " " ? "0.5em" : "1px"
+                    }}
+                  >
+                    {char}
+                  </span>
+                ));
+              })()
             )}
           </h2>
         </div>
 
-        
-
         {/* Event items, the big div */}
         <div style={{ 
-          marginTop: '16rem',  // Adjusted to account for both headers
+          marginTop: '12rem',  // Adjusted to account for both headers
           width: '94%', 
           marginLeft: 'auto', 
           marginRight: 'auto',
@@ -364,7 +349,7 @@ const App = () => {
               width: '50%',
               maxWidth: '400px',
               margin: '0 auto',
-              padding: '10px 12px',
+              padding: '10px 20px',
               background: '#ffffff',
               borderRadius: '16px',
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
@@ -442,27 +427,38 @@ const App = () => {
                   {!user ? 'Join A Lobby' : 'Join A Lobby'}
                 </span>
               </button>
-              {/* {(permissions === 'admin' || permissions === 'organizer') && (
+              {(permissions === 'admin' || permissions === 'organizer') && (
                 <button
-                  className="primary-button"
+                  className="primary-button create-lobby-button"
                   onClick={() => navigate('/create_lobby')}
                   style={{
                     padding: '12px 24px',
-                    backgroundColor: '#144dff', 
+                    backgroundColor: '#144dff',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '8px',
-                    fontWeight: '600',
+                    outline: '2px solid rgba(58, 53, 53, 0.8)',
+                    borderRadius: '14px',
+                    fontWeight: '900',
+                    fontSize: '1.2rem',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
                     transition: 'all 0.2s ease',
+                    minWidth: '180px',
+                    whiteSpace: 'nowrap',
                     ':hover': {
                       backgroundColor: '#535bf2',
                       transform: 'scale(1.02)'
                     }
                   }}
                 >
-                  Create Lobby
+                  <span style={{
+                    textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
+                    WebkitTextStroke: '0.5px rgba(58, 53, 53, 0.4)',
+                    color: 'inherit'
+                  }}>
+                    Create Lobby
+                  </span>
                 </button>
-              )} */}
+              )}
               {/* {(permissions === 'admin' || permissions === 'organizer') && (
                 <button 
                   className="primary-button" 
@@ -496,7 +492,7 @@ const App = () => {
 
         {/* Active Lobbies Section */}
         {(permissions === 'admin' || permissions === 'organizer') && (
-          <div className="events-list" style={{ marginTop: '2rem', width: '94%', marginLeft: 'auto', marginRight: 'auto', marginBottom: '2rem' }}>
+          <div className="events-list" style={{ marginTop: '7rem', width: '65%',height: '60%', marginLeft: 'auto', marginRight: 'auto', marginBottom: '.5rem' }}>
             {/* <h2 style={{ 
               textAlign: 'center', 
               width: '100%', 
@@ -581,22 +577,22 @@ const App = () => {
                       fontSize: '0.9em',
                       textAlign: 'center'
                     }}>
-                      Click to join
+                      Click to Control
                     </p>
                   </div>
                 ))}
               </div>
             ) : (
               <div style={{ 
-                textAlign: 'center', 
-                color: 'white',
-                background: 'rgba(0, 0, 0, 0.3)',
-                padding: '1rem',
-                borderRadius: '8px',
-                maxWidth: '400px',
-                margin: '0 auto'
+                // textAlign: 'center', 
+                // color: 'white',
+                // background: 'rgba(0, 0, 0, 0.3)',
+                // padding: '1rem',
+                // borderRadius: '8px',
+                // maxWidth: '400px',
+                // margin: '0 auto'
               }}>
-                <p>You don't have any active lobbies.</p>
+                {/* <p>You don't have any active lobbies.</p>
                 {(permissions === 'admin' || permissions === 'organizer') && (
                   <button
                     className="primary-button"
@@ -618,7 +614,7 @@ const App = () => {
                   >
                     Create a Lobby
                   </button>
-                )}
+                )} */}
               </div>
             )}
           </div>

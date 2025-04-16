@@ -11,7 +11,7 @@
 }
 
 .glow-button {
-  box-shadow: 0 0 10px #144dff, 0 0 20px #144dff, 0 0 30px #144dff;
+  box-shadow: 0 0 5px rgba(20, 77, 255, 0.6), 0 0 8px rgba(20, 77, 255, 0.4);
   animation: jump 2.5s infinite;
 }
 .logo {

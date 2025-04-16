@@ -12,14 +12,21 @@ const CreateLobbyView = () => {
     const [error, setError] = useState('');
     const [showValidationPopup, setShowValidationPopup] = useState(false);
     const [validationMessage, setValidationMessage] = useState('');
+    const [isTyping, setIsTyping] = useState(false);
 
     const navigate = useNavigate();
+    const inputRef = useRef(null);
 
     useEffect(() => {
         // Auto-populate title and lobby code with username when component mounts
         if (user) {
             setTitle(user);
             setLobbyCode(user);
+        }
+        
+        // Focus on the input field when component mounts
+        if (inputRef.current) {
+            inputRef.current.focus();
         }
     }, [user]);
 
@@ -33,6 +40,7 @@ const CreateLobbyView = () => {
     // Handle lobby code input change with validation
     const handleLobbyCodeChange = (e) => {
         const newValue = e.target.value;
+        setIsTyping(true);
         
         // If the new value is valid or empty, update the state
         if (validateLobbyCode(newValue) || newValue === '') {
@@ -48,6 +56,11 @@ const CreateLobbyView = () => {
                 setShowValidationPopup(false);
             }, 3000);
         }
+        
+        // Reset typing state after a delay
+        setTimeout(() => {
+            setIsTyping(false);
+        }, 500);
     };
 
     const handleSubmit = async (e) => {
@@ -113,13 +126,15 @@ const CreateLobbyView = () => {
                 <div className="form-group">
                     <label htmlFor="lobbyCode">Lobby Code</label>
                     <input
+                        ref={inputRef}
                         type="text"
                         id="lobbyCode"
                         value={lobbyCode}
                         onChange={handleLobbyCodeChange}
                         placeholder="Enter lobby code (letters and numbers only)"
                         required
-                        className="form-input"
+                        className={`form-input ${isTyping ? 'typing' : ''}`}
+                        autoComplete="off"
                     />
                     <div className="input-hint">Only letters and numbers are allowed</div>
                 </div>
@@ -142,7 +157,7 @@ const CreateLobbyView = () => {
                         className="back-button"
                         onClick={() => navigate(-1)}
                     >
-                        Back
+                        ← Back
                     </button>
                     
                     <button 
