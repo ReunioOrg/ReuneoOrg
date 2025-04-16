@@ -13,6 +13,7 @@ import PureSignupPage from './core/Auth/PureSignupPage.jsx'
 import ProductSelection from './core/organizer/product-selection.jsx'
 import CreateLobby from './core/organizer/create_lobby.jsx'
 import LobbyCountdown from './core/lobby/lobby_countdown.jsx'
+import HowToTutorial from './core/lobby/how_to_tutorial.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>

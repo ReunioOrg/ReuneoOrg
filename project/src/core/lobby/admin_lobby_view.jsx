@@ -3,7 +3,9 @@ import { AuthContext } from '../Auth/AuthContext';
 import usePlaySound from '../playsound';
 import { useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-
+import './admin_lobby_view.css';
+import { CountdownCircleTimer } from "react-countdown-circle-timer";
+import { QRCodeSVG } from 'qrcode.react';
 
 //load asset image earthart.jpg
 import { returnBase64TestImg } from '../misc/misc';
@@ -13,54 +15,50 @@ const KickConfirmationModal = ({ isOpen, onClose, onConfirm, userName }) => {
     if (!isOpen) return null;
 
     return (
-        <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000
-        }}>
-            <div style={{
-                backgroundColor: 'white',
-                padding: '20px',
-                borderRadius: '8px',
-                maxWidth: '400px',
-                width: '100%',
-                textAlign: 'center'
-            }}>
-                <h2>Kick User</h2>
-                <p style={{ color: "#144dff" }}>Are you sure you want to kick {userName} from the lobby?</p>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
+        <div className="kick-modal">
+            <div className="kick-modal-content">
+                <h2 className="kick-modal-title">Kick User</h2>
+                <p className="kick-modal-message">Are you sure you want to kick {userName} from the lobby?</p>
+                <div className="kick-modal-actions">
                     <button 
                         onClick={onConfirm}
-                        style={{
-                            padding: '8px 16px',
-                            backgroundColor: '#dc3545',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                        }}
+                        className="admin-button admin-button-danger"
                     >
-                        Yes
+                        Yes, Kick User
                     </button>
                     <button 
                         onClick={onClose}
-                        style={{
-                            padding: '8px 16px',
-                            backgroundColor: '#6c757d',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                        }}
+                        className="admin-button admin-button-primary"
                     >
-                        No
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Modal component for join confirmation
+const JoinConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="join-modal">
+            <div className="join-modal-content">
+                <h2 className="join-modal-title">Join Lobby</h2>
+                <p className="join-modal-message">Are you sure you want to join? You will be paired up with your attendees.</p>
+                <div className="join-modal-actions">
+                    <button 
+                        onClick={onConfirm}
+                        className="admin-button admin-button-join"
+                    >
+                        Yes, Join Lobby
+                    </button>
+                    <button 
+                        onClick={onClose}
+                        className="admin-button admin-button-primary"
+                    >
+                        Cancel
                     </button>
                 </div>
             </div>
@@ -120,6 +118,9 @@ const AdminLobbyView = () => {
     // State for kick user modal
     const [isKickModalOpen, setIsKickModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
+    
+    // State for join confirmation modal
+    const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
 
     const [pairedPlayers, setPairedPlayers] = useState(null);
     const [lobbyData, setLobbyData] = useState(null);
@@ -290,157 +291,245 @@ const AdminLobbyView = () => {
         });
     };
 
+    // Function to handle opening the join modal
+    const handleOpenJoinModal = () => {
+        setIsJoinModalOpen(true);
+    };
+
+    // Function to handle closing the join modal
+    const handleCloseJoinModal = () => {
+        setIsJoinModalOpen(false);
+    };
+
+    // Function to handle joining the lobby
+    const handleJoinLobby = () => {
+        navigate(`/lobby?code=${lobbyCode}`);
+        handleCloseJoinModal();
+    };
+
     return (
-        <div>
-            <div style={{
-                position: 'absolute',
-                top: '20px',
-                left: '20px',
-                zIndex: 1000
-            }}>
-                <button onClick={() => navigate('/')} style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#144dff',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                    fontWeight: 'bold'
-                }}>← Back to Home</button>
-            </div>
-            <h1>Admin Lobby View</h1>
-            <button onClick={() => {
-                if (window.confirm('Are you sure you want to reset the lobby timer?')) {
-                    fetch(window.server_url + '/reset_lobby_timer', {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                            'lobby_code': lobbyCode
-                        }
-                    })
-                }
-            }}>Reset Lobby Timer</button>
-
-            <button onClick={CreateLobby}>Create Lobby</button>
-
-
-            <button onClick={() => {
-                if (window.confirm('Are you sure you want to reset the entire lobby?')) {
-                    fetch(window.server_url + '/reset_lobby', {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                            'lobby_code': lobbyCode
-                        }
-                    })
-                }
-            }}>Reset Lobby</button>
-
-            <button onClick={() => { //start_rounds
-                if (window.confirm('Are you sure you want to start the rounds?')) {
-                    fetch(window.server_url + '/start_rounds', {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                            'lobby_code': lobbyCode
-                        }
-                    })
-                }
-            }}>Start Rounds</button>
-            
-
-            <button onClick={async () => {
-                if (window.confirm('Are you sure you want to terminate the rounds?')) {
-                    const response = await fetch(window.server_url + '/terminate_lobby', {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                            'lobby_code': lobbyCode
-                        }
-                    })
-                    if (response.ok) {
-                        console.log("Lobby terminated successfully");
-                        navigate('/');
-                    } else {
-                        console.error("Failed to terminate lobby");
-                    }
-                }
-            }}>Terminate Rounds</button>
-
-
-            <div>
-                <h2>Lobby Timer: {Math.floor(lobbyTimer)} for {lobbyState}</h2>
+        <div className="admin-lobby-container">
+            <div className="admin-lobby-header">
+                <h1 className="admin-lobby-title">Admin View</h1>
                 <div>
-                    <h3>Lobby Stats:</h3>
-                    {/* <h3>Round: {roundCounter}</h3> */}
-                    <h3>Total Players: {(lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0)}</h3>
-                    <h3>Paired Players: {pairedPlayers?.length * 2 || 0}</h3>
-                    <h3>Unpaired Players: {lobbyData?.length || 0}</h3>
+                    <h3>Lobby code: {lobbyCode}</h3>
+                </div>
+                <div className="admin-lobby-actions">
+                    <button 
+                        onClick={() => navigate('/')} 
+                        className="admin-button admin-button-primary"
+                    >
+                        ←Home
+                    </button>
+                    <button 
+                        onClick={handleOpenJoinModal} 
+                        className="admin-button admin-button-join"
+                    >
+                        Join Lobby
+                    </button>
                 </div>
             </div>
-            
-            {pairedPlayers?
-                <div style={{ 
-                    width: '100%',
-                    maxWidth: 'none',
-                    padding: '20px',
-                    overflowX: 'hidden'
-                }}>
-                    <h2>Paired Players</h2>
-                    <div style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-                        gap: "20px",
-                        width: "100%"
-                    }}>
-                        {pairedPlayers.map((player, index) => (
-                            <div key={index} style={{color: "green", border: "2px solid green", marginBottom: "10px"}}>
-                                {lobbyPairedCard(player[0], player[1], handleOpenKickModal)}
-                            </div>
-                        ))}
+
+            <div className="admin-lobby-timer-container">
+                {((lobbyState === "active" || lobbyState === "interrim") && lobbyTimer) ? (
+                    <div className="admin-lobby-timer">
+                        <CountdownCircleTimer
+                            key={`${lobbyState}-${Math.floor(lobbyTimer)}`}
+                            isPlaying={lobbyState === "active"}
+                            duration={300}
+                            initialRemainingTime={lobbyTimer}
+                            colors={["#144dff"]} 
+                            size={90}
+                            strokeWidth={12}
+                            trailColor="#f5f7ff"
+                            onComplete={() => {
+                                return { shouldRepeat: false }
+                            }}
+                        >
+                            {({ remainingTime }) => (
+                                <span style={{ fontSize: '.95rem', color: '#144dff', fontWeight: 600 }}>
+                                    {Math.ceil(remainingTime)}s
+                                </span>
+                            )}
+                        </CountdownCircleTimer>
+                        <span style={{ fontSize: '0.7em', marginTop: '4px', opacity: '1', color: '#144dff' }}>round time left</span>
                     </div>
+                ) : null}
+                
+                <div className="admin-lobby-qr">
+                    <QRCodeSVG 
+                        value={`${window.location.origin}/lobby?code=${lobbyCode}`}
+                        size={90}
+                        level="H"
+                        includeMargin={true}
+                        bgColor="#ffffff"
+                        fgColor="#144dff"
+                    />
+                    <span className="qr-label">Scan to join lobby</span>
                 </div>
-                :
-                null
-            }
+            </div>
 
+            <div className="admin-lobby-actions">
+                <button 
+                    onClick={() => {
+                        if (window.confirm('Are you sure you want to reset the lobby timer?')) {
+                            fetch(window.server_url + '/reset_lobby_timer', {
+                                method: 'GET',
+                                headers: {
+                                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                    'lobby_code': lobbyCode
+                                }
+                            })
+                        }
+                    }} 
+                    className="admin-button admin-button-warning"
+                >
+                    Reset Lobby Timer
+                </button>
 
+                <button 
+                    onClick={CreateLobby} 
+                    className="admin-button admin-button-primary"
+                >
+                    Create Lobby
+                </button>
 
+                <button 
+                    onClick={() => {
+                        if (window.confirm('Are you sure you want to reset the entire lobby?')) {
+                            fetch(window.server_url + '/reset_lobby', {
+                                method: 'GET',
+                                headers: {
+                                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                    'lobby_code': lobbyCode
+                                }
+                            })
+                        }
+                    }} 
+                    className="admin-button admin-button-warning"
+                >
+                    Reset Lobby
+                </button>
+
+                <button 
+                    onClick={() => {
+                        if (window.confirm('Are you sure you want to start the rounds?')) {
+                            fetch(window.server_url + '/start_rounds', {
+                                method: 'GET',
+                                headers: {
+                                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                    'lobby_code': lobbyCode
+                                }
+                            })
+                        }
+                    }} 
+                    className="admin-button admin-button-primary"
+                    style={{ backgroundColor: '#28a745' }}
+                >
+                    Start
+                </button>
+
+                <button 
+                    onClick={async () => {
+                        if (window.confirm('Are you sure you want to terminate the rounds?')) {
+                            const response = await fetch(window.server_url + '/terminate_lobby', {
+                                method: 'GET',
+                                headers: {
+                                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                    'lobby_code': lobbyCode
+                                }
+                            })
+                            if (response.ok) {
+                                console.log("Lobby terminated successfully");
+                                navigate('/');
+                            } else {
+                                console.error("Failed to terminate lobby");
+                            }
+                        }
+                    }} 
+                    className="admin-button admin-button-danger"
+                >
+                    End
+                </button>
+            </div>
+
+            <div className="admin-lobby-stats">
+                <div className="stat-card">
+                    <div className="stat-title">Total Players</div>
+                    <div className="stat-value">{(lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0)}</div>
+                    <div className="stat-title">Paired Players</div>
+                    <div className="stat-value">{pairedPlayers?.length * 2 || 0}</div>
+                    <div className="stat-title">Unpaired Players</div>
+                    <div className="stat-value">{lobbyData?.length || 0}</div>
+                </div>
+            </div>
             
-            {lobbyData?
-                <div>
-                    <h2>Lobby Data</h2>
-                    <div className="lobby-profiles" style={{color: "green",}}>
-                        {lobbyData.map((profile, index) => (
-                            <div 
-                                key={index} 
-                                className="profile-icon" 
-                                style={{
-                                    color: "green", 
-                                    border: "2px solid green", 
-                                    marginBottom: "10px",
-                                    cursor: "pointer"
-                                }}
-                                onClick={() => handleOpenKickModal(profile)}
-                            >
-                                <div className="avatar">
-                                    <img 
-                                        src={profile.pfp_data} 
-                                        alt={profile.name} 
-                                        width="200" 
-                                        height="200" 
-                                        style={{objectFit: "cover"}} 
-                                    />
+            {pairedPlayers && (
+                <div className="admin-lobby-players">
+                    <div className="player-section">
+                        <div className="section-header">Paired Players: {pairedPlayers?.length * 2 || 0}</div>
+                        <div className="player-grid">
+                            {pairedPlayers.map((pair, index) => (
+                                <div key={index} className="paired-player-card">
+                                    <div 
+                                        className="paired-player"
+                                        onClick={() => handleOpenKickModal(pair[0])}
+                                    >
+                                        <img 
+                                            src={pair[0].pfp_data} 
+                                            alt={pair[0].name} 
+                                            className="paired-player-avatar"
+                                        />
+                                        <h3 className="paired-player-name">{pair[0].name}</h3>
+                                    </div>
+                                    <div 
+                                        className="paired-player"
+                                        onClick={() => handleOpenKickModal(pair[1])}
+                                    >
+                                        <img 
+                                            src={pair[1].pfp_data} 
+                                            alt={pair[1].name}
+                                            className="paired-player-avatar"
+                                        />
+                                        <h3 className="paired-player-name">{pair[1].name}</h3>
+                                    </div>
                                 </div>
-                                <h3>{profile.name}</h3>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
                 </div>
-                :
-                null
-            }
+            )}
+
+            {lobbyData && (
+                <div className="admin-lobby-players">
+                    <div className="player-section">
+                        <div className="section-header">Unpaired Players: {lobbyData?.length || 0}</div>
+                        <div className="player-grid">
+                            {lobbyData.map((player, index) => (
+                                <div 
+                                    key={index} 
+                                    className="player-card"
+                                    onClick={() => handleOpenKickModal(player)}
+                                >
+                                    <img 
+                                        src={player.pfp_data} 
+                                        alt={player.name} 
+                                        className="player-avatar"
+                                    />
+                                    <h3 className="player-name">{player.name}</h3>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Join Confirmation Modal */}
+            <JoinConfirmationModal 
+                isOpen={isJoinModalOpen}
+                onClose={handleCloseJoinModal}
+                onConfirm={handleJoinLobby}
+            />
 
             {/* Kick Confirmation Modal */}
             <KickConfirmationModal 
@@ -452,66 +541,5 @@ const AdminLobbyView = () => {
         </div>
     );
 }
-
-
-const lobbyPairedCard = (player1, player2, onKickUser) => {
-    return (
-        <div style={{
-            display: "flex", 
-            flexDirection: "row",
-            border: "2px solid #ccc",
-            borderRadius: "8px",
-            overflow: "hidden",
-            height: "100%"
-        }}>
-            <div 
-                style={{
-                    flex: 1,
-                    padding: "8px",
-                    background: "rgba(50,80,180,0.5)",
-                    borderRight: "2px solid #ccc",
-                    cursor: "pointer"
-                }}
-                onClick={() => onKickUser(player1)}
-            >
-                <div className="avatar">
-                    <img 
-                        src={player1.pfp_data} 
-                        alt={player1.name} 
-                        style={{
-                            width: "100%",
-                            height: "auto",
-                            objectFit: "cover"
-                        }} 
-                    />
-                </div>
-                <h3>{player1.name}</h3>
-            </div>
-            <div 
-                style={{
-                    flex: 1,
-                    padding: "8px",
-                    background: "rgba(40,180,180,0.5)",
-                    cursor: "pointer"
-                }}
-                onClick={() => onKickUser(player2)}
-            >
-                <div className="avatar">
-                    <img 
-                        src={player2.pfp_data} 
-                        alt={player2.name}
-                        style={{
-                            width: "100%",
-                            height: "auto",
-                            objectFit: "cover"
-                        }}
-                    />
-                </div>
-                <h3>{player2.name}</h3>
-            </div>
-        </div>
-    );
-}
-
 
 export default AdminLobbyView;

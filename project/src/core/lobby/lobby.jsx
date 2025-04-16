@@ -8,6 +8,7 @@ import './lobby.css';
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import useGetLobbyMetadata from './get_lobby_metadata';
 import LobbyCountdown from './lobby_countdown';
+import HowToTutorial from './how_to_tutorial';
 
 const AVAILABLE_TAGS = [
     "Founder",
@@ -441,6 +442,28 @@ const LobbyScreen = () => {
         console.log("Lobby countdown animation completed");
     };
 
+    // Add this state to track if we should show the tutorial
+    const [showTutorial, setShowTutorial] = useState(false);
+    
+    // Add this effect to check if the tutorial should be shown
+    useEffect(() => {
+        // Check if the user has seen the tutorial before
+        const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
+        
+        if (!hasSeenTutorial) {
+            // Show the tutorial if the user haven't seen it before
+            setShowTutorial(true);
+            
+            // Mark that the user has seen the tutorial
+            localStorage.setItem('hasSeenTutorial', 'true');
+        }
+    }, []);
+    
+    // Add this handler for when the tutorial completes
+    const handleTutorialComplete = () => {
+        setShowTutorial(false);
+    };
+
     return (
         <div className="lobby-container">
             <div className="lobby-content">
@@ -471,8 +494,8 @@ const LobbyScreen = () => {
                                     duration={300}
                                     initialRemainingTime={roundTimeLeft}
                                     colors={["#144dff"]} 
-                                    size={80}
-                                    strokeWidth={10}
+                                    size={90}
+                                    strokeWidth={12}
                                     trailColor="#f5f7ff"
                                     onComplete={() => {
                                         fetchLobbyData();
@@ -617,6 +640,7 @@ const LobbyScreen = () => {
                 )}
 
                 <button className="leave-lobby-button" onClick={leaveLobby}>Leave Lobby</button>
+                <button className="how-to-tutorial-button" onClick={() => setShowTutorial(true)}>Tutorial   </button>
 
                 <form onSubmit={(e) => {
                     e.preventDefault();
@@ -698,6 +722,11 @@ const LobbyScreen = () => {
             {/* Add the animation component */}
             {showLobbyCountdown && (
                 <LobbyCountdown onComplete={handleLobbyCountdownComplete} />
+            )}
+
+            {/* Add the tutorial component */}
+            {showTutorial && (
+                <HowToTutorial onComplete={handleTutorialComplete} />
             )}
         </div>
     );

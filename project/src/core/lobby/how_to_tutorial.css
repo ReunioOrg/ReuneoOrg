@@ -1,0 +1,186 @@
+/* src/core/lobby/how_to_tutorial.css */
+.tutorial-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.tutorial-container {
+  width: 100%;
+  height: 80%;
+  /* max-width: 800px; */
+  background-color: white;
+  border-radius: 16px;
+  /* box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12); */
+  overflow: hidden;
+  position: relative;
+  will-change: transform, opacity;
+  /* min-height: 500px; */
+}
+
+.tutorial-container.slide-transition {
+  animation: slideTransition 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tutorial-slide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 0;
+  transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.tutorial-slide.current {
+  transform: translateX(0);
+  opacity: 1;
+  z-index: 2;
+}
+
+.tutorial-slide.previous {
+  transform: translateX(-100%);
+  opacity: 0;
+  z-index: 1;
+}
+
+.tutorial-slide.next {
+  transform: translateX(100%);
+  opacity: 0;
+  z-index: 1;
+}
+
+.tutorial-image-container {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  will-change: transform;
+  flex-shrink: 0;
+}
+
+.tutorial-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); */
+  transition: transform 0.3s ease;
+  will-change: transform;
+}
+
+.tutorial-image:hover {
+  transform: scale(1.02);
+}
+
+
+/* New animated text styles */
+.animated-text {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 1000;
+  color: #144dff;
+  text-shadow: 0 0 100px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transform: scale(0.8);
+  z-index: 30;
+  pointer-events: none;
+  padding: 0 20px;
+}
+
+.animated-text.pop-burst {
+  animation: popBurst 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popBurst {
+  0% {
+    opacity: 0;
+    transform: scale(2.5);
+  }
+  25% {
+    opacity: 1;
+    transform: scale(2);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.tutorial-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  /* border-top: 1px solid rgba(20, 77, 255, 0.1); */
+  z-index: 3;
+}
+
+.progress-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: rgba(20, 77, 255, 0.3);
+  transition: all 0.3s ease;
+  will-change: transform, background-color;
+}
+
+.progress-dot.active {
+  background-color: #144dff;
+  transform: scale(1.2);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideTransition {
+  0% { 
+    transform: translateX(0);
+    opacity: 1;
+  }
+  25% {
+    transform: translateX(-10px);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateX(10px);
+    opacity: 0.8;
+  }
+  100% { 
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

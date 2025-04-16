@@ -282,6 +282,40 @@
     transform: translateY(-3px);
 }
 
+.how-to-tutorial-button {
+    position: fixed;
+    top: 20px;
+    right: 15px;
+    z-index: 100;
+    padding: 0.8rem 1rem;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: Helvetica, sans-serif;
+    font-size: 0.8rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    transition: all 0.3s ease;
+    color: #f5f7ff;
+    box-shadow: 0 7px 4px rgba(0, 0, 0, 0.1);
+    background-color: #144dff;
+}
+
+.how-to-tutorial-button:hover {
+    background: #e5e9ff;
+    transform: translateY(-3px);
+}
+
+.how-to-tutorial-button:active {
+    transform: translateY(0);
+    background-color: #144dff;
+}
+
+.how-to-tutorial-button:focus {
+    outline: none;
+    background-color: #144dff;
+}
+
 @media (max-width: 768px) {
     .lobby-container {
         padding: 1.5rem;
@@ -298,8 +332,8 @@
     
     .leave-lobby-button {
         top: 105x;
-        left: 10px;
-        padding: 0.8rem 1.5rem;  /* Slightly smaller padding on mobile */
+        left: 15px;
+        padding: 0.8rem 1rem;  /* Slightly smaller padding on mobile */
     }
     
     .tag-label {
