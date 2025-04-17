@@ -82,6 +82,27 @@ const LobbyScreen = () => {
             if (codeParam) {
                 setLobbyCode(codeParam);
 
+                // Check if the user has seen the tutorial for this specific lobby
+                const lobbyTutorialKey = `hasSeenTutorial_${codeParam}`;
+                const hasSeenLobbyTutorial = localStorage.getItem(lobbyTutorialKey);
+                const isAuthenticated = !!localStorage.getItem('access_token');
+                
+                console.log("Tutorial check:", { 
+                    codeParam, 
+                    lobbyTutorialKey, 
+                    hasSeenLobbyTutorial,
+                    isAuthenticated
+                });
+                
+                // Only show tutorial if user is authenticated and hasn't seen it for this lobby
+                if (!hasSeenLobbyTutorial && isAuthenticated) {
+                    // Show the tutorial if the user hasn't seen it for this lobby
+                    setShowTutorial(true);
+                    
+                    // Mark that the user has seen the tutorial for this lobby
+                    localStorage.setItem(lobbyTutorialKey, 'true');
+                }
+
                 // Immediate fetch when lobby code is set, this way we can get the player count immediately
                 const token = localStorage.getItem('access_token');
                 fetch(`${window.server_url}/display_lobby_metadata?lobby_code=${codeParam}`, {
@@ -99,8 +120,9 @@ const LobbyScreen = () => {
             }
         };
         checkParams(); // Initial check        
-        // Set up interval to check every 100ms
-        const interval = setInterval(checkParams, 200);
+        // Set up interval to check every 5 seconds instead of 200ms
+        // This significantly reduces API calls while still maintaining responsiveness
+        const interval = setInterval(checkParams, 3000);
         
         // Cleanup interval on unmount
         return () => clearInterval(interval);
@@ -482,20 +504,6 @@ const LobbyScreen = () => {
     // Add this state to track if we should show the tutorial
     const [showTutorial, setShowTutorial] = useState(false);
     
-    // Add this effect to check if the tutorial should be shown
-    useEffect(() => {
-        // Check if the user has seen the tutorial before
-        const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
-        
-        if (!hasSeenTutorial) {
-            // Show the tutorial if the user haven't seen it before
-            setShowTutorial(true);
-            
-            // Mark that the user has seen the tutorial
-            localStorage.setItem('hasSeenTutorial', 'true');
-        }
-    }, []);
-    
     // Add this handler for when the tutorial completes
     const handleTutorialComplete = () => {
         setShowTutorial(false);
@@ -771,7 +779,7 @@ const LobbyScreen = () => {
 
             {/* Add the tutorial component */}
             {showTutorial && (
-                <HowToTutorial onComplete={handleTutorialComplete} />
+                <HowToTutorial onComplete={handleTutorialComplete} lobbyCode={lobbyCode} />
             )}
         </div>
     );

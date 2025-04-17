@@ -44,7 +44,9 @@ const PureSignupPage = () => {
     }, [currentStep, displayName]);
 
     const validateUsername = (username) => {
-        return username.length >= 2; // Simple minimum length check
+        // Regular expression to match only lowercase letters and numbers
+        const validUsernameRegex = /^[a-z0-9]+$/;
+        return username.length >= 2 && validUsernameRegex.test(username);
     };
 
     const validatePassword = (password) => {
@@ -128,7 +130,19 @@ const PureSignupPage = () => {
     };
 
     const handleUsernameChange = (e) => {
-        handleInputChange(e, validateUsername, setUsername);
+        // Convert input to lowercase and remove any non-alphanumeric characters
+        const sanitizedValue = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+        setUsername(sanitizedValue);
+        
+        if (validateUsername(sanitizedValue)) {
+            setFieldSuccess(prev => ({ ...prev, username: true }));
+            setFieldErrors(prev => ({ ...prev, username: '' }));
+            setCanProceed(true);
+        } else {
+            setFieldSuccess(prev => ({ ...prev, username: false }));
+            setFieldErrors(prev => ({ ...prev, username: 'Must be at least 2 characters' }));
+            setCanProceed(false);
+        }
     };
 
     const handlePasswordChange = (e) => {

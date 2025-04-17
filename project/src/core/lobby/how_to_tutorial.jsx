@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './how_to_tutorial.css';
 
-const HowToTutorial = ({ onComplete }) => {
+const HowToTutorial = ({ onComplete, lobbyCode = 'this' }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isTextAnimating, setIsTextAnimating] = useState(false);
@@ -14,21 +14,21 @@ const HowToTutorial = ({ onComplete }) => {
   const slides = [
     {
       image: '/assets/how_to_pt1_1.svg',
-      text: 'Welcome to the lobby! Here you can see who else is joining.',
+      // text: 'Welcome to the lobby! Here you can see who else is joining.',
       duration: 1500, // 1.5 second for first slide
       animatedText: 'Find your match using their picture!'
     },
     {
       image: '/assets/how_to_pt2_2.svg',
-      text: 'Select your tags to help us match you with the right people.',
+      // text: 'Select your tags to help us match you with the right people.',
       duration: 4000, // 4 seconds for second slide
       animatedText: 'Raise the volume to find your next match, dont keep them waiting!'
     },
     {
       image: '/assets/how_to_pt3_3.svg',
-      text: 'When the game starts, you\'ll be paired with someone for a conversation.',
+      // text: 'When the game starts, you\'ll be paired with someone for a conversation.',
       duration: 4000, // 4 seconds for third slide
-      animatedText: 'Take a break and to stop people matching with you.'
+      animatedText: 'Take a break so people dont get matched with you.'
     }
   ];
   

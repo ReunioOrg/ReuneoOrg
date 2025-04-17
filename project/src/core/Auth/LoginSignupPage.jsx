@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
+import './LoginSignupPage.css';
 
 const LoginSignupPage = () => {
     const { login, signup, user, logout, checkAuth } = useContext(AuthContext);
@@ -9,12 +10,36 @@ const LoginSignupPage = () => {
     const [displayName, setDisplayName] = useState('');
     const [error, setError] = useState('');
     const [isLoginMode, setIsLoginMode] = useState(true);
+    const [fieldErrors, setFieldErrors] = useState({});
 
     const navigate = useNavigate();
+
+    const validateUsername = (username) => {
+        // Regular expression to match only lowercase letters and numbers
+        const validUsernameRegex = /^[a-z0-9]+$/;
+        return username.length >= 2 && validUsernameRegex.test(username);
+    };
+
+    const handleUsernameChange = (e) => {
+        // Convert input to lowercase and remove any non-alphanumeric characters
+        const sanitizedValue = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+        setUsername(sanitizedValue);
+        
+        if (validateUsername(sanitizedValue)) {
+            setFieldErrors(prev => ({ ...prev, username: '' }));
+        } else {
+            setFieldErrors(prev => ({ ...prev, username: ' ' }));
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        if (!validateUsername(username)) {
+            setError('Please enter a valid username');
+            return;
+        }
 
         try {
             const endpoint = isLoginMode ? '/login' : '/signup';
@@ -50,22 +75,33 @@ const LoginSignupPage = () => {
     };
 
     return (
-        <div>
-            <button onClick={() => {
-                navigate('/');
-            }}>Homescreen</button>
-            <h1>Login</h1>
-            <div className="login-container">
+        <div className="login-container">
+            <button 
+                onClick={() => navigate('/')} 
+                className="homescreen-button"
+            >
+                Home
+            </button>
+
+            <img 
+                src="/assets/reunio-game-logo-1.png"
+                alt="Reunio Logo"
+                className="logo-image"
+            />
+
+            <h1 className="login-header">Login</h1>
+            
+            <div className="login-signup-form">
                 {error && <div className="error-message">{error}</div>}
                 
-                <form className="login-signup-form" onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <input
                             type="text"
                             placeholder="Username"
                             className="login-input"
                             value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            onChange={handleUsernameChange}
                             required
                         />
                     </div>
@@ -80,102 +116,13 @@ const LoginSignupPage = () => {
                         />
                     </div>
 
-                    {/* <div className="form-group">
-                        <input
-                            type="text"
-                            placeholder="If signing up, Display Name (Full name)" 
-                            className="login-input"
-                            value={displayName}
-                            onChange={(e) => setDisplayName(e.target.value)}
-                        />
-                    </div> */}
-                    <div>
-                        <button type="submit" className="primary-button">
-                            Login
-                        </button>
-                        {/* <button 
-                            type="submit" 
-                            className="primary-button"
-                            onClick={() => setIsLoginMode(!isLoginMode)}
-                        >
-                            Signup
-                        </button> */}
-                    </div>
+                    <button type="submit" className="primary-button">
+                        Login
+                    </button>
                 </form>
-                
-                {/* <div className="divider">
-                    <span>OR</span>
-                </div>
-
-                <button 
-                    className="google-login-button"
-                    // onClick={handleGoogleLogin}
-                >
-                    <img 
-                        src="/google-icon.png" 
-                        alt="Google"
-                        className="google-icon"
-                    />
-                    Login with Google
-                </button> */}
             </div>
         </div>
     );
 };
 
 export default LoginSignupPage;
-
-
-
-
-
-
-
-
-
-// const LoginSignupPage = () => {
-//     const { login, user, logout } = useContext(AuthContext);
-//     const [username, setUsername] = useState('');
-//     const [password, setPassword] = useState('');
-//     const [error, setError] = useState('');
-
-//     const navigate = useNavigate();
-
-  
-//     const handleLogin = async (e) => {
-//         e.preventDefault();
-//         setError('');
-
-//         try {
-//             const response = await fetch(window.server_url+'/login', {
-//                 method: 'POST',
-//                 headers: { 'Content-Type': 'application/json' },
-//                 body: JSON.stringify({ "username": username, "password": password }),
-//             });
-
-//             if (response.ok) {
-//                 const userData = await response.json();
-//                 console.log("LOGGED IN, userData:", userData);
-//                 login(userData);
-//                 console.log(user);
-//             } else {
-//                 const errorData = await response.json();
-//                 setError(errorData.message || 'Login failed');
-//             }
-//         } catch (error) {
-//             setError('Network error occurred. Please try again.');
-//             console.error('Error:', error);
-//         }
-//     };
-
-//     const handleSignup = async (e) => {
-
-//     const handleGoogleLogin = async () => {
-//         try {
-//             // Redirect to Google OAuth endpoint
-//             window.location.href = '/api/auth/google';
-//         } catch (error) {
-//             setError('Google login failed. Please try again.');
-//             console.error('Error:', error);
-//         }
-//     };

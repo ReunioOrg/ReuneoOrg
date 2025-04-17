@@ -413,6 +413,8 @@ const App = () => {
                   transition: 'all 0.2s ease',
                   minWidth: '180px',
                   whiteSpace: 'nowrap',
+                  margin: '0 auto', // Added to center the button
+                  display: 'block', // Added to ensure proper centering
                   ':hover': {
                     backgroundColor: '#535bf2',
                     transform: 'scale(1.02)'
@@ -444,6 +446,7 @@ const App = () => {
                     transition: 'all 0.2s ease',
                     minWidth: '180px',
                     whiteSpace: 'nowrap',
+                    marginTop: '-5px',
                     ':hover': {
                       backgroundColor: '#535bf2',
                       transform: 'scale(1.02)'
