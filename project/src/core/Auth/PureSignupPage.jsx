@@ -32,6 +32,7 @@ const PureSignupPage = () => {
     // Extract redirect parameter from URL
     const searchParams = new URLSearchParams(location.search);
     const redirectTo = searchParams.get('redirect');
+    const lobbyCode = searchParams.get('code');
 
     // Check if displayName is valid when currentStep changes to the display name step
     useEffect(() => {
@@ -275,7 +276,11 @@ const PureSignupPage = () => {
             await checkAuth();
             
             if (redirectTo === 'lobby') {
-                navigate('/?showLobbyModal=true');
+                if (lobbyCode) {
+                    navigate(`/lobby?code=${lobbyCode}`);
+                } else {
+                    navigate('/?showLobbyModal=true');
+                }
             } else if (redirectTo === 'product-selection') {
                 navigate('/product-selection');
             } else {
