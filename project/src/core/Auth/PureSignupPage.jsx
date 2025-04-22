@@ -339,7 +339,7 @@ const PureSignupPage = () => {
         },
         {
             id: 'image',
-            label: 'Profile Pic (must show your face, this is how people will find you)',
+            label: 'Profile Pic (show your face, so people can find you)',
             type: 'file',
             onChange: handleImageChange,
             accept: 'image/*'
@@ -431,7 +431,7 @@ const PureSignupPage = () => {
                                                             className="step-input"
                                                         />
                                                         {imagePreview && (
-                                                            <div className="image-preview">
+                                                            <div>
                                                                 <img
                                                                     src={imagePreview}
                                                                     alt="Profile preview"

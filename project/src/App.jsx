@@ -5,6 +5,7 @@ import usePlaySound from './core/playsound';
 import AuthProvider from './core/Auth/AuthContext';
 import { AuthContext } from './core/Auth/AuthContext';
 import './App.css';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 
 import LoginSignupLogoutButton from './core/Auth/LoginSignupLogoutButton';
 import PureSignupPage from './core/Auth/PureSignupPage';
@@ -33,6 +34,10 @@ const App = () => {
 
   const navigate = useNavigate();
   useGetLobbyMetadata(setPlayerCount, setLobbyState);
+
+  const [isScanning, setIsScanning] = useState(false);
+  const videoRef = useRef(null);
+  const scannerRef = useRef(null);
 
   // Function to fetch and redirect to admin's active lobby
   const redirectToAdminLobby = async () => {
@@ -170,6 +175,54 @@ const App = () => {
     setLobbyCodeError('');
   };
 
+  // Function to handle QR code scanning
+  const handleScanQRCode = () => {
+    setIsScanning(true);
+    
+    // Create a new scanner instance
+    const scanner = new Html5QrcodeScanner(
+      "qr-reader", 
+      { 
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0,
+        showTorchButtonIfSupported: true,
+        showZoomSliderIfSupported: true,
+      },
+      false
+    );
+    
+    scannerRef.current = scanner;
+    
+    // Start scanning
+    scanner.render(onScanSuccess, onScanFailure);
+  };
+  
+  // Function to handle successful QR code scan
+  const onScanSuccess = (decodedText) => {
+    // Stop the scanner
+    stopScanning();
+    
+    // Simply navigate to the URL in the QR code
+    // The phone's browser will handle the URL
+    window.location.href = decodedText;
+  };
+  
+  // Function to handle scan failure
+  const onScanFailure = (error) => {
+    // We can ignore most errors as they're just part of the scanning process
+    console.warn(`QR code scanning error: ${error}`);
+  };
+
+  // Function to stop scanning
+  const stopScanning = () => {
+    setIsScanning(false);
+    if (scannerRef.current) {
+      scannerRef.current.clear();
+      scannerRef.current = null;
+    }
+  };
+
   // LobbyCodeModal Component
   const LobbyCodeModal = () => {
     if (!showLobbyCodeModal) return null;
@@ -182,6 +235,7 @@ const App = () => {
               setShowLobbyCodeModal(false);
               setLobbyCodeInput('');
               setLobbyCodeError('');
+              stopScanning();
             }}
             className="lobby-modal-close"
           >
@@ -211,6 +265,27 @@ const App = () => {
             >
               Join
             </button>
+            
+            {!isScanning ? (
+              <button
+                type="button"
+                className="lobby-scan-button"
+                onClick={handleScanQRCode}
+              >
+                Scan
+              </button>
+            ) : (
+              <div className="lobby-scan-container">
+                <div id="qr-reader" className="lobby-scan-video"></div>
+                <button
+                  type="button"
+                  className="lobby-scan-close"
+                  onClick={stopScanning}
+                >
+                  Close Scanner
+                </button>
+              </div>
+            )}
           </form>
         </div>
       </div>
