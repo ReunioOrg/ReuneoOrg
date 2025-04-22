@@ -11,6 +11,7 @@ const LoginSignupPage = () => {
     const [error, setError] = useState('');
     const [isLoginMode, setIsLoginMode] = useState(true);
     const [fieldErrors, setFieldErrors] = useState({});
+    const [showUsernameHint, setShowUsernameHint] = useState(false);
 
     const navigate = useNavigate();
 
@@ -24,6 +25,13 @@ const LoginSignupPage = () => {
         // Convert input to lowercase and remove any non-alphanumeric characters
         const sanitizedValue = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '');
         setUsername(sanitizedValue);
+        
+        // Show the hint when user starts typing
+        if (sanitizedValue.length > 0) {
+            setShowUsernameHint(true);
+        } else {
+            setShowUsernameHint(false);
+        }
         
         if (validateUsername(sanitizedValue)) {
             setFieldErrors(prev => ({ ...prev, username: '' }));
@@ -84,7 +92,7 @@ const LoginSignupPage = () => {
             </button>
 
             <img 
-                src="/assets/reunio-game-logo-1.png"
+                src="/assets/reunio-game-logo-3.png"
                 alt="Reunio Logo"
                 className="logo-image"
             />
@@ -104,10 +112,15 @@ const LoginSignupPage = () => {
                             onChange={handleUsernameChange}
                             required
                         />
+                        {showUsernameHint && (
+                            <div className="step-success">
+                                lowercase letters and numbers only
+                            </div>
+                        )}
                     </div>
                     <div className="form-group">
                         <input
-                            type="password"
+                            type="text"
                             placeholder="Password" 
                             className="login-input"
                             value={password}
@@ -116,7 +129,7 @@ const LoginSignupPage = () => {
                         />
                     </div>
 
-                    <button type="submit" className="primary-button">
+                    <button type="submit" className="login-primary-button">
                         Login
                     </button>
                 </form>

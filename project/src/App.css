@@ -114,29 +114,89 @@
   0% {
     transform: rotate(0deg);
   }
-  2.5% {
-    transform: rotate(3deg);
+  1.66% {
+    transform: rotate(.5deg);
   }
-  5% {
-    transform: rotate(-4deg);
+  3.32% {
+    transform: rotate(-1deg);
   }
-  7.5% {
-    transform: rotate(5deg);
+  4.98% {
+    transform: rotate(1.5deg);
   }
-  10% {
-    transform: rotate(-4deg);
+  6.64% {
+    transform: rotate(-1deg);
   }
-  12.5% {
-    transform: rotate(3deg);
+  8.3% {
+    transform: rotate(.5deg);
   }
-  15% {
+  9.96% {
     transform: rotate(0deg);
   }
+  
 }
 
 .join-lobby-button {
-  animation: subtle-shake 3.5s infinite;
+  animation: subtle-shake 3s infinite;
   animation-timing-function: ease-in-out;
+  position: relative;
+}
+
+.join-lobby-button::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, #144dff, #66a3ff, #99ffff, #66a3ff, #144dff);
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+  z-index: -1;
+}
+
+.join-lobby-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #144dff;
+  border-radius: 14px;
+  z-index: -1;
+}
+
+.create-lobby-button {
+  animation: subtle-shake 3s infinite;
+  animation-timing-function: ease-in-out;
+  position: relative;
+}
+
+.create-lobby-button::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, #144dff, #66a3ff, #99ffff, #66a3ff, #144dff);
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+  z-index: -1;
+}
+
+.create-lobby-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #144dff;
+  border-radius: 14px;
+  z-index: -1;
 }
 
 /* Lobby Code Modal Styles */

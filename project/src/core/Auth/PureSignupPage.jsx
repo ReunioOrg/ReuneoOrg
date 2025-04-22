@@ -330,7 +330,7 @@ const PureSignupPage = () => {
         },
         {
             id: 'displayName',
-            label: 'Display Name',
+            label: 'Display Name (this is what people will see)',
             value: displayName,
             onChange: handleDisplayNameChange,
             type: 'text',
@@ -339,7 +339,7 @@ const PureSignupPage = () => {
         },
         {
             id: 'image',
-            label: 'Profile Pic (must show your face)',
+            label: 'Profile Pic (must show your face, this is how people will find you)',
             type: 'file',
             onChange: handleImageChange,
             accept: 'image/*'

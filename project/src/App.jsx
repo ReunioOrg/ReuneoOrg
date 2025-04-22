@@ -220,7 +220,7 @@ const App = () => {
   return (
     <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
       {/* Background Video */}
-      <video className="background-video" autoPlay loop muted playsInline poster="/assets/app_home_screenshot_5.png">
+      <video className="background-video" autoPlay loop muted playsInline poster="/assets/app_home_screenshot_5.jpg">
         <source src="/assets/app_home_video_5.mp4" type="video/mp4" />
         <source src="/assets/app_home_video_2.webm" type="video/webm" />
         {/* Fallback for browsers that don't support video at all */}
@@ -340,7 +340,7 @@ const App = () => {
           marginRight: 'auto',
           display: 'flex',
           flexDirection: 'column',
-          gap: '1rem'
+          gap: '1rem',
         }}>
           {/* Event item */}
           <div
@@ -350,13 +350,13 @@ const App = () => {
               maxWidth: '400px',
               margin: '0 auto',
               padding: '10px 20px',
-              background: '#ffffff',
+              // background: '#ffffff',
               borderRadius: '16px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
+              // boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
               marginBottom: '20px',
               // border: '1px solid rgba(255, 255, 255, 0.5)',
-              outline: '1px solid rgb(58, 53, 53, 0.8)',
-              transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+              // outline: '1px solid rgb(58, 53, 53, 0.8)',
+              // transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
               cursor: 'pointer',
               opacity: 1,
               display: 'flex',
@@ -395,17 +395,16 @@ const App = () => {
               flexDirection: 'column' 
             }}>
               <button 
-                className="primary-button join-lobby-button" 
+                className={`primary-button ${(permissions !== 'admin' && permissions !== 'organizer') ? 'join-lobby-button' : ''}`} 
                 onClick={() => user ? setShowLobbyCodeModal(true) : navigate('/signup?redirect=lobby')}
                 disabled={player_count === null || lobby_state === 'terminate'}
                 style={{
                   opacity: (player_count === null || lobby_state === 'terminate') ? 1 : 1,
                   cursor: (player_count === null || lobby_state === 'terminate') ? 'not-allowed' : 'pointer',
                   padding: '12px 24px',
-                  backgroundColor: '#144dff',
+                  backgroundColor: (permissions !== 'admin' && permissions !== 'organizer') ? 'transparent' : '#144dff',
                   color: 'white',
                   border: 'none',
-                  outline: '2px solid rgba(58, 53, 53, 0.8)',
                   borderRadius: '14px',
                   fontWeight: '900',
                   fontSize: '1.2rem',
@@ -415,8 +414,11 @@ const App = () => {
                   whiteSpace: 'nowrap',
                   margin: '0 auto', // Added to center the button
                   display: 'block', // Added to ensure proper centering
+                  position: 'relative',
+                  zIndex: 1,
+                  outline: (permissions !== 'admin' && permissions !== 'organizer') ? 'none' : '2px solid rgba(58, 53, 53, 0.8)',
                   ':hover': {
-                    backgroundColor: '#535bf2',
+                    backgroundColor: (permissions !== 'admin' && permissions !== 'organizer') ? 'transparent' : '#535bf2',
                     transform: 'scale(1.02)'
                   }
                 }}
@@ -431,14 +433,13 @@ const App = () => {
               </button>
               {(permissions === 'admin' || permissions === 'organizer') && (
                 <button
-                  className="primary-button create-lobby-button"
+                  className={`primary-button ${(permissions === 'admin' || permissions === 'organizer') ? 'create-lobby-button' : ''}`}
                   onClick={() => navigate('/create_lobby')}
                   style={{
                     padding: '12px 24px',
-                    backgroundColor: '#144dff',
+                    backgroundColor: 'transparent',
                     color: 'white',
                     border: 'none',
-                    outline: '2px solid rgba(58, 53, 53, 0.8)',
                     borderRadius: '14px',
                     fontWeight: '900',
                     fontSize: '1.2rem',
@@ -447,8 +448,9 @@ const App = () => {
                     minWidth: '180px',
                     whiteSpace: 'nowrap',
                     marginTop: '-5px',
+                    position: 'relative',
+                    zIndex: 1,
                     ':hover': {
-                      backgroundColor: '#535bf2',
                       transform: 'scale(1.02)'
                     }
                   }}
