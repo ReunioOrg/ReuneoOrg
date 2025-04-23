@@ -179,23 +179,47 @@ const App = () => {
   const handleScanQRCode = () => {
     setIsScanning(true);
     
-    // Create a new scanner instance
-    const scanner = new Html5QrcodeScanner(
-      "qr-reader", 
-      { 
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0,
-        showTorchButtonIfSupported: true,
-        showZoomSliderIfSupported: true,
-      },
-      false
-    );
-    
-    scannerRef.current = scanner;
-    
-    // Start scanning
-    scanner.render(onScanSuccess, onScanFailure);
+    // We need to wait for the DOM to update before initializing the scanner
+    setTimeout(() => {
+      // Check if the element exists
+      const qrReaderElement = document.getElementById("qr-reader");
+      if (!qrReaderElement) {
+        console.error("QR reader element not found");
+        setIsScanning(false);
+        return;
+      }
+      
+      // Create a new scanner instance
+      const scanner = new Html5QrcodeScanner(
+        "qr-reader", 
+        { 
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+          aspectRatio: 1.0,
+          showTorchButtonIfSupported: true,
+          showZoomSliderIfSupported: true,
+          // verbose: false, // Disable verbose logging
+          disableFlip: false,
+          rememberLastUsedCamera: true,
+          showScanButton: false, // Hide the scan button
+          showStopButton: false, // Hide the stop button
+        },
+        false
+      );
+      
+      scannerRef.current = scanner;
+      
+      // Start scanning
+      scanner.render(onScanSuccess, onScanFailure);
+      
+      // Add custom CSS to hide the stop scanning button, its part the html5-qrcode library
+      setTimeout(() => {
+        const stopButton = document.querySelector('#qr-reader__dashboard button:last-child');
+        if (stopButton) {
+          stopButton.style.display = 'none';
+        }
+      }, 200);
+    }, 100); // Small delay to ensure DOM is updated
   };
   
   // Function to handle successful QR code scan
@@ -210,8 +234,14 @@ const App = () => {
   
   // Function to handle scan failure
   const onScanFailure = (error) => {
-    // We can ignore most errors as they're just part of the scanning process
-    console.warn(`QR code scanning error: ${error}`);
+    // Only log critical errors, ignore common scanning errors
+    if (error && error.includes && (
+      error.includes("No MultiFormat Readers") || 
+      error.includes("No MultiFormat Readers") ||
+      error.includes("No MultiFormat Readers")
+    )) {
+      console.warn(`QR code scanning error: ${error}`); 
+    }
   };
 
   // Function to stop scanning
