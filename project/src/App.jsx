@@ -214,11 +214,14 @@ const App = () => {
       
       // Add custom CSS to hide the stop scanning button, its part the html5-qrcode library
       setTimeout(() => {
-        const stopButton = document.querySelector('#qr-reader__dashboard button:last-child');
-        if (stopButton) {
+        // Find all buttons in the dashboard
+        const buttons = document.querySelectorAll('#qr-reader__dashboard button');
+        // The stop button is typically the last one
+        if (buttons.length > 0) {
+          const stopButton = buttons[buttons.length - 1];
           stopButton.style.display = 'none';
         }
-      }, 200);
+      }, 500); // Increased timeout to ensure the scanner is fully initialized
     }, 100); // Small delay to ensure DOM is updated
   };
   
