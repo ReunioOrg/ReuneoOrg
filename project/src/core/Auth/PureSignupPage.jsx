@@ -356,7 +356,7 @@ const PureSignupPage = () => {
             </button>
 
             <img 
-                src="/assets/reunio-game-logo-3.png"
+                src="/assets/reuneo_test.png"
                 alt="Reunio Logo"
                 className="logo-image"
             />

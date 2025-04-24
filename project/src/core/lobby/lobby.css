@@ -22,13 +22,31 @@
 
 .lobby-header {
     text-align: center;
-    padding: 0.2rem;
-    background: white;
     border-radius: 16px;
     box-shadow: none;
-    margin-top: .5rem;
     font-size: .75rem;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    -webkit-text-stroke: 0.5px rgba(0, 0, 0, 0.2);
+    animation: headerPopIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes headerPopIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
+    80% {
+        transform: scale(0.95);
+        opacity: 0.9;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 .lobby-header h1 {
@@ -421,7 +439,9 @@
     padding: 12px 24px;
     border-radius: 50px;
     transition: all 0.3s ease;
-    border: 1px solid black;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+    
+    
 }
 
 .player-count-bubble:hover {
@@ -574,7 +594,7 @@
 
 @media (max-width: 768px) {
     .lobby-profiles-container {
-        margin: -10px auto 15px;
+        margin: -50px auto -35px;
         padding: 10px;
     }
 
@@ -587,4 +607,74 @@
         width: 50px;
         height: 50px;
     }
-} 
+}
+
+/* User Profile Picture Styles */
+.user-profile-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+
+.user-profile-picture {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #144dff;
+    box-shadow: 0 5px 4px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    transition: all 0.3s ease;
+    margin-top: -50px;
+}
+
+
+.user-profile-glow {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 50%;
+    opacity: 0;
+    z-index: -1;
+    
+}
+
+/* More Profiles Indicator Styles */
+.more-profiles {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.more-profiles-bubble {
+    background: linear-gradient(135deg, #144dff, #2861ff);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(20, 77, 255, 0.3);
+    transition: all 0.3s ease;
+    border: 2px solid #ffffff;
+}
+
+.more-profiles-bubble:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(20, 77, 255, 0.5);
+}
+
+@media (max-width: 768px) {
+    .more-profiles-bubble {
+        width: 40px;
+        height: 40px;
+        font-size: 12px;
+    }
+}

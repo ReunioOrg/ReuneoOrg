@@ -24,8 +24,8 @@ const AVAILABLE_TAGS = [
     "Law"
 ];
 
+const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
 const useEffectTime=5000;
-
 
 const LobbyScreen = () => {
     
@@ -519,7 +519,7 @@ const LobbyScreen = () => {
                     marginTop: '-1.5rem'
                 }}>
                     <img 
-                        src="/assets/reunio-game-logo-1.png"
+                        src="/assets/reuneo_test.png"
                         alt="Reunio Logo"
                         style={{
                             maxWidth: '85px',
@@ -527,6 +527,40 @@ const LobbyScreen = () => {
                             objectFit: 'contain'
                         }}
                     />
+                </div>
+
+                {/* User Profile Picture */}
+                {(lobbyState === "checkin" || (lobbyState === "active" && !opponentProfile) || lobbyState === "interrim") && (
+                    <div className="user-profile-container">
+                        <div className="user-profile">
+                            <img 
+                                src={userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : "/assets/player_icon.png"} 
+                                alt="Your Profile" 
+                                className="user-profile-picture"
+                            />
+                            <div className="user-profile-glow"></div>
+                        </div>
+                    </div>
+                )}
+
+                <div className="lobby-header" style={{marginTop: '-50px'}} key={lobbyState}>
+                    <h2>
+                        {lobbyState === "checkin" ? (
+                            <>
+                                You're in {userProfile.name.slice(0, 15)}!
+                                <br />
+                                Your host will start the experience.
+                            </>
+                        ) : lobbyState === "active" && !opponentProfile ? (
+                            "You will be paired with someone in the next round."
+                        ) : lobbyState === "interrim" ? (
+                            "Get ready for the next round!"
+                        ) : lobbyState === "terminated" ? (
+                            "This session has ended. Thank you for participating!"
+                        ) : (
+                            ""
+                        )}
+                    </h2>
                 </div>
 
                 {lobbyState !== "checkin" && (
@@ -596,7 +630,7 @@ const LobbyScreen = () => {
                         <div className="player-count-bubble">
                             <div className="player-count-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <img 
-                                    src="/assets/player_count_icon_shadow.png" 
+                                    src="/assets/players_display_icon.png" 
                                     alt="Players in lobby" 
                                     className="player-count-img" 
                                     style={{ width: '40px', height: '40px', objectFit: 'contain' }}
@@ -605,7 +639,7 @@ const LobbyScreen = () => {
                             <div className="player-count-text">
                                 <span className="player-count-number">{player_count}</span>
                                 <span className="player-count-label">
-                                    {player_count === 1 ? 'person' : 'people'} in {lobbyCode} lobby
+                                    {player_count === 1 ? '' : ''} in {lobbyCode} lobby
                                 </span>
                             </div>
                         </div>
@@ -617,46 +651,35 @@ const LobbyScreen = () => {
                     <div className="lobby-profiles-container">
                         <div className="lobby-profiles-grid">
                             {player_count > 0 ? (
-                                Array.from({ length: player_count }).map((_, index) => (
-                                    <div 
-                                        key={`profile-${index}`}
-                                        className={`profile-icon-wrapper ${index === player_count - 1 ? 'pop-in' : ''}`}
-                                    >
-                                        <img 
-                                            src="/assets/player_count_icon_color.png"
-                                            alt={`Profile ${index + 1}`}
-                                            className="profile-icon"
-                                        />
-                                        <div className="profile-icon-glow"></div>
-                                    </div>
-                                ))
+                                <>
+                                    {Array.from({ length: Math.min(player_count, MAX_VISIBLE_PROFILES) }).map((_, index) => (
+                                        <div 
+                                            key={`profile-${index}`}
+                                            className={`profile-icon-wrapper ${index === Math.min(player_count, MAX_VISIBLE_PROFILES) - 1 ? 'pop-in' : ''}`}
+                                        >
+                                            <img 
+                                                src={index === 0 ? (userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : "/assets/player_icon.png") : "/assets/player_icon.png"}
+                                                alt={index === 0 ? "Your Profile" : `Profile ${index + 1}`}
+                                                className="profile-icon"
+                                                loading="lazy"
+                                            />
+                                            <div className="profile-icon-glow"></div>
+                                        </div>
+                                    ))}
+                                    {player_count > MAX_VISIBLE_PROFILES && (
+                                        <div className="profile-icon-wrapper more-profiles">
+                                            <div className="more-profiles-bubble">
+                                                +{player_count - MAX_VISIBLE_PROFILES}
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
                             ) : (
                                 <div>No profiles to display</div>
                             )}
                         </div>
-                        
                     </div>
                 )}
-
-                <div className="lobby-header" style={{marginTop: '-50px'}}>
-                    <h2>
-                        {lobbyState === "checkin" ? (
-                            <>
-                                You're in {userProfile.name.length > 30 ? userProfile.name.slice(0, 15) : userProfile.name}!
-                                <br />
-                                Your host will start the game shorty.
-                            </>
-                        ) : lobbyState === "active" && !opponentProfile ? (
-                            "You will be paired with someone in the next round."
-                        ) : lobbyState === "interrim" ? (
-                            "Get ready for the next round!"
-                        ) : lobbyState === "terminated" ? (
-                            "This session has ended. Thank you for participating!"
-                        ) : (
-                            ""
-                        )}
-                    </h2>
-                </div>
 
                 {/* Display tags in checkin or active state */}
                 {(lobbyState === "checkin" || lobbyState === "active") && (

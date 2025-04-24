@@ -16,7 +16,7 @@ const HowToTutorial = ({ onComplete, lobbyCode = 'this' }) => {
       image: '/assets/how_to_pt1_1.svg',
       // text: 'Welcome to the lobby! Here you can see who else is joining.',
       duration: 1500, // 1.5 second for first slide
-      animatedText: 'Find your match using their picture!'
+      animatedText: 'Find your match using their profile picture!'
     },
     {
       image: '/assets/how_to_pt2_2.svg',

@@ -341,9 +341,9 @@ const App = () => {
         
         <div style={{ position: 'absolute', top: '-2rem', left: '50%', transform: 'translateX(-50%)' }}>
           <img  
-            src="/assets/reunio-game-logo-3.png"
+            src="/assets/reuneo_test.png"
             alt="Logo"
-            style={{width: '100px',height: '100px',objectFit: 'contain'}}
+            style={{width: '115px',height: '115px',objectFit: 'contain'}}
           />
         </div>
 

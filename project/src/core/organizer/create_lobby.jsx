@@ -106,6 +106,7 @@ const CreateLobbyView = () => {
     };
 
     return (
+        
         <div className="create-lobby-container">
             <h1 className="create-lobby-title">Create a New Lobby</h1>
             
