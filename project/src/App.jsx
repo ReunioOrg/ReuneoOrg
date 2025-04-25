@@ -339,32 +339,38 @@ const App = () => {
       {/* Main App Content */}
       <div style={{ position: 'relative', zIndex: 1, color: 'white' }}>
         
-        <div style={{ position: 'absolute', top: '-2rem', left: '50%', transform: 'translateX(-50%)' }}>
+        <div style={{ position: 'absolute', top: '-1rem', left: '50%', transform: 'translateX(-50%)' }}>
           <img  
             src="/assets/reuneo_test.png"
             alt="Logo"
-            style={{width: '115px',height: '115px',objectFit: 'contain'}}
+            style={{width: '110px',height: '110px',objectFit: 'contain'}}
           />
         </div>
 
         <div style = {{marginTop: '10%',display: 'flex',flexDirection: 'column'}}>
         <LoginSignupLogoutButton user={user}/>
         {user && (  // Only render the Profile button if user exists
-          <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', top: '.25rem', right: '3%' }}>
+          <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', top: '-.8rem', right: '3%' }}>
             <button
               style={{
-                borderRadius: '14px',
-                boxShadow: '0 0 10px rgba(74, 58, 58, 0.5)',
-                outline: '1px solid rgba(58, 53, 53, 0.9)',
-                fontWeight: '700',
-                fontSize: '1.2rem'
+                width: '100px',
+                height: '35px',
+                borderRadius: '13px',
+                boxShadow: '0 0 4px rgba(74, 58, 58, 0.5)',
+                outline: '1px solid rgba(252, 240, 240, 0.6)',
+                fontWeight: '900',
+                fontSize: '1rem',
+                padding: '10px 10px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
               }}
               className="login-button"
               onClick={() => setShowProfileCreation(true)}
             >
               <span style={{
                 textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                WebkitTextStroke: '0.6px rgba(58, 53, 53, 0.3)',
+                WebkitTextStroke: '0.6px rgba(58, 53, 53, 0.4)',
                 color: 'inherit'
               }}>
                 Profile
@@ -387,7 +393,7 @@ const App = () => {
         {/* Consolidated header - either "Pair up" or "Welcome" based on user role */}
         <div style={{ 
           position: 'absolute', 
-          top: '8rem', 
+          top: '4rem', 
           left: '50%', 
           transform: 'translateX(-50%)',
           width: '90%',
@@ -408,7 +414,7 @@ const App = () => {
           }}>
             {user && userProfile && (permissions === "admin" || permissions === "organizer") ? (
               (() => {
-                const text = `Elevate your events ${userProfile.name.slice(0, 10)}`;
+                const text = `Elevate your events`;
                 return text.split("").map((char, index) => (
                   <span 
                     key={index} 
@@ -524,7 +530,7 @@ const App = () => {
                   display: 'block', // Added to ensure proper centering
                   position: 'relative',
                   zIndex: 1,
-                  outline: (permissions !== 'admin' && permissions !== 'organizer') ? 'none' : '2px solid rgba(58, 53, 53, 0.8)',
+                  outline: (permissions !== 'admin' && permissions !== 'organizer') ? 'none' : '1px solid rgba(58, 53, 53, 0.7)',
                   ':hover': {
                     backgroundColor: (permissions !== 'admin' && permissions !== 'organizer') ? 'transparent' : '#535bf2',
                     transform: 'scale(1.02)'

@@ -330,7 +330,7 @@ const PureSignupPage = () => {
         },
         {
             id: 'displayName',
-            label: 'Display Name (this is what people will see)',
+            label: 'Display Name (what people will see)',
             value: displayName,
             onChange: handleDisplayNameChange,
             type: 'text',

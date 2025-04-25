@@ -6,23 +6,29 @@ const LoginSignupLogoutButton = ({ user }) => {
 
     return (
         <div>
-            <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', top: '1.5rem', width: '94%', height: '10px', left: '3%'}}>
+            <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', width: '94%', height: '10px', left: '3%'}}>
                 {user==null ? 
                     <div style={{position: 'absolute', width: '100%', display: 'flex', justifyContent: 'space-between'}}>
                         <button
                             className="login-button"
                             onClick={() => navigate('/login')}
                             style={{ 
-                                borderRadius: '14px',
-                                boxShadow: '0 0 10px rgba(74, 58, 58, 0.5)',
-                                outline: '1px solid rgba(58, 53, 53, 0.9)',
-                                fontWeight: '700',
-                                fontSize: '1.2rem'
+                                width: '100px',
+                                height: '35px',
+                                borderRadius: '13px',
+                                boxShadow: '0 0 4px rgba(74, 58, 58, 0.5)',
+                                outline: '1px solid rgba(252, 240, 240, 0.6)',
+                                fontWeight: '900',
+                                fontSize: '1rem',
+                                padding: '10px 10px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center'
                             }}
                         >
                             <span style={{
                                 textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                                WebkitTextStroke: '0.6px rgba(58, 53, 53, 0.7)',
+                                WebkitTextStroke: '0.6px rgba(58, 53, 53, 0.4)',
                                 color: 'inherit'
                             }}>
                                 Login
@@ -32,20 +38,25 @@ const LoginSignupLogoutButton = ({ user }) => {
                             className="login-button"
                             onClick={() => navigate('/signup')}
                             style={{ 
-                                borderRadius: '14px',
-                                boxShadow: '0 0 10px rgba(74, 58, 58, 0.5)', 
-                                outline: '1px solid rgba(58, 53, 53, 0.9)',
-                                fontWeight: '700',
-                                fontSize: '1.2rem',
-                                alignSelf: 'center' // Ensures vertical alignment with the login button
+                                width: '100px',
+                                height: '35px',
+                                borderRadius: '13px',
+                                boxShadow: '0 0 4px rgba(74, 58, 58, 0.5)', 
+                                outline: '1px solid rgba(252, 240, 240, 0.6)',
+                                fontWeight: '900',
+                                fontSize: '1rem',
+                                padding: '10px 10px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center'
                             }}
                         >
                             <span style={{
-                                textShadow: '0 0 1px rgba(58, 53, 53, 0.7)',
-                                WebkitTextStroke: '0.6px rgba(58, 53, 53, 0.7)',
+                                textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
+                                WebkitTextStroke: '0.6px rgba(58, 53, 53, 0.4)',
                                 color: 'inherit'
                             }}>
-                                Signup
+                                Sign up
                             </span>
                         </button>
                     </div>
@@ -55,16 +66,22 @@ const LoginSignupLogoutButton = ({ user }) => {
                             className="login-button"
                             onClick={() => navigate('/logout')}
                             style={{ 
-                                borderRadius: '14px',
-                                boxShadow: '0 0 10px rgba(74, 58, 58, 0.5)',
-                                outline: '1px solid rgba(58, 53, 53, 0.9)',
-                                fontWeight: '700',
-                                fontSize: '1.2rem'
+                                width: '100px',
+                                height: '35px',
+                                borderRadius: '13px',
+                                boxShadow: '0 0 4px rgba(74, 58, 58, 0.5)',
+                                outline: '1px solid rgba(252, 240, 240, 0.6)',
+                                fontWeight: '900',
+                                fontSize: '1rem',
+                                padding: '10px 10px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center'
                             }}
                         >
                             <span style={{
-                                textShadow: '0 0 1px rgba(58, 53, 53, 0.7)',
-                                WebkitTextStroke: '0.6px rgba(58, 53, 53, 0.7)',
+                                textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
+                                WebkitTextStroke: '0.6px rgba(58, 53, 53, 0.4)',
                                 color: 'inherit'
                             }}>
                                 Logout

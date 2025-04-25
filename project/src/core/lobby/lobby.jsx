@@ -120,9 +120,9 @@ const LobbyScreen = () => {
             }
         };
         checkParams(); // Initial check        
-        // Set up interval to check every 5 seconds instead of 200ms
+        // Set up interval to check every 4 seconds.
         // This significantly reduces API calls while still maintaining responsiveness
-        const interval = setInterval(checkParams, 3000);
+        const interval = setInterval(checkParams, 4000);
         
         // Cleanup interval on unmount
         return () => clearInterval(interval);
@@ -534,7 +534,7 @@ const LobbyScreen = () => {
                     <div className="user-profile-container">
                         <div className="user-profile">
                             <img 
-                                src={userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : "/assets/player_icon.png"} 
+                                src={userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : "/assets/player_icon_trans.png"} 
                                 alt="Your Profile" 
                                 className="user-profile-picture"
                             />
@@ -658,7 +658,7 @@ const LobbyScreen = () => {
                                             className={`profile-icon-wrapper ${index === Math.min(player_count, MAX_VISIBLE_PROFILES) - 1 ? 'pop-in' : ''}`}
                                         >
                                             <img 
-                                                src={index === 0 ? (userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : "/assets/player_icon.png") : "/assets/player_icon.png"}
+                                                src={index === 0 ? (userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : "/assets/player_icon_trans.png") : "/assets/player_icon_trans.png"}
                                                 alt={index === 0 ? "Your Profile" : `Profile ${index + 1}`}
                                                 className="profile-icon"
                                                 loading="lazy"
@@ -707,14 +707,14 @@ const LobbyScreen = () => {
                     </div>
                 )}
 
-                <button className="leave-lobby-button" onClick={leaveLobby}>Leave Lobby</button>
+                <button className="leave-lobby-button" onClick={leaveLobby}>Leave</button>
                 <button className="how-to-tutorial-button" onClick={() => setShowTutorial(true)}>Tutorial</button>
                 {permissions === "admin" && (
                     <button 
                         className="admin-view-button" 
                         onClick={() => navigate(`/admin_lobby_view?code=${lobbyCode}`)}
                     >
-                        Admin View
+                        Manage
                     </button>
                 )}
 

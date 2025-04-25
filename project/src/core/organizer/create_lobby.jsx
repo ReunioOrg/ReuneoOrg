@@ -10,8 +10,6 @@ const CreateLobbyView = () => {
     const [lobbyCode, setLobbyCode] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [showValidationPopup, setShowValidationPopup] = useState(false);
-    const [validationMessage, setValidationMessage] = useState('');
     const [isTyping, setIsTyping] = useState(false);
 
     const navigate = useNavigate();
@@ -30,32 +28,19 @@ const CreateLobbyView = () => {
         }
     }, [user]);
 
-    // Function to validate lobby code (only letters and numbers allowed)
+    // Function to validate lobby code (only lowercase letters and numbers allowed)
     const validateLobbyCode = (code) => {
-        // Regular expression to match only letters and numbers
-        const validCodeRegex = /^[a-zA-Z0-9]*$/;
-        return validCodeRegex.test(code);
+        // Regular expression to match only lowercase letters and numbers
+        const validLobbyCodeRegex = /^[a-z0-9]+$/;
+        return code.length >= 2 && validLobbyCodeRegex.test(code);
     };
 
     // Handle lobby code input change with validation
     const handleLobbyCodeChange = (e) => {
-        const newValue = e.target.value;
+        // Convert input to lowercase and remove any non-alphanumeric characters
+        const sanitizedValue = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+        setLobbyCode(sanitizedValue);
         setIsTyping(true);
-        
-        // If the new value is valid or empty, update the state
-        if (validateLobbyCode(newValue) || newValue === '') {
-            setLobbyCode(newValue);
-            setShowValidationPopup(false);
-        } else {
-            // If invalid, show the popup with an error message
-            setValidationMessage("Only letters and numbers are allowed. No spaces, special characters, or symbols.");
-            setShowValidationPopup(true);
-            
-            // Hide the popup after 3 seconds
-            setTimeout(() => {
-                setShowValidationPopup(false);
-            }, 3000);
-        }
         
         // Reset typing state after a delay
         setTimeout(() => {
@@ -68,8 +53,7 @@ const CreateLobbyView = () => {
         
         // Validate lobby code before submission
         if (!validateLobbyCode(lobbyCode)) {
-            setValidationMessage("Lobby code can only contain letters and numbers.");
-            setShowValidationPopup(true);
+            setError("Lobby code must be at least 2 characters long and contain only lowercase letters and numbers");
             return;
         }
         
@@ -106,70 +90,48 @@ const CreateLobbyView = () => {
     };
 
     return (
-        
-        <div className="create-lobby-container">
-            <h1 className="create-lobby-title">Create a New Lobby</h1>
-            
-            <form onSubmit={handleSubmit} className="create-lobby-form">
-                {/* <div className="form-group">
-                    <label htmlFor="title">Lobby Title</label>
-                    <input
-                        type="text"
-                        id="title"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Enter lobby title"
-                        required
-                        className="form-input"
-                    />
-                </div> */}
+        <div className="create-lobby-background">
+            <div className="create-lobby-container">
+                <h1 className="create-lobby-title">Create a New Lobby</h1>
                 
-                <div className="form-group">
-                    <label htmlFor="lobbyCode">Lobby Code</label>
-                    <input
-                        ref={inputRef}
-                        type="text"
-                        id="lobbyCode"
-                        value={lobbyCode}
-                        onChange={handleLobbyCodeChange}
-                        placeholder="Enter lobby code (letters and numbers only)"
-                        required
-                        className={`form-input ${isTyping ? 'typing' : ''}`}
-                        autoComplete="off"
-                    />
-                    <div className="input-hint">Only letters and numbers are allowed</div>
-                </div>
-                
-                {error && <div className="error-message">{error}</div>}
-                
-                {/* Validation Popup */}
-                {showValidationPopup && (
-                    <div className="validation-popup">
-                        <div className="validation-popup-content">
-                            <p>{validationMessage}</p>
-                            <button onClick={() => setShowValidationPopup(false)}>Close</button>
-                        </div>
+                <form onSubmit={handleSubmit} className="create-lobby-form">
+                    <div className="form-group">
+                        <label htmlFor="lobbyCode">Lobby Code</label>
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            id="lobbyCode"
+                            value={lobbyCode}
+                            onChange={handleLobbyCodeChange}
+                            placeholder="Enter lobby code (lowercase letters and numbers only)"
+                            required
+                            className={`form-input ${isTyping ? 'typing' : ''}`}
+                            autoComplete="off"
+                        />
+                        <div className="input-hint">lowercase letters and numbers only</div>
                     </div>
-                )}
-                
-                <div className="button-group">
-                    <button 
-                        type="button" 
-                        className="back-button"
-                        onClick={() => navigate(-1)}
-                    >
-                        ← Back
-                    </button>
                     
-                    <button 
-                        type="submit" 
-                        className="submit-button"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? 'Creating...' : 'Create Lobby'}
-                    </button>
-                </div>
-            </form>
+                    {error && <div className="error-message">{error}</div>}
+                    
+                    <div className="button-group">
+                        <button 
+                            type="button" 
+                            className="back-button"
+                            onClick={() => navigate(-1)}
+                        >
+                            ← Back
+                        </button>
+                        
+                        <button 
+                            type="submit" 
+                            className="submit-button"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Creating...' : 'Create Lobby'}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }

@@ -91,6 +91,7 @@
     align-items: center;
     box-sizing: border-box;
     background: linear-gradient(135deg, rgba(20,77,255,0.1) 0%, rgba(36, 86, 235, 0.05) 100%);
+    
 }
 
 .form-label {
@@ -204,7 +205,7 @@
     width: 100px;
     height: 100px;
     margin: 1rem 0;
-    margin-top: -.1rem;
+    margin-top: -.5rem;
     object-fit: contain;
 }
 
