@@ -102,31 +102,10 @@ const LobbyScreen = () => {
                     // Mark that the user has seen the tutorial for this lobby
                     localStorage.setItem(lobbyTutorialKey, 'true');
                 }
-
-                // Immediate fetch when lobby code is set, this way we can get the player count immediately
-                const token = localStorage.getItem('access_token');
-                fetch(`${window.server_url}/display_lobby_metadata?lobby_code=${codeParam}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'lobby_code': codeParam
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    setPlayerCount(data.player_count);
-                })
-                .catch(error => console.error("Error fetching initial lobby metadata:", error));
-
             }
         };
-        checkParams(); // Initial check        
-        // Set up interval to check every 4 seconds.
-        // This significantly reduces API calls while still maintaining responsiveness
-        const interval = setInterval(checkParams, 4000);
-        
-        // Cleanup interval on unmount
-        return () => clearInterval(interval);
-    }, [code]); // Remove lobbyCode from dependencies to prevent re-renders
+        checkParams(); // Initial check for tutorial and lobby code setup only
+    }, [code]); // Remove the interval since we're now handling metadata in fetchLobbyData
 
     const [opponentProfile, setOpponentProfile] = useState(null);
     const [prevOpponentProfile, setPrevOpponentProfile] = useState(null);
@@ -274,6 +253,7 @@ const LobbyScreen = () => {
                 return;
             }
 
+            // First fetch lobby data
             const response = await fetch(`${window.server_url}/lobby?is_visible=${isTabVisible}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -289,7 +269,6 @@ const LobbyScreen = () => {
                     cancelSound();
                     navigate('/');
                 }
-
                 
                 setOpponentName(data.opponent_name);
                 if (data.opponent_name==null) {
@@ -301,7 +280,6 @@ const LobbyScreen = () => {
                 setRoundTimeLeft(data.round_time_left);
 
                 setTableNumber(data.table_number);
-
 
                 // Set Tags
                 if ((data.player_tags!=null) && (data.player_tags.tags_work!=null)) {
@@ -316,6 +294,19 @@ const LobbyScreen = () => {
                         seekTo(playat-roundPosition.current);
                         console.log("seeking to", playat-roundPosition.current);
                     }
+                }
+
+                // Also fetch metadata in the same cycle
+                const metadataResponse = await fetch(`${window.server_url}/display_lobby_metadata?lobby_code=${currentLobbyCode}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'lobby_code': currentLobbyCode
+                    }
+                });
+                
+                if (metadataResponse.ok) {
+                    const metadataData = await metadataResponse.json();
+                    setPlayerCount(metadataData.player_count);
                 }
 
                 if ((opponentName!=data.opponent_name) || (opponentProfile==null)) {
@@ -350,12 +341,13 @@ const LobbyScreen = () => {
             setSoundEnabled(true);
         }
 
+        // Single polling mechanism for all lobby data
         const interval = setInterval(async () => {
             fetchLobbyData();
         }, useEffectTime);
 
         return () => clearInterval(interval);
-    }, []); // Empty dependency array to create interval only once
+    }, []); 
 
     // Add this new useEffect that runs whenever lobbyState changes
     useEffect(() => {

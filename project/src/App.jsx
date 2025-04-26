@@ -341,7 +341,7 @@ const App = () => {
         
         <div style={{ position: 'absolute', top: '-1rem', left: '50%', transform: 'translateX(-50%)' }}>
           <img  
-            src="/assets/reuneo_test.png"
+            src="/assets/reuneo_test_5.png"
             alt="Logo"
             style={{width: '110px',height: '110px',objectFit: 'contain'}}
           />
