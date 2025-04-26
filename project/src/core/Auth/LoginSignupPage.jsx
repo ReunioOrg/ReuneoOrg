@@ -92,7 +92,7 @@ const LoginSignupPage = () => {
             </button>
 
             <img 
-                src="/assets/reuneo_test_5.png"
+                src="/assets/reuneo_test_8.png"
                 alt="Reunio Logo"
                 className="logo-image"
             />
