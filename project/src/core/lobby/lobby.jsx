@@ -511,7 +511,7 @@ const LobbyScreen = () => {
                     marginTop: '-1.5rem'
                 }}>
                     <img 
-                        src="/assets/reuneo_test.png"
+                        src="/assets/reuneo_test_8.png"
                         alt="Reunio Logo"
                         style={{
                             maxWidth: '85px',

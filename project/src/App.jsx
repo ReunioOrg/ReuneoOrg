@@ -328,22 +328,22 @@ const App = () => {
   return (
     <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
       {/* Background Video */}
-      <video className="background-video" autoPlay loop muted playsInline poster="/assets/app_home_screenshot_5.jpg">
-        <source src="/assets/app_home_video_5.mp4" type="video/mp4" />
+      <video className="background-video" autoPlay loop muted playsInline poster="/assets/demo_app_home_video_X-Cover.jpg">
+        <source src="/assets/demo_app_home_video_X1.mp4" type="video/mp4" />
         <source src="/assets/app_home_video_2.webm" type="video/webm" />
         {/* Fallback for browsers that don't support video at all */}
-        <img src="/assets/app_home_screenshot_5.jpg" alt="Background fallback" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <img src="/assets/demo_app_home_video_X-Cover.jpg" alt="Background fallback" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         Your browser does not support the video tag.
       </video>
       
       {/* Main App Content */}
       <div style={{ position: 'relative', zIndex: 1, color: 'white' }}>
         
-        <div style={{ position: 'absolute', top: '-1rem', left: '50%', transform: 'translateX(-50%)' }}>
+        <div style={{ position: 'absolute', top: '-.5rem', left: '50%', transform: 'translateX(-50%)' }}>
           <img  
-            src="/assets/reuneo_test_8.png"
+            src="/assets/reuneo_test_9.png"
             alt="Logo"
-            style={{width: '110px',height: '110px',objectFit: 'contain'}}
+            style={{width: '120px',height: '120px',objectFit: 'contain'}}
           />
         </div>
 
@@ -393,7 +393,7 @@ const App = () => {
         {/* Consolidated header - either "Pair up" or "Welcome" based on user role */}
         <div style={{ 
           position: 'absolute', 
-          top: '4rem', 
+          top: '5rem', 
           left: '50%', 
           transform: 'translateX(-50%)',
           width: '90%',
@@ -414,18 +414,36 @@ const App = () => {
           }}>
             {user && userProfile && (permissions === "admin" || permissions === "organizer") ? (
               (() => {
-                const text = `Elevate your events`;
-                return text.split("").map((char, index) => (
-                  <span 
-                    key={index} 
-                    style={{ 
-                      "--i": index + 1,
-                      marginRight: char === " " ? "0.5em" : "1px"
-                    }}
-                  >
-                    {char}
-                  </span>
-                ));
+                const mainText = `Elevate your events`;
+                const nameText = userProfile ? userProfile.name.slice(0, 15) : "";
+                
+                return (
+                  <>
+                    {mainText.split("").map((char, index) => (
+                      <span 
+                        key={`main-${index}`} 
+                        style={{ 
+                          "--i": index + 1,
+                          marginRight: char === " " ? "0.5em" : "1px"
+                        }}
+                      >
+                        {char}
+                      </span>
+                    ))}
+                    <br />
+                    {nameText && nameText.split("").map((char, index) => (
+                      <span 
+                        key={`name-${index}`} 
+                        style={{ 
+                          "--i": index + 1,
+                          marginRight: char === " " ? "0.5em" : "1px"
+                        }}
+                      >
+                        {char}
+                      </span>
+                    ))}
+                  </>
+                );
               })()
             ) : (
               (() => {
@@ -448,7 +466,7 @@ const App = () => {
 
         {/* Event items, the big div */}
         <div style={{ 
-          marginTop: '12rem',  // Adjusted to account for both headers
+          marginTop: '20rem',  // Adjusted to account for both headers
           width: '94%', 
           marginLeft: 'auto', 
           marginRight: 'auto',
@@ -611,7 +629,7 @@ const App = () => {
 
         {/* Active Lobbies Section */}
         {(permissions === 'admin' || permissions === 'organizer') && (
-          <div className="events-list" style={{ marginTop: '7rem', width: '65%',height: '60%', marginLeft: 'auto', marginRight: 'auto', marginBottom: '.5rem' }}>
+          <div className="events-list" style={{ marginTop: '2rem', width: '65%',height: '60%', marginLeft: 'auto', marginRight: 'auto', marginBottom: '.5rem' }}>
             {/* <h2 style={{ 
               textAlign: 'center', 
               width: '100%', 
