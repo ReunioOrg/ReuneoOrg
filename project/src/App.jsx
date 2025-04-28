@@ -328,11 +328,11 @@ const App = () => {
   return (
     <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
       {/* Background Video */}
-      <video className="background-video" autoPlay loop muted playsInline poster="/assets/demo_app_home_video_X-Cover.jpg">
-        <source src="/assets/demo_app_home_video_X1.mp4" type="video/mp4" />
+      <video className="background-video" autoPlay loop muted playsInline poster="/assets/demo_app_home_video_X2-Cover.jpg">
+        <source src="/assets/demo_app_home_video_X2.mp4" type="video/mp4" />
         <source src="/assets/app_home_video_2.webm" type="video/webm" />
         {/* Fallback for browsers that don't support video at all */}
-        <img src="/assets/demo_app_home_video_X-Cover.jpg" alt="Background fallback" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <img src="/assets/demo_app_home_video_X2-Cover.jpg" alt="Background fallback" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         Your browser does not support the video tag.
       </video>
       
