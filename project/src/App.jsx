@@ -563,6 +563,43 @@ const App = () => {
                   {!user ? 'Join A Lobby' : 'Join A Lobby'}
                 </span>
               </button>
+              
+              {/* Become a Host button - visible to non-logged in users and regular logged-in users */}
+              {permissions !== 'admin' && permissions !== 'organizer' && (
+                <button 
+                  className="primary-button join-lobby-button" 
+                  onClick={() => window.location.href = 'https://www.meet-tx.com/become-an-organizer'}
+                  style={{
+                    padding: '12px 24px',
+                    backgroundColor: 'transparent',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '14px',
+                    fontWeight: '900',
+                    fontSize: '1.2rem',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+                    transition: 'all 0.2s ease',
+                    minWidth: '180px',
+                    whiteSpace: 'nowrap',
+                    margin: '0 auto',
+                    display: 'block',
+                    position: 'relative',
+                    zIndex: 1,
+                    outline: 'none',
+                    ':hover': {
+                      transform: 'scale(1.02)'
+                    }
+                  }}
+                >
+                  <span style={{
+                    textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
+                    WebkitTextStroke: '0.5px rgba(58, 53, 53, 0.4)',
+                    color: 'inherit'
+                  }}>
+                    Become a Host
+                  </span>
+                </button>
+              )}
               {(permissions === 'admin' || permissions === 'organizer') && (
                 <button
                   className={`primary-button ${(permissions === 'admin' || permissions === 'organizer') ? 'create-lobby-button' : ''}`}
