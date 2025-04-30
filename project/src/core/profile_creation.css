@@ -104,12 +104,14 @@ button {
 }
 
 .form-group input {
-  color:#144dff;
+  color: #144dff;
   background-color: #ffffff;
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 16px;
+  min-height: 44px; /* Adding minimum height for better touch targets */
 }
 
 
