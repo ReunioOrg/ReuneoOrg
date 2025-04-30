@@ -456,13 +456,6 @@ const PureSignupPage = () => {
                                                         <div className="cropper-controls">
                                                             <button
                                                                 type="button"
-                                                                onClick={handleSaveCroppedImage}
-                                                                className="save-crop-button"
-                                                            >
-                                                                Good
-                                                            </button>
-                                                            <button
-                                                                type="button"
                                                                 onClick={() => {
                                                                     setIsCropping(false);
                                                                     setImagePreview(null);
@@ -471,6 +464,13 @@ const PureSignupPage = () => {
                                                                 className="cancel-crop-button"
                                                             >
                                                                 Cancel
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={handleSaveCroppedImage}
+                                                                className="save-crop-button"
+                                                            >
+                                                                Good
                                                             </button>
                                                         </div>
                                                     </div>

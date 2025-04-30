@@ -579,14 +579,14 @@
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #144dff;
-    box-shadow: 0 4px 15px rgba(20, 77, 255, 0.3);
+    box-shadow: 0 4px 10px rgba(20, 77, 255, 0.3);
     background-color: white;
     transition: all 0.3s ease;
 }
 
 .profile-icon:hover {
     border-color: #2861ff;
-    box-shadow: 0 8px 25px rgba(20, 77, 255, 0.5);
+    box-shadow: 0 8px 10    px rgba(20, 77, 255, 0.5);
 }
 
 .profile-icon-glow {
@@ -599,13 +599,9 @@
     background: linear-gradient(45deg, #144dff, #2861ff);
     opacity: 0;
     z-index: -1;
-    transition: opacity 0.3s ease;
+    
 }
 
-.profile-icon-wrapper:hover .profile-icon-glow {
-    opacity: 0.5;
-    animation: pulse 2s infinite;
-}
 
 @media (max-width: 768px) {
     .lobby-profiles-container {
@@ -677,14 +673,10 @@
     font-size: 14px;
     font-weight: bold;
     box-shadow: 0 4px 15px rgba(20, 77, 255, 0.3);
-    transition: all 0.3s ease;
     border: 2px solid #ffffff;
 }
 
-.more-profiles-bubble:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(20, 77, 255, 0.5);
-}
+
 
 @media (max-width: 768px) {
     .more-profiles-bubble {

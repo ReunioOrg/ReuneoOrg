@@ -265,7 +265,7 @@
     display: flex;
     justify-content: flex-end;
     position: absolute;
-    top: 110px;
+    top: 140px;
     padding: 0 4px;
     align-items: center;
     flex-direction: row;
@@ -282,10 +282,6 @@
     font-size: 0.9rem;
     font-weight: 500;
     transition: all 0.15s ease;
-    position: static;
-    overflow: hidden;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
     height: 36px;
     display: flex;
     align-items: center;
@@ -305,15 +301,10 @@
     font-size: 0.9rem;
     font-weight: 500;
     transition: all 0.15s ease;
-    position: static;
-    overflow: hidden;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
     height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0;
     align-self: flex-end;
     margin-right: 10px;
 }
@@ -353,6 +344,7 @@
     flex-direction: column;
     align-items: center;
     gap: 16px;
+    
 }
 
 .profile-preview-image {
@@ -360,8 +352,9 @@
     height: 250px;
     object-fit: cover;
     border-radius: 12px;
-    margin-top: 30px;
+    margin-top: 45px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+   
 }
 
 .cropper-container {
