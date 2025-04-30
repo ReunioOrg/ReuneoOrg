@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './core/Auth/AuthContext.jsx'
+import ScrollToTop from './core/ScrollToTop.jsx'
 
 import LoginSignupPage from './core/Auth/LoginSignupPage.jsx'
 import LogoutPage from './core/Auth/LogoutPage.jsx'
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
       <Router basename="/">
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/login" element={<LoginSignupPage />} />
