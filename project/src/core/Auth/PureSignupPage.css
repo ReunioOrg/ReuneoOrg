@@ -246,7 +246,7 @@
 
     .step-input {
         padding: 10px;
-        font-size: 0.9rem;
+        font-size: 16px;
     }
 
     .step {
@@ -470,28 +470,40 @@
 
 .step-input[type="file"]::-webkit-file-upload-button {
     visibility: visible;
+    font-size: 16px;
+    min-height: 44px;
 }
 
 .step-input[type="file"]::file-selector-button {
     visibility: visible;
+    font-size: 16px;
+    min-height: 44px;
 }
 
 .step-input[type="file"]::-webkit-file-upload-button,
 .step-input[type="file"]::file-selector-button {
     visibility: visible;
+    font-size: 16px;
+    min-height: 44px;
 }
 
 /* Hide the "No file chosen" text */
 .step-input[type="file"] {
     color: transparent;
+    font-size: 16px;
+    min-height: 44px;
 }
 
 .step-input[type="file"]::-webkit-file-upload-button {
     visibility: visible;
     color: initial;
+    font-size: 16px;
+    min-height: 44px;
 }
 
 .step-input[type="file"]::file-selector-button {
     visibility: visible;
     color: initial;
+    font-size: 16px;
+    min-height: 44px;
 }
