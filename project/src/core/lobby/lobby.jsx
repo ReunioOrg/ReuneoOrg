@@ -411,16 +411,16 @@ const LobbyScreen = () => {
                             top: '10px',
                             border: 'none',
                             background: 'none',
-                            fontSize: '20px',
+                            fontSize: '12px',
                             cursor: 'pointer'
                         }}
                     >
                     X   
                     </button>
-                    <h2 style={{ marginTop: '20px' }}>Enable Sound</h2>
+                    <h2 style={{ marginTop: '5px' }}>The Sound is Important</h2>
                     <p style={{
                             color: '#144dff',
-                        }}>Please enable sound for the best experience</p>
+                        }}>You'll need this for the best experience.</p>
                     <button 
                         onClick={() => {
                             loadSound();
@@ -429,10 +429,11 @@ const LobbyScreen = () => {
                         style={{
                             padding: '10px 20px',
                             marginTop: '20px',
-                            backgroundColor: '#007bff',
+                            backgroundColor: '#144dff',
                             color: '#ffffff',
                             border: 'none',
-                            borderRadius: '4px',
+                            borderRadius: '14px',
+                            fontWeight: 'bold',
                             cursor: 'pointer'
                         }}
                     >

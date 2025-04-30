@@ -339,7 +339,7 @@ const PureSignupPage = () => {
         },
         {
             id: 'image',
-            label: 'Profile Pic (show your face, so people can find you)',
+            label: 'Upload a Selfie so people can find you',
             type: 'file',
             onChange: handleImageChange,
             accept: 'image/*'
