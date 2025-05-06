@@ -280,13 +280,20 @@ const LobbyScreen = () => {
                 setTagsState(data.custom_tags);
                 setLobbyState(data.lobby_state);
                 setRoundDuration(data.round_duration);
-                roundPosition.current = data.round_time_left;
-                setRoundTimeLeft(Math.floor(data.round_time_left));
-                // minutes:seconds string
-                const timeLeft = Number(data.round_time_left);
+                
+                // Add validation check for round_time_left to ensure it's a valid number
+                const timeLeft = typeof data.round_time_left === 'number' && !isNaN(data.round_time_left) 
+                    ? data.round_time_left 
+                    : 0;
+                
+                roundPosition.current = timeLeft;
+                setRoundTimeLeft(Math.floor(timeLeft));
+                
+                // Format the time display with validation
                 const minutes = Math.floor(timeLeft / 60);
                 const seconds = Math.floor(timeLeft % 60);
                 setRoundDisplayTime(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+                
                 setTableNumber(data.table_number);
 
                 // Set Tags
@@ -296,7 +303,7 @@ const LobbyScreen = () => {
                 if ((data.player_tags!=null) && (data.player_tags.desiring_tags_work!=null)) {
                     setServerdesiringTags(data.player_tags.desiring_tags_work);
                 }
-    
+        
                 if ((roundPosition.current!=null) && (data.lobby_state=="active")) {
                     if (roundPosition.current!=0) {
                         seekTo(playat-roundPosition.current);
@@ -571,8 +578,8 @@ const LobbyScreen = () => {
                                 <CountdownCircleTimer
                                     key={`${lobbyState}-${roundTimeLeft}`}
                                     isPlaying={lobbyState === "active"}
-                                    duration={roundDuration}
-                                    initialRemainingTime={roundTimeLeft}
+                                    duration={roundDuration || 180}
+                                    initialRemainingTime={roundTimeLeft || 0}
                                     colors={["#144dff"]} 
                                     size={90}
                                     strokeWidth={12}
@@ -583,11 +590,17 @@ const LobbyScreen = () => {
                                     }}
                                     
                                 >
-                                    {({ remainingTime }) => (
-                                        <span style={{ fontSize: '.95rem', color: '#144dff', fontWeight: 600 }}>
-                                            {Math.floor(remainingTime / 60)}:{String(Math.floor(remainingTime % 60)).padStart(2, '0')}
-                                        </span>
-                                    )}
+                                    {({ remainingTime }) => {
+                                        // Ensure remainingTime is a valid number
+                                        const validTime = typeof remainingTime === 'number' && !isNaN(remainingTime) ? remainingTime : 0;
+                                        const mins = Math.floor(validTime / 60);
+                                        const secs = Math.floor(validTime % 60);
+                                        return (
+                                            <span style={{ fontSize: '.95rem', color: '#144dff', fontWeight: 600 }}>
+                                                {mins}:{String(secs).padStart(2, '0')}
+                                            </span>
+                                        );
+                                    }}
                                 </CountdownCircleTimer>
                                 {/* <span style={{color: '#144dff'}}>{parseInt(roundTimeLeft)}s</span> */}
                                 <span style={{ fontSize: '0.7em', marginTop: '4px', opacity: '1', color: '#144dff' }}>round time left</span>
