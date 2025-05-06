@@ -13,13 +13,16 @@ const CreateLobbyView = () => {
     const [isTyping, setIsTyping] = useState(false);
     const [customTags, setCustomTags] = useState([]);
     const [tagInput, setTagInput] = useState('');
-    const [minutes, setMinutes] = useState(0);
-    const [seconds, setSeconds] = useState(0);
+    const [minutes, setMinutes] = useState('');
+    const [seconds, setSeconds] = useState('');
 
     const navigate = useNavigate();
     const inputRef = useRef(null);
 
     useEffect(() => {
+        // Scroll to top when component mounts
+        window.scrollTo(0, 0);
+        
         // Auto-populate title and lobby code with username when component mounts
         if (user) {
             setTitle(user);
@@ -150,8 +153,15 @@ const CreateLobbyView = () => {
                                     type="number"
                                     id="minutes"
                                     value={minutes}
-                                    onChange={(e) => setMinutes(Math.max(0, parseInt(e.target.value) || 0))}
-                                    min="0"
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value === '' || (parseInt(value) > 0 && parseInt(value) <= 5)) {
+                                            setMinutes(value);
+                                        }
+                                    }}
+                                    min="1"
+                                    max="5"
+                                    placeholder="1-5"
                                     className="form-input duration-input"
                                     autoComplete="off"
                                 />
@@ -162,9 +172,15 @@ const CreateLobbyView = () => {
                                     type="number"
                                     id="seconds"
                                     value={seconds}
-                                    onChange={(e) => setSeconds(Math.max(0, Math.min(59, parseInt(e.target.value) || 0)))}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value === '' || (parseInt(value) >= 0 && parseInt(value) <= 59)) {
+                                            setSeconds(value);
+                                        }
+                                    }}
                                     min="0"
                                     max="59"
+                                    placeholder="0-59"
                                     className="form-input duration-input"
                                     autoComplete="off"
                                 />
