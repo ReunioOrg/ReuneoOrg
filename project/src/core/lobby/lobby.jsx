@@ -28,6 +28,7 @@ const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with differe
 const useEffectTime=5000;
 
 const LobbyScreen = () => {
+    const [tagsState, setTagsState] = useState("self");
     
     const { audioRef, error, playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying } = usePlaySound();
     const [lobbyCode, setLobbyCode] = useState('yonder');
@@ -120,6 +121,8 @@ const LobbyScreen = () => {
     const roundPosition = useRef(null);
     const [lobbyState, setLobbyState] = useState(null);
     const [roundTimeLeft, setRoundTimeLeft] = useState(null);
+    const [roundDisplayTime, setRoundDisplayTime] = useState(null);
+    const [roundDuration, setRoundDuration] = useState(null);
     const [showSoundPrompt, setShowSoundPrompt] = useState(true);
 
     // const playat=220;
@@ -274,11 +277,23 @@ const LobbyScreen = () => {
                 if (data.opponent_name==null) {
                     setOpponentProfile(null);
                 }
-                
+                setTagsState(data.custom_tags);
                 setLobbyState(data.lobby_state);
-                roundPosition.current = data.round_time_left;
-                setRoundTimeLeft(data.round_time_left);
-
+                setRoundDuration(data.round_duration);
+                
+                // Add validation check for round_time_left to ensure it's a valid number
+                const timeLeft = typeof data.round_time_left === 'number' && !isNaN(data.round_time_left) 
+                    ? data.round_time_left 
+                    : 0;
+                
+                roundPosition.current = timeLeft;
+                setRoundTimeLeft(Math.floor(timeLeft));
+                
+                // Format the time display with validation
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = Math.floor(timeLeft % 60);
+                setRoundDisplayTime(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+                
                 setTableNumber(data.table_number);
 
                 // Set Tags
@@ -288,7 +303,7 @@ const LobbyScreen = () => {
                 if ((data.player_tags!=null) && (data.player_tags.desiring_tags_work!=null)) {
                     setServerdesiringTags(data.player_tags.desiring_tags_work);
                 }
-    
+        
                 if ((roundPosition.current!=null) && (data.lobby_state=="active")) {
                     if (roundPosition.current!=0) {
                         seekTo(playat-roundPosition.current);
@@ -561,10 +576,10 @@ const LobbyScreen = () => {
                         {((lobbyState === "active" || lobbyState === "interrim") && roundTimeLeft) ? (
                             <>
                                 <CountdownCircleTimer
-                                    key={`${lobbyState}-${Math.floor(roundTimeLeft)}`}
+                                    key={`${lobbyState}-${roundTimeLeft}`}
                                     isPlaying={lobbyState === "active"}
-                                    duration={300}
-                                    initialRemainingTime={roundTimeLeft}
+                                    duration={roundDuration || 180}
+                                    initialRemainingTime={roundTimeLeft || 0}
                                     colors={["#144dff"]} 
                                     size={90}
                                     strokeWidth={12}
@@ -575,11 +590,17 @@ const LobbyScreen = () => {
                                     }}
                                     
                                 >
-                                    {({ remainingTime }) => (
-                                        <span style={{ fontSize: '.95rem', color: '#144dff', fontWeight: 600 }}>
-                                            {Math.ceil(remainingTime)}s
-                                        </span>
-                                    )}
+                                    {({ remainingTime }) => {
+                                        // Ensure remainingTime is a valid number
+                                        const validTime = typeof remainingTime === 'number' && !isNaN(remainingTime) ? remainingTime : 0;
+                                        const mins = Math.floor(validTime / 60);
+                                        const secs = Math.floor(validTime % 60);
+                                        return (
+                                            <span style={{ fontSize: '.95rem', color: '#144dff', fontWeight: 600 }}>
+                                                {mins}:{String(secs).padStart(2, '0')}
+                                            </span>
+                                        );
+                                    }}
                                 </CountdownCircleTimer>
                                 {/* <span style={{color: '#144dff'}}>{parseInt(roundTimeLeft)}s</span> */}
                                 <span style={{ fontSize: '0.7em', marginTop: '4px', opacity: '1', color: '#144dff' }}>round time left</span>
@@ -731,7 +752,7 @@ const LobbyScreen = () => {
                                 <h3>What do you do?</h3>
                             </div>
                             <div className="tag-labels-container">
-                                {AVAILABLE_TAGS.map(tag => (
+                                {Array.isArray(tagsState) ? tagsState.map(tag => (
                                     <label key={`self-${tag}`} className="tag-label">
                                         <input
                                             type="checkbox"
@@ -742,7 +763,7 @@ const LobbyScreen = () => {
                                         />
                                         {tag}
                                     </label>
-                                ))}
+                                )) : null}
                             </div>
                         </div>
                         <div className="tag-group">
@@ -750,17 +771,17 @@ const LobbyScreen = () => {
                                 <h3>What are you looking for?</h3>
                             </div>
                             <div className="tag-labels-container">
-                                {AVAILABLE_TAGS.map(tag => (
+                                {Array.isArray(tagsState) ? tagsState.map(tag => (
                                     <label key={`desiring-${tag}`} className="tag-label">
                                         <input
                                             type="checkbox"
-                                            //checked={(serverselfTags!=null)?serverselfTags.includes(tag):serverdesiringTags.includes(tag)}
-                                            checked={(desiringTags!=null)?desiringTags.includes(tag):serverdesiringTags.includes(tag)}
-                                            onChange={() => handleTagChange('desiring', tag)}
-                                        />
-                                        {tag}
-                                    </label>
-                                ))}
+                                                //checked={(serverselfTags!=null)?serverselfTags.includes(tag):serverdesiringTags.includes(tag)}
+                                                checked={(desiringTags!=null)?desiringTags.includes(tag):serverdesiringTags.includes(tag)}
+                                                onChange={() => handleTagChange('desiring', tag)}
+                                            />
+                                            {tag}
+                                        </label>
+                                    )) : null}
                             </div>
                         </div>
                     </div>

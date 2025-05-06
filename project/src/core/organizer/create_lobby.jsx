@@ -11,11 +11,18 @@ const CreateLobbyView = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+    const [customTags, setCustomTags] = useState([]);
+    const [tagInput, setTagInput] = useState('');
+    const [minutes, setMinutes] = useState('');
+    const [seconds, setSeconds] = useState('');
 
     const navigate = useNavigate();
     const inputRef = useRef(null);
 
     useEffect(() => {
+        // Scroll to top when component mounts
+        window.scrollTo(0, 0);
+        
         // Auto-populate title and lobby code with username when component mounts
         if (user) {
             setTitle(user);
@@ -48,6 +55,27 @@ const CreateLobbyView = () => {
         }, 500);
     };
 
+    // Handle adding a tag to the customTags list
+    const handleAddTag = () => {
+        if (tagInput.trim() && !customTags.includes(tagInput.trim())) {
+            setCustomTags([...customTags, tagInput.trim()]);
+            setTagInput('');
+        }
+    };
+
+    // Handle removing a tag from the customTags list
+    const handleRemoveTag = (tagToRemove) => {
+        setCustomTags(customTags.filter(tag => tag !== tagToRemove));
+    };
+
+    // Handle tag input keydown (add tag on Enter)
+    const handleTagKeyDown = (e) => {
+        if (e.key === 'Enter' && tagInput.trim()) {
+            e.preventDefault(); // Prevent form submission
+            handleAddTag();
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -60,6 +88,9 @@ const CreateLobbyView = () => {
         setIsLoading(true);
         setError('');
 
+        // Calculate total duration in seconds
+        const lobbyDuration = (parseInt(minutes) * 60) + parseInt(seconds);
+
         try {
             const response = await fetch(window.server_url + '/create_lobby', {
                 method: 'POST',
@@ -68,12 +99,15 @@ const CreateLobbyView = () => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    lobby_code: lobbyCode
+                    lobby_code: lobbyCode,
+                    custom_tags: customTags,
+                    lobby_duration: lobbyDuration
                 })
             });
 
             if (response.ok) {
                 console.log("Lobby created successfully");
+                console.log(await response.json());
                 // Navigate to the lobby with the correct URL format
                 navigate(`/admin_lobby_view?code=${lobbyCode}`);
             } else {
@@ -109,6 +143,92 @@ const CreateLobbyView = () => {
                             autoComplete="off"
                         />
                         <div className="input-hint">lowercase letters and numbers only</div>
+                    </div>
+                    
+                    <div className="form-group">
+                        <label>Lobby Duration</label>
+                        <div className="duration-input-container">
+                            <div className="duration-input-group">
+                                <input
+                                    type="number"
+                                    id="minutes"
+                                    value={minutes}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value === '' || (parseInt(value) > 0 && parseInt(value) <= 5)) {
+                                            setMinutes(value);
+                                        }
+                                    }}
+                                    min="1"
+                                    max="5"
+                                    placeholder="1-5"
+                                    className="form-input duration-input"
+                                    autoComplete="off"
+                                />
+                                <label htmlFor="minutes" className="duration-label">Minutes</label>
+                            </div>
+                            <div className="duration-input-group">
+                                <input
+                                    type="number"
+                                    id="seconds"
+                                    value={seconds}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value === '' || (parseInt(value) >= 0 && parseInt(value) <= 59)) {
+                                            setSeconds(value);
+                                        }
+                                    }}
+                                    min="0"
+                                    max="59"
+                                    placeholder="0-59"
+                                    className="form-input duration-input"
+                                    autoComplete="off"
+                                />
+                                <label htmlFor="seconds" className="duration-label">Seconds</label>
+                            </div>
+                        </div>
+                        <div className="input-hint">Set how long the lobby will be active (0 for unlimited)</div>
+                    </div>
+                    
+                    <div className="form-group">
+                        <label htmlFor="tagInput">Custom Tags</label>
+                        <div className="tag-input-container">
+                            <input
+                                type="text"
+                                id="tagInput"
+                                value={tagInput}
+                                onChange={(e) => setTagInput(e.target.value)}
+                                onKeyDown={handleTagKeyDown}
+                                placeholder="Add tags (press Enter to add)"
+                                className="form-input"
+                                autoComplete="off"
+                            />
+                            <button 
+                                type="button" 
+                                onClick={handleAddTag}
+                                className="tag-add-button"
+                            >
+                                Add
+                            </button>
+                        </div>
+                        
+                        {customTags.length > 0 && (
+                            <div className="tag-list">
+                                {customTags.map((tag, index) => (
+                                    <div key={index} className="tag-item">
+                                        {tag}
+                                        <button 
+                                            type="button" 
+                                            onClick={() => handleRemoveTag(tag)}
+                                            className="tag-remove-button"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        <div className="input-hint">Add custom tags to organize your lobby</div>
                     </div>
                     
                     {error && <div className="error-message">{error}</div>}

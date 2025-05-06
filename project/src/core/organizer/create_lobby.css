@@ -264,7 +264,73 @@
 /* Add a subtle animation for the input hint when typing */
 .form-input.typing + .input-hint {
     color: #144dff;
+}
+
+/* Custom tag input styling */
+.tag-input-container {
+    display: flex;
+    gap: 8px;
+}
+
+.tag-add-button {
+    background-color: #144dff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 60px;
+}
+
+.tag-add-button:hover {
+    background-color: #3a7bc8;
     transform: translateY(-2px);
+}
+
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.tag-item {
+    background-color: rgba(20, 77, 255, 0.1);
+    border: 1px solid rgba(20, 77, 255, 0.3);
+    color: #144dff;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.tag-item:hover {
+    background-color: rgba(20, 77, 255, 0.2);
+}
+
+.tag-remove-button {
+    background: none;
+    border: none;
+    color: #144dff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+}
+
+.tag-remove-button:hover {
+    background-color: rgba(20, 77, 255, 0.2);
 }
 
 /* .create-lobby-background {
@@ -297,3 +363,60 @@
     0% { transform: scale(1); opacity: 0.3; }
     100% { transform: scale(1.1); opacity: 0.8; }
 } */
+
+/* Add styles for the duration inputs */
+.duration-input-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 5px;
+    justify-content: flex-start;
+    padding: 10px 0;
+}
+
+.duration-input-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    max-width: 120px;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+}
+
+.duration-input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(20, 77, 255, 0.2);
+    font-size: 16px;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    height: 40px;
+    color: #333;
+}
+
+.duration-input::placeholder {
+    color: #999;
+    opacity: 0.7;
+}
+
+.duration-input:empty {
+    color: #999;
+}
+
+.duration-input:focus {
+    border-color: #144dff;
+    box-shadow: 0 0 0 2px rgba(20, 77, 255, 0.1);
+    outline: none;
+}
+
+.duration-label {
+    font-size: 12px;
+    color: #666;
+    margin-top: 8px;
+    text-align: center;
+    font-weight: 500;
+}
