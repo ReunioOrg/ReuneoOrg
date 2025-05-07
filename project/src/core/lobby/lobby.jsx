@@ -553,7 +553,11 @@ const LobbyScreen = () => {
 
                 <div className="lobby-header" style={{marginTop: '-50px'}} key={lobbyState}>
                     <h2>
-                        {lobbyState === "checkin" ? (
+                        {lobbyState === "active" && opponentProfile ? (
+                            <span className="lobby-pop-burst">
+                                Go find {opponentProfile.name}!
+                            </span>
+                        ) : lobbyState === "checkin" ? (
                             <>
                                 You're in {userProfile.name.slice(0, 15)}!
                                 <br />
@@ -604,12 +608,12 @@ const LobbyScreen = () => {
                                 </CountdownCircleTimer>
                                 {/* <span style={{color: '#144dff'}}>{parseInt(roundTimeLeft)}s</span> */}
                                 <span style={{ fontSize: '0.7em', marginTop: '4px', opacity: '1', color: '#144dff' }}>round time left</span>
-                                <div style={{ height: '10px' }}></div>
-                                {opponentProfile && (
+                                <div style={{ height: '18px' }}></div>
+                                {/* {opponentProfile && (
                                     <div className="table-number">
                                         <h3>Go to table: {tableNumber}</h3>
                                     </div>
-                                )}
+                                )} */}
                             </>
                         ) : (
                             <span className="time-left-text"></span>
@@ -749,7 +753,7 @@ const LobbyScreen = () => {
                                 <h3>Help us match you with the right people.</h3>
                             </div>
                             <div className="bounce-wrapper">
-                                <h3>What do you do?</h3>
+                                <h3>Who are you?</h3>
                             </div>
                             <div className="tag-labels-container">
                                 {Array.isArray(tagsState) ? tagsState.map(tag => (
@@ -768,7 +772,7 @@ const LobbyScreen = () => {
                         </div>
                         <div className="tag-group">
                             <div className="bounce-wrapper">
-                                <h3>What are you looking for?</h3>
+                                <h3>Who do you want to meet?</h3>
                             </div>
                             <div className="tag-labels-container">
                                 {Array.isArray(tagsState) ? tagsState.map(tag => (
