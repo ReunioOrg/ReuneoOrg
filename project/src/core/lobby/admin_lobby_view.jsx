@@ -312,9 +312,9 @@ const AdminLobbyView = () => {
     return (
         <div className="admin-lobby-container">
             <div className="admin-lobby-header">
-                <h1 className="admin-lobby-title">{user} Admin View</h1>
+                <h1 className="admin-lobby-title">{user} admin view</h1>
                 <div>
-                    <h3>Lobby code: {lobbyCode}</h3>
+                    <h3>lobby code: {lobbyCode}</h3>
                 </div>
                 <div className="admin-lobby-actions">
                     <button 
@@ -348,11 +348,15 @@ const AdminLobbyView = () => {
                                 return { shouldRepeat: false }
                             }}
                         >
-                            {({ remainingTime }) => (
-                                <span style={{ fontSize: '.95rem', color: '#144dff', fontWeight: 600 }}>
-                                    {Math.ceil(remainingTime)}s
-                                </span>
-                            )}
+                            {({ remainingTime }) => {
+                                const mins = Math.floor(remainingTime / 60);
+                                const secs = Math.floor(remainingTime % 60);
+                                return (
+                                    <span style={{ fontSize: '.95rem', color: '#144dff', fontWeight: 600 }}>
+                                        {mins}:{String(secs).padStart(2, '0')}
+                                    </span>
+                                );
+                            }}
                         </CountdownCircleTimer>
                         <span style={{ fontSize: '0.7em', marginTop: '4px', opacity: '1', color: '#144dff' }}>round time left</span>
                     </div>

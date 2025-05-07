@@ -524,6 +524,15 @@ const LobbyScreen = () => {
         setShowTutorial(false);
     };
 
+    const tagsSectionRef = useRef(null);
+
+    // Add useEffect to scroll to tags if no server tags exist
+    useEffect(() => {
+        if (!serverselfTags?.length && !serverdesiringTags?.length) {
+            tagsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [serverselfTags, serverdesiringTags]);
+
     return (
         <div className="lobby-container">
             <div className="lobby-content">
@@ -754,10 +763,10 @@ const LobbyScreen = () => {
                     }
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}>
-                    <div className="tags-section">  
+                    <div className="tags-section" ref={tagsSectionRef}>  
                         <div className="tag-group">
                             <div className="bounce-wrapper">
-                                <h3>Help us match you with the right people.</h3>
+                                <h3>Lets get you matched!</h3>
                             </div>
                             <div className="bounce-wrapper">
                                 <h3>Who are you?</h3>
@@ -803,7 +812,7 @@ const LobbyScreen = () => {
                     </div> */}
                 </form>
 
-                <div className="bottom-buttons" style={{
+                {/* <div className="bottom-buttons" style={{
                     display: 'flex',
                     justifyContent: 'center',
                     gap: '1rem',
@@ -811,11 +820,10 @@ const LobbyScreen = () => {
                     flexWrap: 'wrap',
                     padding: '0 1rem'
                 }}>
-                    {/* <button className="primary-button" onClick={test_fetch}>test</button> */}
                     <button className="secondary-button" onClick={loadSound}>
                         {soundEnabled ? 'Sound On' : 'Sound Off'}
                     </button>
-                </div>
+                </div> */}
             </div>
 
             {(soundEnabled || !showSoundPrompt) || (lobbyState == "checkin") || (lobbyState == null) || isPlaying ? null : <SoundPrompt />}
