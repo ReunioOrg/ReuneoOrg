@@ -13,8 +13,8 @@ const CreateLobbyView = () => {
     const [isTyping, setIsTyping] = useState(false);
     const [customTags, setCustomTags] = useState([]);
     const [tagInput, setTagInput] = useState('');
-    const [minutes, setMinutes] = useState('');
-    const [seconds, setSeconds] = useState('');
+    const [minutes, setMinutes] = useState('5');
+    const [seconds, setSeconds] = useState('0');
 
     const navigate = useNavigate();
     const inputRef = useRef(null);
@@ -146,7 +146,7 @@ const CreateLobbyView = () => {
                     </div>
                     
                     <div className="form-group">
-                        <label>Lobby Duration</label>
+                        <label>Round Duration</label>
                         <div className="duration-input-container">
                             <div className="duration-input-group">
                                 <input
@@ -187,11 +187,11 @@ const CreateLobbyView = () => {
                                 <label htmlFor="seconds" className="duration-label">Seconds</label>
                             </div>
                         </div>
-                        <div className="input-hint">Set how long the lobby will be active (0 for unlimited)</div>
+                        
                     </div>
                     
                     <div className="form-group">
-                        <label htmlFor="tagInput">Custom Tags</label>
+                        <label htmlFor="tagInput">Matchmaking Tags</label>
                         <div className="tag-input-container">
                             <input
                                 type="text"
@@ -199,7 +199,7 @@ const CreateLobbyView = () => {
                                 value={tagInput}
                                 onChange={(e) => setTagInput(e.target.value)}
                                 onKeyDown={handleTagKeyDown}
-                                placeholder="Add tags (press Enter to add)"
+                                placeholder="Add tags (press + to add)"
                                 className="form-input"
                                 autoComplete="off"
                             />
@@ -208,7 +208,7 @@ const CreateLobbyView = () => {
                                 onClick={handleAddTag}
                                 className="tag-add-button"
                             >
-                                Add
+                                +
                             </button>
                         </div>
                         
@@ -228,7 +228,7 @@ const CreateLobbyView = () => {
                                 ))}
                             </div>
                         )}
-                        <div className="input-hint">Add custom tags to organize your lobby</div>
+                        <div className="input-hint">If you want to match people based on role/interests</div>
                     </div>
                     
                     {error && <div className="error-message">{error}</div>}
