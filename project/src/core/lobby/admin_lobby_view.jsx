@@ -126,6 +126,7 @@ const AdminLobbyView = () => {
     const [lobbyData, setLobbyData] = useState(null);
     const [lobbyTimer, setLobbyTimer] = useState(null);
     const [lobbyState, setLobbyState] = useState(null);
+    const [lobbyDuration, setLobbyDuration] = useState(300); // Add state for lobby duration
     const [profilePictures, setProfilePictures] = useState({}); // Cache for profile pictures
 
     const CreateLobby = async () => {
@@ -233,6 +234,7 @@ const AdminLobbyView = () => {
                         setPairedPlayers(pairsWithPfp);
                         setLobbyTimer(data.round_time_left);
                         setLobbyState(data.lobby_state);
+                        setLobbyDuration(data.lobby_duration || 300); // Set lobby duration from server
                     } else {
                         console.error("Invalid lobby data structure:", data);
                         setLobbyData([]);
@@ -336,7 +338,7 @@ const AdminLobbyView = () => {
                         <CountdownCircleTimer
                             key={`${lobbyState}-${Math.floor(lobbyTimer)}`}
                             isPlaying={lobbyState === "active"}
-                            duration={300}
+                            duration={lobbyDuration}
                             initialRemainingTime={lobbyTimer}
                             colors={["#144dff"]} 
                             size={90}

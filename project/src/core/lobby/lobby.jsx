@@ -279,12 +279,19 @@ const LobbyScreen = () => {
                 }
                 setTagsState(data.custom_tags);
                 setLobbyState(data.lobby_state);
-                setRoundDuration(data.round_duration);
+                setRoundDuration(data.lobby_duration);
                 
                 // Add validation check for round_time_left to ensure it's a valid number
                 const timeLeft = typeof data.round_time_left === 'number' && !isNaN(data.round_time_left) 
                     ? data.round_time_left 
                     : 0;
+                
+                console.log("Timer Debug:", {
+                    roundDuration: data.lobby_duration,
+                    timeLeft: timeLeft,
+                    lobbyState: data.lobby_state,
+                    usingDefaultDuration: !data.lobby_duration
+                });
                 
                 roundPosition.current = timeLeft;
                 setRoundTimeLeft(Math.floor(timeLeft));
@@ -582,7 +589,7 @@ const LobbyScreen = () => {
                                 <CountdownCircleTimer
                                     key={`${lobbyState}-${roundTimeLeft}`}
                                     isPlaying={lobbyState === "active"}
-                                    duration={roundDuration || 180}
+                                    duration={roundDuration || 300}
                                     initialRemainingTime={roundTimeLeft || 0}
                                     colors={["#144dff"]} 
                                     size={90}
