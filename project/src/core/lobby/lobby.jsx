@@ -426,13 +426,14 @@ const LobbyScreen = () => {
                             top: '10px',
                             border: 'none',
                             background: 'none',
-                            fontSize: '12px',
+                            fontSize: '2px',
                             cursor: 'pointer'
                         }}
                     >
                     X   
                     </button>
                     <h2 style={{ marginTop: '5px' }}>The Sound is Important</h2>
+                    <h3 style={{ marginTop: '5px' }}>Raise your volume also</h3>
                     <p style={{
                             color: '#144dff',
                         }}>You'll need this for the best experience.</p>
