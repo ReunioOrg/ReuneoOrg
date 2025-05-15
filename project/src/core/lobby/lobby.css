@@ -187,6 +187,7 @@
 
 .bounce-wrapper {
     animation: bounce 1.5s ease-in-out infinite;
+    margin-bottom: -1.5rem;
 }
 
 @keyframes bounce {

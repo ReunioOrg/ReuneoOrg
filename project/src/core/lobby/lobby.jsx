@@ -12,11 +12,16 @@ import HowToTutorial from './how_to_tutorial';
 
 const AVAILABLE_TAGS = []; // Remove hardcoded tags
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
+const MAX_TAGS_ALLOWED = 5; // Maximum number of tags allowed for both self and desiring tags
 const useEffectTime=5000;
 
 const LobbyScreen = () => {
     const [tagsState, setTagsState] = useState([]);
     const [selectionPhase, setSelectionPhase] = useState('self');
+    const [hasScrolledToTags, setHasScrolledToTags] = useState(false);
+    const [tagLimitWarning, setTagLimitWarning] = useState('');
+    const desiringTagsRef = useRef(null);
+    const continueButtonRef = useRef(null);
     
     const { audioRef, error, playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying } = usePlaySound();
     const [lobbyCode, setLobbyCode] = useState('yonder');
@@ -461,6 +466,26 @@ const LobbyScreen = () => {
         if (desiringTags==null) {
             setDesiringTags(serverdesiringTags);
         }
+
+        const currentTags = tagType === 'self' ? selfTags : desiringTags;
+        const isAdding = !currentTags?.includes(tag);
+
+        if (isAdding && currentTags?.length >= MAX_TAGS_ALLOWED) {
+            setTagLimitWarning('Reached tag limit for this section');
+            // Scroll to continue/save button
+            setTimeout(() => {
+                continueButtonRef.current?.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }, 100);
+            // Clear warning after 3 seconds
+            setTimeout(() => {
+                setTagLimitWarning('');
+            }, 3000);
+            return;
+        }
+
         if (tagType === 'self') {
             setSelfTags(prev => 
                 prev.includes(tag) 
@@ -481,6 +506,14 @@ const LobbyScreen = () => {
             define_profile_info(selfTags, desiringTags || []);
         }
         setSelectionPhase('desiring');
+        
+        // Add scroll behavior after a short delay to ensure phase transition is complete
+        setTimeout(() => {
+            desiringTagsRef.current?.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }, 100);
     };
 
     const handleSave = () => {
@@ -528,10 +561,11 @@ const LobbyScreen = () => {
 
     // Add useEffect to scroll to tags if no server tags exist and custom tags are available
     useEffect(() => {
-        if (!serverselfTags?.length && !serverdesiringTags?.length && tagsState?.length > 0) {
+        if (!hasScrolledToTags && !serverselfTags?.length && !serverdesiringTags?.length && tagsState?.length > 0) {
             tagsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+            setHasScrolledToTags(true);
         }
-    }, [serverselfTags, serverdesiringTags, tagsState]);
+    }, [serverselfTags, serverdesiringTags, tagsState, hasScrolledToTags]);
 
     return (
         <div className="lobby-container">
@@ -774,7 +808,7 @@ const LobbyScreen = () => {
                             {/* Tag Selection Groups */}
                             <div className={`tag-group ${selectionPhase === 'self' ? 'active' : 'hidden'}`}>
                                 <div className="bounce-wrapper">
-                                    <h3>Who are you?</h3>
+                                    <h2>Who are you?</h2>
                                 </div>
                                 <div className="tag-labels-container">
                                     {tagsState.map(tag => (
@@ -790,9 +824,9 @@ const LobbyScreen = () => {
                                 </div>
                             </div>
 
-                            <div className={`tag-group ${selectionPhase === 'desiring' ? 'active' : 'hidden'}`}>
+                            <div className={`tag-group ${selectionPhase === 'desiring' ? 'active' : 'hidden'}`} ref={desiringTagsRef}>
                                 <div className="bounce-wrapper">
-                                    <h3>Who do you want to meet?</h3>
+                                    <h2>Who do you want to meet?</h2>
                                 </div>
                                 <div className="tag-labels-container">
                                     {tagsState.map(tag => (
@@ -811,9 +845,21 @@ const LobbyScreen = () => {
                             <button 
                                 type="submit" 
                                 className="tag-selection-button"
+                                ref={continueButtonRef}
                             >
                                 {selectionPhase === 'self' ? 'Continue' : 'Save'}
                             </button>
+                            {tagLimitWarning && (
+                                <div style={{
+                                    color: '#144dff',
+                                    textAlign: 'center',
+                                    marginTop: '1rem',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600'
+                                }}>
+                                    {tagLimitWarning}
+                                </div>
+                            )}
                         </div>
                     </form>
                 )}
