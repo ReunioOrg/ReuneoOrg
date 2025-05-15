@@ -10,25 +10,13 @@ import useGetLobbyMetadata from './get_lobby_metadata';
 import LobbyCountdown from './lobby_countdown';
 import HowToTutorial from './how_to_tutorial';
 
-const AVAILABLE_TAGS = [
-    "Founder",
-    "Software Engineer",
-    "Content Creator",
-    "Business",
-    "AI",
-    "Engineer",
-    "Artist or Designer",
-    "Investor",
-    "Sales or Marketing",
-    "Finance",
-    "Law"
-];
-
+const AVAILABLE_TAGS = []; // Remove hardcoded tags
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
 const useEffectTime=5000;
 
 const LobbyScreen = () => {
-    const [tagsState, setTagsState] = useState("self");
+    const [tagsState, setTagsState] = useState([]);
+    const [selectionPhase, setSelectionPhase] = useState('self');
     
     const { audioRef, error, playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying } = usePlaySound();
     const [lobbyCode, setLobbyCode] = useState('yonder');
@@ -488,11 +476,23 @@ const LobbyScreen = () => {
         }
     };
 
-    useEffect(() => {
-        if ((selfTags!=null) && (desiringTags!=null)) {
-            define_profile_info(selfTags, desiringTags);
+    const handleContinue = () => {
+        if (selfTags != null) {
+            define_profile_info(selfTags, desiringTags || []);
         }
-    }, [selfTags, desiringTags]);
+        setSelectionPhase('desiring');
+    };
+
+    const handleSave = () => {
+        if (desiringTags != null) {
+            define_profile_info(selfTags || [], desiringTags);
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleBack = () => {
+        setSelectionPhase('self');
+    };
 
     // Add this state to track if we should show the animation
     const [showLobbyCountdown, setShowLobbyCountdown] = useState(false);
@@ -526,12 +526,12 @@ const LobbyScreen = () => {
 
     const tagsSectionRef = useRef(null);
 
-    // Add useEffect to scroll to tags if no server tags exist
+    // Add useEffect to scroll to tags if no server tags exist and custom tags are available
     useEffect(() => {
-        if (!serverselfTags?.length && !serverdesiringTags?.length) {
+        if (!serverselfTags?.length && !serverdesiringTags?.length && tagsState?.length > 0) {
             tagsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
-    }, [serverselfTags, serverdesiringTags]);
+    }, [serverselfTags, serverdesiringTags, tagsState]);
 
     return (
         <div className="lobby-container">
@@ -752,65 +752,71 @@ const LobbyScreen = () => {
                     </button>
                 )}
 
-                <form onSubmit={(e) => {
-                    e.preventDefault();
-                    console.log("SELF TAGS:", selfTags);
-                    console.log("DESIRING TAGS:", desiringTags);
-                    if ((selfTags!=null) && (desiringTags!=null)) {
-                        define_profile_info(selfTags, desiringTags);
-                    } else{
-                        define_profile_info(serverselfTags, serverdesiringTags);
-                    }
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}>
-                    <div className="tags-section" ref={tagsSectionRef}>  
-                        <div className="tag-group">
-                            <div className="bounce-wrapper">
-                                <h3>Lets get you matched!</h3>
+                {/* Only show tags section if there are custom tags available */}
+                {Array.isArray(tagsState) && tagsState.length > 0 && (
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        if (selectionPhase === 'self') {
+                            handleContinue();
+                        } else {
+                            handleSave();
+                        }
+                    }}>
+                        <div className="tags-section" ref={tagsSectionRef}>
+                            {/* Progress Bar */}
+                            <div className="progress-bar-container">
+                                <div 
+                                    className={`progress-bar ${selectionPhase === 'desiring' ? 'progress-complete' : ''}`}
+                                    onClick={handleBack}
+                                />
                             </div>
-                            <div className="bounce-wrapper">
-                                <h3>Who are you?</h3>
+
+                            {/* Tag Selection Groups */}
+                            <div className={`tag-group ${selectionPhase === 'self' ? 'active' : 'hidden'}`}>
+                                <div className="bounce-wrapper">
+                                    <h3>Who are you?</h3>
+                                </div>
+                                <div className="tag-labels-container">
+                                    {tagsState.map(tag => (
+                                        <label key={`self-${tag}`} className="tag-label">
+                                            <input
+                                                type="checkbox"
+                                                checked={(selfTags != null) ? selfTags.includes(tag) : serverselfTags.includes(tag)}
+                                                onChange={() => handleTagChange('self', tag)}
+                                            />
+                                            {tag}
+                                        </label>
+                                    ))}
+                                </div>
                             </div>
-                            <div className="tag-labels-container">
-                                {Array.isArray(tagsState) ? tagsState.map(tag => (
-                                    <label key={`self-${tag}`} className="tag-label">
-                                        <input
-                                            type="checkbox"
-                                            //checked={false}
-                                            //checked={serverselfTags.includes('Founder')}
-                                            checked={(selfTags!=null)?selfTags.includes(tag):serverselfTags.includes(tag)}
-                                            onChange={() => handleTagChange('self', tag)}
-                                        />
-                                        {tag}
-                                    </label>
-                                )) : null}
-                            </div>
-                        </div>
-                        <div className="tag-group">
-                            <div className="bounce-wrapper">
-                                <h3>Who do you want to meet?</h3>
-                            </div>
-                            <div className="tag-labels-container">
-                                {Array.isArray(tagsState) ? tagsState.map(tag => (
-                                    <label key={`desiring-${tag}`} className="tag-label">
-                                        <input
-                                            type="checkbox"
-                                                //checked={(serverselfTags!=null)?serverselfTags.includes(tag):serverdesiringTags.includes(tag)}
-                                                checked={(desiringTags!=null)?desiringTags.includes(tag):serverdesiringTags.includes(tag)}
+
+                            <div className={`tag-group ${selectionPhase === 'desiring' ? 'active' : 'hidden'}`}>
+                                <div className="bounce-wrapper">
+                                    <h3>Who do you want to meet?</h3>
+                                </div>
+                                <div className="tag-labels-container">
+                                    {tagsState.map(tag => (
+                                        <label key={`desiring-${tag}`} className="tag-label">
+                                            <input
+                                                type="checkbox"
+                                                checked={(desiringTags != null) ? desiringTags.includes(tag) : serverdesiringTags.includes(tag)}
                                                 onChange={() => handleTagChange('desiring', tag)}
                                             />
                                             {tag}
                                         </label>
-                                    )) : null}
+                                    ))}
+                                </div>
                             </div>
+
+                            <button 
+                                type="submit" 
+                                className="tag-selection-button"
+                            >
+                                {selectionPhase === 'self' ? 'Continue' : 'Save'}
+                            </button>
                         </div>
-                    </div>
-                    {/* <div className="button-group">
-                        <button className="primary-button" type="submit">
-                            Save Profile
-                        </button>
-                    </div> */}
-                </form>
+                    </form>
+                )}
 
                 {/* <div className="bottom-buttons" style={{
                     display: 'flex',

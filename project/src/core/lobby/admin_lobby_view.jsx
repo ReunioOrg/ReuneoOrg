@@ -126,8 +126,9 @@ const AdminLobbyView = () => {
     const [lobbyData, setLobbyData] = useState(null);
     const [lobbyTimer, setLobbyTimer] = useState(null);
     const [lobbyState, setLobbyState] = useState(null);
-    const [lobbyDuration, setLobbyDuration] = useState(300); // Add state for lobby duration
+    const [roundDuration, setRoundDuration] = useState(null);
     const [profilePictures, setProfilePictures] = useState({}); // Cache for profile pictures
+    const [customTags, setCustomTags] = useState([]); // Add state for custom tags
 
     const CreateLobby = async () => {
         const response = await fetch(window.server_url + '/create_lobby', {
@@ -234,7 +235,8 @@ const AdminLobbyView = () => {
                         setPairedPlayers(pairsWithPfp);
                         setLobbyTimer(data.round_time_left);
                         setLobbyState(data.lobby_state);
-                        setLobbyDuration(data.lobby_duration || 300); // Set lobby duration from server
+                        setRoundDuration(data.lobby_duration || 300); // Set lobby duration from server
+                        setCustomTags(data.custom_tags || []); // Set custom tags from server
                     } else {
                         console.error("Invalid lobby data structure:", data);
                         setLobbyData([]);
@@ -309,36 +311,243 @@ const AdminLobbyView = () => {
         handleCloseJoinModal();
     };
 
+    async function handleCopyQrPng() {
+        const svg = document.getElementById('admin-qr-svg');
+        if (!svg) return;
+
+        // Serialize SVG to string
+        const serializer = new XMLSerializer();
+        const svgString = serializer.serializeToString(svg);
+
+        // Create a canvas and draw the SVG onto it
+        const img = new window.Image();
+        const size = 512; // High quality
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+
+        // Wait for image to load
+        img.onload = async () => {
+            ctx.clearRect(0, 0, size, size);
+            ctx.drawImage(img, 0, 0, size, size);
+
+            // Convert canvas to blob
+            canvas.toBlob(async (blob) => {
+                try {
+                    await navigator.clipboard.write([
+                        new window.ClipboardItem({ "image/png": blob })
+                    ]);
+                    // Optionally show feedback
+                    alert("QR code copied as PNG!");
+                } catch (err) {
+                    alert("Copy failed. Try a Chromium-based browser.");
+                }
+            }, "image/png");
+        };
+        img.onerror = () => alert("Failed to render QR code image.");
+        img.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgString)));
+    }
+
     return (
         <div className="admin-lobby-container">
-            <div className="admin-lobby-header">
-                <h1 className="admin-lobby-title">{user} admin view</h1>
-                <div>
-                    <h3>lobby code: {lobbyCode}</h3>
+
+            <div className="admin-view-logo">
+                <img 
+                    src="/assets/reuneo_test_9.png"
+                    alt="Reuneo Logo"
+                    style={{
+                        maxWidth: '85px',
+                        height: 'auto',
+                        objectFit: 'contain'
+                    }}
+                />
+            </div>
+            <div className="page-controls-header">
+                <button 
+                    onClick={() => navigate('/')} 
+                    className="page-control-button page-control-home"
+                >
+                    Home
+                </button>
+                <div className="admin-profile">
+                    <img 
+                        src={userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : "/assets/player_icon_trans.png"} 
+                        alt="Your Profile" 
+                        className="admin-profile-picture"
+                    />
+                    <span className="admin-profile-name">
+                        {userProfile?.name ? userProfile.name.slice(0, 20) : user?.slice(0, 20)}
+                    </span>
                 </div>
-                <div className="admin-lobby-actions">
-                    <button 
-                        onClick={() => navigate('/')} 
-                        className="admin-button admin-button-primary"
-                    >
-                        ←Home
-                    </button>
-                    <button 
-                        onClick={handleOpenJoinModal} 
-                        className="admin-button admin-button-join"
-                    >
-                        Join Lobby
-                    </button>
+                <button 
+                    onClick={handleOpenJoinModal} 
+                    className="page-control-button page-control-join"
+                >
+                    Join
+                </button>
+            </div>
+            <div className="lobby-code-container">
+                <div 
+                    className="lobby-code-display"
+                    onClick={() => {
+                        navigator.clipboard.writeText(lobbyCode);
+                        // Show copy feedback
+                        const element = document.querySelector('.lobby-code-display');
+                        element.classList.add('copied');
+                        setTimeout(() => element.classList.remove('copied'), 250);
+                    }}
+                >
+                    <span className="lobby-code-label">lobby code: </span>
+                    <span className="lobby-code-value">{lobbyCode}</span>
+                    <span className="copy-icon" aria-label="Copy">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display: 'block'}}>
+                            <rect x="9" y="9" width="13" height="13" rx="2.5"/>
+                            <rect x="2" y="2" width="13" height="13" rx="2.5"/>
+                        </svg>
+                    </span>
                 </div>
             </div>
+            <div className="admin-lobby-body">
+                <div 
+                    className="admin-lobby-qr"
+                    onClick={handleCopyQrPng}
+                    style={{ cursor: 'pointer' }}
+                >
+                    <div style={{ position: "relative", display: "inline-block" }}>
+                        <QRCodeSVG
+                            value={`${window.location.origin}/lobby?code=${lobbyCode}`}
+                            size={140}
+                            level="H"
+                            includeMargin={false}
+                            bgColor="#ffffff"
+                            fgColor="#144dff"
+                            id="admin-qr-svg"
+                        />
+                    </div>
+                    <span className="qr-label" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.5rem' }}>
+                        People scan to join
+                        <span className="copy-icon" aria-label="Copy">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display: 'block'}}>
+                                <rect x="9" y="9" width="13" height="13" rx="2.5"/>
+                                <rect x="2" y="2" width="13" height="13" rx="2.5"/>
+                            </svg>
+                        </span>
+                    </span>
+                </div>
+                <div className="admin-lobby-actions">
+                    {/* <button 
+                        onClick={() => {
+                            if (window.confirm('Are you sure you want to reset the lobby timer?')) {
+                                fetch(window.server_url + '/reset_lobby_timer', {
+                                    method: 'GET',
+                                    headers: {
+                                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                        'lobby_code': lobbyCode
+                                    }
+                                })
+                            }
+                        }} 
+                        className="admin-button admin-button-warning"
+                    >
+                        Reset Lobby Timer
+                    </button> */}
 
+                    {/* <button 
+                        onClick={CreateLobby} 
+                        className="admin-button admin-button-primary"
+                    >
+                        Create Lobby
+                    </button> */}
+
+                    {/* <button 
+                        onClick={() => {
+                            if (window.confirm('Are you sure you want to reset the entire lobby?')) {
+                                fetch(window.server_url + '/reset_lobby', {
+                                    method: 'GET',
+                                    headers: {
+                                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                        'lobby_code': lobbyCode
+                                    }
+                                })
+                            }
+                        }} 
+                        className="admin-button admin-button-warning"
+                    >
+                        Reset Lobby
+                    </button> */}
+
+                    <button 
+                        onClick={() => {
+                            if (window.confirm('Are you sure you want to start the rounds?')) {
+                                fetch(window.server_url + '/start_rounds', {
+                                    method: 'GET',
+                                    headers: {
+                                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                        'lobby_code': lobbyCode
+                                    }
+                                })
+                            }
+                        }} 
+                        className="admin-lobby-event-controls admin-lobby-event-start"
+                        style={{ backgroundColor: '#28a745' }}
+                    >
+                        Start
+                    </button>
+
+                    <button 
+                        onClick={async () => {
+                            if (window.confirm('Are you sure you want to terminate the rounds?')) {
+                                const response = await fetch(window.server_url + '/terminate_lobby', {
+                                    method: 'GET',
+                                    headers: {
+                                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                        'lobby_code': lobbyCode
+                                    }
+                                })
+                                if (response.ok) {
+                                    console.log("Lobby terminated successfully");
+                                    navigate('/');
+                                } else {
+                                    console.error("Failed to terminate lobby");
+                                }
+                            }
+                        }} 
+                        className="admin-lobby-event-controls admin-lobby-event-end"
+                    >
+                        End
+                    </button>
+                    <div className="admin-lobby-event-settings">
+                        <div className="setting-item">
+                            <span className="setting-label">Round Duration:</span>
+                            <span className="setting-value">{Math.floor(roundDuration / 60)} min</span>
+                            <span className="setting-label">Tags:</span>
+
+                            {customTags && customTags.length > 0 && (
+                                <div className="setting-item">
+                                    <div className="tags-container">
+                                        {customTags.slice(0, 3).map((tag, index) => (
+                                            <span key={index} className="tag-pill">{tag}</span>
+                                        ))}
+                                        {customTags.length > 3 && (
+                                            <span className="tag-pill more-tags">+{customTags.length - 3} more</span>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
             <div className="admin-lobby-timer-container">
                 {((lobbyState === "active" || lobbyState === "interrim") && lobbyTimer) ? (
                     <div className="admin-lobby-timer">
                         <CountdownCircleTimer
                             key={`${lobbyState}-${Math.floor(lobbyTimer)}`}
                             isPlaying={lobbyState === "active"}
-                            duration={lobbyDuration}
+                            duration={roundDuration}
                             initialRemainingTime={lobbyTimer}
                             colors={["#144dff"]} 
                             size={90}
@@ -361,102 +570,6 @@ const AdminLobbyView = () => {
                         <span style={{ fontSize: '0.7em', marginTop: '4px', opacity: '1', color: '#144dff' }}>round time left</span>
                     </div>
                 ) : null}
-                
-                <div className="admin-lobby-qr">
-                    <QRCodeSVG 
-                        value={`${window.location.origin}/lobby?code=${lobbyCode}`}
-                        size={130}
-                        level="H"
-                        includeMargin={true}
-                        bgColor="#ffffff"
-                        fgColor="#144dff"
-                    />
-                    <span className="qr-label">Scan to join lobby</span>
-                </div>
-            </div>
-
-            <div className="admin-lobby-actions">
-                {/* <button 
-                    onClick={() => {
-                        if (window.confirm('Are you sure you want to reset the lobby timer?')) {
-                            fetch(window.server_url + '/reset_lobby_timer', {
-                                method: 'GET',
-                                headers: {
-                                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                                    'lobby_code': lobbyCode
-                                }
-                            })
-                        }
-                    }} 
-                    className="admin-button admin-button-warning"
-                >
-                    Reset Lobby Timer
-                </button> */}
-
-                {/* <button 
-                    onClick={CreateLobby} 
-                    className="admin-button admin-button-primary"
-                >
-                    Create Lobby
-                </button> */}
-
-                {/* <button 
-                    onClick={() => {
-                        if (window.confirm('Are you sure you want to reset the entire lobby?')) {
-                            fetch(window.server_url + '/reset_lobby', {
-                                method: 'GET',
-                                headers: {
-                                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                                    'lobby_code': lobbyCode
-                                }
-                            })
-                        }
-                    }} 
-                    className="admin-button admin-button-warning"
-                >
-                    Reset Lobby
-                </button> */}
-
-                <button 
-                    onClick={() => {
-                        if (window.confirm('Are you sure you want to start the rounds?')) {
-                            fetch(window.server_url + '/start_rounds', {
-                                method: 'GET',
-                                headers: {
-                                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                                    'lobby_code': lobbyCode
-                                }
-                            })
-                        }
-                    }} 
-                    className="admin-button admin-button-primary"
-                    style={{ backgroundColor: '#28a745' }}
-                >
-                    Start
-                </button>
-
-                <button 
-                    onClick={async () => {
-                        if (window.confirm('Are you sure you want to terminate the rounds?')) {
-                            const response = await fetch(window.server_url + '/terminate_lobby', {
-                                method: 'GET',
-                                headers: {
-                                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                                    'lobby_code': lobbyCode
-                                }
-                            })
-                            if (response.ok) {
-                                console.log("Lobby terminated successfully");
-                                navigate('/');
-                            } else {
-                                console.error("Failed to terminate lobby");
-                            }
-                        }
-                    }} 
-                    className="admin-button admin-button-danger"
-                >
-                    End
-                </button>
             </div>
 
             <div className="admin-lobby-stats">

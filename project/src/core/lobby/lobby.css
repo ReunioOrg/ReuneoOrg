@@ -718,3 +718,96 @@
   text-shadow: 0 0 100px rgba(0,0,0,0.1);
   animation: lobbyPopBurst 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
+
+/* Progress Bar Styles */
+.progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background: #f0f3ff;
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar {
+    width: 50%;
+    height: 100%;
+    background: var(--primary-color);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.progress-bar::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #144dff, #66a3ff, #99ffff, #66a3ff, #144dff);
+    background-size: 200% auto;
+    animation: shimmer 3s linear infinite;
+    z-index: -1;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #144dff;
+    border-radius: 4px;
+    z-index: -1;
+}
+
+.progress-bar.progress-complete {
+    width: 100%;
+}
+
+/* Tag Selection Button */
+.tag-selection-button {
+    width: 100%;
+    padding: 1rem;
+    margin-top: 1.5rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(20, 77, 255, 0.2);
+}
+
+.tag-selection-button:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(20, 77, 255, 0.3);
+}
+
+/* Tag Group Transitions */
+.tag-group {
+    opacity: 1;
+    transform: translateX(0);
+    transition: all 0.3s ease;
+}
+
+.tag-group.hidden {
+    display: none;
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+.tag-group.active {
+    display: block;
+    opacity: 1;
+    transform: translateX(0);
+}
