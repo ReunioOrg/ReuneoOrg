@@ -7,6 +7,7 @@ import './admin_lobby_view.css';
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { QRCodeSVG } from 'qrcode.react';
 import toast, { Toaster } from 'react-hot-toast';
+import ArrowHint from './lobby_progress_arrows';
 
 //load asset image earthart.jpg
 import { returnBase64TestImg } from '../misc/misc';
@@ -68,7 +69,7 @@ const JoinConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
 };
 
 // Progress bar component for lobby phases
-const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd }) => {
+const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode }) => {
     // Determine states for each arrow
     // Check-in
     const checkinActive = lobbyState === 'checkin';
@@ -80,14 +81,23 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd }) => {
     const endActive = lobbyState === 'terminated';
 
     // Modal state
-    const [modal, setModal] = useState(null); // 'start' | 'end' | null
+    const [modal, setModal] = useState(null); // 'start' | 'end' | 'checkin' | null
+    const [modalCopied, setModalCopied] = useState({ code: false, qr: false });
+    // Track if check-in modal has ever been opened
+    const [hasOpenedCheckinModal, setHasOpenedCheckinModal] = useState(false);
+    // Track if check-in modal is currently open
+    const checkinModalOpen = modal === 'checkin';
 
     // Handlers
     const handleStart = () => {
-        if (startAvailable) setModal('start');
+        setModal('start');
     };
     const handleEnd = () => {
-        if (endAvailable) setModal('end');
+        setModal('end');
+    };
+    const handleCheckin = () => {
+        setHasOpenedCheckinModal(true);
+        setModal('checkin');
     };
     const handleConfirm = () => {
         if (modal === 'start') {
@@ -107,22 +117,67 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd }) => {
         return 'progress-arrow inactive';
     };
 
+    // Arrow should show only if: in checkin state, check-in modal has never been opened, and playerCount < 6
+    const showCheckinArrow = checkinActive && !hasOpenedCheckinModal && playerCount < 6;
+
+    // Copy QR code as PNG (for modal only)
+    const handleModalCopyQrPng = () => {
+        const svg = document.getElementById('modal-qr-svg');
+        if (!svg) return;
+        const serializer = new window.XMLSerializer();
+        const svgString = serializer.serializeToString(svg);
+        const img = new window.Image();
+        const size = 512;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        img.onload = async () => {
+            ctx.clearRect(0, 0, size, size);
+            ctx.drawImage(img, 0, 0, size, size);
+            canvas.toBlob(async (blob) => {
+                try {
+                    await navigator.clipboard.write([
+                        new window.ClipboardItem({ 'image/png': blob })
+                    ]);
+                    setModalCopied((prev) => ({ ...prev, qr: true }));
+                    setTimeout(() => setModalCopied((prev) => ({ ...prev, qr: false })), 800);
+                } catch (err) {
+                    alert('Copy failed. Try a Chromium-based browser.');
+                }
+            }, 'image/png');
+        };
+        img.onerror = () => alert('Failed to render QR code image.');
+        img.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgString)));
+    };
+
+    // Copy lobby code text (for modal only)
+    const handleModalCopyCode = () => {
+        navigator.clipboard.writeText(lobbyCode);
+        setModalCopied((prev) => ({ ...prev, code: true }));
+        setTimeout(() => setModalCopied((prev) => ({ ...prev, code: false })), 800);
+    };
+
     return (
-        <div className="lobby-progress-bar">
-            <div
-                className={shimmerClass(checkinActive, false)}
-                tabIndex={0}
-                title="Check-in phase"
-                style={{ cursor: 'default' }}
-            >
-                Check-in
+        <div className="lobby-progress-bar" style={{ marginTop: '-1rem' }}>
+            <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                <div
+                    className={shimmerClass(checkinActive, false)}
+                    tabIndex={0}
+                    title="Check-in phase"
+                    onClick={handleCheckin}
+                    style={{ cursor: 'pointer', width: '100%' }}
+                >
+                    Check-in
+                </div>
+                <ArrowHint direction="down" show={showCheckinArrow} />
             </div>
             <div
                 className={shimmerClass(startActive, startAvailable && !startActive)}
                 tabIndex={0}
                 title={startAvailable ? 'Start rounds' : 'At least 2 players required'}
                 onClick={handleStart}
-                style={{ cursor: startAvailable ? 'pointer' : 'default' }}
+                style={{ cursor: 'pointer' }}
             >
                 Start Rounds
             </div>
@@ -131,7 +186,7 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd }) => {
                 tabIndex={0}
                 title={endAvailable ? 'End rounds' : 'Cannot end yet'}
                 onClick={handleEnd}
-                style={{ cursor: endAvailable ? 'pointer' : 'default' }}
+                style={{ cursor: 'pointer' }}
             >
                 End Rounds
             </div>
@@ -140,13 +195,66 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd }) => {
             {modal && (
                 <div className="progress-modal-overlay">
                     <div className="progress-modal">
-                        <div className="progress-modal-title">
-                            {modal === 'start' ? 'Are you sure you want to start rounds?' : 'Are you sure you want to end the rounds?'}
-                        </div>
-                        <div className="progress-modal-actions">
-                            <button className="progress-modal-btn confirm" onClick={handleConfirm}>Confirm</button>
-                            <button className="progress-modal-btn cancel" onClick={handleCancel}>Cancel</button>
-                        </div>
+                        {modal === 'checkin' ? (
+                            <>
+                                <div className="progress-modal-title">
+                                    Have your attendees scan the QR code to join your lobby
+                                </div>
+                                <div className="progress-modal-message">
+                                    Start when you have 6-10 people, don't worry new people will be paired up in the next rounds
+                                </div>
+                                <div className="progress-modal-qr" onClick={handleModalCopyQrPng} style={{ cursor: 'pointer', position: 'relative' }}>
+                                    <QRCodeSVG
+                                        value={`${window.location.origin}/lobby?code=${lobbyCode}`}
+                                        size={200}
+                                        level="H"
+                                        includeMargin={false}
+                                        bgColor="#ffffff"
+                                        fgColor="#144dff"
+                                        id="modal-qr-svg"
+                                    />
+                                    <span className="copy-icon modal-copy-icon" aria-label="Copy" style={{ position: 'absolute', right: 8, bottom: 8, background: '#fff', borderRadius: '50%', padding: '2px' }}>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                                            <rect x="9" y="9" width="13" height="13" rx="2.5" />
+                                            <rect x="2" y="2" width="13" height="13" rx="2.5" />
+                                        </svg>
+                                    </span>
+                                    {modalCopied.qr && <span className="modal-copied-feedback" style={{ position: 'absolute', left: '50%', bottom: '-1.5rem', transform: 'translateX(-50%)', color: '#28a745', fontWeight: 600, fontSize: '0.95rem' }}>Copied!</span>}
+                                </div>
+                                <div className={`progress-modal-lobbycode${modalCopied.code ? ' copied' : ''}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                                    <b>lobby code: {lobbyCode}</b>
+                                    <span className="copy-icon modal-copy-icon" aria-label="Copy" onClick={handleModalCopyCode} style={{ cursor: 'pointer' }}>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                                            <rect x="9" y="9" width="13" height="13" rx="2.5" />
+                                            <rect x="2" y="2" width="13" height="13" rx="2.5" />
+                                        </svg>
+                                    </span>
+                                    {modalCopied.code && <span className="modal-copied-feedback" style={{ color: '#28a745', fontWeight: 600, fontSize: '0.95rem' }}>Copied!</span>}
+                                </div>
+                                <div className="progress-modal-actions">
+                                    <button className="progress-modal-btn confirm" onClick={handleCancel}>Got it</button>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="progress-modal-title">
+                                    {modal === 'start' ? 'Are you sure you want to start rounds?' : 'Are you sure you want to end the rounds?'}
+                                </div>
+                                <div className="progress-modal-actions">
+                                    {modal === 'start' ? (
+                                        <>
+                                            <button className="progress-modal-btn cancel" onClick={handleCancel}>Not Yet</button>
+                                            <button className="progress-modal-btn confirm" onClick={handleConfirm}>Start</button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <button className="progress-modal-btn cancel" onClick={handleCancel}>Keep Going</button>
+                                            <button className="progress-modal-btn confirm danger" onClick={handleConfirm}>End</button>
+                                        </>
+                                    )}
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
@@ -485,6 +593,7 @@ const AdminLobbyView = () => {
                     playerCount={playerCount}
                     onStart={handleStartRounds}
                     onEnd={handleEndRounds}
+                    lobbyCode={lobbyCode}
                 />
                 <div className="page-controls-header">
                     <button 
