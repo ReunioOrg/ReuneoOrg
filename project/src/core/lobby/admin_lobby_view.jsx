@@ -69,7 +69,7 @@ const JoinConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
 };
 
 // Progress bar component for lobby phases
-const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode }) => {
+const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, currentRound }) => {
     // Determine states for each arrow
     // Check-in
     const checkinActive = lobbyState === 'checkin';
@@ -120,6 +120,13 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode }
     // Arrow should show only if: in checkin state, check-in modal has never been opened, and playerCount < 6
     const showCheckinArrow = checkinActive && !hasOpenedCheckinModal && playerCount < 6;
 
+    // Arrow for Start Rounds: show only if in checkin state and playerCount >= 6
+    const showStartArrow = lobbyState === 'checkin' && playerCount >= 6;
+
+    // Arrow for End Rounds: show only if in active state and current_round + 1 >= 12
+    const showEndArrow = lobbyState === 'active' && (currentRound + 1) >= 12;
+   
+
     // Copy QR code as PNG (for modal only)
     const handleModalCopyQrPng = () => {
         const svg = document.getElementById('modal-qr-svg');
@@ -159,7 +166,7 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode }
     };
 
     return (
-        <div className="lobby-progress-bar" style={{ marginTop: '-1rem' }}>
+        <div className="lobby-progress-bar" style={{ marginTop: '-1rem', height: '40px' }}>
             <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
                 <div
                     className={shimmerClass(checkinActive, false)}
@@ -173,22 +180,32 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode }
                 <ArrowHint direction="down" show={showCheckinArrow} />
             </div>
             <div
-                className={shimmerClass(startActive, startAvailable && !startActive)}
-                tabIndex={0}
-                title={startAvailable ? 'Start rounds' : 'At least 2 players required'}
-                onClick={handleStart}
-                style={{ cursor: 'pointer' }}
+                style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}
             >
-                Start Rounds
+                <div
+                    className={shimmerClass(startActive, startAvailable && !startActive)}
+                    tabIndex={0}
+                    title={startAvailable ? 'Start rounds' : 'At least 2 players required'}
+                    onClick={handleStart}
+                    style={{ cursor: 'pointer', width: '100%' }}
+                >
+                    Start Rounds
+                </div>
+                <ArrowHint direction="down" show={showStartArrow} />
             </div>
             <div
-                className={shimmerClass(endActive, endAvailable && !endActive)}
-                tabIndex={0}
-                title={endAvailable ? 'End rounds' : 'Cannot end yet'}
-                onClick={handleEnd}
-                style={{ cursor: 'pointer' }}
+                style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}
             >
-                End Rounds
+                <div
+                    className={shimmerClass(endActive, endAvailable && !endActive)}
+                    tabIndex={0}
+                    title={endAvailable ? 'End rounds' : 'Cannot end yet'}
+                    onClick={handleEnd}
+                    style={{ cursor: 'pointer', width: '100%' }}
+                >
+                    End Rounds
+                </div>
+                <ArrowHint direction="down" show={showEndArrow} />
             </div>
 
             {/* Confirmation Modal */}
@@ -262,6 +279,39 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode }
     );
 };
 
+// OverlappingProfileList component for compact, overlapping user profile images
+const OverlappingProfileList = ({ players }) => {
+    // Flatten paired players and combine with unpaired
+    const allPlayers = [
+        ...(players.pairedPlayers ? players.pairedPlayers.flat() : []),
+        ...(players.lobbyData ? players.lobbyData : [])
+    ];
+    const maxVisible = 10;
+    const visiblePlayers = allPlayers.slice(0, maxVisible);
+    const overflowCount = allPlayers.length - maxVisible;
+    const totalCount = allPlayers.length;
+
+    return (
+        <div className="overlapping-profile-list-wrapper" style={{ marginTop: '2rem' }}>
+            <div className="overlapping-profile-list">
+                {visiblePlayers.map((player, idx) => (
+                    <img
+                        key={player.username || player.name || idx}
+                        src={player.pfp_data || "/assets/player_icon_trans.png"}
+                        alt={player.name || "Player"}
+                        className="overlapping-profile-img"
+                        style={{ zIndex: idx + 1 }}
+                    />
+                ))}
+                {overflowCount > 0 && (
+                    <span className="overlapping-profile-overflow">+ {overflowCount}</span>
+                )}
+            </div>
+            <div className="overlapping-profile-list-label" style={{ marginTop: '0.5rem' }}>Total attendees joined: {totalCount}</div>
+        </div>
+    );
+};
+
 const AdminLobbyView = () => {
     const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -325,9 +375,12 @@ const AdminLobbyView = () => {
     const [roundDuration, setRoundDuration] = useState(null);
     const [profilePictures, setProfilePictures] = useState({}); // Cache for profile pictures
     const [customTags, setCustomTags] = useState([]); // Add state for custom tags
+    const [maxActiveRound, setMaxActiveRound] = useState(0);
 
     // Add playerCount and lobbyState for progress bar
     const playerCount = (lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0);
+
+    const [showLobbyDetails, setShowLobbyDetails] = useState(true);
 
     const CreateLobby = async () => {
         const response = await fetch(window.server_url + '/create_lobby', {
@@ -407,6 +460,16 @@ const AdminLobbyView = () => {
                 if (response.ok) {
                     const data = await response.json();
                     console.log("Admin lobby data:", lobbyCode, data);
+                    
+                    
+                    // Update maxActiveRound only if lobbyState is 'active' and current_round is higher
+                    if (data.lobby_state === 'active') {
+                        setMaxActiveRound(prev => (data.current_round > prev ? data.current_round : prev));
+                    }
+                    // Reset maxActiveRound if lobby is terminated
+                    if (data.lobby_state === 'terminated') {
+                        setMaxActiveRound(0);
+                    }
                     
                     // Check if data has the expected structure
                     if (data && data.unpaired_players) {
@@ -577,14 +640,19 @@ const AdminLobbyView = () => {
             {/* Toast container for react-hot-toast */}
             <Toaster position="top-center" />
             <div className="admin-lobby-container">
-                <div className="admin-view-logo">
+                <div 
+                    className="admin-view-logo"
+                    onClick={() => navigate('/')}
+                    style={{ cursor: 'pointer' }}
+                >
                     <img 
                         src="/assets/reuneo_test_9.png"
                         alt="Reuneo Logo"
                         style={{
                             maxWidth: '85px',
                             height: 'auto',
-                            objectFit: 'contain'
+                            objectFit: 'contain',
+                            transition: 'transform 0.3s ease'
                         }}
                     />
                 </div>
@@ -594,58 +662,62 @@ const AdminLobbyView = () => {
                     onStart={handleStartRounds}
                     onEnd={handleEndRounds}
                     lobbyCode={lobbyCode}
+                    currentRound={maxActiveRound}
                 />
-                <div className="page-controls-header">
-                    <button 
-                        onClick={() => navigate('/')} 
-                        className="page-control-button page-control-home"
-                    >
-                        Home
-                    </button>
-                    <div className="admin-profile">
-                        <img 
-                            src={userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : "/assets/player_icon_trans.png"} 
-                            alt="Your Profile" 
-                            className="admin-profile-picture"
-                        />
-                        <span className="admin-profile-name">
-                            {userProfile?.name ? userProfile.name.slice(0, 20) : user?.slice(0, 20)}
-                        </span>
-                    </div>
-                    <button 
-                        onClick={handleOpenJoinModal} 
-                        className="page-control-button page-control-join"
-                    >
-                        Join
-                    </button>
+                {/* Overlapping user profile list below progress bar */}
+                <OverlappingProfileList players={{ pairedPlayers, lobbyData }} />
+                
+                {/* Dropdown Toggle Bar/Header */}
+                <div
+                    className="admin-lobby-dropdown-toggle"
+                    onClick={() => setShowLobbyDetails((prev) => !prev)}
+                    style={{
+                        cursor: 'pointer',
+                        background: 'var(--primary-color)',
+                        color: 'white',
+                        fontWeight: 700,
+                        fontSize: '1rem',
+                        borderRadius: '12px 12px 0 0',
+                        padding: '0.7rem 1.2rem',
+                        margin: '0 auto',
+                        maxWidth: 420,
+                        boxShadow: '0 2px 8px rgba(20,77,255,0.08)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background 0.2s',
+                        letterSpacing: '0.5px',
+                    }}
+                >
+                    {showLobbyDetails ? 'Hide Details' : 'Show QR and Details'}
+                    <span style={{ marginLeft: 12, fontSize: '1.2em', transition: 'transform 0.3s', display: 'inline-block', transform: showLobbyDetails ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                        ▼
+                    </span>
                 </div>
-                <div className="lobby-code-container">
-                    <div 
-                        className="lobby-code-display"
-                        onClick={() => {
-                            navigator.clipboard.writeText(lobbyCode);
-                            // Show copy feedback
-                            const element = document.querySelector('.lobby-code-display');
-                            element.classList.add('copied');
-                            setTimeout(() => element.classList.remove('copied'), 250);
-                        }}
-                    >
-                        <span className="lobby-code-label">lobby code: </span>
-                        <span className="lobby-code-value">{lobbyCode}</span>
-                        <span className="copy-icon" aria-label="Copy">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display: 'block'}}>
-                                <rect x="9" y="9" width="13" height="13" rx="2.5"/>
-                                <rect x="2" y="2" width="13" height="13" rx="2.5"/>
-                            </svg>
+                {/* Dropdown Content */}
+                <div
+                    className="admin-lobby-body"
+                    style={{
+                        maxHeight: showLobbyDetails ? 1000 : 0,
+                        overflow: 'hidden',
+                        transition: 'max-height 0.5s cubic-bezier(0.4,0,0.2,1)',
+                        opacity: showLobbyDetails ? 1 : 0,
+                        pointerEvents: showLobbyDetails ? 'auto' : 'none',
+                        marginBottom: showLobbyDetails ? '2rem' : 0,
+                        
+                        
+                    }}
+                >
+                    <div className="admin-lobby-qr" onClick={handleCopyQrPng} style={{ cursor: 'pointer' }}>
+                        <span className="qr-label" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
+                            People scan to join
+                            <span className="copy-icon" aria-label="Copy">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display: 'block'}}>
+                                    <rect x="9" y="9" width="13" height="13" rx="2.5"/>
+                                    <rect x="2" y="2" width="13" height="13" rx="2.5"/>
+                                </svg>
+                            </span>
                         </span>
-                    </div>
-                </div>
-                <div className="admin-lobby-body">
-                    <div 
-                        className="admin-lobby-qr"
-                        onClick={handleCopyQrPng}
-                        style={{ cursor: 'pointer' }}
-                    >
                         <div style={{ position: "relative", display: "inline-block" }}>
                             <QRCodeSVG
                                 value={`${window.location.origin}/lobby?code=${lobbyCode}`}
@@ -657,16 +729,65 @@ const AdminLobbyView = () => {
                                 id="admin-qr-svg"
                             />
                         </div>
-                        <span className="qr-label" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.5rem' }}>
-                            People scan to join
+                        <div 
+                            className="lobby-code-display"
+                            onClick={() => {
+                                navigator.clipboard.writeText(lobbyCode);
+                                // Show copy feedback
+                                const element = document.querySelector('.lobby-code-display');
+                                element.classList.add('copied');
+                                setTimeout(() => element.classList.remove('copied'), 250);
+                            }}
+                        >
+                            <span className="lobby-code-label">lobby code:</span>
+                            <span className="lobby-code-value">{lobbyCode}</span>
                             <span className="copy-icon" aria-label="Copy">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display: 'block'}}>
                                     <rect x="9" y="9" width="13" height="13" rx="2.5"/>
                                     <rect x="2" y="2" width="13" height="13" rx="2.5"/>
                                 </svg>
                             </span>
-                        </span>
+                        </div>
                     </div>
+                    <div className="admin-lobby-event-settings">
+                        
+                        <div className="admin-profile">
+                            <img 
+                                src={userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : "/assets/player_icon_trans.png"} 
+                                alt="Your Profile" 
+                                className="admin-profile-picture"
+                            />
+                            <span className="admin-profile-name">
+                                {userProfile?.name ? userProfile.name.slice(0, 20) : user?.slice(0, 20)}
+                            </span>
+                        </div>
+                        <button
+                            onClick={handleOpenJoinModal}
+                            className="page-control-button page-control-join"
+                            style={{ marginTop: '.5rem' }}
+                        >
+                            Join Rounds
+                        </button>
+                        <div className="setting-item" style={{ marginTop: '.5rem' }}>
+                            <span className="setting-label">Round Duration: <span className="setting-value">{Math.floor(roundDuration / 60)} min</span></span>
+                            <span className="setting-label" style={{ marginTop: '.5rem' }}>Tags:</span>
+
+                            {customTags && customTags.length > 0 && (
+                                <div className="setting-item">
+                                    <div className="tags-container">
+                                        {customTags.slice(0, 3).map((tag, index) => (
+                                            <span key={index} className="tag-pill">{tag}</span>
+                                        ))}
+                                        {customTags.length > 3 && (
+                                            <span className="tag-pill more-tags">+{customTags.length - 3} more</span>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        
+                    </div>
+                    
                     <div className="admin-lobby-actions">
                         {/* <button 
                             onClick={() => {
@@ -749,28 +870,7 @@ const AdminLobbyView = () => {
                         >
                             End
                         </button> */}
-                        <div className="admin-lobby-event-settings">
-                            <div className="setting-item">
-                                <span className="setting-label">Round Duration:</span>
-                                <span className="setting-value">{Math.floor(roundDuration / 60)} min</span>
-                                <span className="setting-label">Tags:</span>
-
-                                {customTags && customTags.length > 0 && (
-                                    <div className="setting-item">
-                                        <div className="tags-container">
-                                            {customTags.slice(0, 3).map((tag, index) => (
-                                                <span key={index} className="tag-pill">{tag}</span>
-                                            ))}
-                                            {customTags.length > 3 && (
-                                                <span className="tag-pill more-tags">+{customTags.length - 3} more</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-
-                            </div>
-
-                        </div>
+                        
                     </div>
                 </div>
                 {/* Only render timer container if there is a timer to show */}
@@ -783,7 +883,7 @@ const AdminLobbyView = () => {
                                 duration={roundDuration}
                                 initialRemainingTime={lobbyTimer}
                                 colors={["#144dff"]} 
-                                size={90}
+                                size={100}
                                 strokeWidth={12}
                                 trailColor="#f5f7ff"
                                 onComplete={() => {
@@ -809,8 +909,12 @@ const AdminLobbyView = () => {
                     <div className="stat-card">
                         <div className="stat-title">Total Players</div>
                         <div className="stat-value">{(lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0)}</div>
+                    </div>
+                    <div className="stat-card">
                         <div className="stat-title">Paired Players</div>
                         <div className="stat-value">{pairedPlayers?.length * 2 || 0}</div>
+                    </div>
+                    <div className="stat-card">
                         <div className="stat-title">Unpaired Players</div>
                         <div className="stat-value">{lobbyData?.length || 0}</div>
                     </div>
