@@ -131,32 +131,60 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
     const handleModalCopyQrPng = () => {
         const svg = document.getElementById('modal-qr-svg');
         if (!svg) return;
-        const serializer = new window.XMLSerializer();
+
+        // Serialize SVG to string
+        const serializer = new XMLSerializer();
         const svgString = serializer.serializeToString(svg);
+
+        // Create a canvas and draw the SVG onto it
         const img = new window.Image();
-        const size = 512;
+        const size = 512; // High quality
         const canvas = document.createElement('canvas');
         canvas.width = size;
         canvas.height = size;
         const ctx = canvas.getContext('2d');
-        img.onload = async () => {
+
+        // Wait for image to load
+        img.onload = () => {
             ctx.clearRect(0, 0, size, size);
             ctx.drawImage(img, 0, 0, size, size);
-            canvas.toBlob(async (blob) => {
-                try {
-                    await navigator.clipboard.write([
-                        new window.ClipboardItem({ 'image/png': blob })
-                    ]);
-                    setModalCopied((prev) => ({ ...prev, qr: true }));
-                    setTimeout(() => setModalCopied((prev) => ({ ...prev, qr: false })), 800);
-                } catch (err) {
-                    alert('Copy failed. Try a Chromium-based browser.');
+
+            // Convert canvas to blob
+            canvas.toBlob((blob) => {
+                // Try to use Clipboard API first (for Chrome/Edge)
+                if (navigator.clipboard && navigator.clipboard.write) {
+                    navigator.clipboard.write([
+                        new window.ClipboardItem({ "image/png": blob })
+                    ]).then(() => {
+                        setModalCopied((prev) => ({ ...prev, qr: true }));
+                        setTimeout(() => setModalCopied((prev) => ({ ...prev, qr: false })), 800);
+                    }).catch(() => {
+                        // If Clipboard API fails, fall back to download
+                        downloadQRCode(blob);
+                    });
+                } else {
+                    // For browsers that don't support Clipboard API (Safari, Firefox)
+                    downloadQRCode(blob);
                 }
-            }, 'image/png');
+            }, "image/png");
         };
-        img.onerror = () => alert('Failed to render QR code image.');
+        img.onerror = () => alert("Failed to render QR code image.");
         img.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgString)));
     };
+
+    // Helper function to download QR code
+    function downloadQRCode(blob) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `reuneo-lobby-${lobbyCode}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        setModalCopied((prev) => ({ ...prev, qr: true }));
+        setTimeout(() => setModalCopied((prev) => ({ ...prev, qr: false })), 800);
+    }
 
     // Copy lobby code text (for modal only)
     const handleModalCopyCode = () => {
@@ -173,9 +201,15 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                     tabIndex={0}
                     title="Check-in phase"
                     onClick={handleCheckin}
-                    style={{ cursor: 'pointer', width: '100%' }}
+                    style={{ 
+                        cursor: 'pointer', 
+                        width: '100%', 
+                        color: '#f5f7ff', 
+                        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)',
+                        boxShadow: '0 7px 4px rgba(0, 0, 0, 0.1)'
+                    }}
                 >
-                    Check-in
+                    Start Checkin
                 </div>
                 <ArrowHint direction="down" show={showCheckinArrow} />
             </div>
@@ -187,7 +221,13 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                     tabIndex={0}
                     title={startAvailable ? 'Start rounds' : 'At least 2 players required'}
                     onClick={handleStart}
-                    style={{ cursor: 'pointer', width: '100%' }}
+                    style={{ 
+                        cursor: 'pointer', 
+                        width: '100%', 
+                        color: '#f5f7ff', 
+                        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)',
+                        boxShadow: '0 7px 4px rgba(0, 0, 0, 0.1)'
+                    }}
                 >
                     Start Rounds
                 </div>
@@ -201,7 +241,13 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                     tabIndex={0}
                     title={endAvailable ? 'End rounds' : 'Cannot end yet'}
                     onClick={handleEnd}
-                    style={{ cursor: 'pointer', width: '100%' }}
+                    style={{ 
+                        cursor: 'pointer', 
+                        width: '100%', 
+                        color: '#f5f7ff', 
+                        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)',
+                        boxShadow: '0 7px 4px rgba(0, 0, 0, 0.1)'
+                    }}
                 >
                     End Rounds
                 </div>
@@ -215,10 +261,10 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                         {modal === 'checkin' ? (
                             <>
                                 <div className="progress-modal-title">
-                                    Have your attendees scan the QR code to join your lobby
+                                    Have your attendees can scan the QR code to join your lobby
                                 </div>
                                 <div className="progress-modal-message">
-                                    Start when you have 6-10 people, don't worry new people will be paired up in the next rounds
+                                    You can start when you have 6-10 people, don't worry new people can join in the next rounds.
                                 </div>
                                 <div className="progress-modal-qr" onClick={handleModalCopyQrPng} style={{ cursor: 'pointer', position: 'relative' }}>
                                     <QRCodeSVG
@@ -307,7 +353,7 @@ const OverlappingProfileList = ({ players }) => {
                     <span className="overlapping-profile-overflow">+ {overflowCount}</span>
                 )}
             </div>
-            <div className="overlapping-profile-list-label" style={{ marginTop: '0.5rem' }}>Total attendees joined: {totalCount}</div>
+            <div className="overlapping-profile-list-label" style={{ marginTop: '0.5rem',textShadow: '1px 1px 2px rgba(0, 0, 0, 0.1)' }}>People joined: {totalCount}</div>
         </div>
     );
 };
@@ -380,7 +426,7 @@ const AdminLobbyView = () => {
     // Add playerCount and lobbyState for progress bar
     const playerCount = (lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0);
 
-    const [showLobbyDetails, setShowLobbyDetails] = useState(true);
+    const [showLobbyDetails, setShowLobbyDetails] = useState(false);
 
     const CreateLobby = async () => {
         const response = await fetch(window.server_url + '/create_lobby', {
@@ -590,25 +636,43 @@ const AdminLobbyView = () => {
         const ctx = canvas.getContext('2d');
 
         // Wait for image to load
-        img.onload = async () => {
+        img.onload = () => {
             ctx.clearRect(0, 0, size, size);
             ctx.drawImage(img, 0, 0, size, size);
 
             // Convert canvas to blob
-            canvas.toBlob(async (blob) => {
-                try {
-                    await navigator.clipboard.write([
+            canvas.toBlob((blob) => {
+                // Try to use Clipboard API first (for Chrome/Edge)
+                if (navigator.clipboard && navigator.clipboard.write) {
+                    navigator.clipboard.write([
                         new window.ClipboardItem({ "image/png": blob })
-                    ]);
-                    // Optionally show feedback
-                    alert("QR code copied as PNG!");
-                } catch (err) {
-                    alert("Copy failed. Try a Chromium-based browser.");
+                    ]).then(() => {
+                        toast.success("QR code copied to clipboard!");
+                    }).catch(() => {
+                        // If Clipboard API fails, fall back to download
+                        downloadQRCode(blob);
+                    });
+                } else {
+                    // For browsers that don't support Clipboard API (Safari, Firefox)
+                    downloadQRCode(blob);
                 }
             }, "image/png");
         };
-        img.onerror = () => alert("Failed to render QR code image.");
+        img.onerror = () => toast.error("Failed to generate QR code image.");
         img.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgString)));
+    }
+
+    // Helper function to download QR code
+    function downloadQRCode(blob) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `reuneo-lobby-${lobbyCode}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        toast.success("QR code downloaded!");
     }
 
     // Handlers for progress bar actions
@@ -674,11 +738,12 @@ const AdminLobbyView = () => {
                     style={{
                         cursor: 'pointer',
                         background: 'var(--primary-color)',
-                        color: 'white',
+                        color: '#f5f7ff',
                         fontWeight: 700,
-                        fontSize: '1rem',
-                        borderRadius: '12px 12px 0 0',
-                        padding: '0.7rem 1.2rem',
+                        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)',
+                        fontSize: '.75rem',
+                        borderRadius: showLobbyDetails ? '14px 14px 0 0' : '14px',
+                        padding: '0.5rem 1rem',
                         margin: '0 auto',
                         maxWidth: 420,
                         boxShadow: '0 2px 8px rgba(20,77,255,0.08)',
@@ -689,7 +754,7 @@ const AdminLobbyView = () => {
                         letterSpacing: '0.5px',
                     }}
                 >
-                    {showLobbyDetails ? 'Hide Details' : 'Show QR and Details'}
+                    {showLobbyDetails ? 'Hide Details' : 'Details'}
                     <span style={{ marginLeft: 12, fontSize: '1.2em', transition: 'transform 0.3s', display: 'inline-block', transform: showLobbyDetails ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                         ▼
                     </span>
@@ -768,9 +833,9 @@ const AdminLobbyView = () => {
                         >
                             Join Rounds
                         </button>
-                        <div className="setting-item" style={{ marginTop: '.5rem' }}>
+                        <div className="setting-item" style={{ padding: '1rem' }}>
                             <span className="setting-label">Round Duration: <span className="setting-value">{Math.floor(roundDuration / 60)} min</span></span>
-                            <span className="setting-label" style={{ marginTop: '.5rem' }}>Tags:</span>
+                            <span className="setting-label" style={{ }}>Tags:</span>
 
                             {customTags && customTags.length > 0 && (
                                 <div className="setting-item">
@@ -876,54 +941,67 @@ const AdminLobbyView = () => {
                 {/* Only render timer container if there is a timer to show */}
                 {((lobbyState === "active" || lobbyState === "interrim") && lobbyTimer) && (
                     <div className="admin-lobby-timer-container">
-                        <div className="admin-lobby-timer">
+                        <div className="admin-lobby-timer-glass">
                             <CountdownCircleTimer
                                 key={`${lobbyState}-${Math.floor(lobbyTimer)}`}
                                 isPlaying={lobbyState === "active"}
                                 duration={roundDuration}
                                 initialRemainingTime={lobbyTimer}
-                                colors={["#144dff"]} 
-                                size={100}
+                                colors={["#144dff"]}
+                                size={90}
                                 strokeWidth={12}
-                                trailColor="#f5f7ff"
+                                trailColor="url(#trailGradient)"
                                 onComplete={() => {
-                                    return { shouldRepeat: false }
+                                    return { shouldRepeat: false };
                                 }}
+                                strokeLinecap="round"
                             >
                                 {({ remainingTime }) => {
                                     const mins = Math.floor(remainingTime / 60);
                                     const secs = Math.floor(remainingTime % 60);
                                     return (
-                                        <span style={{ fontSize: '.95rem', color: '#144dff', fontWeight: 600 }}>
-                                            {mins}:{String(secs).padStart(2, '0')}
+                                        <span className={`timer-text ${remainingTime <= 10 ? 'timer-text-fadescale' : ''}`}>
+                                            {mins}:{String(secs).padStart(2, "0")}
                                         </span>
                                     );
                                 }}
                             </CountdownCircleTimer>
-                            <span style={{ fontSize: '0.7em', marginTop: '4px', opacity: '1', color: '#144dff' }}>round time left</span>
+                            <span className="timer-subtext">round time left</span>
+                            
+                            {/* Gradient defs (for radial trail effect) */}
+                            <svg width="0" height="0">
+                                <defs>
+                                    <linearGradient id="trailGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stopColor="#e0e7ff" />
+                                        <stop offset="100%" stopColor="#f5f7ff" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
                         </div>
                     </div>
                 )}
 
-                <div className="admin-lobby-stats">
-                    <div className="stat-card">
-                        <div className="stat-title">Total Players</div>
-                        <div className="stat-value">{(lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0)}</div>
+                {lobbyState !== 'checkin' && (
+                    <div className="admin-lobby-stats">
+                        <div className="stat-card">
+                            <div className="stat-title">Total Players</div>
+                            <div className="stat-value">{(lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0)}</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-title">Paired Players</div>
+                            <div className="stat-value">{pairedPlayers?.length * 2 || 0}</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-title">Unpaired Players</div>
+                            <div className="stat-value">{lobbyData?.length || 0}</div>
+                        </div>
                     </div>
-                    <div className="stat-card">
-                        <div className="stat-title">Paired Players</div>
-                        <div className="stat-value">{pairedPlayers?.length * 2 || 0}</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-title">Unpaired Players</div>
-                        <div className="stat-value">{lobbyData?.length || 0}</div>
-                    </div>
-                </div>
+                )}
                 
-                {pairedPlayers && (
+                {pairedPlayers && lobbyState !== 'checkin' && (
                     <div className="admin-lobby-players">
                         <div className="player-section">
-                            <div className="section-header">Paired Players: {pairedPlayers?.length * 2 || 0}</div>
+                            <div className="section-header">Paired Players: <span className="stat-value" style={{ fontSize: '1.3rem' }}>{pairedPlayers?.length * 2 || 0}</span></div>
                             <div className="player-grid">
                                 {pairedPlayers.map((pair, index) => (
                                     <div key={index} className="paired-player-card">
@@ -959,7 +1037,7 @@ const AdminLobbyView = () => {
                 {lobbyData && (
                     <div className="admin-lobby-players">
                         <div className="player-section">
-                            <div className="section-header">Unpaired Players: {lobbyData?.length || 0}</div>
+                            <div className="section-header">{lobbyState === 'checkin' ? 'People Joined' : 'Unpaired Players'}: <span className="stat-value" style={{ fontSize: '1.3rem' }}>{lobbyData?.length || 0}</span></div>
                             <div className="player-grid">
                                 {lobbyData.map((player, index) => (
                                     <div 
