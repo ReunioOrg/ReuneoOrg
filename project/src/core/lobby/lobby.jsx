@@ -9,6 +9,7 @@ import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import useGetLobbyMetadata from './get_lobby_metadata';
 import LobbyCountdown from './lobby_countdown';
 import HowToTutorial from './how_to_tutorial';
+import ShowMatchAnimation from './show_match_animation';
 
 const AVAILABLE_TAGS = []; // Remove hardcoded tags
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
@@ -232,6 +233,28 @@ const LobbyScreen = () => {
         }
     }
 
+    const [showMatchAnimation, setShowMatchAnimation] = useState(false);
+    const [prevLobbyState, setPrevLobbyState] = useState(null);
+    const isAnimating = useRef(false);  // Add this ref to track animation state
+
+    // Add this function to check for matches
+    const checkForMatches = (playerTags, opponentTags) => {
+        if (!playerTags || !opponentTags) return false;
+
+        // Check if player's self tags match opponent's desiring tags
+        const playerSelfMatch = playerTags.tags_work.some(tag => 
+            opponentTags.desiring_tags_work.includes(tag)
+        );
+
+        // Check if opponent's self tags match player's desiring tags
+        const opponentSelfMatch = opponentTags.tags_work.some(tag => 
+            playerTags.desiring_tags_work.includes(tag)
+        );
+
+        return playerSelfMatch && opponentSelfMatch;
+    };
+
+    // Modify the fetchLobbyData function to include match detection
     async function fetchLobbyData(){
         try {
             isFetchingCounter.current+=1;
@@ -343,6 +366,22 @@ const LobbyScreen = () => {
                         isFetchingProfile.current=false;
                     }
                 }
+
+                // Check for state change from interrim to active
+                if (prevLobbyState === "interrim" && 
+                    data.lobby_state === "active" && 
+                    data.opponent_name && 
+                    !isAnimating.current) {
+                    console.log('Checking for matches...');
+                    const hasMatch = checkForMatches(data.player_tags, data.opponent_tags);
+                    if (hasMatch) {
+                        console.log('Match found! Setting animation...');
+                        isAnimating.current = true;
+                        setShowMatchAnimation(true);
+                    }
+                }
+                
+                setPrevLobbyState(data.lobby_state);
             }
         } catch (error) {
             console.error("Error fetching lobby data:", error);
@@ -890,6 +929,15 @@ const LobbyScreen = () => {
             {showTutorial && (
                 <HowToTutorial onComplete={handleTutorialComplete} lobbyCode={lobbyCode} />
             )}
+
+            {/* Add the animation component */}
+            <ShowMatchAnimation 
+                isVisible={showMatchAnimation} 
+                onAnimationEnd={() => {
+                    setShowMatchAnimation(false);
+                    isAnimating.current = false;
+                }} 
+            />
         </div>
     );
 }

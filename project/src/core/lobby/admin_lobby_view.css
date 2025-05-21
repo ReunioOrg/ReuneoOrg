@@ -349,9 +349,6 @@
     transition: var(--transition);
 }
 
-.player-card:hover {
-    background: #e9ecef;
-}
 
 .player-avatar {
     width: 80px;
