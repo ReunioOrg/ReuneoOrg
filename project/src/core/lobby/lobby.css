@@ -25,8 +25,10 @@
     border-radius: 16px;
     box-shadow: none;
     font-size: .75rem;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: 600;
+    color: #144dff;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-    -webkit-text-stroke: 0.5px rgba(0, 0, 0, 0.2);
     animation: headerPopIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
 }
 
@@ -581,10 +583,11 @@
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #144dff;
-    box-shadow: 0 4px 10px rgba(20, 77, 255, 0.3);
+    box-shadow: 0 3px 1px rgba(128, 128, 128, 0.3);
     background-color: white;
     transition: all 0.3s ease;
 }
+
 
 .profile-icon:hover {
     border-color: #2861ff;

@@ -28,7 +28,6 @@ const LoginSignupLogoutButton = ({ user }) => {
                         >
                             <span style={{
                                 textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                                WebkitTextStroke: '0.6px rgba(58, 53, 53, 0.4)',
                                 color: 'inherit'
                             }}>
                                 Login
@@ -53,7 +52,6 @@ const LoginSignupLogoutButton = ({ user }) => {
                         >
                             <span style={{
                                 textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                                WebkitTextStroke: '0.6px rgba(58, 53, 53, 0.4)',
                                 color: 'inherit'
                             }}>
                                 Sign up
@@ -81,7 +79,6 @@ const LoginSignupLogoutButton = ({ user }) => {
                         >
                             <span style={{
                                 textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                                WebkitTextStroke: '0.6px rgba(58, 53, 53, 0.4)',
                                 color: 'inherit'
                             }}>
                                 Logout

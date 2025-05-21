@@ -370,7 +370,6 @@ const App = () => {
             >
               <span style={{
                 textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                WebkitTextStroke: '0.6px rgba(58, 53, 53, 0.4)',
                 color: 'inherit'
               }}>
                 Profile
@@ -557,7 +556,6 @@ const App = () => {
               >
                 <span style={{
                   textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                  WebkitTextStroke: '0.5px rgba(58, 53, 53, 0.4)',
                   color: 'inherit'
                 }}>
                   {!user ? 'Join A Lobby' : 'Join A Lobby'}
@@ -593,7 +591,6 @@ const App = () => {
                 >
                   <span style={{
                     textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                    WebkitTextStroke: '0.5px rgba(58, 53, 53, 0.4)',
                     color: 'inherit'
                   }}>
                     Become a Host
@@ -626,7 +623,6 @@ const App = () => {
                 >
                   <span style={{
                     textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                    WebkitTextStroke: '0.5px rgba(58, 53, 53, 0.4)',
                     color: 'inherit'
                   }}>
                     Create Lobby
@@ -653,7 +649,6 @@ const App = () => {
                 >
                   <span style={{
                     textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                    WebkitTextStroke: '0.5px rgba(58, 53, 53, 0.4)',
                     color: 'inherit'
                   }}>
                     Admin Lobby View
@@ -665,20 +660,20 @@ const App = () => {
         </div>
 
         {/* Active Lobbies Section */}
-        {(permissions === 'admin' || permissions === 'organizer') && (
-          <div className="events-list" style={{ marginTop: '2rem', width: '65%',height: '60%', marginLeft: 'auto', marginRight: 'auto', marginBottom: '.5rem' }}>
-            {/* <h2 style={{ 
-              textAlign: 'center', 
-              width: '100%', 
-              color: '#ffffff',
-              fontSize: '1.2em',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              textShadow: '4px 4px 8px rgba(0,0,0,0.9)',
-              marginBottom: '1rem'
-            }}>
-              Your Active Lobbies
-            </h2> */}
+        {(permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0 && (
+          <div className="events-list" style={{ 
+            marginTop: '1rem', 
+            width: '50%',
+            height: '20%', 
+            marginLeft: 'auto', 
+            marginRight: 'auto', 
+            position: 'relative',
+            background: 'linear-gradient(135deg, rgba(20, 77, 255, 0.05), rgba(83, 91, 242, 0.05))',
+            borderRadius: '30px',
+            padding: '1rem',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
             
             {isLoadingLobbies ? (
               <div style={{ textAlign: 'center', color: 'white' }}>
@@ -689,70 +684,97 @@ const App = () => {
                 display: 'flex', 
                 flexWrap: 'wrap', 
                 justifyContent: 'center', 
-                gap: '1rem' 
+                perspective: '1000px',
               }}>
                 {activeLobbies.map((lobbyCode, index) => (
                   <div
                     key={index}
                     className="card"
                     style={{
-                      width: '200px',
-                      background: '#ffffff',
-                      borderRadius: '16px',
-                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
-                      border: '1px solid rgba(255, 255, 255, 0.5)',
-                      transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                      width: '220px',
+                      background: 'rgba(255, 255, 255, 0.95)',
+                      borderRadius: '20px',
+                      boxShadow: '0 10px 30px rgba(20, 77, 255, 0.15)',
+                      border: '1px solid rgba(20, 77, 255, 0.2)',
+                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                       cursor: 'pointer',
-                      padding: '1.5rem',
+                      padding: '2rem 2rem',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
                       position: 'relative',
-                      overflow: 'hidden'
+                      overflow: 'hidden',
+                      transformStyle: 'preserve-3d',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'linear-gradient(135deg, rgba(20, 77, 255, 0.1), rgba(83, 91, 242, 0.1))',
+                        opacity: 0,
+                        transition: 'opacity 0.4s ease'
+                      }
                     }}
                     onClick={() => navigateToAdminLobby(lobbyCode)}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-5px)';
-                      e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.7)';
+                      e.currentTarget.style.transform = 'translateY(-10px) rotateX(5deg)';
+                      e.currentTarget.style.boxShadow = '0 20px 40px rgba(20, 77, 255, 0.25)';
+                      e.currentTarget.style.border = '1px solid rgba(20, 77, 255, 0.4)';
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.98)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.6)';
+                      e.currentTarget.style.transform = 'translateY(0) rotateX(0)';
+                      e.currentTarget.style.boxShadow = '0 10px 30px rgba(20, 77, 255, 0.15)';
+                      e.currentTarget.style.border = '1px solid rgba(20, 77, 255, 0.2)';
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.95)';
                     }}
                   >
                     <div className="glow-button" style={{ 
-                      width: '40px', 
-                      height: '40px', 
+                      width: '30px', 
+                      height: '30px', 
                       borderRadius: '50%', 
-                      backgroundColor: '#144dff',
-                      marginBottom: '1rem',
+                      background: 'linear-gradient(135deg, #144dff, #535bf2)',
+                      marginBottom: '.5rem',
+                      marginTop: '-1rem',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       color: 'white',
-                      fontWeight: 'bold'
+                      fontWeight: 'bold',
+                      fontSize: '.8rem',
+                      boxShadow: '0 8px 20px rgba(20, 77, 255, 0.3)',
+                      transition: 'all 0.4s ease',
+                      position: 'relative',
+                      '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        top: '-5px',
+                        left: '-5px',
+                        right: '-5px',
+                        bottom: '-5px',
+                        borderRadius: '50%',
+                        background: 'linear-gradient(135deg, rgba(20, 77, 255, 0.2), rgba(83, 91, 242, 0.2))',
+                        zIndex: -1,
+                        animation: 'pulse 2s infinite'
+                      }
                     }}>
                       {lobbyCode && lobbyCode.length > 0 ? lobbyCode.charAt(0).toUpperCase() : '?'}
                     </div>
                     <h3 style={{ 
-                      margin: '0 0 0.5rem 0', 
-                      color: '#2d3748',
-                      fontWeight: '600',
-                      fontSize: '1.1em',
-                      textAlign: 'center'
+                      marginTop: '0.5rem',
+                      color: '#144dff',
+                      fontWeight: '700',
+                      fontSize: '.9em',
+                      fontFamily: 'Helvetica',
+                      textAlign: 'center',
+                      textShadow: '0 2px 4px rgba(20, 77, 255, 0.1)',
+                      letterSpacing: '0.5px'
                     }}>
                       Lobby {lobbyCode || 'Unknown'}
                     </h3>
-                    <p style={{ 
-                      margin: '0', 
-                      color: '#4299e1',
-                      fontWeight: '500',
-                      fontSize: '0.9em',
-                      textAlign: 'center'
-                    }}>
-                      Click to Control
-                    </p>
                   </div>
                 ))}
               </div>

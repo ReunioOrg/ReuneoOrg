@@ -632,7 +632,7 @@ const LobbyScreen = () => {
                     <div className="user-profile-container">
                         <div className="user-profile">
                             <img 
-                                src={userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : "/assets/player_icon_trans.png"} 
+                                src={userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : "/assets/avatar_3.png"} 
                                 alt="Your Profile" 
                                 className="user-profile-picture"
                             />
@@ -766,7 +766,7 @@ const LobbyScreen = () => {
                                             className={`profile-icon-wrapper ${index === Math.min(player_count, MAX_VISIBLE_PROFILES) - 1 ? 'pop-in' : ''}`}
                                         >
                                             <img 
-                                                src={index === 0 ? (userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : "/assets/player_icon_trans.png") : "/assets/player_icon_trans.png"}
+                                                src={index === 0 ? (userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : "/assets/avatar_8.png") : "/assets/avatar_8.png"}
                                                 alt={index === 0 ? "Your Profile" : `Profile ${index + 1}`}
                                                 className="profile-icon"
                                                 loading="lazy"
