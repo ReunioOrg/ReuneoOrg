@@ -339,11 +339,11 @@ const App = () => {
       {/* Main App Content */}
       <div style={{ position: 'relative', zIndex: 1, color: 'white' }}>
         
-        <div style={{ position: 'absolute', top: '-.5rem', left: '50%', transform: 'translateX(-50%)' }}>
+        <div style={{ position: 'absolute', top: '-3rem', left: '50%', transform: 'translateX(-50%)' }}>
           <img  
             src="/assets/reuneo_test_9.png"
             alt="Logo"
-            style={{width: '120px',height: '120px',objectFit: 'contain'}}
+            style={{width: '110px',height: '110px',objectFit: 'contain'}}
           />
         </div>
 

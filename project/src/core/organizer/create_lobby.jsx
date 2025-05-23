@@ -125,6 +125,12 @@ const CreateLobbyView = () => {
 
     return (
         <div className="create-lobby-background">
+            <img 
+                src="/assets/reuneo_test_9.png"
+                alt="Reunio Logo"
+                className="logo-image"
+                onClick={() => navigate(-1)}
+            />
             <div className="create-lobby-container">
                 <h1 className="create-lobby-title">Create a New Lobby</h1>
                 
@@ -238,23 +244,13 @@ const CreateLobbyView = () => {
                     
                     {error && <div className="error-message">{error}</div>}
                     
-                    <div className="button-group">
-                        <button 
-                            type="button" 
-                            className="back-button"
-                            onClick={() => navigate(-1)}
-                        >
-                            ← Back
-                        </button>
-                        
-                        <button 
-                            type="submit" 
-                            className="submit-button"
-                            disabled={isLoading}
-                        >
-                            {isLoading ? 'Creating...' : 'Create Lobby'}
-                        </button>
-                    </div>
+                    <button 
+                        type="submit" 
+                        className="submit-button"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? 'Creating...' : 'Create Lobby'}
+                    </button>
                 </form>
             </div>
         </div>

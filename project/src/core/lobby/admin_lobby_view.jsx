@@ -261,7 +261,7 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                         {modal === 'checkin' ? (
                             <>
                                 <div className="progress-modal-title">
-                                    Have your attendees can scan the QR code to join your lobby
+                                    Have your attendees scan the QR code to join your lobby
                                 </div>
                                 <div className="progress-modal-message">
                                     You can start when you have 6-10 people, don't worry new people can join in the next rounds.
@@ -706,7 +706,6 @@ const AdminLobbyView = () => {
             <div className="admin-lobby-container">
                 <div 
                     className="admin-view-logo"
-                    onClick={() => navigate('/')}
                     style={{ cursor: 'pointer' }}
                 >
                     <img 
@@ -718,6 +717,7 @@ const AdminLobbyView = () => {
                             objectFit: 'contain',
                             transition: 'transform 0.3s ease'
                         }}
+                        onClick={() => navigate('/')}
                     />
                 </div>
                 <LobbyProgressBar 
@@ -754,7 +754,7 @@ const AdminLobbyView = () => {
                         letterSpacing: '0.5px',
                     }}
                 >
-                    {showLobbyDetails ? 'Hide Details' : 'Details'}
+                    {showLobbyDetails ? 'Hide Controls' : 'More Controls'}
                     <span style={{ marginLeft: 12, fontSize: '1.2em', transition: 'transform 0.3s', display: 'inline-block', transform: showLobbyDetails ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                         ▼
                     </span>
