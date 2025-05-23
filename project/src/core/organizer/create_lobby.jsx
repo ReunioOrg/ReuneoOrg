@@ -157,6 +157,10 @@ const CreateLobbyView = () => {
                                         const value = e.target.value;
                                         if (value === '' || (parseInt(value) > 0 && parseInt(value) <= 5)) {
                                             setMinutes(value);
+                                            // Reset seconds to 0 if minutes is 5
+                                            if (parseInt(value) === 5) {
+                                                setSeconds('0');
+                                            }
                                         }
                                     }}
                                     min="1"
@@ -183,11 +187,12 @@ const CreateLobbyView = () => {
                                     placeholder="0-59"
                                     className="form-input duration-input"
                                     autoComplete="off"
+                                    disabled={parseInt(minutes) === 5}
                                 />
                                 <label htmlFor="seconds" className="duration-label">Seconds</label>
                             </div>
                         </div>
-                        
+                        <div className="input-hint">Maximum total duration is 5 minutes</div>
                     </div>
                     
                     <div className="form-group">
