@@ -338,7 +338,7 @@ const OverlappingProfileList = ({ players }) => {
     const totalCount = allPlayers.length;
 
     return (
-        <div className="overlapping-profile-list-wrapper" style={{ marginTop: '2rem' }}>
+        <div className="overlapping-profile-list-wrapper" style={{ marginTop: '3rem' }}>
             <div className="overlapping-profile-list">
                 {visiblePlayers.map((player, idx) => (
                     <img

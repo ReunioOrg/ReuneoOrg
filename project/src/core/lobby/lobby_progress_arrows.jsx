@@ -36,6 +36,7 @@ const ArrowHint = ({ direction = 'down', show = true, className = '', style = {}
                     </defs>
                 </g>
             </svg>
+            <div className="arrow-hint-text">Tap Here</div>
         </div>
     );
 };
