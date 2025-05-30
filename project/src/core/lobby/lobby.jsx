@@ -114,7 +114,7 @@ const LobbyScreen = () => {
     const [showSoundPrompt, setShowSoundPrompt] = useState(true);
 
     // const playat=220;
-    const playat=300;
+    const playat=492;//300;
     const isFetchingCounter=useRef(0);
 
     const [selfTags, setSelfTags] = useState(null);
