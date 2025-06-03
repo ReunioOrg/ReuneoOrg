@@ -558,7 +558,7 @@ const App = () => {
                   textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
                   color: 'inherit'
                 }}>
-                  {!user ? 'Join A Lobby' : 'Join A Lobby'}
+                  {!user ? 'Join' : 'Join A Lobby'}
                 </span>
               </button>
               
@@ -566,7 +566,7 @@ const App = () => {
               {permissions !== 'admin' && permissions !== 'organizer' && (
                 <button 
                   className="primary-button join-lobby-button" 
-                  onClick={() => window.location.href = 'https://www.meet-tx.com/become-an-organizer'}
+                  onClick={() => window.location.href = 'https://reuneo.app/how-the-app-works'}
                   style={{
                     padding: '12px 24px',
                     backgroundColor: 'transparent',
@@ -593,7 +593,7 @@ const App = () => {
                     textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
                     color: 'inherit'
                   }}>
-                    Become a Host
+                    Create
                   </span>
                 </button>
               )}

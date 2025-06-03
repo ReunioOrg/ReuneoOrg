@@ -363,6 +363,10 @@ const PureSignupPage = () => {
 
             <h3 className="signup-header">Sign Up to Join</h3>
 
+            {lobbyCode && (
+                <h2 className="signup-header">{lobbyCode} lobby</h2>
+            )}
+
             <p className="login-link-text">
                 Already have an account? <a 
                     href="#" 
