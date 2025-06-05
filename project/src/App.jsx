@@ -413,7 +413,7 @@ const App = () => {
           }}>
             {user && userProfile && (permissions === "admin" || permissions === "organizer") ? (
               (() => {
-                const mainText = `Elevate your events`;
+                const mainText = `Create a Lobby`;
                 const nameText = userProfile ? userProfile.name.slice(0, 15) : "";
                 
                 return (
@@ -446,18 +446,36 @@ const App = () => {
               })()
             ) : (
               (() => {
-                const text = user && userProfile ? `Break the Ice ${userProfile.name.slice(0, 10)}` : "Break the Ice";
-                return text.split("").map((char, index) => (
-                  <span 
-                    key={index} 
-                    style={{ 
-                      "--i": index + 1,
-                      marginRight: char === " " ? "0.5em" : "1px"
-                    }}
-                  >
-                    {char}
-                  </span>
-                ));
+                const mainText = "Join the Experience";
+                const nameText = userProfile ? userProfile.name.slice(0, 15) : "";
+                
+                return (
+                  <>
+                    {mainText.split("").map((char, index) => (
+                      <span 
+                        key={`main-${index}`} 
+                        style={{ 
+                          "--i": index + 1,
+                          marginRight: char === " " ? "0.5em" : "1px"
+                        }}
+                      >
+                        {char}
+                      </span>
+                    ))}
+                    <br />
+                    {nameText && nameText.split("").map((char, index) => (
+                      <span 
+                        key={`name-${index}`} 
+                        style={{ 
+                          "--i": index + 1,
+                          marginRight: char === " " ? "0.5em" : "1px"
+                        }}
+                      >
+                        {char}
+                      </span>
+                    ))}
+                  </>
+                );
               })()
             )}
           </h2>
@@ -558,7 +576,7 @@ const App = () => {
                   textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
                   color: 'inherit'
                 }}>
-                  {!user ? 'Join' : 'Join A Lobby'}
+                  {!user ? 'Join' : 'Join Lobby'}
                 </span>
               </button>
               
