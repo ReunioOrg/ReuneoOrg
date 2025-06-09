@@ -10,6 +10,7 @@ import useGetLobbyMetadata from './get_lobby_metadata';
 import LobbyCountdown from './lobby_countdown';
 import HowToTutorial from './how_to_tutorial';
 import ShowMatchAnimation from './show_match_animation';
+import UserIsReadyAnimation from './user_is_ready_animation';
 
 const AVAILABLE_TAGS = []; // Remove hardcoded tags
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
@@ -23,6 +24,9 @@ const LobbyScreen = () => {
     const [tagLimitWarning, setTagLimitWarning] = useState('');
     const desiringTagsRef = useRef(null);
     const continueButtonRef = useRef(null);
+    const [showReadyAnimation, setShowReadyAnimation] = useState(false);
+    const isReadyAnimating = useRef(false);
+    const [tagsCompleted, setTagsCompleted] = useState(false);
     
     const { audioRef, error, playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying } = usePlaySound();
     const [lobbyCode, setLobbyCode] = useState('yonder');
@@ -443,11 +447,11 @@ const LobbyScreen = () => {
                 left: 0,
                 width: '100%',
                 height: '100%',
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                backgroundColor: 'rgba(0, 0, 0, 0.125)',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                zIndex: 1000
+                zIndex: 1100
             }}>
                 <div style={{
                     backgroundColor: 'white',
@@ -559,6 +563,13 @@ const LobbyScreen = () => {
     const handleSave = () => {
         if (desiringTags != null) {
             define_profile_info(selfTags || [], desiringTags);
+            setTimeout(() => {
+                if (!isReadyAnimating.current) {
+                    isReadyAnimating.current = true;
+                    setShowReadyAnimation(true);
+                    setTagsCompleted(true);
+                }
+            }, 1000);
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -649,7 +660,7 @@ const LobbyScreen = () => {
                             </span>
                         ) : lobbyState === "checkin" ? (
                             <>
-                                You're in {userProfile.name.slice(0, 15)}!
+                                Wait here {userProfile.name.slice(0, 15)}.
                                 <br />
                                 Your host will start the experience.
                             </>
@@ -936,6 +947,15 @@ const LobbyScreen = () => {
                 onAnimationEnd={() => {
                     setShowMatchAnimation(false);
                     isAnimating.current = false;
+                }} 
+            />
+
+            {/* Add the ready animation component */}
+            <UserIsReadyAnimation 
+                isVisible={showReadyAnimation} 
+                onAnimationEnd={() => {
+                    setShowReadyAnimation(false);
+                    isReadyAnimating.current = false;
                 }} 
             />
         </div>
