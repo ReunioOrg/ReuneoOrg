@@ -483,34 +483,31 @@ const App = () => {
 
         {/* Event items, the big div */}
         <div style={{ 
-          marginTop: '20rem',  // Adjusted to account for both headers
+          marginTop: '32rem',  // Adjusted to account for both headers
           width: '94%', 
           marginLeft: 'auto', 
           marginRight: 'auto',
           display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          gap: '1.5rem',
         }}>
           {/* Event item */}
           <div
             className="event-item"
             style={{
-              width: '50%',
-              maxWidth: '400px',
-              margin: '0 auto',
+              width: 'auto',
+              maxWidth: 'none',
+              margin: '0',
               padding: '10px 20px',
-              // background: '#ffffff',
               borderRadius: '16px',
-              // boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
               marginBottom: '20px',
-              // border: '1px solid rgba(255, 255, 255, 0.5)',
-              // outline: '1px solid rgb(58, 53, 53, 0.8)',
-              // transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
               cursor: 'pointer',
               opacity: 1,
               display: 'flex',
-              flexDirection: 'column',
+              flexDirection: 'row',
               alignItems: 'center',
+              gap: '1.5rem',
               ':hover': {
                 transform: 'translateY(-5px)'
               }
@@ -540,8 +537,9 @@ const App = () => {
             </p> */}
             <div style={{ 
               display: 'flex', 
-              gap: '18px', 
-              flexDirection: 'column' 
+              gap: '1.5rem', 
+              flexDirection: 'row',
+              alignItems: 'center'
             }}>
               <button 
                 className={`primary-button ${(permissions !== 'admin' && permissions !== 'organizer') ? 'join-lobby-button' : ''}`} 
@@ -550,7 +548,7 @@ const App = () => {
                 style={{
                   opacity: (player_count === null || lobby_state === 'terminate') ? 1 : 1,
                   cursor: (player_count === null || lobby_state === 'terminate') ? 'not-allowed' : 'pointer',
-                  padding: '12px 24px',
+                  padding: '16px 20px',
                   backgroundColor: (permissions !== 'admin' && permissions !== 'organizer') ? 'transparent' : '#144dff',
                   color: 'white',
                   border: 'none',
@@ -559,12 +557,13 @@ const App = () => {
                   fontSize: '1.2rem',
                   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
                   transition: 'all 0.2s ease',
-                  minWidth: '180px',
-                  whiteSpace: 'nowrap',
-                  margin: '0 auto', // Added to center the button
-                  display: 'block', // Added to ensure proper centering
+                  width: '160px',
+                  // whiteSpace: 'nowrap',
+                  margin: '0',
+                  display: 'block',
                   position: 'relative',
                   zIndex: 1,
+                  textAlign: 'center',
                   outline: (permissions !== 'admin' && permissions !== 'organizer') ? 'none' : '1px solid rgba(58, 53, 53, 0.7)',
                   ':hover': {
                     backgroundColor: (permissions !== 'admin' && permissions !== 'organizer') ? 'transparent' : '#535bf2',
@@ -586,7 +585,7 @@ const App = () => {
                   className="primary-button join-lobby-button" 
                   onClick={() => window.location.href = 'https://reuneo.app/how-the-app-works'}
                   style={{
-                    padding: '12px 24px',
+                    padding: '16px 20px',
                     backgroundColor: 'transparent',
                     color: 'white',
                     border: 'none',
@@ -595,12 +594,13 @@ const App = () => {
                     fontSize: '1.2rem',
                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
                     transition: 'all 0.2s ease',
-                    minWidth: '180px',
-                    whiteSpace: 'nowrap',
-                    margin: '0 auto',
+                    width: '160px',
+                    // whiteSpace: 'nowrap',
+                    margin: '0',
                     display: 'block',
                     position: 'relative',
                     zIndex: 1,
+                    textAlign: 'center',
                     outline: 'none',
                     ':hover': {
                       transform: 'scale(1.02)'
@@ -620,7 +620,7 @@ const App = () => {
                   className={`primary-button ${(permissions === 'admin' || permissions === 'organizer') ? 'create-lobby-button' : ''}`}
                   onClick={() => navigate('/create_lobby')}
                   style={{
-                    padding: '12px 24px',
+                    padding: '16px 20px',
                     backgroundColor: 'transparent',
                     color: 'white',
                     border: 'none',
@@ -629,11 +629,12 @@ const App = () => {
                     fontSize: '1.2rem',
                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
                     transition: 'all 0.2s ease',
-                    minWidth: '180px',
-                    whiteSpace: 'nowrap',
-                    marginTop: '-5px',
+                    width: '160px',
+                    // whiteSpace: 'nowrap',
+                    margin: '0',
                     position: 'relative',
                     zIndex: 1,
+                    textAlign: 'center',
                     ':hover': {
                       transform: 'scale(1.02)'
                     }
@@ -680,7 +681,7 @@ const App = () => {
         {/* Active Lobbies Section */}
         {(permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0 && (
           <div className="events-list" style={{ 
-            marginTop: '1rem', 
+            marginTop: '-18rem', 
             width: '50%',
             height: '20%', 
             marginLeft: 'auto', 
