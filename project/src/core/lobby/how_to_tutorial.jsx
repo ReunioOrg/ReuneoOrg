@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useContext } from 'react';
+import { AuthContext } from '../Auth/AuthContext';
 import './how_to_tutorial.css';
 
 const HowToTutorial = ({ onComplete, lobbyCode = 'this' }) => {
+  const { userProfile } = useContext(AuthContext);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isTextAnimating, setIsTextAnimating] = useState(false);
@@ -13,22 +16,22 @@ const HowToTutorial = ({ onComplete, lobbyCode = 'this' }) => {
   // Slide data with custom durations
   const slides = [
     {
-      image: '/assets/how_to_pt1_1.svg',
+      image: userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : '/assets/how_to_pt1_1.svg',
       // text: 'Welcome to the lobby! Here you can see who else is joining.',
-      duration: 1500, // 1.5 second for first slide
+      duration: 2000, // 1.5 second for first slide
       animatedText: 'Find your match using their profile picture!'
     },
     {
       image: '/assets/how_to_pt2_2.svg',
       // text: 'Select your tags to help us match you with the right people.',
       duration: 4000, // 4 seconds for second slide
-      animatedText: 'Raise the volume to find your next match, dont keep them waiting!'
+      animatedText: 'Raise the volume, you need it to know whats going on!'
     },
     {
       image: '/assets/how_to_pt3_3.svg',
       // text: 'When the game starts, you\'ll be paired with someone for a conversation.',
       duration: 4000, // 4 seconds for third slide
-      animatedText: 'Take a break so people dont get matched with you.'
+      animatedText: 'Tap this to stop or pause, you can rejoin anytime'
     }
   ];
   
@@ -110,7 +113,27 @@ const HowToTutorial = ({ onComplete, lobbyCode = 'this' }) => {
                 {slides[slideIndex].animatedText}
               </div>
             )}
-            <div className="tutorial-image-container">
+            {slideIndex === 1 && (
+              <div className="volume-arrow-container">
+                <svg 
+                  className="volume-arrow" 
+                  width="40" 
+                  height="40" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path 
+                    d="M19 12H5M5 12L12 5M5 12L12 19" 
+                    stroke="#144dff" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+            )}
+            <div className={`tutorial-image-container ${slideIndex === 0 ? 'first-slide' : ''}`}>
               <img 
                 src={slides[slideIndex].image} 
                 alt={`Tutorial step ${slideIndex + 1}`} 

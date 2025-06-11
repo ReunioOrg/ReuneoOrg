@@ -573,7 +573,8 @@ const App = () => {
               >
                 <span style={{
                   textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                  color: 'inherit'
+                  color: 'inherit',
+                  whiteSpace: permissions !== 'admin' ? 'nowrap' : 'normal'
                 }}>
                   {!user ? 'Join' : 'Join Lobby'}
                 </span>
