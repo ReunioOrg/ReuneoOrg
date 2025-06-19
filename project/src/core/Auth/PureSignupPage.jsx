@@ -34,6 +34,45 @@ const PureSignupPage = () => {
     const redirectTo = searchParams.get('redirect');
     const lobbyCode = searchParams.get('code');
 
+    // Check if user was redirected from lobby
+    const isLobbyRedirect = redirectTo === 'lobby';
+
+    // Auto-generate credentials for lobby users
+    const generateRandomString = () => {
+        const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < 10; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    };
+
+    // Auto-populate credentials for lobby users
+    useEffect(() => {
+        if (isLobbyRedirect && !username && !password) {
+            const autoUsername = generateRandomString();
+            const autoPassword = generateRandomString();
+            
+            setUsername(autoUsername);
+            setPassword(autoPassword);
+            
+            // Set success states for auto-generated credentials
+            setFieldSuccess(prev => ({ 
+                ...prev, 
+                username: true, 
+                password: true 
+            }));
+            setFieldErrors(prev => ({ 
+                ...prev, 
+                username: '', 
+                password: '' 
+            }));
+            
+            // Skip to display name step
+            setCurrentStep(2);
+        }
+    }, [isLobbyRedirect, username, password, displayName]);
+
     // Check if displayName is valid when currentStep changes to the display name step
     useEffect(() => {
         if (currentStep === 2 && displayName && validateDisplayName(displayName)) {
@@ -211,6 +250,9 @@ const PureSignupPage = () => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
+
+        // Quality control logging
+        console.log('Signup attempt - Username:', username, 'Password:', password);
     
         if (!username || !password || !displayName) {
             setError('All fields are required');
@@ -239,18 +281,47 @@ const PureSignupPage = () => {
             const userData = await response.json();
     
             if (userData.error === "Username already taken") {
-                setError("Username is taken");
-                setIsLoading(false);
-                return;
+                // If this is a lobby user with auto-generated credentials, regenerate and retry
+                if (isLobbyRedirect) {
+                    const newUsername = generateRandomString();
+                    const newPassword = generateRandomString();
+                    setUsername(newUsername);
+                    setPassword(newPassword);
+                    
+                    // Retry with new credentials
+                    const retryResponse = await fetch(window.server_url + endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': '*'
+                        },
+                        body: JSON.stringify({ username: newUsername, password: newPassword }),
+                    });
+                    
+                    const retryUserData = await retryResponse.json();
+                    
+                    if (!retryResponse.ok || retryUserData.error === "Username already taken") {
+                        setError("Unable to create account. Please try again.");
+                        setIsLoading(false);
+                        return;
+                    }
+                    
+                    // Continue with the retry data
+                    login(retryUserData);
+                } else {
+                    setError("Username is taken");
+                    setIsLoading(false);
+                    return;
+                }
+            } else {
+                if (!response.ok) {
+                    setError(userData.message || 'Signup failed');
+                    setIsLoading(false);
+                    return;
+                }
+                login(userData);
             }
     
-            if (!response.ok) {
-                setError(userData.message || 'Signup failed');
-                setIsLoading(false);
-                return;
-            }
-    
-            login(userData);
             await checkAuth();
     
             const token = localStorage.getItem('access_token');
@@ -382,10 +453,14 @@ const PureSignupPage = () => {
 
             <div className="step-form-container">
                 <div className="step-progress">
-                    {steps.map((_, index) => (
+                    {(isLobbyRedirect ? steps.slice(2) : steps).map((_, index) => (
                         <div
                             key={index}
-                            className={`progress-dot ${index === currentStep ? 'active' : ''} ${index < currentStep ? 'completed' : ''}`}
+                            className={`progress-dot ${
+                                isLobbyRedirect 
+                                    ? (index === currentStep - 2 ? 'active' : '') + (index < currentStep - 2 ? ' completed' : '')
+                                    : (index === currentStep ? 'active' : '') + (index < currentStep ? ' completed' : '')
+                            }`}
                         />
                     ))}
                 </div>
