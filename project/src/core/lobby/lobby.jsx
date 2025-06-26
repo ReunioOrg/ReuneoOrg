@@ -54,9 +54,9 @@ const LobbyScreen = () => {
                 // Verify token is valid - only do this once when component mounts
                 try {
                     // Only check auth if we don't already have user data
-                    // if (!user) {
+                    if (!user) {
                         await checkAuth();
-                    // }
+                    }
                 } catch (error) {
                     console.error("Authentication error:", error);
                     // If token is invalid, redirect to signup
