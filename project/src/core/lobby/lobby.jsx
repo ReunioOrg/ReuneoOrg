@@ -39,25 +39,40 @@ const LobbyScreen = () => {
     // Add useEffect to check authentication and redirect if needed
     useEffect(() => {
         const checkAuthentication = async () => {
-            await checkAuth();
-
-            // Simply check if we have valid auth after checkAuth() runs
             const token = localStorage.getItem('access_token');
             if (!token) {
-                // Token was removed, redirect like in catch block
+                // User is not authenticated, redirect to signup page
                 const params = new URLSearchParams(window.location.search);
                 const codeParam = params.get('code') || code;
                 if (codeParam) {
+                    // Redirect to signup with the lobby code as a redirect parameter
                     navigate(`/signup?redirect=lobby&code=${codeParam}`);
                 } else {
                     navigate('/signup?redirect=lobby');
                 }
-                return; // Exit early
+            } else {
+                // Verify token is valid - only do this once when component mounts
+                try {
+                    // Only check auth if we don't already have user data
+                    if (!user) {
+                        await checkAuth();
+                    }
+                } catch (error) {
+                    console.error("Authentication error:", error);
+                    // If token is invalid, redirect to signup
+                    const params = new URLSearchParams(window.location.search);
+                    const codeParam = params.get('code') || code;
+                    if (codeParam) {
+                        navigate(`/signup?redirect=lobby&code=${codeParam}`);
+                    } else {
+                        navigate('/signup?redirect=lobby');
+                    }
+                }
             }
         };
         
         checkAuthentication();
-    }, [navigate, code]); // Add user to dependencies
+    }, [navigate, code, checkAuth, user]); // Add user to dependencies
 
     useEffect(() => {
         const checkParams = () => {
