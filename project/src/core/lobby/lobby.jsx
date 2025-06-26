@@ -57,7 +57,7 @@ const LobbyScreen = () => {
         };
         
         checkAuthentication();
-    }, [navigate, code, checkAuth, user]); // Add user to dependencies
+    }, [navigate, code]); // Add user to dependencies
 
     useEffect(() => {
         const checkParams = () => {
