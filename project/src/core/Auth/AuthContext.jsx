@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
           } else {
             // Token invalid - clean up
             console.log("TOKEN INVALID");
-            localStorage.removeItem('token');
+            localStorage.removeItem('access_token');
             setUser(null);
             setUserProfile(null);
             setAccessToken(null);
