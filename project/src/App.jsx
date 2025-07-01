@@ -326,7 +326,7 @@ const App = () => {
   };
 
   return (
-    <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
+    <div style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden' }}>
       {/* Background Video */}
       <video className="background-video" autoPlay loop muted playsInline poster="/assets/demo_app_home_video_cover.jpg">
         <source src="/assets/demo_app_home_video_X2_small.mp4" type="video/mp4" />

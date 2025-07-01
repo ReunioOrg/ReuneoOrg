@@ -9,6 +9,16 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* Viewport height system for mobile-first design */
+  --viewport-height: 100vh;
+}
+
+/* Desktop: mobile frame context - viewport height becomes container relative */
+@media (min-width: 769px) {
+  :root {
+    --viewport-height: 100%;
+  }
 }
 
 a {
@@ -24,9 +34,17 @@ body {
   margin: 0;
   display: flex;
   justify-content: center;
-  min-height: 100vh;
+  min-height: var(--viewport-height);
   width: 100%;
   background-color: inherit;
+}
+
+/* Mobile-first viewport container system */
+@media (max-width: 768px) {
+  body {
+    display: block;
+    justify-content: unset;
+  }
 }
 
 h1 {
@@ -66,8 +84,48 @@ button:focus-visible {
 
 #root {
   width: 100%;
-  max-width: 1200px;
   margin: 0 auto;
+}
+
+/* Mobile: Natural full screen */
+@media (max-width: 768px) {
+  #root {
+    max-width: 100%;
+    height: var(--viewport-height);
+  }
+}
+
+/* Desktop: Mobile viewport simulation */
+@media (min-width: 769px) {
+  body {
+    /* Subtle animated blue gradient background */
+    /* background: linear-gradient(-45deg, #0d3ea8, #144dff, #535bf2, #2d4bc7); */
+    background-size: 400% 400%;
+    /* animation: gradientShift 15s ease infinite; */
+    padding: 40px 0;
+  }
+  
+  #root {
+    width: 390px;
+    max-width: 390px;
+    min-height: 844px;
+    margin: 0 auto;
+    overflow-y: auto;
+    position: relative;
+  }
+}
+
+/* Subtle gradient animation */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .background-video {
