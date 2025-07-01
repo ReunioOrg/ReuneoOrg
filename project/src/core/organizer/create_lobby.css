@@ -1,5 +1,5 @@
 .create-lobby-background {
-    min-height: 100vh;
+    min-height: var(--viewport-height);
     width: 100vw;
     display: flex;
     flex-direction: column;
