@@ -241,6 +241,10 @@ const LobbyScreen = () => {
     const [prevLobbyState, setPrevLobbyState] = useState(null);
     const isAnimating = useRef(false);  // Add this ref to track animation state
 
+    // Match banner state
+    const [showMatchBanner, setShowMatchBanner] = useState(false);
+    const [matchingTags, setMatchingTags] = useState(null);
+
     // Add this function to check for matches
     const checkForMatches = (playerTags, opponentTags) => {
         if (!playerTags || !opponentTags) return false;
@@ -256,6 +260,24 @@ const LobbyScreen = () => {
         );
 
         return playerSelfMatch && opponentSelfMatch;
+    };
+
+    // New function to get the specific matching tags
+    const getMatchingTags = (playerTags, opponentTags) => {
+        if (!playerTags || !opponentTags) return null;
+        
+        // Find first bidirectional match
+        for (const playerTag of playerTags.tags_work) {
+            if (opponentTags.desiring_tags_work.includes(playerTag)) {
+                // Found player's tag that opponent wants, now check reverse
+                for (const opponentTag of opponentTags.tags_work) {
+                    if (playerTags.desiring_tags_work.includes(opponentTag)) {
+                        return { playerTag, opponentTag };
+                    }
+                }
+            }
+        }
+        return null;
     };
 
     // Modify the fetchLobbyData function to include match detection
@@ -377,9 +399,11 @@ const LobbyScreen = () => {
                     data.opponent_name && 
                     !isAnimating.current) {
                     console.log('Checking for matches...');
-                    const hasMatch = checkForMatches(data.player_tags, data.opponent_tags);
-                    if (hasMatch) {
-                        console.log('Match found! Setting animation...');
+                    const matchDetails = getMatchingTags(data.player_tags, data.opponent_tags);
+                    if (matchDetails) {
+                        console.log('Match found! Setting animation and banner...', matchDetails);
+                        setMatchingTags(matchDetails);
+                        setShowMatchBanner(true);
                         isAnimating.current = true;
                         setShowMatchAnimation(true);
                     }
@@ -608,6 +632,14 @@ const LobbyScreen = () => {
         setShowTutorial(false);
     };
 
+    // Reset match banner when lobby state changes or opponent leaves
+    useEffect(() => {
+        if (lobbyState !== "active" || !opponentProfile) {
+            setShowMatchBanner(false);
+            setMatchingTags(null);
+        }
+    }, [lobbyState, opponentProfile]);
+
     const tagsSectionRef = useRef(null);
 
     // Add useEffect to scroll to tags if no server tags exist and custom tags are available
@@ -676,6 +708,13 @@ const LobbyScreen = () => {
                     </h2>
                 </div>
 
+                {/* Table number display - moved here to be right below the header */}
+                {lobbyState === "active" && opponentProfile && tableNumber && (
+                    <div className="table-number">
+                        <h3>at table: {tableNumber}</h3>
+                    </div>
+                )}
+
                 {lobbyState !== "checkin" && (
                     <div className="time-left" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'white', marginTop: '-2rem'}}>
                         {((lobbyState === "active" || lobbyState === "interrim") && roundTimeLeft) ? (
@@ -708,13 +747,8 @@ const LobbyScreen = () => {
                                     }}
                                 </CountdownCircleTimer>
                                 {/* <span style={{color: '#144dff'}}>{parseInt(roundTimeLeft)}s</span> */}
-                                <span style={{ fontSize: '0.7em', marginTop: '4px', opacity: '1', color: '#144dff' }}>round time left</span>
+                                <span style={{ fontWeight: 700, fontSize: '0.7em', marginTop: '4px', opacity: '1', color: '#144dff', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.1)' }}>round time left</span>
                                 <div style={{ height: '18px' }}></div>
-                                {/* {opponentProfile && (
-                                    <div className="table-number">
-                                        <h3>Go to table: {tableNumber}</h3>
-                                    </div>
-                                )} */}
                             </>
                         ) : (
                             <span className="time-left-text"></span>
@@ -742,6 +776,15 @@ const LobbyScreen = () => {
                         ) : null
                     )}
                 </div>
+
+                {/* Match Banner */}
+                {showMatchBanner && matchingTags && lobbyState === "active" && opponentProfile && (
+                    <div className="match-banner">
+                        <span className="match-tag">{matchingTags.playerTag}</span>
+                        <div className="match-arrow"></div>
+                        <span className="match-tag">{matchingTags.opponentTag}</span>
+                    </div>
+                )}
 
                 {/* Player Count Display */}
                 {((lobbyState === "checkin") || (lobbyState === "active" && !opponentProfile)) && player_count !== null && (
@@ -805,7 +848,7 @@ const LobbyScreen = () => {
                     <div className="selected-tags-container">
                         {(selfTags && selfTags.length > 0) && (
                             <div className="tag-category">
-                                <h4>What I do:</h4>
+                                <h4>I am:</h4>
                                 <div className="tag-list">
                                     {selfTags.map(tag => (
                                         <span key={`self-${tag}`} className="tag-item">{tag}</span>
