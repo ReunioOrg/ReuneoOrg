@@ -101,7 +101,7 @@ const CreateLobbyView = () => {
                 body: JSON.stringify({
                     lobby_code: lobbyCode,
                     custom_tags: customTags,
-                    lobby_duration: lobbyDuration
+                    round_duration: lobbyDuration
                 })
             });
 
@@ -155,12 +155,12 @@ const CreateLobbyView = () => {
                                     value={minutes}
                                     onChange={(e) => {
                                         const value = e.target.value;
-                                        if (value === '' || (parseInt(value) > 0 && parseInt(value) <= 5)) {
+                                        if (value === '' || (parseInt(value) > 0 && parseInt(value) <= 9)) {
                                             setMinutes(value);
                                         }
                                     }}
                                     min="1"
-                                    max="5"
+                                    max="9"
                                     placeholder="1-5"
                                     className="form-input duration-input"
                                     autoComplete="off"

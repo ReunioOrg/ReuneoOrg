@@ -114,7 +114,7 @@ const LobbyScreen = () => {
     const [showSoundPrompt, setShowSoundPrompt] = useState(true);
 
     // const playat=220;
-    const playat=492;//300;
+    const playat=478;//8;//503;//15;//15;//496;//492;//300;
     const isFetchingCounter=useRef(0);
 
     const [selfTags, setSelfTags] = useState(null);
@@ -267,7 +267,8 @@ const LobbyScreen = () => {
                 }
                 setTagsState(data.custom_tags);
                 setLobbyState(data.lobby_state);
-                setRoundDuration(data.lobby_duration);
+                setRoundDuration(data.round_duration);
+                console.log("LOBBY DATA:", data);
                 
                 // Add validation check for round_time_left to ensure it's a valid number
                 const timeLeft = typeof data.round_time_left === 'number' && !isNaN(data.round_time_left) 
@@ -275,10 +276,10 @@ const LobbyScreen = () => {
                     : 0;
                 
                 console.log("Timer Debug:", {
-                    roundDuration: data.lobby_duration,
+                    roundDuration: data.round_duration,
                     timeLeft: timeLeft,
                     lobbyState: data.lobby_state,
-                    usingDefaultDuration: !data.lobby_duration
+                    usingDefaultDuration: !data.round_duration
                 });
                 
                 roundPosition.current = timeLeft;

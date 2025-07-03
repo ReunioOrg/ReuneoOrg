@@ -436,22 +436,25 @@ const AdminLobbyView = () => {
                     </span>
                 </div>
                 <div className="admin-lobby-actions">
-                    {/* <button 
-                        onClick={() => {
-                            if (window.confirm('Are you sure you want to reset the lobby timer?')) {
-                                fetch(window.server_url + '/reset_lobby_timer', {
-                                    method: 'GET',
-                                    headers: {
-                                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                                        'lobby_code': lobbyCode
-                                    }
-                                })
-                            }
-                        }} 
-                        className="admin-button admin-button-warning"
-                    >
-                        Reset Lobby Timer
-                    </button> */}
+                    
+                    {permissions === 'admin' && (
+                        <button 
+                            onClick={() => {
+                                if (window.confirm('Are you sure you want to reset the lobby timer?')) {
+                                    fetch(window.server_url + '/reset_lobby_timer', {
+                                        method: 'GET',
+                                        headers: {
+                                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                            'lobby_code': lobbyCode
+                                        }
+                                    })
+                                }
+                            }} 
+                            className="admin-button admin-button-warning"
+                        >
+                            Reset Lobby Timer
+                        </button>
+                    )}
 
                     {/* <button 
                         onClick={CreateLobby} 

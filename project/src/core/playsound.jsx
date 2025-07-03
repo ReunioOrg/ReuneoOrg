@@ -99,6 +99,7 @@ function usePlaySound() {
     
     function seekTo(time) { 
         audioRef.current.currentTime = time;
+        console.log("SOUND SEEK TO:", time);
     }
 
 
