@@ -139,6 +139,11 @@ const LobbyScreen = () => {
     // Add this ref near your other state declarations
     const lobbyCodeRef = useRef('yonder');
 
+    // Profile images cache and state management
+    const profileImagesCache = useRef({});
+    const currentUsernamesRef = useRef([]);
+    const [isLoadingProfiles, setIsLoadingProfiles] = useState(false);
+
     // Update the ref whenever lobbyCode changes
     useEffect(() => {
         lobbyCodeRef.current = lobbyCode;
@@ -213,11 +218,51 @@ const LobbyScreen = () => {
 
     }
 
+    const fetchProfileImages = async (usernamesToFetch) => {
+        if (usernamesToFetch.length === 0) return;
+        
+        setIsLoadingProfiles(true);
+        try {
+            const token = localStorage.getItem('access_token');
+            const response = await fetch(`${window.server_url}/load_batch_pfp_small_icons`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'lobby_code': lobbyCodeRef.current
+                },
+                body: JSON.stringify({ usernames: usernamesToFetch })
+            });
+            
+            if (response.ok) {
+                const imageData = await response.json();
+                // Merge new images into existing cache
+                profileImagesCache.current = {
+                    ...profileImagesCache.current,
+                    ...imageData
+                };
+                console.log("Profile images fetched:", Object.keys(imageData));
+            } else {
+                console.error("Failed to fetch profile images:", response.status);
+            }
+        } catch (error) {
+            console.error("Error fetching profile images:", error);
+            // Silent fail - just use default avatars
+        } finally {
+            setIsLoadingProfiles(false);
+        }
+    };
+
 
     async function leaveLobby(){
         try {
             const token = localStorage.getItem('access_token');
             cancelSound();
+            
+            // Clear profile images cache
+            profileImagesCache.current = {};
+            currentUsernamesRef.current = [];
+            
             const response = await fetch(window.server_url+'/disconnect_lobby', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -371,6 +416,25 @@ const LobbyScreen = () => {
                 if (metadataResponse.ok) {
                     const metadataData = await metadataResponse.json();
                     setPlayerCount(metadataData.player_count);
+                    
+                    // Check if usernames changed and fetch missing profile images
+                    const newUsernames = metadataData.usernames || [];
+                    const usernamesChanged = JSON.stringify(currentUsernamesRef.current) !== JSON.stringify(newUsernames);
+                    
+                    if (usernamesChanged) {
+                        currentUsernamesRef.current = newUsernames;
+                        
+                        // Find usernames we don't have cached images for
+                        const newUsernamesToFetch = newUsernames.filter(username => 
+                            !profileImagesCache.current[username] && 
+                            username !== user?.username // Don't fetch current user's image
+                        );
+                        
+                        if (newUsernamesToFetch.length > 0) {
+                            console.log("Fetching images for new users:", newUsernamesToFetch);
+                            fetchProfileImages(newUsernamesToFetch);
+                        }
+                    }
                 }
 
                 if ((opponentName!=data.opponent_name) || (opponentProfile==null)) {
@@ -640,6 +704,14 @@ const LobbyScreen = () => {
         }
     }, [lobbyState, opponentProfile]);
 
+    // Clear profile images cache when lobby terminates
+    useEffect(() => {
+        if (lobbyState === "terminated") {
+            profileImagesCache.current = {};
+            currentUsernamesRef.current = [];
+        }
+    }, [lobbyState]);
+
     const tagsSectionRef = useRef(null);
 
     // Add useEffect to scroll to tags if no server tags exist and custom tags are available
@@ -814,20 +886,44 @@ const LobbyScreen = () => {
                         <div className="lobby-profiles-grid">
                             {player_count > 0 ? (
                                 <>
-                                    {Array.from({ length: Math.min(player_count, MAX_VISIBLE_PROFILES) }).map((_, index) => (
-                                        <div 
-                                            key={`profile-${index}`}
-                                            className={`profile-icon-wrapper ${index === Math.min(player_count, MAX_VISIBLE_PROFILES) - 1 ? 'pop-in' : ''}`}
-                                        >
-                                            <img 
-                                                src={index === 0 ? (userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : "/assets/avatar_8.png") : "/assets/avatar_8.png"}
-                                                alt={index === 0 ? "Your Profile" : `Profile ${index + 1}`}
-                                                className="profile-icon"
-                                                loading="lazy"
-                                            />
-                                            <div className="profile-icon-glow"></div>
-                                        </div>
-                                    ))}
+                                    {Array.from({ length: Math.min(player_count, MAX_VISIBLE_PROFILES) }).map((_, index) => {
+                                        let profileImageSrc;
+                                        
+                                        if (index === 0) {
+                                            // Current user always at index 0
+                                            profileImageSrc = userProfile?.image_data 
+                                                ? `data:image/jpeg;base64,${userProfile.image_data}` 
+                                                : "/assets/avatar_8.png";
+                                        } else {
+                                            // For other slots, use cached images if available
+                                            const availableUsernames = currentUsernamesRef.current.filter(username => 
+                                                username !== user?.username && profileImagesCache.current[username]
+                                            );
+                                            
+                                            const usernameForThisSlot = availableUsernames[index - 1]; // -1 because index 0 is current user
+                                            
+                                            if (usernameForThisSlot && profileImagesCache.current[usernameForThisSlot]) {
+                                                profileImageSrc = `data:image/jpeg;base64,${profileImagesCache.current[usernameForThisSlot]}`;
+                                            } else {
+                                                profileImageSrc = "/assets/avatar_8.png";
+                                            }
+                                        }
+                                        
+                                        return (
+                                            <div 
+                                                key={`profile-${index}`}
+                                                className={`profile-icon-wrapper ${index === Math.min(player_count, MAX_VISIBLE_PROFILES) - 1 ? 'pop-in' : ''}`}
+                                            >
+                                                <img 
+                                                    src={profileImageSrc}
+                                                    alt={index === 0 ? "Your Profile" : `Profile ${index + 1}`}
+                                                    className="profile-icon"
+                                                    loading="lazy"
+                                                />
+                                                <div className="profile-icon-glow"></div>
+                                            </div>
+                                        );
+                                    })}
                                     {player_count > MAX_VISIBLE_PROFILES && (
                                         <div className="profile-icon-wrapper more-profiles">
                                             <div className="more-profiles-bubble">
