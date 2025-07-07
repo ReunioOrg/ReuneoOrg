@@ -401,7 +401,7 @@ const PureSignupPage = () => {
         },
         {
             id: 'displayName',
-            label: 'Display Name (what people will see)',
+            label: lobbyCode === 'demolobby' ? 'Display Name (Type Any Name)' : 'Display Name (what people will see)',
             value: displayName,
             onChange: handleDisplayNameChange,
             type: 'text',
@@ -410,7 +410,7 @@ const PureSignupPage = () => {
         },
         {
             id: 'image',
-            label: 'Upload a Selfie so people can find you',
+            label: lobbyCode === 'demolobby' ? 'Profile Image (Upload Any Image)' : 'Upload a Selfie (so people can find you)',
             type: 'file',
             onChange: handleImageChange,
             accept: 'image/*'
@@ -432,10 +432,16 @@ const PureSignupPage = () => {
                 className="logo-image"
             />
 
-            <h3 className="signup-header">Sign Up to Join</h3>
+            <h3 className="signup-header">
+                {lobbyCode === 'demolobby' ? 'Join the demo' : 'Sign Up to Join'}
+            </h3>
 
-            {lobbyCode && (
+            {lobbyCode && lobbyCode !== 'demolobby' && (
                 <h2 className="signup-header">{lobbyCode} lobby</h2>
+            )}
+            
+            {lobbyCode === 'demolobby' && (
+                <h2 className="signup-header" style={{ fontSize: '0.9rem' }}>Try Reuneo for Free!</h2>
             )}
 
             <p className="login-link-text">

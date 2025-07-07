@@ -18,7 +18,7 @@ const UserIsReadyAnimation = ({ isVisible, onAnimationEnd }) => {
                 if (onAnimationEnd) {
                     onAnimationEnd();
                 }
-            }, 3000);
+            }, 1800);
         } else {
             setActive(false);
         }

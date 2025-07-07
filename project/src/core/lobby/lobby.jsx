@@ -657,7 +657,7 @@ const LobbyScreen = () => {
                     setShowReadyAnimation(true);
                     setTagsCompleted(true);
                 }
-            }, 1000);
+            }, 500);
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -820,11 +820,19 @@ const LobbyScreen = () => {
                                 </CountdownCircleTimer>
                                 {/* <span style={{color: '#144dff'}}>{parseInt(roundTimeLeft)}s</span> */}
                                 <span style={{ fontWeight: 700, fontSize: '0.7em', marginTop: '4px', opacity: '1', color: '#144dff', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.1)' }}>round time left</span>
-                                <div style={{ height: '18px' }}></div>
                             </>
                         ) : (
                             <span className="time-left-text"></span>
                         )}
+                    </div>
+                )}
+
+                {/* Match Banner */}
+                {showMatchBanner && matchingTags && lobbyState === "active" && opponentProfile && (
+                    <div className="match-banner">
+                        <span className="match-tag">{matchingTags.playerTag}</span>
+                        <div className="match-arrow"></div>
+                        <span className="match-tag">{matchingTags.opponentTag}</span>
                     </div>
                 )}
 
@@ -849,14 +857,7 @@ const LobbyScreen = () => {
                     )}
                 </div>
 
-                {/* Match Banner */}
-                {showMatchBanner && matchingTags && lobbyState === "active" && opponentProfile && (
-                    <div className="match-banner">
-                        <span className="match-tag">{matchingTags.playerTag}</span>
-                        <div className="match-arrow"></div>
-                        <span className="match-tag">{matchingTags.opponentTag}</span>
-                    </div>
-                )}
+                
 
                 {/* Player Count Display */}
                 {((lobbyState === "checkin") || (lobbyState === "active" && !opponentProfile)) && player_count !== null && (

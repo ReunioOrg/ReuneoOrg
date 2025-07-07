@@ -42,9 +42,6 @@
   }
 }
 
-.card {
-  padding: 2em;
-}
 
 .read-the-docs {
   color: #888;
@@ -136,8 +133,6 @@
 }
 
 .join-lobby-button {
-  animation: subtle-shake 3s infinite;
-  animation-timing-function: ease-in-out;
   position: relative;
 }
 

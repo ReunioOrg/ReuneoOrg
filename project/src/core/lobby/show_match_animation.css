@@ -20,7 +20,7 @@
     font-weight: 800;
     color: #144dff;
     font-family: Helvetica, sans-serif;
-    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 0 2px rgba(203, 194, 194, 0.9);
     animation: popFadeGlow 2.8s ease-in-out forwards;
     z-index: 2;
 }

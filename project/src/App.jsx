@@ -299,7 +299,7 @@ const App = () => {
               Join
             </button>
             
-            {!isScanning ? (
+            {/* {!isScanning ? (
               <button
                 type="button"
                 className="lobby-scan-button"
@@ -318,7 +318,7 @@ const App = () => {
                   Close Scanner
                 </button>
               </div>
-            )}
+            )} */}
           </form>
         </div>
       </div>
@@ -337,9 +337,9 @@ const App = () => {
       </video>
       
       {/* Main App Content */}
-      <div style={{ position: 'relative', zIndex: 1, color: 'white' }}>
+      <div style={{ position: 'relative', zIndex: 1, color: 'white',  height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         
-        <div style={{ position: 'absolute', top: '-3rem', left: '50%', transform: 'translateX(-50%)' }}>
+        <div style={{ position: 'absolute', top: '0', left: '50%', transform: 'translateX(-50%)' }}>
           <img  
             src="/assets/reuneo_test_9.png"
             alt="Logo"
@@ -348,35 +348,10 @@ const App = () => {
         </div>
 
         <div style = {{marginTop: '10%',display: 'flex',flexDirection: 'column'}}>
-        <LoginSignupLogoutButton user={user}/>
-        {user && (  // Only render the Profile button if user exists
-          <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', top: '-.8rem', right: '3%' }}>
-            <button
-              style={{
-                width: '100px',
-                height: '35px',
-                borderRadius: '13px',
-                boxShadow: '0 0 4px rgba(74, 58, 58, 0.5)',
-                outline: '1px solid rgba(252, 240, 240, 0.6)',
-                fontWeight: '900',
-                fontSize: '1rem',
-                padding: '10px 10px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-              className="login-button"
-              onClick={() => setShowProfileCreation(true)}
-            >
-              <span style={{
-                textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                color: 'inherit'
-              }}>
-                Profile
-              </span>
-            </button>
-          </div>
-        )}
+          <LoginSignupLogoutButton 
+            user={user} 
+            onProfileClick={() => setShowProfileCreation(true)}
+          />
         </div>
         
         {showProfileCreation && (
@@ -392,16 +367,16 @@ const App = () => {
         {/* Consolidated header - either "Pair up" or "Welcome" based on user role */}
         <div style={{ 
           position: 'absolute', 
-          top: '5rem', 
           left: '50%', 
           transform: 'translateX(-50%)',
           width: '90%',
           maxWidth: '1200px',
           textAlign: 'center',
-          marginBottom: '4rem',
           marginLeft: 'auto',
           marginRight: 'auto',
-          zIndex: 1
+          zIndex: 1,
+          //center this vertically
+          top: '50%'
         }}>
           <h2 className="welcome-header" style={{ 
             color: '#ffffff',
@@ -483,10 +458,11 @@ const App = () => {
 
         {/* Event items, the big div */}
         <div style={{ 
-          marginTop: '32rem',  // Adjusted to account for both headers
+          position: 'absolute',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
           width: '94%', 
-          marginLeft: 'auto', 
-          marginRight: 'auto',
           display: 'flex',
           flexDirection: 'row',
           justifyContent: 'center',
@@ -574,9 +550,9 @@ const App = () => {
                 <span style={{
                   textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
                   color: 'inherit',
-                  whiteSpace: permissions !== 'admin' ? 'nowrap' : 'normal'
+                 
                 }}>
-                  {!user ? 'Join' : 'Join Lobby'}
+                  {!user ? 'Join Lobby' : 'Join Lobby'}
                 </span>
               </button>
               
@@ -584,7 +560,7 @@ const App = () => {
               {permissions !== 'admin' && permissions !== 'organizer' && (
                 <button 
                   className="primary-button join-lobby-button" 
-                  onClick={() => window.location.href = 'https://reuneo.app/how-the-app-works'}
+                  onClick={() => window.location.href = 'https://reuneo.app/'}
                   style={{
                     padding: '16px 20px',
                     backgroundColor: 'transparent',
@@ -612,23 +588,25 @@ const App = () => {
                     textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
                     color: 'inherit'
                   }}>
-                    Create
+                    Get Started
                   </span>
                 </button>
               )}
               {(permissions === 'admin' || permissions === 'organizer') && (
                 <button
                   className={`primary-button ${(permissions === 'admin' || permissions === 'organizer') ? 'create-lobby-button' : ''}`}
-                  onClick={() => navigate('/create_lobby')}
+                  onClick={activeLobbies.length > 0 ? undefined : () => navigate('/create_lobby')}
+                  disabled={activeLobbies.length > 0}
+                  title={activeLobbies.length > 0 ? "You already have an active lobby. Close it before creating a new one." : "Create a new lobby"}
                   style={{
                     padding: '16px 20px',
-                    backgroundColor: 'transparent',
-                    color: 'white',
+                    backgroundColor: activeLobbies.length > 0 ? 'rgba(128, 128, 128, 0.3)' : 'transparent',
+                    color: activeLobbies.length > 0 ? 'rgba(255, 255, 255, 0.5)' : 'white',
                     border: 'none',
                     borderRadius: '14px',
                     fontWeight: '900',
                     fontSize: '1.2rem',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+                    boxShadow: activeLobbies.length > 0 ? '0 2px 3px rgba(0, 0, 0, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.3)',
                     transition: 'all 0.2s ease',
                     width: '160px',
                     // whiteSpace: 'nowrap',
@@ -636,8 +614,10 @@ const App = () => {
                     position: 'relative',
                     zIndex: 1,
                     textAlign: 'center',
+                    cursor: activeLobbies.length > 0 ? 'not-allowed' : 'pointer',
+                    opacity: activeLobbies.length > 0 ? 0.6 : 1,
                     ':hover': {
-                      transform: 'scale(1.02)'
+                      transform: activeLobbies.length > 0 ? 'none' : 'scale(1.02)'
                     }
                   }}
                 >
@@ -682,17 +662,19 @@ const App = () => {
         {/* Active Lobbies Section */}
         {(permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0 && (
           <div className="events-list" style={{ 
-            marginTop: '-18rem', 
-            width: '50%',
-            height: '20%', 
-            marginLeft: 'auto', 
-            marginRight: 'auto', 
-            position: 'relative',
+            position: 'absolute',
+            bottom: 'calc(20px + 120px + 10px)',  // 20px bottom padding + ~120px button height + 10px gap
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '44%',
+            height: '15%', 
             background: 'linear-gradient(135deg, rgba(20, 77, 255, 0.05), rgba(83, 91, 242, 0.05))',
             borderRadius: '30px',
             padding: '1rem',
             backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            justifyContent: 'center',
+            alignItems: 'center'
           }}>
             
             {isLoadingLobbies ? (
@@ -711,20 +693,20 @@ const App = () => {
                     key={index}
                     className="card"
                     style={{
-                      width: '220px',
+                      width: 'calc(100% - 2rem)',
+                      maxWidth: '200px',
+                      minWidth: '150px',
                       background: 'rgba(255, 255, 255, 0.95)',
                       borderRadius: '20px',
                       boxShadow: '0 10px 30px rgba(20, 77, 255, 0.15)',
                       border: '1px solid rgba(20, 77, 255, 0.2)',
                       transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                       cursor: 'pointer',
-                      padding: '2rem 2rem',
+                      padding: '1rem 1rem',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      position: 'relative',
-                      overflow: 'hidden',
                       transformStyle: 'preserve-3d',
                       '&::before': {
                         content: '""',
