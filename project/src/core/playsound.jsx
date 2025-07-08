@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 function usePlaySound() {
 
     const ASSET_PATH="./assets";
-    const AUDIO_FILE = "/sounds/banger.mp3";
+    const AUDIO_FILE = "/sounds/prod_combined.mp3";
     const navigate = useNavigate();
 
     const audioRef = useRef(new Audio(ASSET_PATH + AUDIO_FILE));
@@ -21,7 +21,7 @@ function usePlaySound() {
             audio.currentTime = 0;
             setIsPlaying(false);
             cancelSound();
-            navigate('/');
+            //navigate('/');
         //     console.log("Audio ended. Checking if user has been inactive for too long.");
         //   // Check if user has been inactive for too long
         //   if (lastActiveTimestamp && (Date.now() - lastActiveTimestamp > inactivityThreshold)) {
@@ -99,6 +99,8 @@ function usePlaySound() {
     
     function seekTo(time) { 
         audioRef.current.currentTime = time;
+        // console log the length of the audio file
+        console.log(audioRef.current.duration);
     }
 
 

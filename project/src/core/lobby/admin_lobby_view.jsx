@@ -362,11 +362,24 @@ const AdminLobbyView = () => {
     const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
+    const DEVMODE = true;
     
     // Extract lobby code from URL parameters
     const params = new URLSearchParams(location.search);
     const codeParam = params.get('code');
     const [lobbyCode, setLobbyCode] = useState(codeParam || 'test');
+
+
+    // function to reset_lobby_timer
+    const resetLobbyTimer = async () => {
+        const response = await fetch(window.server_url + '/reset_lobby_timer', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                'lobby_code': lobbyCode
+            }
+        });
+    }
 
     // Check if lobby code is missing and redirect if needed
     useEffect(() => {
@@ -704,6 +717,11 @@ const AdminLobbyView = () => {
             {/* Toast container for react-hot-toast */}
             <Toaster position="top-center" />
             <div className="admin-lobby-container">
+                {DEVMODE && (
+                    <button onClick={resetLobbyTimer}>
+                        Reset Lobby Timer
+                    </button>
+                )}
                 <div 
                     className="admin-view-logo"
                     style={{ cursor: 'pointer' }}
