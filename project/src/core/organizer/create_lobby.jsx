@@ -16,6 +16,9 @@ const CreateLobbyView = () => {
     const [minutes, setMinutes] = useState('5');
     const [seconds, setSeconds] = useState('0');
 
+    const MaxLobbyDuration = 8 * 60;
+    const MaxMinutes = 8;
+
     const navigate = useNavigate();
     const inputRef = useRef(null);
 
@@ -161,17 +164,17 @@ const CreateLobbyView = () => {
                                     value={minutes}
                                     onChange={(e) => {
                                         const value = e.target.value;
-                                        if (value === '' || (parseInt(value) > 0 && parseInt(value) <= 5)) {
+                                        if (value === '' || (parseInt(value) > 0 && parseInt(value) <= MaxMinutes)) {
                                             setMinutes(value);
                                             // Reset seconds to 0 if minutes is 5
-                                            if (parseInt(value) === 5) {
+                                            if (parseInt(value) === MaxMinutes) {
                                                 setSeconds('0');
                                             }
                                         }
                                     }}
                                     min="1"
-                                    max="5"
-                                    placeholder="1-5"
+                                    max={MaxMinutes}
+                                    placeholder={`1-${MaxMinutes}`}
                                     className="form-input duration-input"
                                     autoComplete="off"
                                 />
@@ -193,7 +196,7 @@ const CreateLobbyView = () => {
                                     placeholder="0-59"
                                     className="form-input duration-input"
                                     autoComplete="off"
-                                    disabled={parseInt(minutes) === 5}
+                                    disabled={parseInt(minutes) === MaxMinutes}
                                 />
                                 <label htmlFor="seconds" className="duration-label">Seconds</label>
                             </div>

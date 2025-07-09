@@ -18,6 +18,8 @@ const MAX_TAGS_ALLOWED = 5; // Maximum number of tags allowed for both self and 
 const useEffectTime=5000;
 
 const LobbyScreen = () => {
+    const playat=Math.floor(9*60);
+    
     const [tagsState, setTagsState] = useState([]);
     const [selectionPhase, setSelectionPhase] = useState('self');
     const [hasScrolledToTags, setHasScrolledToTags] = useState(false);
@@ -124,7 +126,6 @@ const LobbyScreen = () => {
     const [showSoundPrompt, setShowSoundPrompt] = useState(true);
 
     // const playat=220;
-    const playat=300;
     const isFetchingCounter=useRef(0);
 
     const [selfTags, setSelfTags] = useState(null);
