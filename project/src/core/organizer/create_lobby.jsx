@@ -15,6 +15,7 @@ const CreateLobbyView = () => {
     const [tagInput, setTagInput] = useState('');
     const [minutes, setMinutes] = useState('5');
     const [seconds, setSeconds] = useState('0');
+    const [showTableNumbers, setShowTableNumbers] = useState(false);
 
     const navigate = useNavigate();
     const inputRef = useRef(null);
@@ -101,7 +102,8 @@ const CreateLobbyView = () => {
                 body: JSON.stringify({
                     lobby_code: lobbyCode,
                     custom_tags: customTags,
-                    lobby_duration: lobbyDuration
+                    lobby_duration: lobbyDuration,
+                    show_table_numbers: showTableNumbers
                 })
             });
 
@@ -199,6 +201,18 @@ const CreateLobbyView = () => {
                             </div>
                         </div>
                         <div className="input-hint">Maximum total duration is 5 minutes</div>
+                    </div>
+                    
+                    <div className="form-group">
+                        <label htmlFor="showTableNumbers">Table Numbers</label>
+                        <input
+                            type="checkbox"
+                            id="showTableNumbers"
+                            checked={showTableNumbers}
+                            onChange={(e) => setShowTableNumbers(e.target.checked)}
+                            className="form-input checkbox-input"
+                        />
+                        <div className="input-hint">Recommended for events with 50+ people</div>
                     </div>
                     
                     <div className="form-group">

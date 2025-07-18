@@ -318,6 +318,27 @@
     filter: drop-shadow(0 6px 12px rgba(0,0,0,0.15));
 }
 
+/* Custom checkbox styling */
+.checkbox-input {
+    width: auto !important;
+    min-height: auto !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 8px auto !important;
+    transform: scale(1.5);
+    cursor: pointer;
+    accent-color: #144dff;
+}
+
+.checkbox-input:focus {
+    transform: scale(1.5) translateY(0) !important;
+    box-shadow: 0 0 0 3px rgba(20, 77, 255, 0.3) !important;
+}
+
+.checkbox-input:hover {
+    transform: scale(1.6);
+}
+
 @media screen and (max-width: 480px) {
     .create-lobby-container {
         padding: 16px 6px 16px 6px;
