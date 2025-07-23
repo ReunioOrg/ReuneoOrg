@@ -32,7 +32,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/create_lobby" element={<CreateLobby />} />
           <Route path="/product-selection" element={<ProductSelection />} />
           <Route path="/master_lobby_view" element={<MasterLobbyView />} />
-          <Route path="/mycf" element={<MyCF />} />
+          <Route path="/cofounders" element={<MyCF />} />
         </Routes>
         </Router>
       </AuthProvider>

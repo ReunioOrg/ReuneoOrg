@@ -9,71 +9,87 @@ const ProfileCard = ({ profile }) => {
     const profileCardStyles = {
         card: {
             backgroundColor: '#ffffff',
-            borderRadius: '16px',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-            padding: '32px',
-            margin: '24px',
-            transition: 'all 0.3s ease-in-out',
+            borderRadius: '20px',
+            boxShadow: '0 8px 32px rgba(20, 77, 255, 0.15)',
+            padding: '1.5rem', // Reduced from 2rem to 1.5rem
+            margin: '0.5rem', // Reduced from 1rem to 0.5rem
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             cursor: 'pointer',
-            maxWidth: '400px',
-            border: '1px solid rgba(234,234,234,0.5)',
-            '&:hover': {
-                transform: 'translateY(-8px)',
-                boxShadow: '0 12px 32px rgba(0,0,0,0.18)'
-            }
+            maxWidth: '420px',
+            border: '1px solid rgba(20, 77, 255, 0.1)',
+            position: 'relative',
+            overflow: 'hidden'
         },
         heading: {
-            color: '#1a202c',
-            fontSize: '1.75rem',
-            marginBottom: '16px',
+            color: '#144dff',
+            fontSize: '1.8rem',
+            marginBottom: '1rem', // Reduced from 1.5rem to 1rem
             fontWeight: '700',
-            letterSpacing: '-0.5px'
+            letterSpacing: '-0.5px',
+            textAlign: 'center'
+        },
+        imageContainer: {
+            display: 'flex',
+            justifyContent: 'center',
+            marginBottom: '1rem', // Reduced from 1.5rem to 1rem
+            position: 'relative'
         },
         image: {
             width: '120px',
             height: '120px',
             borderRadius: '60px',
             objectFit: 'cover',
-            border: '3px solid #edf2f7',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+            border: '4px solid #144dff',
+            boxShadow: '0 8px 24px rgba(20, 77, 255, 0.3)',
+            transition: 'transform 0.3s ease'
         },
         description: {
             color: '#4a5568',
             fontSize: '1.1rem',
             lineHeight: '1.7',
-            marginBottom: '16px',
+            marginBottom: '0.75rem', // Reduced from 1rem to 0.75rem
             display: '-webkit-box',
             WebkitLineClamp: isExpanded ? 'unset' : 3,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
-            textOverflow: isExpanded ? 'unset' : 'ellipsis'
+            textOverflow: isExpanded ? 'unset' : 'ellipsis',
+            textAlign: 'center'
         },
         expandButton: {
-            background: 'none',
+            background: 'linear-gradient(135deg, #144dff, #3b82f6)',
             border: 'none',
-            color: '#3182ce',
+            color: 'white',
             cursor: 'pointer',
-            padding: '8px 0',
-            fontSize: '0.95rem',
+            padding: '8px 16px',
+            fontSize: '0.9rem',
             fontWeight: '600',
-            transition: 'color 0.2s ease'
+            borderRadius: '20px',
+            transition: 'all 0.2s ease',
+            display: 'block',
+            margin: '0 auto 0.75rem', // Reduced from 1rem to 0.75rem
+            boxShadow: '0 4px 12px rgba(20, 77, 255, 0.3)'
         },
         linksContainer: {
-            marginTop: '24px',
-            padding: '16px 0',
-            borderTop: '1px solid #edf2f7'
+            marginTop: '1rem', // Reduced from 1.5rem to 1rem
+            padding: '1rem 0 0', // Reduced from 1.5rem to 1rem
+            borderTop: '2px solid rgba(20, 77, 255, 0.1)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.5rem' // Reduced from 0.75rem to 0.5rem
         },
         linkItem: {
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: '12px',
-            color: '#0077B5',
+            color: '#144dff',
             textDecoration: 'none',
-            padding: '8px 0',
-            transition: 'transform 0.2s ease',
-            '&:hover': {
-                transform: 'translateX(4px)'
-            }
+            padding: '10px 16px', // Reduced from 12px to 10px
+            borderRadius: '12px',
+            background: 'rgba(20, 77, 255, 0.05)',
+            transition: 'all 0.3s ease',
+            fontWeight: '500',
+            border: '1px solid rgba(20, 77, 255, 0.1)'
         }
     };
 
@@ -88,11 +104,30 @@ const ProfileCard = ({ profile }) => {
     }, [profile.description]);
 
     return (
-        <div className="profile-card" style={profileCardStyles.card}>
+        <div 
+            className="profile-card" 
+            style={profileCardStyles.card}
+            onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-8px)';
+                e.currentTarget.style.boxShadow = '0 16px 48px rgba(20, 77, 255, 0.25)';
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 8px 32px rgba(20, 77, 255, 0.15)';
+            }}
+        >
             <h2 style={profileCardStyles.heading}>{profile.name}</h2>
-            <img src={`data:image/jpeg;base64,${profile.small_image_data}`} alt={`${profile.name}'s profile`} style={profileCardStyles.image} />
+            <div style={profileCardStyles.imageContainer}>
+                <img 
+                    src={`data:image/jpeg;base64,${profile.small_image_data}`} 
+                    alt={`${profile.name}'s profile`} 
+                    style={profileCardStyles.image}
+                    onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
+                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                />
+            </div>
             
-            <div style={{ marginTop: '24px' }}>
+            <div>
                 <p ref={descriptionRef} style={profileCardStyles.description}>{profile.description}</p>
                 {needsExpansion && (
                     <button 
@@ -100,6 +135,14 @@ const ProfileCard = ({ profile }) => {
                         onClick={(e) => {
                             e.stopPropagation();
                             setIsExpanded(!isExpanded);
+                        }}
+                        onMouseEnter={(e) => {
+                            e.target.style.transform = 'translateY(-2px)';
+                            e.target.style.boxShadow = '0 6px 16px rgba(20, 77, 255, 0.4)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.transform = 'translateY(0)';
+                            e.target.style.boxShadow = '0 4px 12px rgba(20, 77, 255, 0.3)';
                         }}
                     >
                         {isExpanded ? '▲ Show less' : '▼ Read more'}
@@ -110,7 +153,20 @@ const ProfileCard = ({ profile }) => {
             <div style={profileCardStyles.linksContainer}>
                 {profile.media_link?.startsWith('https://www.linkedin.com/') ? (
                     <>
-                        <a href={profile.media_link} target="_blank" rel="noopener noreferrer" style={profileCardStyles.linkItem}>
+                        <a 
+                            href={profile.media_link} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            style={profileCardStyles.linkItem}
+                            onMouseEnter={(e) => {
+                                e.target.style.background = 'rgba(20, 77, 255, 0.1)';
+                                e.target.style.transform = 'translateY(-2px)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.background = 'rgba(20, 77, 255, 0.05)';
+                                e.target.style.transform = 'translateY(0)';
+                            }}
+                        >
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                                 <path d={linkedinIconSvg}/>
                             </svg>
@@ -118,7 +174,20 @@ const ProfileCard = ({ profile }) => {
                         </a>
 
                         {profile.other_link && (
-                            <a href={profile.other_link} target="_blank" rel="noopener noreferrer" style={profileCardStyles.linkItem}>
+                            <a 
+                                href={profile.other_link} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                style={profileCardStyles.linkItem}
+                                onMouseEnter={(e) => {
+                                    e.target.style.background = 'rgba(20, 77, 255, 0.1)';
+                                    e.target.style.transform = 'translateY(-2px)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.background = 'rgba(20, 77, 255, 0.05)';
+                                    e.target.style.transform = 'translateY(0)';
+                                }}
+                            >
                                 <span>🌐 {profile.other_link?.length > 35 ? profile.other_link.substring(0, 35) + '...' : profile.other_link}</span>
                             </a>
                         )}
@@ -126,12 +195,38 @@ const ProfileCard = ({ profile }) => {
                 ) : (
                     <>
                         {profile.media_link && (
-                            <a href={profile.media_link} target="_blank" rel="noopener noreferrer" style={profileCardStyles.linkItem}>
+                            <a 
+                                href={profile.media_link} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                style={profileCardStyles.linkItem}
+                                onMouseEnter={(e) => {
+                                    e.target.style.background = 'rgba(20, 77, 255, 0.1)';
+                                    e.target.style.transform = 'translateY(-2px)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.background = 'rgba(20, 77, 255, 0.05)';
+                                    e.target.style.transform = 'translateY(0)';
+                                }}
+                            >
                                 <span>🔗 {profile.media_link?.length > 35 ? profile.media_link.substring(0, 35) + '...' : profile.media_link}</span>
                             </a>
                         )}
                         {profile.other_link && (
-                            <a href={profile.other_link} target="_blank" rel="noopener noreferrer" style={profileCardStyles.linkItem}>
+                            <a 
+                                href={profile.other_link} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                style={profileCardStyles.linkItem}
+                                onMouseEnter={(e) => {
+                                    e.target.style.background = 'rgba(20, 77, 255, 0.1)';
+                                    e.target.style.transform = 'translateY(-2px)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.background = 'rgba(20, 77, 255, 0.05)';
+                                    e.target.style.transform = 'translateY(0)';
+                                }}
+                            >
                                 <span>🌐 {profile.other_link?.length > 35 ? profile.other_link.substring(0, 35) + '...' : profile.other_link}</span>
                             </a>
                         )}
@@ -201,109 +296,205 @@ function MyCF() {
     }
   }
 
-  const deleteButtonStyles = {
-    deleteButton: {
-      backgroundColor: '#ff4444',
-      color: 'white',
-      border: 'none',
-      borderRadius: '8px',
-      padding: '10px 20px',
-      fontSize: '1rem',
-      cursor: 'pointer',
-      marginLeft: '10px',
-      transition: 'background-color 0.2s ease',
-      fontWeight: '600'
-    },
-    deletePopup: {
-      overlay: {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', 
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 2000
-      },
-      popup: {
-        backgroundColor: '#fff',
-        padding: '2rem',
-        borderRadius: '12px',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-        textAlign: 'center',
-        maxWidth: '400px',
-        width: '90%'
-      },
-      title: {
-        color: '#333',
-        marginBottom: '1rem',
-        fontSize: '1.5rem'
-      },
-      message: {
-        color: '#666',
-        marginBottom: '1.5rem',
-        fontSize: '1rem'
-      },
-      buttonContainer: {
-        display: 'flex',
-        gap: '1rem',
-        justifyContent: 'center'
-      },
-      cancelButton: {
-        backgroundColor: '#6c757d',
-        color: 'white',
-        border: 'none',
-        borderRadius: '8px',
-        padding: '10px 20px',
-        cursor: 'pointer',
-        fontSize: '1rem',
-        transition: 'background-color 0.2s ease'
-      },
-      confirmButton: {
-        backgroundColor: '#dc3545',
-        color: 'white',
-        border: 'none',
-        borderRadius: '8px',
-        padding: '10px 20px',
-        cursor: 'pointer',
-        fontSize: '1rem',
-        transition: 'background-color 0.2s ease'
-      }
+  const pageStyles = {
+    container: {
+      minHeight: '100vh',
+      width: '100%',
+      background: 'linear-gradient(135deg, #f5f7ff 0%, #e8ecf7 100%)',
+      padding: '1rem 0', // Reduced from 2rem to 1rem
+      fontFamily: '"Inter", "Helvetica Neue", Arial, sans-serif',
+      margin: 0,
+      boxSizing: 'border-box',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
     },
     headerContainer: {
       display: 'flex',
-      alignItems: 'center',
-      marginBottom: '30px',
       flexDirection: 'column',
+      alignItems: 'center',
+      marginBottom: '1.5rem', // Reduced from 3rem to 1.5rem
       width: '100%',
       maxWidth: '1200px',
-      margin: '0 auto',
-      padding: '20px'
+      position: 'relative',
+      padding: '0 1rem'
+    },
+    logoContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      marginBottom: '-3.0rem', // Added small margin back
+      marginTop: '-1rem'
+    },
+    logo: {
+      maxWidth: '85px',
+      height: 'auto',
+      objectFit: 'contain'
     },
     headerTitle: {
-      fontSize: '2.5rem',
-      color: '#333',
-      marginBottom: '20px',
-      fontWeight: '600'
+      fontSize: '2.0rem',
+      color: '#144dff',
+      marginBottom: '1.2rem',
+      fontWeight: '800',
+      textAlign: 'center',
+      textShadow: '2px 2px 8px rgba(20, 77, 255, 0.15)',
+      lineHeight: '1.2', 
+      letterSpacing: '-0.02em',
+      background: 'linear-gradient(135deg, #144dff 0%, #3b82f6 100%, #144dff 200%)',
+      backgroundSize: '200% 100%',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
     },
     buttonContainer: {
       display: 'flex',
       alignItems: 'center',
-      gap: '15px'
+      gap: '1rem',
+      flexWrap: 'wrap',
+      justifyContent: 'center'
     },
-    createButton: {
-      backgroundColor: '#4CAF50',
+    primaryButton: {
+      background: 'linear-gradient(135deg, #144dff, #3b82f6)',
       color: 'white',
       border: 'none',
-      borderRadius: '8px',
-      padding: '12px 24px',
-      fontSize: '1rem',
+      borderRadius: '16px',
+      padding: '14px 28px',
+      fontSize: '1.1rem',
       cursor: 'pointer',
-      transition: 'background-color 0.2s ease',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       fontWeight: '600',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+      boxShadow: '0 8px 24px rgba(20, 77, 255, 0.3)',
+      position: 'relative',
+      overflow: 'hidden'
+    },
+    deleteButton: {
+      background: 'linear-gradient(135deg, #ff4444, #dc2626)',
+      color: 'white',
+      border: 'none',
+      borderRadius: '16px',
+      padding: '14px 28px',
+      fontSize: '1.1rem',
+      cursor: 'pointer',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      fontWeight: '600',
+      boxShadow: '0 8px 24px rgba(255, 68, 68, 0.3)'
+    },
+    backButton: {
+      position: 'fixed',
+      bottom: '2rem',
+      right: '2rem',
+      background: 'linear-gradient(135deg, #6b7280, #4b5563)',
+      color: 'white',
+      border: 'none',
+      borderRadius: '16px',
+      padding: '14px 28px',
+      fontSize: '1.1rem',
+      cursor: 'pointer',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      fontWeight: '600',
+      boxShadow: '0 8px 24px rgba(107, 114, 128, 0.3)',
+      zIndex: 1000
+    },
+    profilesWrapper: {
+      width: '100%',
+      display: 'flex',
+      justifyContent: 'center',
+      padding: '0 1rem'
+    },
+    profilesContainer: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      gap: '1rem', // Reduced from 2rem to 1rem
+      maxWidth: '1400px',
+      width: '100%'
+    },
+    loadingState: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '50vh',
+      fontSize: '1.2rem',
+      color: '#144dff',
+      width: '100%'
+    },
+    errorState: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '50vh',
+      fontSize: '1.2rem',
+      color: '#dc2626',
+      background: 'rgba(220, 38, 38, 0.1)',
+      borderRadius: '16px',
+      padding: '2rem',
+      margin: '2rem auto',
+      maxWidth: '600px'
+    }
+  };
+
+  const popupStyles = {
+    overlay: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(20, 77, 255, 0.15)',
+      backdropFilter: 'blur(8px)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 2000,
+      animation: 'fadeIn 0.3s ease-out'
+    },
+    popup: {
+      backgroundColor: '#fff',
+      padding: '2.5rem',
+      borderRadius: '20px',
+      boxShadow: '0 20px 60px rgba(20, 77, 255, 0.3)',
+      textAlign: 'center',
+      maxWidth: '450px',
+      width: '90%',
+      border: '1px solid rgba(20, 77, 255, 0.1)',
+      animation: 'slideUp 0.3s ease-out'
+    },
+    title: {
+      color: '#144dff',
+      marginBottom: '1.5rem',
+      fontSize: '1.8rem',
+      fontWeight: '700'
+    },
+    message: {
+      color: '#4b5563',
+      marginBottom: '2rem',
+      fontSize: '1.1rem',
+      lineHeight: '1.6'
+    },
+    buttonContainer: {
+      display: 'flex',
+      gap: '1rem',
+      justifyContent: 'center'
+    },
+    cancelButton: {
+      backgroundColor: '#6b7280',
+      color: 'white',
+      border: 'none',
+      borderRadius: '12px',
+      padding: '12px 24px',
+      cursor: 'pointer',
+      fontSize: '1rem',
+      fontWeight: '600',
+      transition: 'all 0.2s ease'
+    },
+    confirmButton: {
+      backgroundColor: '#dc2626',
+      color: 'white',
+      border: 'none',
+      borderRadius: '12px',
+      padding: '12px 24px',
+      cursor: 'pointer',
+      fontSize: '1rem',
+      fontWeight: '600',
+      transition: 'all 0.2s ease'
     }
   };
 
@@ -312,76 +503,135 @@ function MyCF() {
   }, [])
 
   if (error) {
-    return <div>Error loading profiles: {error}</div>
+    return (
+      <div style={pageStyles.container}>
+        <div style={pageStyles.errorState}>
+          Error loading profiles: {error}
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="profile-page">
-        <div style={deleteButtonStyles.headerContainer}>
-          <h1 style={deleteButtonStyles.headerTitle}>Co-Founder Profiles</h1>
-          <div style={deleteButtonStyles.buttonContainer}>
-            <button 
-              style={deleteButtonStyles.createButton}
-              onMouseOver={e => e.target.style.backgroundColor = '#45a049'}
-              onMouseOut={e => e.target.style.backgroundColor = '#4CAF50'}
-              onClick={() => setShowCreateProfilePopup(true)}
-            >
-              Create Profile
-            </button>
-            <button 
-              style={deleteButtonStyles.deleteButton}
-              onClick={() => setShowDeletePopup(true)}
-              onMouseOver={e => e.target.style.backgroundColor = '#ff0000'}
-              onMouseOut={e => e.target.style.backgroundColor = '#ff4444'}
-            >
-              Delete Profile
-            </button>
-          </div>
+    <div style={pageStyles.container}>
+      {/* Header Section */}
+      <div style={pageStyles.headerContainer}>
+        <div style={pageStyles.logoContainer}>
+          <img 
+            src="/assets/reuneo_test_8.png"
+            alt="Reunio Logo"
+            style={pageStyles.logo}
+          />
         </div>
+        
+        <h1 style={pageStyles.headerTitle}>
+          Co-Founder<br/>Network
+        </h1>
+        
+        <div style={pageStyles.buttonContainer}>
+          <button 
+            style={pageStyles.primaryButton}
+            onClick={() => setShowCreateProfilePopup(true)}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-3px)';
+              e.target.style.boxShadow = '0 12px 32px rgba(20, 77, 255, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 8px 24px rgba(20, 77, 255, 0.3)';
+            }}
+          >
+            Create Profile
+          </button>
+          
+          <button 
+            style={pageStyles.deleteButton}
+            onClick={() => setShowDeletePopup(true)}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-3px)';
+              e.target.style.boxShadow = '0 12px 32px rgba(255, 68, 68, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 8px 24px rgba(255, 68, 68, 0.3)';
+            }}
+          >
+            Delete Profile
+          </button>
+        </div>
+      </div>
 
-        {showCreateProfilePopup && (
-            <CreateProfilePopup 
-                onClose={() => setShowCreateProfilePopup(false)}
-            /> 
-        )}
+      {/* Back Button */}
+      <button
+        style={pageStyles.backButton}
+        onClick={() => window.history.back()}
+        onMouseEnter={(e) => {
+          e.target.style.transform = 'translateY(-3px)';
+          e.target.style.boxShadow = '0 12px 32px rgba(107, 114, 128, 0.4)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.transform = 'translateY(0)';
+          e.target.style.boxShadow = '0 8px 24px rgba(107, 114, 128, 0.3)';
+        }}
+      >
+        Back
+      </button>
 
-        {showDeletePopup && (
-            <div style={deleteButtonStyles.deletePopup.overlay}>
-                <div style={deleteButtonStyles.deletePopup.popup}>
-                    <h3 style={deleteButtonStyles.deletePopup.title}>Delete Profile</h3>
-                    <p style={deleteButtonStyles.deletePopup.message}>
-                        Are you sure you want to delete your community profile? This action cannot be undone.
-                    </p>
-                    <div style={deleteButtonStyles.deletePopup.buttonContainer}>
-                        <button 
-                            style={deleteButtonStyles.deletePopup.cancelButton}
-                            onClick={() => setShowDeletePopup(false)}
-                            disabled={isDeleting}
-                        >
-                            Cancel
-                        </button>
-                        <button 
-                            style={deleteButtonStyles.deletePopup.confirmButton}
-                            onClick={handleDelete}
-                            disabled={isDeleting}
-                        >
-                            {isDeleting ? 'Deleting...' : 'Delete'}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        )}
-
-        <div className="profile-container">
-        <div className="profile-content">       
-            {profiles && profiles.map((profile) => (
-            <ProfileCard 
+      {/* Profiles Section */}
+      {profiles.length === 0 ? (
+        <div style={pageStyles.loadingState}>
+          Loading amazing co-founders...
+        </div>
+      ) : (
+        <div style={pageStyles.profilesWrapper}>
+          <div style={pageStyles.profilesContainer}>
+            {profiles.map((profile) => (
+              <ProfileCard 
                 key={profile.id || `profile-${profile.name}-${Math.random()}`} 
                 profile={profile} 
-            />
+              />
             ))}
+          </div>
         </div>
+      )}
+
+      {/* Popups */}
+      {showCreateProfilePopup && (
+        <CreateProfilePopup 
+          onClose={() => setShowCreateProfilePopup(false)}
+        /> 
+      )}
+
+      {showDeletePopup && (
+        <div style={popupStyles.overlay}>
+          <div style={popupStyles.popup}>
+            <h3 style={popupStyles.title}>Delete Profile</h3>
+            <p style={popupStyles.message}>
+              Are you sure you want to delete your community profile? This action cannot be undone.
+            </p>
+            <div style={popupStyles.buttonContainer}>
+              <button 
+                style={popupStyles.cancelButton}
+                onClick={() => setShowDeletePopup(false)}
+                disabled={isDeleting}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
+              >
+                Cancel
+              </button>
+              <button 
+                style={popupStyles.confirmButton}
+                onClick={handleDelete}
+                disabled={isDeleting}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#b91c1c'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#dc2626'}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
         </div>
+      )}
     </div>
   )
 }
@@ -402,12 +652,16 @@ const YouNeedToLoginPopup = ({ onClose }) => {
             left: '50%',
             transform: 'translate(-50%, -50%)',
             backgroundColor: 'white',
-            padding: '20px',
-            borderRadius: '8px',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-            zIndex: 1000
+            padding: '2rem',
+            borderRadius: '16px',
+            boxShadow: '0 20px 60px rgba(20, 77, 255, 0.3)',
+            zIndex: 1000,
+            textAlign: 'center',
+            border: '1px solid rgba(20, 77, 255, 0.1)'
         }}>
-            <h1>You need to login to create a community profile</h1>
+            <h1 style={{ color: '#144dff', fontSize: '1.5rem', margin: 0 }}>
+                You need to login to create a community profile
+            </h1>
         </div>
     )
 }
@@ -460,7 +714,6 @@ const CreateProfilePopup = ({ onClose }) => {
         if (success) {
             setErrorMessage(null)
             setCreatingProfile(false)
-            // wait 1 second and then close the popup
             setTimeout(() => {
                 onClose()
             }, 1000)
@@ -476,111 +729,143 @@ const CreateProfilePopup = ({ onClose }) => {
             other_link: other_link
         });
     }, [description, media_link, other_link, userProfile]);
-    const stylingForPopup = {
+    
+    const popupStyles = {
         overlay: {
             position: 'fixed',
             top: 0,
             left: 0,
             width: '100%',
             height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backgroundColor: 'rgba(20, 77, 255, 0.15)',
+            backdropFilter: 'blur(8px)',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             zIndex: 1000,
-            overflow: 'auto', // Allow scrolling
-            padding: '20px', // Add padding for small screens
-            boxSizing: 'border-box' // Ensure padding is included in width calculation
+            overflow: 'auto',
+            padding: '20px',
+            boxSizing: 'border-box'
         },
         popup: {
             backgroundColor: '#fff',
-            padding: '1.5rem', // Reduced padding for small screens
-            borderRadius: '12px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+            padding: '2rem',
+            borderRadius: '20px',
+            boxShadow: '0 20px 60px rgba(20, 77, 255, 0.3)',
             position: 'relative',
-            width: '95%', // Increased from 90% to use more screen space
-            maxWidth: '500px',
-            maxHeight: '90vh', // Limit height on small screens
-            overflow: 'auto', // Enable scrolling within popup
-            margin: '0 auto', // Center popup horizontally
-            transform: 'translateX(0)', // Reset any transform that might affect centering
-            left: '0', // Reset any left positioning
-            right: '0' // Reset any right positioning
+            width: '95%',
+            maxWidth: '600px',
+            maxHeight: '90vh',
+            overflow: 'auto',
+            margin: '0 auto',
+            border: '1px solid rgba(20, 77, 255, 0.1)'
         },
         closeButton: {
             position: 'absolute',
-            top: '10px',
-            right: '10px',
+            top: '15px',
+            right: '15px',
             border: 'none',
             background: 'none',
-            fontSize: '1.8rem',
+            fontSize: '2rem',
             cursor: 'pointer',
-            color: '#ff4444',
-            transition: 'color 0.2s ease',
-            padding: '5px' // Add padding for touch targets
+            color: '#144dff',
+            transition: 'all 0.2s ease',
+            padding: '5px',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
         },
         form: {
             display: 'flex',
             flexDirection: 'column',
-            gap: '1rem', // Reduced gap
+            gap: '1.5rem',
             marginTop: '1rem'
         },
         textarea: {
-            padding: '0.8rem',
-            borderRadius: '8px',
-            border: '1px solid #ddd',
-            minHeight: '100px', // Reduced height
-            fontSize: '16px', // Better for mobile
+            padding: '1rem',
+            borderRadius: '12px',
+            border: '2px solid rgba(20, 77, 255, 0.2)',
+            minHeight: '120px',
+            fontSize: '16px',
             resize: 'vertical',
             width: '100%',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
+            fontFamily: 'inherit',
+            transition: 'border-color 0.2s ease',
+            backgroundColor: '#f9fafb'
         },
         input: {
-            padding: '0.8rem',
-            borderRadius: '8px',
-            border: '1px solid #ddd',
-            fontSize: '16px', // Better for mobile
+            padding: '1rem',
+            borderRadius: '12px',
+            border: '2px solid rgba(20, 77, 255, 0.2)',
+            fontSize: '16px',
             width: '100%',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
+            fontFamily: 'inherit',
+            transition: 'border-color 0.2s ease',
+            backgroundColor: '#f9fafb'
         },
         submitButton: {
-            backgroundColor: '#4CAF50',
+            background: 'linear-gradient(135deg, #144dff, #3b82f6)',
             color: 'white',
-            padding: '0.8rem',
+            padding: '1rem',
             border: 'none',
-            borderRadius: '8px',
-            fontSize: '1rem',
+            borderRadius: '12px',
+            fontSize: '1.1rem',
             cursor: 'pointer',
-            transition: 'background-color 0.2s ease',
+            transition: 'all 0.3s ease',
             marginTop: '0.5rem',
             width: '100%',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
+            fontWeight: '600',
+            boxShadow: '0 8px 24px rgba(20, 77, 255, 0.3)'
         },
         title: {
-            color: '#333',
-            marginBottom: '1rem',
-            fontSize: '1.5rem', // Reduced font size
+            color: '#144dff',
+            marginBottom: '1.5rem',
+            fontSize: '2rem',
             textAlign: 'center',
-            wordWrap: 'break-word' // Prevent text overflow
+            wordWrap: 'break-word',
+            fontWeight: '700'
+        },
+        errorMessage: {
+            color: '#dc2626',
+            textAlign: 'center',
+            backgroundColor: 'rgba(220, 38, 38, 0.1)',
+            padding: '1rem',
+            borderRadius: '12px',
+            marginBottom: '1rem',
+            border: '1px solid rgba(220, 38, 38, 0.2)'
         }
-    }
+    };
 
     return (
-        <div className="popup-overlay" style={stylingForPopup.overlay}>
-            <div className="create-profile-popup" style={stylingForPopup.popup}>
-                {errorMessage && <p style={{ color: 'red', textAlign: 'center' }}>{errorMessage}</p>}
-                <h2 style={stylingForPopup.title}>Create Community Profile {errorMessage}</h2>
+        <div className="popup-overlay" style={popupStyles.overlay}>
+            <div className="create-profile-popup" style={popupStyles.popup}>
+                {errorMessage && (
+                    <div style={popupStyles.errorMessage}>
+                        {errorMessage}
+                    </div>
+                )}
+                
+                <h2 style={popupStyles.title}>Create Community Profile</h2>
+                
                 {profile && (
                     <ProfileCard profile={profile} edit={true}/>
                 )}
 
-                <form onSubmit={handleSubmit} style={stylingForPopup.form}>
+                <form onSubmit={handleSubmit} style={popupStyles.form}>
                     <textarea 
                         name="description" 
                         placeholder="Tell us about yourself..." 
                         value={description} 
                         onChange={(e) => setDescription(e.target.value)}
-                        style={stylingForPopup.textarea}
+                        style={popupStyles.textarea}
+                        onFocus={(e) => e.target.style.borderColor = '#144dff'}
+                        onBlur={(e) => e.target.style.borderColor = 'rgba(20, 77, 255, 0.2)'}
                     />
                     <input 
                         type="text" 
@@ -588,7 +873,9 @@ const CreateProfilePopup = ({ onClose }) => {
                         placeholder="Add your social media link (optional)" 
                         value={media_link} 
                         onChange={(e) => setMediaLink(e.target.value)}
-                        style={stylingForPopup.input}
+                        style={popupStyles.input}
+                        onFocus={(e) => e.target.style.borderColor = '#144dff'}
+                        onBlur={(e) => e.target.style.borderColor = 'rgba(20, 77, 255, 0.2)'}
                     />
                     <input 
                         type="text" 
@@ -596,22 +883,38 @@ const CreateProfilePopup = ({ onClose }) => {
                         placeholder="Add your website or other link (optional)" 
                         value={other_link} 
                         onChange={(e) => setOtherLink(e.target.value)}
-                        style={stylingForPopup.input}
+                        style={popupStyles.input}
+                        onFocus={(e) => e.target.style.borderColor = '#144dff'}
+                        onBlur={(e) => e.target.style.borderColor = 'rgba(20, 77, 255, 0.2)'}
                     />
                     <button 
                         type="submit"
-                        style={stylingForPopup.submitButton}
-                        onMouseOver={e => e.target.style.backgroundColor = '#45a049'}
-                        onMouseOut={e => e.target.style.backgroundColor = '#4CAF50'}
+                        style={popupStyles.submitButton}
+                        onMouseEnter={(e) => {
+                            e.target.style.transform = 'translateY(-2px)';
+                            e.target.style.boxShadow = '0 12px 32px rgba(20, 77, 255, 0.4)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.transform = 'translateY(0)';
+                            e.target.style.boxShadow = '0 8px 24px rgba(20, 77, 255, 0.3)';
+                        }}
+                        disabled={creatingProfile}
                     >
                         {creatingProfile ? 'Creating...' : 'Create Profile'}
                     </button>
                 </form>
+                
                 <button 
                     onClick={onClose}
-                    style={stylingForPopup.closeButton}
-                    onMouseOver={e => e.target.style.color = '#ff0000'}
-                    onMouseOut={e => e.target.style.color = '#ff4444'}
+                    style={popupStyles.closeButton}
+                    onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = 'rgba(20, 77, 255, 0.1)';
+                        e.target.style.transform = 'scale(1.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = 'transparent';
+                        e.target.style.transform = 'scale(1)';
+                    }}
                 >
                     ×
                 </button>
@@ -620,6 +923,105 @@ const CreateProfilePopup = ({ onClose }) => {
     )
 }
 
+const CommunityPageButton = ({left_position="50%", top_position="20px", position="fixed"}) => {
+    const navigate = useNavigate();
 
+    const buttonStyles = {
+        position: position,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        top: top_position,
+        left: left_position,
+        transform: 'translateX(-50%)',
+        zIndex: 100,
+        borderRadius: '14px',
+        border: 'none',
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        fontFamily: 'Helvetica, sans-serif',
+        fontSize: '0.9rem',
+        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)',
+        transition: 'all 0.3s ease',
+        color: '#f5f7ff',
+        boxShadow: '0 7px 4px rgba(0, 0, 0, 0.1)',
+        background: 'linear-gradient(135deg, #144dff, #3b82f6)',
+        padding: '12px 20px'
+    };
+    
+    return (
+        <button 
+            onClick={() => navigate('/cofounders')}
+            style={buttonStyles}
+            onMouseEnter={(e) => {
+                e.target.style.transform = 'translateX(-50%) translateY(-2px)';
+                e.target.style.boxShadow = '0 12px 24px rgba(20, 77, 255, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+                e.target.style.transform = 'translateX(-50%) translateY(0)';
+                e.target.style.boxShadow = '0 7px 4px rgba(0, 0, 0, 0.1)';
+            }}
+        >
+            Co-Founders<br/>Network
+        </button>
+    )
+}
 
+// Add CSS reset and ensure full screen coverage
+const globalStyleSheet = document.createElement("style");
+globalStyleSheet.type = "text/css";
+globalStyleSheet.innerText = `
+  * {
+    box-sizing: border-box;
+  }
+  
+  body, html {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    overflow-x: hidden;
+  }
+  
+  #root {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .App {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideUp {
+    from { 
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
+// Only add the stylesheet if it doesn't already exist
+if (!document.getElementById('mycf-global-styles')) {
+  globalStyleSheet.id = 'mycf-global-styles';
+  document.head.appendChild(globalStyleSheet);
+}
+
+export { CommunityPageButton };
 export default MyCF;

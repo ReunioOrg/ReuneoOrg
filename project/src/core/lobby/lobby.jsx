@@ -11,6 +11,7 @@ import LobbyCountdown from './lobby_countdown';
 import HowToTutorial from './how_to_tutorial';
 import ShowMatchAnimation from './show_match_animation';
 import UserIsReadyAnimation from './user_is_ready_animation';
+import { CommunityPageButton } from '../community/mycf';
 
 const AVAILABLE_TAGS = []; // Remove hardcoded tags
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
@@ -727,6 +728,7 @@ const LobbyScreen = () => {
 
     return (
         <div className="lobby-container">
+            <CommunityPageButton />
             <div className="lobby-content">
                 <div style={{
                     display: 'flex',
@@ -744,7 +746,7 @@ const LobbyScreen = () => {
                         }}
                     />
                 </div>
-                <p style={{color: '#144dff', fontSize: '0.8rem', fontWeight: '600', textAlign: 'center', marginTop: '0.5rem'}}>
+                {/* <p style={{color: '#144dff', fontSize: '0.8rem', fontWeight: '600', textAlign: 'center', marginTop: '0.5rem'}}>
                     TimeToSkip: {roundPosition.current}
                     <br />
                     Lenth of Audio File: {audioRef.current.duration}
@@ -776,7 +778,7 @@ const LobbyScreen = () => {
                             })()}
                         </>
                     )}
-                </p>
+                </p> */}
 
                 {/* User Profile Picture */}
                 {(lobbyState === "checkin" || (lobbyState === "active" && !opponentProfile) || lobbyState === "interrim") && (
