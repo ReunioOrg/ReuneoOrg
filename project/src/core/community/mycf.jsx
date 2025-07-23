@@ -296,6 +296,24 @@ function MyCF() {
     }
   }
 
+  const handleProfileCreated = async () => {
+    try {
+      await fetchProfiles();
+    } catch (error) {
+      console.error('Error fetching profiles after creation:', error);
+      // Retry once after 1 second
+      setTimeout(async () => {
+        try {
+          await fetchProfiles();
+        } catch (retryError) {
+          console.error('Retry failed:', retryError);
+          // Show user-friendly message: "Profile created! Please refresh to see it."
+          setError("Profile created successfully! Please refresh the page to see your new profile.");
+        }
+      }, 1000);
+    }
+  }
+
   const pageStyles = {
     container: {
       minHeight: '100vh',
@@ -599,6 +617,7 @@ function MyCF() {
       {showCreateProfilePopup && (
         <CreateProfilePopup 
           onClose={() => setShowCreateProfilePopup(false)}
+          onProfileCreated={handleProfileCreated}
         /> 
       )}
 
@@ -666,7 +685,7 @@ const YouNeedToLoginPopup = ({ onClose }) => {
     )
 }
 
-const CreateProfilePopup = ({ onClose }) => {
+const CreateProfilePopup = ({ onClose, onProfileCreated }) => {
     const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
     if (!userProfile) {
         return <YouNeedToLoginPopup onClose={onClose} />
@@ -714,6 +733,10 @@ const CreateProfilePopup = ({ onClose }) => {
         if (success) {
             setErrorMessage(null)
             setCreatingProfile(false)
+            // Update the profiles list to show the new profile immediately
+            if (onProfileCreated) {
+                await onProfileCreated()
+            }
             setTimeout(() => {
                 onClose()
             }, 1000)
