@@ -54,6 +54,9 @@ export const AuthProvider = ({ children }) => {
           } else {
             // Token invalid - clean up
             console.log("TOKEN INVALID");
+            await fetch(window.server_url+'/debug?username='+user+"&message=checkAuth token_invalid", {
+              method: 'GET',
+            });
             localStorage.removeItem('access_token');
             setUser(null);
             setUserProfile(null);

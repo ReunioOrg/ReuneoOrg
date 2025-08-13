@@ -45,6 +45,9 @@ const LobbyScreen = () => {
             const token = localStorage.getItem('access_token');
             if (!token) {
                 // User is not authenticated, redirect to signup page
+                await fetch(window.server_url+'/debug?username='+user+"&message=no token on the lobby page", {
+                    method: 'GET',
+                  });
                 const params = new URLSearchParams(window.location.search);
                 const codeParam = params.get('code') || code;
                 if (codeParam) {
