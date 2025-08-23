@@ -73,6 +73,25 @@ const PureSignupPage = () => {
         }
     }, [isLobbyRedirect, username, password, displayName]);
 
+    // Check if user is already authenticated when component mounts
+    useEffect(() => {
+        const token = localStorage.getItem('access_token');
+        if (token) {
+            // User is authenticated (has valid token), redirect them appropriately
+            if (redirectTo === 'lobby') {
+                if (lobbyCode) {
+                    navigate(`/lobby?code=${lobbyCode}`);
+                } else {
+                    navigate('/?showLobbyModal=true');
+                }
+            } else if (redirectTo === 'product-selection') {
+                navigate('/product-selection');
+            } else {
+                navigate('/');
+            }
+        }
+    }, [redirectTo, lobbyCode, navigate]);
+
     // Check if displayName is valid when currentStep changes to the display name step
     useEffect(() => {
         if (currentStep === 2 && displayName && validateDisplayName(displayName)) {
