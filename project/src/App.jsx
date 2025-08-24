@@ -828,7 +828,7 @@ const App = () => {
         {(permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0 && (
           <div className="events-list" style={{ 
             position: 'absolute',
-            bottom: userCurrentLobby ? 'calc(20px + 120px + 10px + 15% + 10px)' : 'calc(20px + 120px + 10px)',  // Push up if user lobby is shown
+            bottom: (userCurrentLobby && !((permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0)) ? 'calc(20px + 120px + 10px + 15% + 10px)' : 'calc(20px + 120px + 10px)',  // Push up if user lobby is actually shown
             left: '50%',
             transform: 'translateX(-50%)',
             width: '44%',
