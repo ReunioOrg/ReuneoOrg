@@ -11,6 +11,7 @@ import LoginSignupLogoutButton from './core/Auth/LoginSignupLogoutButton';
 import PureSignupPage from './core/Auth/PureSignupPage';
 
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
+import { getStoredLobbyCode, shouldValidateLobby, markLobbyValidated, clearLobbyStorage } from './core/utils/lobbyStorage';
 
 import { useNavigate } from 'react-router-dom';
 // import CreateLobbyButton from './core/lobby/CreateLobbyButton';
@@ -31,6 +32,7 @@ const App = () => {
   const [lobby_state, setLobbyState] = useState(null);
   const [activeLobbies, setActiveLobbies] = useState([]);
   const [isLoadingLobbies, setIsLoadingLobbies] = useState(false);
+  const [userCurrentLobby, setUserCurrentLobby] = useState(null);
 
   const navigate = useNavigate();
   useGetLobbyMetadata(setPlayerCount, setLobbyState);
@@ -75,6 +77,51 @@ const App = () => {
     }
   };
 
+  // Function to check and validate user's current lobby from localStorage
+  const checkUserCurrentLobby = async (forceValidation = false) => {
+    const storedLobbyCode = getStoredLobbyCode();
+    if (!storedLobbyCode || !user) {
+      setUserCurrentLobby(null);
+      return;
+    }
+
+    // Show immediately (optimistic UI)
+    setUserCurrentLobby(storedLobbyCode);
+
+    // Always validate on home page load, or validate in background if cache expired
+    if (forceValidation || shouldValidateLobby()) {
+      try {
+        const token = localStorage.getItem('access_token');
+        const response = await fetch(`${window.server_url}/display_lobby_metadata?lobby_code=${storedLobbyCode}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'lobby_code': storedLobbyCode
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Hide if lobby is terminated/removed (API returns status: 'error' for terminated lobbies)
+          if (data.status === 'error' || data.lobby_state === 'terminated') {
+            clearLobbyStorage();
+            setUserCurrentLobby(null);
+          } else {
+            // Mark as validated
+            markLobbyValidated();
+          }
+        } else {
+          // Lobby doesn't exist anymore, clean up
+          clearLobbyStorage();
+          setUserCurrentLobby(null);
+        }
+      } catch (error) {
+        console.error("Error validating current lobby:", error);
+        // On error, hide the tile to be safe
+        setUserCurrentLobby(null);
+      }
+    }
+  };
+
   // Function to fetch user's active lobbies
   const fetchActiveLobbies = async () => {
     if (!user) return;
@@ -113,6 +160,9 @@ const App = () => {
   useEffect(() => {
     if (user) {
       fetchActiveLobbies();
+      checkUserCurrentLobby(true); // Force validation on home page load
+    } else {
+      setUserCurrentLobby(null);
     }
   }, [user]);
 
@@ -659,11 +709,126 @@ const App = () => {
           </div>
         </div>
 
+        {/* User's Current Lobby Section */}
+        {userCurrentLobby && !((permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0) && (
+          <div className="events-list" style={{ 
+            position: 'absolute',
+            bottom: 'calc(20px + 120px + 10px)',  // 20px bottom padding + ~120px button height + 10px gap
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '44%',
+            height: '15%', 
+            background: 'linear-gradient(135deg, rgba(20, 77, 255, 0.05), rgba(83, 91, 242, 0.05))',
+            borderRadius: '30px',
+            padding: '1rem',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              justifyContent: 'center', 
+              perspective: '1000px',
+            }}>
+              <div
+                className="card"
+                style={{
+                  width: 'calc(100% - 2rem)',
+                  maxWidth: '200px',
+                  minWidth: '150px',
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  borderRadius: '20px',
+                  boxShadow: '0 10px 30px rgba(20, 77, 255, 0.15)',
+                  border: '1px solid rgba(20, 77, 255, 0.2)',
+                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                  cursor: 'pointer',
+                  padding: '1rem 1rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transformStyle: 'preserve-3d',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'linear-gradient(135deg, rgba(20, 77, 255, 0.1), rgba(83, 91, 242, 0.1))',
+                    opacity: 0,
+                    transition: 'opacity 0.4s ease'
+                  }
+                }}
+                onClick={() => navigate(`/lobby?code=${userCurrentLobby}`)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-10px) rotateX(5deg)';
+                  e.currentTarget.style.boxShadow = '0 20px 40px rgba(20, 77, 255, 0.25)';
+                  e.currentTarget.style.border = '1px solid rgba(20, 77, 255, 0.4)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.98)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0) rotateX(0)';
+                  e.currentTarget.style.boxShadow = '0 10px 30px rgba(20, 77, 255, 0.15)';
+                  e.currentTarget.style.border = '1px solid rgba(20, 77, 255, 0.2)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.95)';
+                }}
+              >
+                <div className="glow-button" style={{ 
+                  width: '30px', 
+                  height: '30px', 
+                  borderRadius: '50%', 
+                  background: 'linear-gradient(135deg, #144dff, #535bf2)',
+                  marginBottom: '.5rem',
+                  marginTop: '-1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  fontSize: '.8rem',
+                  boxShadow: '0 8px 20px rgba(20, 77, 255, 0.3)',
+                  transition: 'all 0.4s ease',
+                  position: 'relative',
+                  '&::after': {
+                    content: '""',
+                    position: 'absolute',
+                    top: '-5px',
+                    left: '-5px',
+                    right: '-5px',
+                    bottom: '-5px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, rgba(20, 77, 255, 0.2), rgba(83, 91, 242, 0.2))',
+                    zIndex: -1,
+                    animation: 'pulse 2s infinite'
+                  }
+                }}>
+                  {userCurrentLobby.charAt(0).toUpperCase()}
+                </div>
+                <h3 style={{ 
+                  marginTop: '0.5rem',
+                  color: '#144dff',
+                  fontWeight: '700',
+                  fontSize: '.9em',
+                  fontFamily: 'Helvetica',
+                  textAlign: 'center',
+                  textShadow: '0 2px 4px rgba(20, 77, 255, 0.1)',
+                  letterSpacing: '0.5px'
+                }}>
+                  Return to {userCurrentLobby}
+                </h3>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Active Lobbies Section */}
         {(permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0 && (
           <div className="events-list" style={{ 
             position: 'absolute',
-            bottom: 'calc(20px + 120px + 10px)',  // 20px bottom padding + ~120px button height + 10px gap
+            bottom: userCurrentLobby ? 'calc(20px + 120px + 10px + 15% + 10px)' : 'calc(20px + 120px + 10px)',  // Push up if user lobby is shown
             left: '50%',
             transform: 'translateX(-50%)',
             width: '44%',

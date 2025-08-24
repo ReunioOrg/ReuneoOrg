@@ -11,6 +11,7 @@ import LobbyCountdown from './lobby_countdown';
 import HowToTutorial from './how_to_tutorial';
 import ShowMatchAnimation from './show_match_animation';
 import UserIsReadyAnimation from './user_is_ready_animation';
+import { storeLobbyCode, clearLobbyStorage } from '../utils/lobbyStorage';
 
 const AVAILABLE_TAGS = []; // Remove hardcoded tags
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
@@ -80,6 +81,8 @@ const LobbyScreen = () => {
             const codeParam = params.get('code') || code;      
             if (codeParam) {
                 setLobbyCode(codeParam);
+                // Store lobby code in localStorage for "return to lobby" feature
+                storeLobbyCode(codeParam);
 
                 // Check if the user has seen the tutorial for this specific lobby
                 const lobbyTutorialKey = `hasSeenTutorial_${codeParam}`;
@@ -709,6 +712,8 @@ const LobbyScreen = () => {
         if (lobbyState === "terminated") {
             profileImagesCache.current = {};
             currentUsernamesRef.current = [];
+            // Clear lobby from localStorage since it's terminated
+            clearLobbyStorage();
         }
     }, [lobbyState]);
 
@@ -890,24 +895,14 @@ const LobbyScreen = () => {
                                     {Array.from({ length: Math.min(player_count, MAX_VISIBLE_PROFILES) }).map((_, index) => {
                                         let profileImageSrc;
                                         
-                                        if (index === 0) {
-                                            // Current user always at index 0
-                                            profileImageSrc = userProfile?.image_data 
-                                                ? `data:image/jpeg;base64,${userProfile.image_data}` 
-                                                : "/assets/avatar_8.png";
+                                        // Use cached images for all users including current user
+                                        const availableUsernames = currentUsernamesRef.current;
+                                        const usernameForThisSlot = availableUsernames[index];
+                                        
+                                        if (usernameForThisSlot && profileImagesCache.current[usernameForThisSlot]) {
+                                            profileImageSrc = `data:image/jpeg;base64,${profileImagesCache.current[usernameForThisSlot]}`;
                                         } else {
-                                            // For other slots, use cached images if available
-                                            const availableUsernames = currentUsernamesRef.current.filter(username => 
-                                                username !== user?.username && profileImagesCache.current[username]
-                                            );
-                                            
-                                            const usernameForThisSlot = availableUsernames[index - 1]; // -1 because index 0 is current user
-                                            
-                                            if (usernameForThisSlot && profileImagesCache.current[usernameForThisSlot]) {
-                                                profileImageSrc = `data:image/jpeg;base64,${profileImagesCache.current[usernameForThisSlot]}`;
-                                            } else {
-                                                profileImageSrc = "/assets/avatar_8.png";
-                                            }
+                                            profileImageSrc = "/assets/avatar_8.png";
                                         }
                                         
                                         return (
@@ -917,7 +912,7 @@ const LobbyScreen = () => {
                                             >
                                                 <img 
                                                     src={profileImageSrc}
-                                                    alt={index === 0 ? "Your Profile" : `Profile ${index + 1}`}
+                                                    alt={`Profile ${index + 1}`}
                                                     className="profile-icon"
                                                     loading="lazy"
                                                 />
