@@ -84,6 +84,9 @@ const LobbyScreen = () => {
                 // Store lobby code in localStorage for "return to lobby" feature
                 storeLobbyCode(codeParam);
 
+                // Fetch sponsor logo data for this lobby
+                fetchLobbySetupData(codeParam);
+
                 // Check if the user has seen the tutorial for this specific lobby
                 const lobbyTutorialKey = `hasSeenTutorial_${codeParam}`;
                 const hasSeenLobbyTutorial = localStorage.getItem(lobbyTutorialKey);
@@ -146,6 +149,10 @@ const LobbyScreen = () => {
     const profileImagesCache = useRef({});
     const currentUsernamesRef = useRef([]);
     const [isLoadingProfiles, setIsLoadingProfiles] = useState(false);
+
+    // Sponsor logo management
+    const logoDataRef = useRef(null);
+    const [logoLoaded, setLogoLoaded] = useState(false);
 
     // Update the ref whenever lobbyCode changes
     useEffect(() => {
@@ -253,6 +260,31 @@ const LobbyScreen = () => {
             // Silent fail - just use default avatars
         } finally {
             setIsLoadingProfiles(false);
+        }
+    };
+
+    const fetchLobbySetupData = async (currentLobbyCode) => {
+        try {
+            const response = await fetch(`${window.server_url}/lobby_setup_data`, {
+                headers: {
+                    'lobby_code': currentLobbyCode
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.logo_icon) {
+                    logoDataRef.current = data.logo_icon;
+                    setLogoLoaded(true);
+                    console.log("Sponsor logo loaded successfully");
+                } else {
+                    console.log("No sponsor logo available for this lobby");
+                }
+            } else {
+                console.error("Failed to fetch lobby setup data:", response.status);
+            }
+        } catch (error) {
+            console.error("Error fetching lobby setup data:", error);
         }
     };
 
@@ -792,44 +824,65 @@ const LobbyScreen = () => {
                     </div>
                 )}
 
-                {lobbyState !== "checkin" && (
-                    <div className="time-left" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'white', marginTop: '-2rem'}}>
-                        {((lobbyState === "active" || lobbyState === "interrim") && roundTimeLeft) ? (
-                            <>
-                                <CountdownCircleTimer
-                                    key={`${lobbyState}-${roundTimeLeft}`}
-                                    isPlaying={lobbyState === "active"}
-                                    duration={roundDuration || 300}
-                                    initialRemainingTime={roundTimeLeft || 0}
-                                    colors={["#144dff"]} 
-                                    size={90}
-                                    strokeWidth={12}
-                                    trailColor="#f5f7ff"
-                                    onComplete={() => {
-                                        fetchLobbyData();
-                                        return { shouldRepeat: false }
-                                    }}
-                                    
-                                >
-                                    {({ remainingTime }) => {
-                                        // Ensure remainingTime is a valid number
-                                        const validTime = typeof remainingTime === 'number' && !isNaN(remainingTime) ? remainingTime : 0;
-                                        const mins = Math.floor(validTime / 60);
-                                        const secs = Math.floor(validTime % 60);
-                                        return (
-                                            <span style={{ fontSize: '.95rem', color: '#144dff', fontWeight: 600 }}>
-                                                {mins}:{String(secs).padStart(2, '0')}
-                                            </span>
-                                        );
-                                    }}
-                                </CountdownCircleTimer>
-                                {/* <span style={{color: '#144dff'}}>{parseInt(roundTimeLeft)}s</span> */}
-                                <span style={{ fontWeight: 700, fontSize: '0.7em', marginTop: '4px', opacity: '1', color: '#144dff', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.1)' }}>round time left</span>
-                            </>
-                        ) : (
-                            <span className="time-left-text"></span>
-                        )}
-                    </div>
+                {/* Timer and Sponsor Container - Conditional visibility */}
+                {(logoDataRef.current || lobbyState !== "checkin") && (
+                    <div className={`timer-sponsor-container ${(logoDataRef.current && lobbyState !== "checkin") ? "has-timer" : ""}`}>
+                    {/* Sponsor Logo - Conditional visibility */}
+                    {logoDataRef.current && (
+                        <div className="sponsor-logo">
+                            <img 
+                                src={`data:image/jpeg;base64,${logoDataRef.current}`}
+                                alt="Sponsor Logo"
+                                style={{
+                                    width: '100px',
+                                    height: '100px',
+                                    objectFit: 'contain'
+                                }}
+                            />
+                        </div>
+                    )}
+
+                    {/* Timer - Only visible when not in checkin state */}
+                    {lobbyState !== "checkin" && (
+                        <div className="time-left" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'white'}}>
+                            {((lobbyState === "active" || lobbyState === "interrim") && roundTimeLeft) ? (
+                                <>
+                                    <CountdownCircleTimer
+                                        key={`${lobbyState}-${roundTimeLeft}`}
+                                        isPlaying={lobbyState === "active"}
+                                        duration={roundDuration || 300}
+                                        initialRemainingTime={roundTimeLeft || 0}
+                                        colors={["#144dff"]} 
+                                        size={90}
+                                        strokeWidth={12}
+                                        trailColor="#f5f7ff"
+                                        onComplete={() => {
+                                            fetchLobbyData();
+                                            return { shouldRepeat: false }
+                                        }}
+                                        
+                                    >
+                                        {({ remainingTime }) => {
+                                            // Ensure remainingTime is a valid number
+                                            const validTime = typeof remainingTime === 'number' && !isNaN(remainingTime) ? remainingTime : 0;
+                                            const mins = Math.floor(validTime / 60);
+                                            const secs = Math.floor(validTime % 60);
+                                            return (
+                                                <span style={{ fontSize: '.95rem', color: '#144dff', fontWeight: 600 }}>
+                                                    {mins}:{String(secs).padStart(2, '0')}
+                                                </span>
+                                            );
+                                        }}
+                                    </CountdownCircleTimer>
+                                    {/* <span style={{color: '#144dff'}}>{parseInt(roundTimeLeft)}s</span> */}
+                                    <span style={{ fontWeight: 700, fontSize: '0.7em', marginTop: '4px', opacity: '1', color: '#144dff', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.1)' }}>round time left</span>
+                                </>
+                            ) : (
+                                <span className="time-left-text"></span>
+                            )}
+                        </div>
+                    )}
+                </div>
                 )}
 
                 {/* Match Banner */}
@@ -844,7 +897,7 @@ const LobbyScreen = () => {
                 <div style={{display: 'flex', justifyContent: 'center', width: '100%', margin: '0 auto'}}>
                     {(lobbyState === "active" || lobbyState === "interrim") ? (
                         opponentProfile ? (
-                            <div style={{marginTop: '-4.5rem', width: '100%', display: 'flex', justifyContent: 'center'}}>
+                            <div style={{marginTop: '-3rem', width: '100%', display: 'flex', justifyContent: 'center'}}>
                                 <PlayerCard player={opponentProfile} />
                             </div>
                         ) : (
