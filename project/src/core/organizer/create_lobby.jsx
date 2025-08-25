@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { AuthContext } from '../Auth/AuthContext';
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Cropper from 'react-easy-crop';
+import getCroppedImg from '../cropImage';
 import './create_lobby.css';
 
 const CreateLobbyView = () => {
@@ -15,6 +17,19 @@ const CreateLobbyView = () => {
     const [tagInput, setTagInput] = useState('');
     const [minutes, setMinutes] = useState('5');
     const [seconds, setSeconds] = useState('0');
+    
+    // Logo upload states
+    const [logoImage, setLogoImage] = useState(null);
+    const [logoName, setLogoName] = useState('');
+    const [logoUrl, setLogoUrl] = useState('');
+    const [logoPreview, setLogoPreview] = useState(null);
+    const [logoCroppedImage, setLogoCroppedImage] = useState(null);
+    const [logoError, setLogoError] = useState('');
+    const [isLogoCropping, setIsLogoCropping] = useState(false);
+    const [isLogoProcessing, setIsLogoProcessing] = useState(false);
+    const [logoCrop, setLogoCrop] = useState({ x: 0, y: 0 });
+    const [logoZoom, setLogoZoom] = useState(1);
+    const [logoCropArea, setLogoCropArea] = useState(null);
 
     const MaxLobbyDuration = 8 * 60;
     const MaxMinutes = 8;
@@ -79,6 +94,110 @@ const CreateLobbyView = () => {
         }
     };
 
+    // Logo upload functions
+    const resizeImage = (file, maxWidth, maxHeight) => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                let { width, height } = img;
+                
+                // Calculate new dimensions while maintaining aspect ratio
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width = (width * maxHeight) / height;
+                        height = maxHeight;
+                    }
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                const resizedImage = canvas.toDataURL('image/jpeg', 0.7);
+                resolve(resizedImage);
+            };
+            img.src = URL.createObjectURL(file);
+        });
+    };
+
+    const handleLogoUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setLogoError('');
+        setIsLogoProcessing(true);
+
+        // Validate file type
+        if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
+            setLogoError('Invalid format. Please upload a JPG or PNG image.');
+            setIsLogoProcessing(false);
+            return;
+        }
+
+        // Validate file size (2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            setLogoError('File too large. Please choose an image under 2MB.');
+            setIsLogoProcessing(false);
+            return;
+        }
+
+        try {
+            // Resize image to fit 400x400 max
+            const resizedImage = await resizeImage(file, 400, 400);
+            
+            setLogoImage(file);
+            setLogoPreview(resizedImage);
+            setIsLogoCropping(true);
+            setIsLogoProcessing(false);
+        } catch (error) {
+            console.error('Error processing image:', error);
+            setLogoError('Error processing image. Please try again.');
+            setIsLogoProcessing(false);
+        }
+    };
+
+    const handleLogoCropComplete = (croppedArea, croppedAreaPixels) => {
+        setLogoCropArea(croppedAreaPixels);
+    };
+
+    const handleSaveLogoCrop = async () => {
+        try {
+            setIsLogoProcessing(true);
+            const croppedImage = await getCroppedImg(logoPreview, logoCropArea);
+            setLogoCroppedImage(croppedImage);
+            setIsLogoCropping(false);
+            setIsLogoProcessing(false);
+        } catch (error) {
+            console.error('Error cropping logo:', error);
+            setLogoError('Error processing image. Please try again.');
+            setIsLogoCropping(false);
+            setIsLogoProcessing(false);
+        }
+    };
+
+    const handleRemoveLogo = () => {
+        setLogoImage(null);
+        setLogoPreview(null);
+        setLogoCroppedImage(null);
+        setIsLogoCropping(false);
+        setIsLogoProcessing(false);
+        setLogoCrop({ x: 0, y: 0 });
+        setLogoZoom(1);
+        setLogoCropArea(null);
+        setLogoError('');
+        // Reset file input
+        const fileInput = document.getElementById('logoUpload');
+        if (fileInput) fileInput.value = '';
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -94,18 +213,38 @@ const CreateLobbyView = () => {
         // Calculate total duration in seconds
         const lobbyDuration = (parseInt(minutes) * 60) + parseInt(seconds);
 
+        // Prepare logo data
+        let logoIconData = null;
+        if (logoCroppedImage) {
+            // Remove the data:image/jpeg;base64, prefix for the API
+            logoIconData = logoCroppedImage.split(',')[1];
+        }
+
         try {
+            const requestBody = {
+                lobby_code: lobbyCode,
+                custom_tags: customTags,
+                lobby_duration: lobbyDuration
+            };
+
+            // Add logo data if provided
+            if (logoIconData) {
+                requestBody.logo_icon = logoIconData;
+            }
+            if (logoName.trim()) {
+                requestBody.logo_name = logoName.trim();
+            }
+            if (logoUrl.trim()) {
+                requestBody.logo_hyperlink = logoUrl.trim();
+            }
+
             const response = await fetch(window.server_url + '/create_lobby', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    lobby_code: lobbyCode,
-                    custom_tags: customTags,
-                    lobby_duration: lobbyDuration
-                })
+                body: JSON.stringify(requestBody)
             });
 
             if (response.ok) {
@@ -243,6 +382,130 @@ const CreateLobbyView = () => {
                             </div>
                         )}
                         <div className="input-hint">If you want to match people based on role/interests</div>
+                    </div>
+                    
+                    <div className="form-group logo-upload-section">
+                        <label>Sponsor Logo</label>
+                        
+                        {/* Upload Button / Processing State */}
+                        {!logoCroppedImage && !isLogoCropping && (
+                            <>
+                                {isLogoProcessing ? (
+                                    <div className="logo-processing">Processing...</div>
+                                ) : (
+                                    <>
+                                        <input
+                                            type="file"
+                                            id="logoUpload"
+                                            accept="image/jpeg,image/jpg,image/png"
+                                            onChange={handleLogoUpload}
+                                            style={{ display: 'none' }}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => document.getElementById('logoUpload').click()}
+                                            className="logo-upload-button"
+                                        >
+                                            Upload Logo
+                                        </button>
+                                    </>
+                                )}
+                                {logoError && <div className="logo-error-message">{logoError}</div>}
+                            </>
+                        )}
+                        
+                        {/* Inline Cropping Interface */}
+                        {isLogoCropping && logoPreview && (
+                            <div className="logo-crop-container">
+                                <div className="logo-crop-area">
+                                    <Cropper
+                                        image={logoPreview}
+                                        crop={logoCrop}
+                                        zoom={logoZoom}
+                                        aspect={1}
+                                        onCropChange={setLogoCrop}
+                                        onZoomChange={setLogoZoom}
+                                        onCropComplete={handleLogoCropComplete}
+                                    />
+                                </div>
+                                <div className="logo-crop-controls">
+                                    <button
+                                        type="button"
+                                        onClick={handleSaveLogoCrop}
+                                        className="logo-save-button"
+                                        disabled={isLogoProcessing}
+                                    >
+                                        {isLogoProcessing ? 'Processing...' : 'Save Crop'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleRemoveLogo}
+                                        className="logo-cancel-button"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {/* Logo Preview */}
+                        {logoCroppedImage && !isLogoCropping && (
+                            <div className="logo-preview-container">
+                                <div className="logo-preview">
+                                    <img
+                                        src={logoCroppedImage}
+                                        alt="Logo preview"
+                                        className="logo-preview-image"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleRemoveLogo}
+                                        className="logo-remove-button"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {/* TEMPORARILY DISABLED - Logo Name and URL Inputs */}
+                        {false && (
+                            <>
+                                {/* Logo Name Input */}
+                                {(logoCroppedImage || isLogoCropping) && (
+                                    <div className="logo-name-group">
+                                        <label htmlFor="logoName">Logo Name (optional)</label>
+                                        <input
+                                            type="text"
+                                            id="logoName"
+                                            value={logoName}
+                                            onChange={(e) => setLogoName(e.target.value.slice(0, 20))}
+                                            placeholder="Enter logo name"
+                                            className="form-input logo-input"
+                                            maxLength="20"
+                                            autoComplete="off"
+                                        />
+                                        <div className="input-hint">{logoName.length}/20 characters</div>
+                                    </div>
+                                )}
+                                
+                                {/* Logo URL Input */}
+                                {(logoCroppedImage || isLogoCropping) && (
+                                    <div className="logo-url-group">
+                                        <label htmlFor="logoUrl">Logo URL (optional)</label>
+                                        <input
+                                            type="url"
+                                            id="logoUrl"
+                                            value={logoUrl}
+                                            onChange={(e) => setLogoUrl(e.target.value)}
+                                            placeholder="https://example.com"
+                                            className="form-input logo-input"
+                                            autoComplete="off"
+                                        />
+                                    </div>
+                                )}
+                            </>
+                        )}
                     </div>
                     
                     {error && <div className="error-message">{error}</div>}

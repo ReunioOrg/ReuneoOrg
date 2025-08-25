@@ -410,8 +410,7 @@
     color: white;
     padding: 12px 24px;
     border-radius: 16px;
-    margin: 0.5rem auto 1.5rem auto;
-    margin-top: -2rem;
+    margin-top: -1rem;
     max-width: 300px;
     max-height: 40px;
     box-shadow: 0 4px 6px rgba(20, 77, 255, 0.3);
@@ -886,4 +885,32 @@
     display: block;
     opacity: 1;
     transform: translateX(0);
+}
+
+/* Timer and Sponsor Container Styles */
+.timer-sponsor-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    margin: -2rem auto 0;
+    padding: 0 1rem;
+    box-sizing: border-box;
+    justify-content: center;
+}
+
+/* When timer is present - use space-between layout */
+.timer-sponsor-container.has-timer {
+    justify-content: space-between;
+}
+
+/* Sponsor Logo Styles */
+.sponsor-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sponsor-logo img {
+    display: block;
 }
