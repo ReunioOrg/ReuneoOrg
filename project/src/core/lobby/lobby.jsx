@@ -17,6 +17,8 @@ const AVAILABLE_TAGS = []; // Remove hardcoded tags
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
 const MAX_TAGS_ALLOWED = 5; // Maximum number of tags allowed for both self and desiring tags
 const useEffectTime=5000;
+// Temporarily disable lobby profile image fetching to prevent backend overload
+const DISABLE_LOBBY_PROFILE_IMAGES = true;
 
 const LobbyScreen = () => {
     const [tagsState, setTagsState] = useState([]);
@@ -466,8 +468,13 @@ const LobbyScreen = () => {
                         );
                         
                         if (newUsernamesToFetch.length > 0) {
-                            console.log("Fetching images for new users:", newUsernamesToFetch);
-                            fetchProfileImages(newUsernamesToFetch);
+                            if (DISABLE_LOBBY_PROFILE_IMAGES) {
+                                console.log("Profile image fetching disabled for lobby display");
+                                console.log(`Skipping profile image fetch for ${newUsernamesToFetch.length} users - lobby images disabled`);
+                            } else {
+                                console.log("Fetching images for new users:", newUsernamesToFetch);
+                                fetchProfileImages(newUsernamesToFetch);
+                            }
                         }
                     }
                 }
@@ -949,13 +956,17 @@ const LobbyScreen = () => {
                                         let profileImageSrc;
                                         
                                         // Use cached images for all users including current user
-                                        const availableUsernames = currentUsernamesRef.current;
-                                        const usernameForThisSlot = availableUsernames[index];
-                                        
-                                        if (usernameForThisSlot && profileImagesCache.current[usernameForThisSlot]) {
-                                            profileImageSrc = `data:image/jpeg;base64,${profileImagesCache.current[usernameForThisSlot]}`;
-                                        } else {
+                                        if (DISABLE_LOBBY_PROFILE_IMAGES) {
                                             profileImageSrc = "/assets/avatar_8.png";
+                                        } else {
+                                            const availableUsernames = currentUsernamesRef.current;
+                                            const usernameForThisSlot = availableUsernames[index];
+                                            
+                                            if (usernameForThisSlot && profileImagesCache.current[usernameForThisSlot]) {
+                                                profileImageSrc = `data:image/jpeg;base64,${profileImagesCache.current[usernameForThisSlot]}`;
+                                            } else {
+                                                profileImageSrc = "/assets/avatar_8.png";
+                                            }
                                         }
                                         
                                         return (
