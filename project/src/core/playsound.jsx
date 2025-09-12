@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 function usePlaySound() {
 
     const ASSET_PATH="./assets";
-    const AUDIO_FILE = "/sounds/prod_combined.mp3";
+    const AUDIO_FILE = "/sounds/new_elevator_combined.mp3";
     const navigate = useNavigate();
 
     const audioRef = useRef(new Audio(ASSET_PATH + AUDIO_FILE));
