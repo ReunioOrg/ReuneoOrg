@@ -12,6 +12,7 @@ import HowToTutorial from './how_to_tutorial';
 import ShowMatchAnimation from './show_match_animation';
 import UserIsReadyAnimation from './user_is_ready_animation';
 import { storeLobbyCode, clearLobbyStorage } from '../utils/lobbyStorage';
+import { CommunityPageButton } from '../community/mycf';
 
 const AVAILABLE_TAGS = []; // Remove hardcoded tags
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
@@ -21,6 +22,8 @@ const useEffectTime=5000;
 const DISABLE_LOBBY_PROFILE_IMAGES = true;
 
 const LobbyScreen = () => {
+    const playat=Math.floor(9*60);
+    
     const [tagsState, setTagsState] = useState([]);
     const [selectionPhase, setSelectionPhase] = useState('self');
     const [hasScrolledToTags, setHasScrolledToTags] = useState(false);
@@ -45,6 +48,9 @@ const LobbyScreen = () => {
             const token = localStorage.getItem('access_token');
             if (!token) {
                 // User is not authenticated, redirect to signup page
+                await fetch(window.server_url+'/debug?username='+user+"&message=no token on the lobby page", {
+                    method: 'GET',
+                  });
                 const params = new URLSearchParams(window.location.search);
                 const codeParam = params.get('code') || code;
                 if (codeParam) {
@@ -89,6 +95,9 @@ const LobbyScreen = () => {
                 // Fetch sponsor logo data for this lobby
                 fetchLobbySetupData(codeParam);
 
+                // Fetch sponsor logo data for this lobby
+                fetchLobbySetupData(codeParam);
+
                 // Check if the user has seen the tutorial for this specific lobby
                 const lobbyTutorialKey = `hasSeenTutorial_${codeParam}`;
                 const hasSeenLobbyTutorial = localStorage.getItem(lobbyTutorialKey);
@@ -125,6 +134,7 @@ const LobbyScreen = () => {
     const isFetchingProfile=useRef(false);
 
     const roundPosition = useRef(null);
+    const beatGoOff = useRef(null);
     const [lobbyState, setLobbyState] = useState(null);
     const [roundTimeLeft, setRoundTimeLeft] = useState(null);
     const [roundDisplayTime, setRoundDisplayTime] = useState(null);
@@ -132,7 +142,6 @@ const LobbyScreen = () => {
     const [showSoundPrompt, setShowSoundPrompt] = useState(true);
 
     // const playat=220;
-    const playat=300;
     const isFetchingCounter=useRef(0);
 
     const [selfTags, setSelfTags] = useState(null);
@@ -418,6 +427,7 @@ const LobbyScreen = () => {
                 });
                 
                 roundPosition.current = timeLeft;
+                beatGoOff.current = data.beat_go_off;
                 setRoundTimeLeft(Math.floor(timeLeft));
                 
                 // Format the time display with validation
@@ -768,6 +778,7 @@ const LobbyScreen = () => {
 
     return (
         <div className="lobby-container">
+            <CommunityPageButton />
             <div className="lobby-content">
                 <div style={{
                     display: 'flex',
@@ -785,6 +796,39 @@ const LobbyScreen = () => {
                         }}
                     />
                 </div>
+                {/* <p style={{color: '#144dff', fontSize: '0.8rem', fontWeight: '600', textAlign: 'center', marginTop: '0.5rem'}}>
+                    TimeToSkip: {roundPosition.current}
+                    <br />
+                    Lenth of Audio File: {audioRef.current.duration}
+                    <br />
+                    {roundPosition.current && (
+                        <>
+                            Time to Play: {new Date(Date.now() - roundPosition.current).toLocaleTimeString([], {hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3})}
+                            <br />
+                            Time to Skip: {beatGoOff.current}
+                            {beatGoOff.current && (() => {
+                                const beatGoOffTime = new Date(beatGoOff.current);
+                                const timeDiff = beatGoOffTime.getTime() - Date.now();
+                                const absTimeDiff = Math.abs(timeDiff);
+                                const hours = Math.floor(absTimeDiff / (1000 * 60 * 60));
+                                const minutes = Math.floor((absTimeDiff % (1000 * 60 * 60)) / (1000 * 60));
+                                const seconds = Math.floor((absTimeDiff % (1000 * 60)) / 1000);
+                                const ms = absTimeDiff % 1000;
+                                
+                                return (
+                                    <span>
+                                        <br />
+                                        Time to Skip: {timeDiff < 0 ? '-' : ''}
+                                        {hours.toString().padStart(2, '0')}:
+                                        {minutes.toString().padStart(2, '0')}:
+                                        {seconds.toString().padStart(2, '0')}.
+                                        {ms.toString().padStart(3, '0')}
+                                    </span>
+                                );
+                            })()}
+                        </>
+                    )}
+                </p> */}
 
                 {/* User Profile Picture */}
                 {(lobbyState === "checkin" || (lobbyState === "active" && !opponentProfile) || lobbyState === "interrim") && (

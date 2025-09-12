@@ -9,6 +9,7 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 
 import LoginSignupLogoutButton from './core/Auth/LoginSignupLogoutButton';
 import PureSignupPage from './core/Auth/PureSignupPage';
+import { CommunityPageButton } from './core/community/mycf';
 
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
 import { getStoredLobbyCode, shouldValidateLobby, markLobbyValidated, clearLobbyStorage } from './core/utils/lobbyStorage';
@@ -377,6 +378,11 @@ const App = () => {
 
   return (
     <div style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden' }}>
+
+      <div style={{position: 'absolute', top: '40%', left: '50%', width: '100%', height: '10%', zIndex: 1000}}>
+        <CommunityPageButton position="absolute" left_position="0" top_position="0"/>
+      </div>
+      
       {/* Background Video */}
       <video className="background-video" autoPlay loop muted playsInline poster="/assets/demo_app_home_video_cover.jpg">
         <source src="/assets/demo_app_home_video_X2_small.mp4" type="video/mp4" />
@@ -402,6 +408,7 @@ const App = () => {
             user={user} 
             onProfileClick={() => setShowProfileCreation(true)}
           />
+          
         </div>
         
         {showProfileCreation && (
@@ -602,10 +609,9 @@ const App = () => {
                   color: 'inherit',
                  
                 }}>
-                  {!user ? 'Join Lobby' : 'Join Lobby'}
+                  Join Lobby
                 </span>
               </button>
-              
               {/* Become a Host button - visible to non-logged in users and regular logged-in users */}
               {permissions !== 'admin' && permissions !== 'organizer' && (
                 <button 
