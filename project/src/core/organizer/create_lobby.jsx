@@ -355,7 +355,7 @@ const CreateLobbyView = () => {
                     </div>
                     
                     <div className="form-group">
-                        <label htmlFor="tagInput">Matchmaking Tags</label>
+                        <label htmlFor="tagInput">Matchmaking Categories</label>
                         <div className="tag-input-container">
                             <input
                                 type="text"
@@ -363,7 +363,7 @@ const CreateLobbyView = () => {
                                 value={tagInput}
                                 onChange={(e) => setTagInput(e.target.value)}
                                 onKeyDown={handleTagKeyDown}
-                                placeholder="Add tags (press + to add)"
+                                placeholder="Add categories (press + to add)"
                                 className="form-input"
                                 autoComplete="off"
                             />
@@ -392,7 +392,7 @@ const CreateLobbyView = () => {
                                 ))}
                             </div>
                         )}
-                        <div className="input-hint">If you want to match people based on role/interests</div>
+                        <div className="input-hint">If you want to match people based on categories</div>
                     </div>
                     
                     <div className="form-group logo-upload-section">
