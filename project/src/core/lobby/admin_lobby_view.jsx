@@ -362,7 +362,7 @@ const AdminLobbyView = () => {
     const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
-    const DEVMODE = true;
+    const DEVMODE = false;
     
     // Extract lobby code from URL parameters
     const params = new URLSearchParams(location.search);

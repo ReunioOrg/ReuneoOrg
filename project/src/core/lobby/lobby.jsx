@@ -95,9 +95,6 @@ const LobbyScreen = () => {
                 // Fetch sponsor logo data for this lobby
                 fetchLobbySetupData(codeParam);
 
-                // Fetch sponsor logo data for this lobby
-                fetchLobbySetupData(codeParam);
-
                 // Check if the user has seen the tutorial for this specific lobby
                 const lobbyTutorialKey = `hasSeenTutorial_${codeParam}`;
                 const hasSeenLobbyTutorial = localStorage.getItem(lobbyTutorialKey);
@@ -778,7 +775,7 @@ const LobbyScreen = () => {
 
     return (
         <div className="lobby-container">
-            <CommunityPageButton />
+            {/* <CommunityPageButton /> */}
             <div className="lobby-content">
                 <div style={{
                     display: 'flex',

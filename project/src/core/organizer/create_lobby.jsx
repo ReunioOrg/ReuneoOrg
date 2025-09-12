@@ -342,7 +342,7 @@ const CreateLobbyView = () => {
                                 <label htmlFor="seconds" className="duration-label">Seconds</label>
                             </div>
                         </div>
-                        <div className="input-hint">Maximum total duration is 5 minutes</div>
+                        <div className="input-hint">Maximum total duration is {MaxMinutes} minutes</div>
                     </div>
                     
                     <div className="form-group">
@@ -355,6 +355,7 @@ const CreateLobbyView = () => {
                             className="form-input checkbox-input"
                         />
                         <div className="input-hint">Recommended for events with 50+ people</div>
+                        <div className="input-hint">Make sure to provide table numbers</div>
                     </div>
                     
                     <div className="form-group">
@@ -396,130 +397,6 @@ const CreateLobbyView = () => {
                             </div>
                         )}
                         <div className="input-hint">If you want to match people based on categories</div>
-                    </div>
-                    
-                    <div className="form-group logo-upload-section">
-                        <label>Sponsor Logo</label>
-                        
-                        {/* Upload Button / Processing State */}
-                        {!logoCroppedImage && !isLogoCropping && (
-                            <>
-                                {isLogoProcessing ? (
-                                    <div className="logo-processing">Processing...</div>
-                                ) : (
-                                    <>
-                                        <input
-                                            type="file"
-                                            id="logoUpload"
-                                            accept="image/jpeg,image/jpg,image/png"
-                                            onChange={handleLogoUpload}
-                                            style={{ display: 'none' }}
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => document.getElementById('logoUpload').click()}
-                                            className="logo-upload-button"
-                                        >
-                                            Upload Logo
-                                        </button>
-                                    </>
-                                )}
-                                {logoError && <div className="logo-error-message">{logoError}</div>}
-                            </>
-                        )}
-                        
-                        {/* Inline Cropping Interface */}
-                        {isLogoCropping && logoPreview && (
-                            <div className="logo-crop-container">
-                                <div className="logo-crop-area">
-                                    <Cropper
-                                        image={logoPreview}
-                                        crop={logoCrop}
-                                        zoom={logoZoom}
-                                        aspect={1}
-                                        onCropChange={setLogoCrop}
-                                        onZoomChange={setLogoZoom}
-                                        onCropComplete={handleLogoCropComplete}
-                                    />
-                                </div>
-                                <div className="logo-crop-controls">
-                                    <button
-                                        type="button"
-                                        onClick={handleSaveLogoCrop}
-                                        className="logo-save-button"
-                                        disabled={isLogoProcessing}
-                                    >
-                                        {isLogoProcessing ? 'Processing...' : 'Save Crop'}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={handleRemoveLogo}
-                                        className="logo-cancel-button"
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                        
-                        {/* Logo Preview */}
-                        {logoCroppedImage && !isLogoCropping && (
-                            <div className="logo-preview-container">
-                                <div className="logo-preview">
-                                    <img
-                                        src={logoCroppedImage}
-                                        alt="Logo preview"
-                                        className="logo-preview-image"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={handleRemoveLogo}
-                                        className="logo-remove-button"
-                                    >
-                                        ×
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                        
-                        {/* TEMPORARILY DISABLED - Logo Name and URL Inputs */}
-                        {false && (
-                            <>
-                                {/* Logo Name Input */}
-                                {(logoCroppedImage || isLogoCropping) && (
-                                    <div className="logo-name-group">
-                                        <label htmlFor="logoName">Logo Name (optional)</label>
-                                        <input
-                                            type="text"
-                                            id="logoName"
-                                            value={logoName}
-                                            onChange={(e) => setLogoName(e.target.value.slice(0, 20))}
-                                            placeholder="Enter logo name"
-                                            className="form-input logo-input"
-                                            maxLength="20"
-                                            autoComplete="off"
-                                        />
-                                        <div className="input-hint">{logoName.length}/20 characters</div>
-                                    </div>
-                                )}
-                                
-                                {/* Logo URL Input */}
-                                {(logoCroppedImage || isLogoCropping) && (
-                                    <div className="logo-url-group">
-                                        <label htmlFor="logoUrl">Logo URL (optional)</label>
-                                        <input
-                                            type="url"
-                                            id="logoUrl"
-                                            value={logoUrl}
-                                            onChange={(e) => setLogoUrl(e.target.value)}
-                                            placeholder="https://example.com"
-                                            className="form-input logo-input"
-                                            autoComplete="off"
-                                        />
-                                    </div>
-                                )}
-                            </>
-                        )}
                     </div>
                     
                     <div className="form-group logo-upload-section">
