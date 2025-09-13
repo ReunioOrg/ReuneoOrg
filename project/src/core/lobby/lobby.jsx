@@ -19,7 +19,7 @@ const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with differe
 const MAX_TAGS_ALLOWED = 5; // Maximum number of tags allowed for both self and desiring tags
 const useEffectTime=5000;
 // Temporarily disable lobby profile image fetching to prevent backend overload
-const DISABLE_LOBBY_PROFILE_IMAGES = true;
+const DISABLE_LOBBY_PROFILE_IMAGES = false;
 
 const LobbyScreen = () => {
     const playat=Math.floor(9*60);
