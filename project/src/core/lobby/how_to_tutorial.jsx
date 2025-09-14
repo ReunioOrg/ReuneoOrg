@@ -16,7 +16,7 @@ const HowToTutorial = ({ onComplete, lobbyCode = 'this' }) => {
   // Slide data with custom durations
   const slides = [
     {
-      image: userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : '/assets/how_to_pt1_1.svg',
+      image: '/assets/how_to_tutorial_updated_slide1.svg',
       // text: 'Welcome to the lobby! Here you can see who else is joining.',
       duration: 2000, // 1.5 second for first slide
       animatedText: 'Find your match using their profile picture!'
@@ -25,13 +25,13 @@ const HowToTutorial = ({ onComplete, lobbyCode = 'this' }) => {
       image: '/assets/how_to_pt2_2.svg',
       // text: 'Select your tags to help us match you with the right people.',
       duration: 4000, // 4 seconds for second slide
-      animatedText: 'Raise the volume, you need it to know whats going on!'
+      animatedText: 'Raise volume to the max, to know when you have a match!'
     },
     {
-      image: '/assets/how_to_pt3_3.svg',
+      image: '/assets/how_to_tutorial_updated_slide3.svg',
       // text: 'When the game starts, you\'ll be paired with someone for a conversation.',
       duration: 4000, // 4 seconds for third slide
-      animatedText: 'Tap this to stop or pause, you can rejoin anytime'
+      animatedText: 'Tap leave to stop being paired/take a break'
     }
   ];
   
@@ -145,13 +145,10 @@ const HowToTutorial = ({ onComplete, lobbyCode = 'this' }) => {
             </div>
           </div>
         ))}
-        <div className="tutorial-progress">
-          {slides.map((_, index) => (
-            <div 
-              key={index} 
-              className={`progress-dot ${index === currentSlide ? 'active' : ''}`}
-            />
-          ))}
+        <div className="tutorial-progress-bar-container">
+          <div className="tutorial-progress-bar">
+            <div className="tutorial-progress-bar-fill"></div>
+          </div>
         </div>
       </div>
     </div>
