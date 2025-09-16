@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './lobby_countdown.css'; // We'll create this next
 
 const LobbyCountdown = ({ onComplete }) => {
-  const [count, setCount] = useState(5);
+  const [count, setCount] = useState(7);
   const [isAnimating, setIsAnimating] = useState(false);
   const animationRef = useRef(null);
   const countdownRef = useRef(null);
@@ -41,7 +41,7 @@ const LobbyCountdown = ({ onComplete }) => {
         setIsAnimating(false);
       }, 500);
       
-    }, 1500);
+    }, 1000);
 
     // Cleanup function
     return () => {

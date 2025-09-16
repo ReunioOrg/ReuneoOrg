@@ -685,6 +685,10 @@ const LobbyScreen = () => {
     const handleContinue = () => {
         if (selfTags != null) {
             define_profile_info(selfTags, desiringTags || []);
+            // Delay optimistic UI update until after scroll completes
+            setTimeout(() => {
+                setServerselfTags(selfTags || []);
+            }, 800); // Delay to allow scroll animation to complete
         }
         setSelectionPhase('desiring');
         
@@ -700,6 +704,11 @@ const LobbyScreen = () => {
     const handleSave = () => {
         if (desiringTags != null) {
             define_profile_info(selfTags || [], desiringTags);
+            // Delay optimistic UI update until after scroll completes
+            setTimeout(() => {
+                setServerselfTags(selfTags || []);
+                setServerdesiringTags(desiringTags);
+            }, 800); // Delay to allow scroll animation to complete
             setTimeout(() => {
                 if (!isReadyAnimating.current) {
                     isReadyAnimating.current = true;
@@ -843,7 +852,17 @@ const LobbyScreen = () => {
 
                 <div className="lobby-header" style={{marginTop: '-50px'}} key={lobbyState}>
                     <h2>
-                        {lobbyState === "active" && opponentProfile ? (
+                        {tagsState.length > 0 && (serverselfTags.length == 0 || serverdesiringTags.length == 0) ? (
+                            <>
+                                You're not ready, complete your profile to get matched up.
+                                <button 
+                                    className="missing-tags-button"
+                                    onClick={() => tagsSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                                >
+                                    Complete Profile
+                                </button>
+                            </>
+                        ) : lobbyState === "active" && opponentProfile ? (
                             <span className="lobby-pop-burst">
                                 Go find {opponentProfile.name}!
                             </span>
@@ -968,21 +987,20 @@ const LobbyScreen = () => {
                 {/* Player Count Display */}
                 {((lobbyState === "checkin") || (lobbyState === "active" && !opponentProfile)) && player_count !== null && (
                     <div className="player-count-container">
-                        <div className="player-count-bubble">
-                            <div className="player-count-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div className="player-count-widget">
+                            <div className="player-count-icon">
+                                <div className="icon-pulse"></div>
                                 <img 
-                                    src="/assets/players_display_icon.png" 
+                                    src="/assets/players_display_icon2.png" 
                                     alt="Players in lobby" 
                                     className="player-count-img" 
-                                    style={{ width: '40px', height: '40px', objectFit: 'contain' }}
                                 />
                             </div>
-                            <div className="player-count-text">
+                            <div className="player-count-info">
                                 <span className="player-count-number">{player_count}</span>
-                                <span className="player-count-label">
-                                    {player_count === 1 ? '' : ''} in {lobbyCode} lobby
-                                </span>
+                                <span className="player-count-label">joined</span>
                             </div>
+                            <div className="player-count-lobby">{lobbyCode}</div>
                         </div>
                     </div>
                 )}
@@ -1088,12 +1106,20 @@ const LobbyScreen = () => {
                         }
                     }}>
                         <div className="tags-section" ref={tagsSectionRef}>
-                            {/* Progress Bar */}
+                            {/* Progress Bar Tabs */}
                             <div className="progress-bar-container">
                                 <div 
-                                    className={`progress-bar ${selectionPhase === 'desiring' ? 'progress-complete' : ''}`}
-                                    onClick={handleBack}
-                                />
+                                    className={`self-progress-bar-tab ${selectionPhase === 'self' ? 'active' : ''} ${serverselfTags.length > 0 ? 'complete' : ''}`}
+                                    onClick={() => setSelectionPhase('self')}
+                                >
+                                    👤 Who are you?
+                                </div>
+                                <div 
+                                    className={`desiring-progress-bar-tab ${selectionPhase === 'desiring' ? 'active' : ''} ${serverdesiringTags.length > 0 ? 'complete' : ''}`}
+                                    onClick={() => serverselfTags.length > 0 ? setSelectionPhase('desiring') : null}
+                                >
+                                    👤 Who do you want to meet?
+                                </div>
                             </div>
 
                             {/* Tag Selection Groups */}
@@ -1172,7 +1198,7 @@ const LobbyScreen = () => {
             {(soundEnabled || !showSoundPrompt) || (lobbyState == "checkin") || (lobbyState == null) || isPlaying ? null : <SoundPrompt />}
 
             {/* Add the animation component */}
-            {showLobbyCountdown && (
+            {showLobbyCountdown && !(tagsState.length > 0 && serverdesiringTags.length === 0) && (
                 <LobbyCountdown onComplete={handleLobbyCountdownComplete} />
             )}
 
