@@ -1061,21 +1061,21 @@ const LobbyScreen = () => {
                 {/* Display tags in checkin or active state */}
                 {(lobbyState === "checkin" || lobbyState === "active") && (
                     <div className="selected-tags-container">
-                        {(selfTags && selfTags.length > 0) && (
+                        {(serverselfTags && serverselfTags.length > 0) && (
                             <div className="tag-category">
                                 <h4>I am:</h4>
                                 <div className="tag-list">
-                                    {selfTags.map(tag => (
+                                    {serverselfTags.map(tag => (
                                         <span key={`self-${tag}`} className="tag-item">{tag}</span>
                                     ))}
                                 </div>
                             </div>
                         )}
-                        {(desiringTags && desiringTags.length > 0) && (
+                        {(serverdesiringTags && serverdesiringTags.length > 0) && (
                             <div className="tag-category">
                                 <h4>Looking for:</h4>
                                 <div className="tag-list">
-                                    {desiringTags.map(tag => (
+                                    {serverdesiringTags.map(tag => (
                                         <span key={`desiring-${tag}`} className="tag-item">{tag}</span>
                                     ))}
                                 </div>
