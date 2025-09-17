@@ -19,6 +19,11 @@ const CreateLobbyView = () => {
     const [seconds, setSeconds] = useState('0');
     const [showTableNumbers, setShowTableNumbers] = useState(false);
     
+    // Tab states for matchmaking categories
+    const [selectedTab, setSelectedTab] = useState(null); // null = no selection, 'icebreaker' = Community Ice Breaker, 'custom' = Custom Matching
+    const [showModal, setShowModal] = useState(false);
+    const [pendingTabSwitch, setPendingTabSwitch] = useState(null);
+    
     // Logo upload states
     const [logoImage, setLogoImage] = useState(null);
     const [logoName, setLogoName] = useState('');
@@ -93,6 +98,39 @@ const CreateLobbyView = () => {
             e.preventDefault(); // Prevent form submission
             handleAddTag();
         }
+    };
+
+    // Handle tab selection
+    const handleTabSelect = (tabType) => {
+        if (tabType === 'icebreaker') {
+            // If switching to icebreaker and there are existing tags, show confirmation modal
+            if (customTags.length > 0 || tagInput.trim()) {
+                setPendingTabSwitch('icebreaker');
+                setShowModal(true);
+            } else {
+                // No tags to clear, switch directly
+                setSelectedTab('icebreaker');
+                setCustomTags([]);
+                setTagInput('');
+            }
+        } else if (tabType === 'custom') {
+            setSelectedTab('custom');
+        }
+    };
+
+    // Handle modal confirmation
+    const handleModalConfirm = () => {
+        setSelectedTab(pendingTabSwitch);
+        setCustomTags([]);
+        setTagInput('');
+        setShowModal(false);
+        setPendingTabSwitch(null);
+    };
+
+    // Handle modal cancel
+    const handleModalCancel = () => {
+        setShowModal(false);
+        setPendingTabSwitch(null);
     };
 
     // Logo upload functions
@@ -224,7 +262,7 @@ const CreateLobbyView = () => {
         try {
             const requestBody = {
                 lobby_code: lobbyCode,
-                custom_tags: customTags,
+                custom_tags: selectedTab === 'custom' ? customTags : [],
                 lobby_duration: lobbyDuration,
                 show_table_numbers: showTableNumbers
             };
@@ -359,44 +397,68 @@ const CreateLobbyView = () => {
                     </div>
                     
                     <div className="form-group">
-                        <label htmlFor="tagInput">Matchmaking Categories</label>
-                        <div className="tag-input-container">
-                            <input
-                                type="text"
-                                id="tagInput"
-                                value={tagInput}
-                                onChange={(e) => setTagInput(e.target.value)}
-                                onKeyDown={handleTagKeyDown}
-                                placeholder="Add categories (press + to add)"
-                                className="form-input"
-                                autoComplete="off"
-                            />
-                            <button 
-                                type="button" 
-                                onClick={handleAddTag}
-                                className="tag-add-button"
+                        <label>Matchmaking Categories</label>
+                        
+                        {/* Tab Selection */}
+                        <div className="matchmaking-tabs">
+                            <button
+                                type="button"
+                                className={`tab-button ${selectedTab === 'icebreaker' ? 'tab-selected' : ''}`}
+                                onClick={() => handleTabSelect('icebreaker')}
                             >
-                                +
+                                Community Ice Breaker
+                            </button>
+                            <button
+                                type="button"
+                                className={`tab-button ${selectedTab === 'custom' ? 'tab-selected' : ''}`}
+                                onClick={() => handleTabSelect('custom')}
+                            >
+                                Custom Matching
                             </button>
                         </div>
                         
-                        {customTags.length > 0 && (
-                            <div className="tag-list">
-                                {customTags.map((tag, index) => (
-                                    <div key={index} className="tag-item">
-                                        {tag}
-                                        <button 
-                                            type="button" 
-                                            onClick={() => handleRemoveTag(tag)}
-                                            className="tag-remove-button"
-                                        >
-                                            ×
-                                        </button>
+                        {/* Custom Matching Section - Only shown when custom tab is selected */}
+                        {selectedTab === 'custom' && (
+                            <div className="custom-matching-section">
+                                <div className="tag-input-container">
+                                    <input
+                                        type="text"
+                                        id="tagInput"
+                                        value={tagInput}
+                                        onChange={(e) => setTagInput(e.target.value)}
+                                        onKeyDown={handleTagKeyDown}
+                                        placeholder="Add categories (press + to add)"
+                                        className="form-input"
+                                        autoComplete="off"
+                                    />
+                                    <button 
+                                        type="button" 
+                                        onClick={handleAddTag}
+                                        className="tag-add-button"
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                                
+                                {customTags.length > 0 && (
+                                    <div className="tag-list">
+                                        {customTags.map((tag, index) => (
+                                            <div key={index} className="tag-item">
+                                                {tag}
+                                                <button 
+                                                    type="button" 
+                                                    onClick={() => handleRemoveTag(tag)}
+                                                    className="tag-remove-button"
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
+                                )}
+                                <div className="input-hint">If you want to match people based on categories</div>
                             </div>
                         )}
-                        <div className="input-hint">If you want to match people based on categories</div>
                     </div>
                     
                     <div className="form-group logo-upload-section">
@@ -534,6 +596,32 @@ const CreateLobbyView = () => {
                     </button>
                 </form>
             </div>
+            
+            {/* Confirmation Modal */}
+            {showModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>Switch to Community Ice Breaker?</h3>
+                        <p>This will clear your current matching categories.</p>
+                        <div className="modal-buttons">
+                            <button
+                                type="button"
+                                onClick={handleModalCancel}
+                                className="modal-button modal-cancel"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleModalConfirm}
+                                className="modal-button modal-confirm"
+                            >
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
