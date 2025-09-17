@@ -202,6 +202,18 @@
     }
 }
 
+@keyframes physicsHop {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-12px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
 .tag-labels-container {
     display: flex;
     flex-direction: row;
@@ -328,6 +340,7 @@
     color: #f5f7ff;
     box-shadow: 0 7px 4px rgba(0, 0, 0, 0.1);
     background: var(--primary-color);
+    animation: physicsHop 1s ease-out infinite;
 }
 
 .missing-tags-button:hover {

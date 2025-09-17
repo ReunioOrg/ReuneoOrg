@@ -40,6 +40,12 @@ const LoginSignupPage = () => {
         }
     };
 
+    const handlePasswordChange = (e) => {
+        // Convert input to lowercase to handle iPhone auto-capitalization
+        const sanitizedValue = e.target.value.toLowerCase();
+        setPassword(sanitizedValue);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -124,7 +130,7 @@ const LoginSignupPage = () => {
                             placeholder="Password" 
                             className="login-input"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={handlePasswordChange}
                             required
                         />
                     </div>
