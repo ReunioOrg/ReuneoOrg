@@ -1021,32 +1021,62 @@ const AdminLobbyView = () => {
                         <div className="player-section">
                             <div className="section-header">Paired Players: <span className="stat-value" style={{ fontSize: '1.3rem' }}>{pairedPlayers?.length * 2 || 0}</span></div>
                             <div className="player-grid">
-                                {pairedPlayers.map((pair, index) => (
-                                    <div key={index} className="paired-player-card">
-                                        <div 
-                                            className="paired-player"
-                                            onClick={() => handleOpenKickModal(pair[0])}
-                                        >
-                                            <img 
-                                                src={pair[0].pfp_data} 
-                                                alt={pair[0].name} 
-                                                className="paired-player-avatar"
-                                            />
-                                            <h3 className="paired-player-name">{pair[0].name}</h3>
+                                {pairedPlayers.map((pair, index) => {
+                                    const hasMatchDetails = (pair[0].match_details && pair[0].match_details.opponent_matched_tags && pair[0].match_details.opponent_matched_tags.length > 0) || 
+                                                           (pair[1].match_details && pair[1].match_details.opponent_matched_tags && pair[1].match_details.opponent_matched_tags.length > 0);
+                                    
+                                    return (
+                                        <div key={index} className="paired-player-card">
+                                            {hasMatchDetails && (
+                                                <div className="matched-pair-badge">Matched</div>
+                                            )}
+                                            <div 
+                                                className="paired-player"
+                                                onClick={() => handleOpenKickModal(pair[0])}
+                                            >
+                                                <img 
+                                                    src={pair[0].pfp_data} 
+                                                    alt={pair[0].name} 
+                                                    className="paired-player-avatar"
+                                                />
+                                                <h3 className="paired-player-name">{pair[0].name}</h3>
+                                                {pair[0].match_details && pair[0].match_details.opponent_matched_tags && pair[0].match_details.opponent_matched_tags.length > 0 && (
+                                                    <div className="matching-tag-container">
+                                                        <div className="matched-player-tag">
+                                                            {pair[0].match_details.opponent_matched_tags.map((tag, tagIndex) => (
+                                                                <span key={tagIndex} className="matching-tag-pill">
+                                                                    {tag}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div 
+                                                className="paired-player"
+                                                onClick={() => handleOpenKickModal(pair[1])}
+                                            >
+                                                <img 
+                                                    src={pair[1].pfp_data} 
+                                                    alt={pair[1].name}
+                                                    className="paired-player-avatar"
+                                                />
+                                                <h3 className="paired-player-name">{pair[1].name}</h3>
+                                                {pair[1].match_details && pair[1].match_details.opponent_matched_tags && pair[1].match_details.opponent_matched_tags.length > 0 && (
+                                                    <div className="matching-tag-container">
+                                                        <div className="matched-player-tag">
+                                                            {pair[1].match_details.opponent_matched_tags.map((tag, tagIndex) => (
+                                                                <span key={tagIndex} className="matching-tag-pill">
+                                                                    {tag}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div 
-                                            className="paired-player"
-                                            onClick={() => handleOpenKickModal(pair[1])}
-                                        >
-                                            <img 
-                                                src={pair[1].pfp_data} 
-                                                alt={pair[1].name}
-                                                className="paired-player-avatar"
-                                            />
-                                            <h3 className="paired-player-name">{pair[1].name}</h3>
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
