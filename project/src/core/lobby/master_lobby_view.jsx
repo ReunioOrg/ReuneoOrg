@@ -114,6 +114,7 @@ const MasterLobbyView = () => {
 
     return (
         <div className="master-lobby-container">
+            <button className="back-button" onClick={() => navigate(-1)}>Back</button>
             {error && (
                 <div className="error-banner" style={{ 
                     backgroundColor: '#f8d7da', 

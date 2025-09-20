@@ -108,6 +108,34 @@
     font-family: Helvetica, sans-serif;
 }
 
+/* Back Button */
+.back-button {
+    position: fixed;
+    width: 100px;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 20px;
+    left: 20px;
+    background: #144dff;
+    border: none;
+    border-radius: 17.5px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: Helvetica, sans-serif;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    color: #f5f7ff;
+    box-shadow: 0 7px 4px rgba(0, 0, 0, 0.1);
+}
+
+.back-button:hover {
+    background: #e5e9ff;
+    transform: translateY(-3px);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .master-lobby-grid {
@@ -129,5 +157,11 @@
     .player-count,
     .lobby-state {
         font-size: 0.8rem;
+    }
+    
+    .back-button {
+        top: 15px;
+        left: 15px;
+        padding: 0.8rem 1rem;
     }
 }

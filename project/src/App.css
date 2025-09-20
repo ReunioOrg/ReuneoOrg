@@ -428,4 +428,27 @@
   font-weight: 500;
 }
 
+/* Master Lobbies Button Styles */
+.master-lobbies-button {
+  padding: 12px 20px;
+  background-color: #144dff;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-shadow: 0 0 1px rgba(58, 53, 53, 0.5);
+  outline: 1px solid rgba(58, 53, 53, 0.7);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.master-lobbies-button:hover {
+  background-color: #535bf2;
+  transform: scale(1.02);
+}
+
 

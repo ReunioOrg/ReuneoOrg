@@ -410,6 +410,23 @@ const App = () => {
           />
           
         </div>
+
+        {/* Master Lobbies Button - Temporary Feature */}
+        {(permissions === 'admin' || permissions === 'organizer') && user === 'topaz' && (
+          <div style={{ 
+            position: 'absolute', 
+            top: '120px', 
+            right: '20px',
+            zIndex: 10
+          }}>
+            <button 
+              className="master-lobbies-button"
+              onClick={() => navigate('/master_lobby_view')}
+            >
+              Lobbies
+            </button>
+          </div>
+        )}
         
         {showProfileCreation && (
           <ProfileCreation
