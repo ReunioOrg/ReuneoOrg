@@ -81,9 +81,34 @@ const CreateLobbyView = () => {
 
     // Handle adding a tag to the customTags list
     const handleAddTag = () => {
-        if (tagInput.trim() && !customTags.includes(tagInput.trim())) {
-            setCustomTags([...customTags, tagInput.trim()]);
+        // Check if input contains commas for batch processing
+        if (tagInput.includes(',')) {
+            // Split by comma and trim only the single space after commas
+            const potentialTags = tagInput.split(',').map(tag => {
+                // Only trim the single space at the beginning if it exists
+                return tag.startsWith(' ') ? tag.substring(1) : tag;
+            });
+            
+            // Process each tag using existing validation logic
+            const newTags = [];
+            potentialTags.forEach(tag => {
+                const trimmedTag = tag.trim();
+                if (trimmedTag && !customTags.includes(trimmedTag) && !newTags.includes(trimmedTag)) {
+                    newTags.push(trimmedTag);
+                }
+            });
+            
+            // Add all valid new tags at once
+            if (newTags.length > 0) {
+                setCustomTags([...customTags, ...newTags]);
+            }
             setTagInput('');
+        } else {
+            // Original single tag logic (unchanged)
+            if (tagInput.trim() && !customTags.includes(tagInput.trim())) {
+                setCustomTags([...customTags, tagInput.trim()]);
+                setTagInput('');
+            }
         }
     };
 
