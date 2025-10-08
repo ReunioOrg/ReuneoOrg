@@ -339,12 +339,12 @@
     transition: all 0.3s ease;
     color: #f5f7ff;
     box-shadow: 0 7px 4px rgba(0, 0, 0, 0.1);
-    background: var(--primary-color);
+    background: #dc3545;
     animation: physicsHop 1s ease-out infinite;
 }
 
 .missing-tags-button:hover {
-    background: var(--primary-hover);
+    background: #c82333;
     transform: translateY(-3px);
 }
 
