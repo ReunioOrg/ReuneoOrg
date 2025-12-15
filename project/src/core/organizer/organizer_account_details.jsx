@@ -41,17 +41,32 @@ const OrganizerAccountDetails = () => {
 
                 const data = await response.json();
 
+                // Handle errors gracefully
                 if (!response.ok || data.error) {
-                    if (data.has_subscription === false || data.error) {
-                        // No subscription found - redirect to signup
+                    // If user is admin/organizer and has subscription, show partial data
+                    if ((permissions === 'admin' || permissions === 'organizer') && 
+                        data.has_subscription !== false) {
+                        // Show error as warning but continue with partial data
+                        setError(data.error || 'Some subscription details may be incomplete');
+                        setAccountDetails(data); // Show what we have
+                        setIsLoadingDetails(false);
+                        return;
+                    }
+                    // Only redirect if explicitly no subscription
+                    if (data.has_subscription === false) {
                         navigate('/organizer-signup');
                         return;
                     }
+                    // For other errors, show error but try to show data if available
                     setError(data.error || 'Failed to load account details');
+                    if (data.has_subscription !== false) {
+                        setAccountDetails(data); // Show partial data even with error
+                    }
                     setIsLoadingDetails(false);
                     return;
                 }
 
+                // Explicitly check for no subscription
                 if (data.has_subscription === false) {
                     navigate('/organizer-signup');
                     return;
@@ -61,6 +76,10 @@ const OrganizerAccountDetails = () => {
             } catch (error) {
                 console.error('Error fetching account details:', error);
                 setError('Failed to load account details. Please try again.');
+                // If user is admin/organizer, don't redirect on network errors
+                if (permissions !== 'admin' && permissions !== 'organizer') {
+                    // Only redirect non-admin users on network errors
+                }
             } finally {
                 setIsLoadingDetails(false);
             }
@@ -69,7 +88,7 @@ const OrganizerAccountDetails = () => {
         if (user) {
             fetchAccountDetails();
         }
-    }, [user, navigate]);
+    }, [user, permissions, navigate]);
 
     // Prevent body scroll when modal is open
     useEffect(() => {
@@ -84,6 +103,7 @@ const OrganizerAccountDetails = () => {
     }, [showCancelModal]);
 
     const formatDate = (timestamp) => {
+        if (!timestamp) return null;
         return new Date(timestamp * 1000).toLocaleDateString('en-US', { 
             year: 'numeric', 
             month: 'long', 
@@ -144,12 +164,23 @@ const OrganizerAccountDetails = () => {
         );
     }
 
-    if (!accountDetails) {
+    if (!accountDetails && !isLoadingDetails) {
         return (
             <div className="signup-container">
+                <button 
+                    onClick={() => navigate('/')} 
+                    className="homescreen-button"
+                >
+                    Home
+                </button>
                 <div className="error-message">{error || 'No account details found'}</div>
             </div>
         );
+    }
+
+    // If no account details but we're not loading, show error
+    if (!accountDetails) {
+        return null; // Still loading or will show error above
     }
 
     return (
@@ -173,31 +204,46 @@ const OrganizerAccountDetails = () => {
 
             <div className="step-form-container">
                 <div className="account-details-content">
-                    <div className="detail-row">
-                        <span className="detail-label">Subscription Status:</span>
-                        <span className={`detail-value status-${accountDetails.subscription_status}`}>
-                            {accountDetails.subscription_status}
-                        </span>
-                    </div>
+                    {/* Show error message at top if present */}
+                    {error && (
+                        <div className="error-message" style={{ marginBottom: '20px' }}>
+                            {error}
+                        </div>
+                    )}
 
-                    <div className="detail-row">
-                        <span className="detail-label">Email:</span>
-                        <span className="detail-value">{accountDetails.email}</span>
-                    </div>
+                    {accountDetails.subscription_status && (
+                        <div className="detail-row">
+                            <span className="detail-label">Subscription Status:</span>
+                            <span className={`detail-value status-${accountDetails.subscription_status}`}>
+                                {accountDetails.subscription_status}
+                            </span>
+                        </div>
+                    )}
 
-                    <div className="detail-row">
-                        <span className="detail-label">Billing Period:</span>
-                        <span className="detail-value">{accountDetails.billing_period}</span>
-                    </div>
+                    {accountDetails.email && (
+                        <div className="detail-row">
+                            <span className="detail-label">Email:</span>
+                            <span className="detail-value">{accountDetails.email}</span>
+                        </div>
+                    )}
 
-                    <div className="detail-row">
-                        <span className="detail-label">Amount:</span>
-                        <span className="detail-value">
-                            ${accountDetails.amount} {accountDetails.currency}
-                        </span>
-                    </div>
+                    {accountDetails.billing_period && (
+                        <div className="detail-row">
+                            <span className="detail-label">Billing Period:</span>
+                            <span className="detail-value">{accountDetails.billing_period}</span>
+                        </div>
+                    )}
 
-                    {accountDetails.current_period_start && (
+                    {(accountDetails.amount !== null && accountDetails.amount !== undefined) && (
+                        <div className="detail-row">
+                            <span className="detail-label">Amount:</span>
+                            <span className="detail-value">
+                                ${accountDetails.amount} {accountDetails.currency || ''}
+                            </span>
+                        </div>
+                    )}
+
+                    {accountDetails.current_period_start && formatDate(accountDetails.current_period_start) && (
                         <div className="detail-row">
                             <span className="detail-label">Current Period Start:</span>
                             <span className="detail-value">
@@ -206,7 +252,7 @@ const OrganizerAccountDetails = () => {
                         </div>
                     )}
 
-                    {accountDetails.current_period_end && (
+                    {accountDetails.current_period_end && formatDate(accountDetails.current_period_end) && (
                         <div className="detail-row">
                             <span className="detail-label">Current Period End:</span>
                             <span className="detail-value">
@@ -219,12 +265,6 @@ const OrganizerAccountDetails = () => {
                         <div className="detail-row">
                             <span className="detail-label">Cancellation:</span>
                             <span className="detail-value">Will cancel at period end</span>
-                        </div>
-                    )}
-
-                    {error && (
-                        <div className="error-message" style={{ marginTop: '20px' }}>
-                            {error}
                         </div>
                     )}
 
