@@ -411,6 +411,54 @@ const App = () => {
           
         </div>
 
+        {/* Settings Button - Only visible to admin/organizer */}
+        <div style={{ 
+          position: 'absolute', 
+          top: '85px', 
+          display: (permissions === 'admin' || permissions === 'organizer') ? 'flex' : 'none',
+          justifyContent: 'flex-end',
+          width: '94%',
+          left: '3%',
+          alignItems: 'center'
+        }}>
+          {(permissions === 'admin' || permissions === 'organizer') && (
+            <button
+              className="login-button"
+              onClick={() => navigate('/organizer-account-details')}
+              style={{ 
+                width: '100px',
+                height: '35px',
+                borderRadius: '13px',
+                boxShadow: '0 0 4px rgba(74, 58, 58, 0.5)',
+                outline: '1px solid rgba(252, 240, 240, 0.6)',
+                fontWeight: '900',
+                fontSize: '1rem',
+                padding: '10px 10px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(74, 58, 58, 0.7)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 0 4px rgba(74, 58, 58, 0.5)';
+              }}
+            >
+              <span style={{
+                textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
+                color: 'inherit'
+              }}>
+                Settings
+              </span>
+            </button>
+          )}
+        </div>
+
         {/* Master Lobbies Button - Temporary Feature */}
         {(permissions === 'admin' || permissions === 'organizer') && user === 'topaz' && (
           <div style={{ 
@@ -633,7 +681,7 @@ const App = () => {
               {permissions !== 'admin' && permissions !== 'organizer' && (
                 <button 
                   className="primary-button join-lobby-button" 
-                  onClick={() => window.location.href = 'https://reuneo.app/'}
+                  onClick={() => window.location.href = 'https://reuneo.com/organizer-signup'}
                   style={{
                     padding: '16px 20px',
                     backgroundColor: 'transparent',
@@ -661,7 +709,7 @@ const App = () => {
                     textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
                     color: 'inherit'
                   }}>
-                    Get Started
+                    Become Organizer
                   </span>
                 </button>
               )}

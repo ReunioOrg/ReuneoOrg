@@ -314,6 +314,23 @@ const OrganizerSignup = () => {
                             className="step-input"
                             autoFocus={showUsernameField}
                         />
+                        {/* Info message - shows when user starts typing */}
+                        {username.length > 0 && (
+                            <div className="username-info-message">
+                                <svg 
+                                    className="info-icon" 
+                                    width="16" 
+                                    height="16" 
+                                    viewBox="0 0 16 16" 
+                                    fill="none"
+                                >
+                                    <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
+                                    <path d="M8 5V7M8 11V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                                    <circle cx="8" cy="5" r="0.5" fill="currentColor"/>
+                                </svg>
+                                <span>This will be your temporary password</span>
+                            </div>
+                        )}
                     </div>
 
                     {/* Email field - always shown */}

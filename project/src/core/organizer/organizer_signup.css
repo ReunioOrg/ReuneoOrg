@@ -246,6 +246,36 @@
     font-size: 0.9rem;
 }
 
+.username-info-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background-color: rgba(20, 77, 255, 0.1);
+    border: 1px solid rgba(20, 77, 255, 0.2);
+    border-radius: 8px;
+    color: #144dff;
+    font-size: 0.85rem;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.username-info-message .info-icon {
+    flex-shrink: 0;
+    color: #144dff;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
