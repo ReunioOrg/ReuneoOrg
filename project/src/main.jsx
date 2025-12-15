@@ -13,6 +13,9 @@ import AdminLobbyView from './core/lobby/admin_lobby_view.jsx'
 import PureSignupPage from './core/Auth/PureSignupPage.jsx'
 import ProductSelection from './core/organizer/product-selection.jsx'
 import CreateLobby from './core/organizer/create_lobby.jsx'
+import OrganizerSignup from './core/organizer/organizer_signup.jsx'
+import OrganizerSignupSuccess from './core/organizer/organizer_signup_success.jsx'
+import OrganizerAccountDetails from './core/organizer/organizer_account_details.jsx'
 import LobbyCountdown from './core/lobby/lobby_countdown.jsx'
 import HowToTutorial from './core/lobby/how_to_tutorial.jsx'
 import MasterLobbyView from './core/lobby/master_lobby_view.jsx'
@@ -31,6 +34,9 @@ createRoot(document.getElementById('root')).render(
           <Route path="/admin_lobby_view" element={<AdminLobbyView />} />
           <Route path="/create_lobby" element={<CreateLobby />} />
           <Route path="/product-selection" element={<ProductSelection />} />
+          <Route path="/organizer-signup" element={<OrganizerSignup />} />
+          <Route path="/organizer-signup-success" element={<OrganizerSignupSuccess />} />
+          <Route path="/organizer-account-details" element={<OrganizerAccountDetails />} />
           <Route path="/master_lobby_view" element={<MasterLobbyView />} />
           {/* <Route path="/cofounders" element={<MyCF />} /> */}
         </Routes>
