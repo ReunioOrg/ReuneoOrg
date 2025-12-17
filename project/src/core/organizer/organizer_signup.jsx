@@ -1,7 +1,43 @@
-import React, { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../Auth/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './organizer_signup.css';
+
+const getRewardfulReferralFromBrowser = (locationSearch) => {
+    try {
+        const searchParams = new URLSearchParams(locationSearch || window.location.search);
+
+        // Rewardful affiliate links typically land with ?via=...
+        const viaParam = searchParams.get('via') || '';
+
+        // Some older/alternate integrations may pass custom params
+        const legacyParam =
+            searchParams.get('rewardful') ||
+            searchParams.get('rewardful_referral') ||
+            '';
+
+        // Rewardful JS exposes referral from cookie as Rewardful.referral
+        // (We also guard for different global shapes.)
+        const referralFromRewardfulJs =
+            (typeof window !== 'undefined' && window.Rewardful && window.Rewardful.referral) ||
+            '';
+
+        const fromStorage =
+            (typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('rewardful_referral')) ||
+            '';
+
+        const referral = referralFromRewardfulJs || legacyParam || viaParam || fromStorage || '';
+
+        // Persist for SPA navigations where query string may not be present
+        if (referral && typeof window !== 'undefined' && window.localStorage) {
+            window.localStorage.setItem('rewardful_referral', referral);
+        }
+
+        return referral;
+    } catch {
+        return '';
+    }
+};
 
 const OrganizerSignup = () => {
     const { login, user, checkAuth, permissions } = useContext(AuthContext);
@@ -133,7 +169,7 @@ const OrganizerSignup = () => {
         }
     };
 
-    const handlePhoneBlur = (e) => {
+    const handlePhoneBlur = () => {
         const formatted = formatPhoneNumber(phone);
         setPhone(formatted);
         // Validate on blur
@@ -154,7 +190,7 @@ const OrganizerSignup = () => {
         }
     };
 
-    const handleCityStateBlur = (e) => {
+    const handleCityStateBlur = () => {
         // Validate on blur
         if (cityState && !validateCityState(cityState)) {
             setFieldErrors(prev => ({ ...prev, cityState: 'City/State must be at least 2 characters' }));
@@ -223,7 +259,7 @@ const OrganizerSignup = () => {
 
         // Extract affiliate codes from URL query parameters
         const searchParams = new URLSearchParams(location.search);
-        const rewardfulReferral = searchParams.get('rewardful') || searchParams.get('rewardful_referral') || '';
+        const rewardfulReferral = getRewardfulReferralFromBrowser(location.search);
         const affiliateCode = searchParams.get('ref') || searchParams.get('affiliate_code') || '';
 
         // If user already has account, update profile first, then go to Stripe checkout
