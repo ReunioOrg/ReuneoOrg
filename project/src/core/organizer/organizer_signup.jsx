@@ -7,6 +7,11 @@ const OrganizerSignup = () => {
     const { login, user, checkAuth, permissions } = useContext(AuthContext);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [cityState, setCityState] = useState('');
+    const [eventType, setEventType] = useState('');
+    const [avgAttendees, setAvgAttendees] = useState('');
+    const [fieldErrors, setFieldErrors] = useState({});
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -76,6 +81,31 @@ const OrganizerSignup = () => {
         return emailRegex.test(email) && email.trim() !== '';
     };
 
+    const validatePhone = (phoneValue) => {
+        // Strip all non-digit characters
+        const digitsOnly = phoneValue.replace(/\D/g, '');
+        return digitsOnly.length === 10;
+    };
+
+    const validateCityState = (cityStateValue) => {
+        return cityStateValue.trim().length >= 2;
+    };
+
+    const formatPhoneNumber = (value) => {
+        // Strip all non-digit characters
+        const digitsOnly = value.replace(/\D/g, '');
+        
+        // Format as (123) 456-7890
+        if (digitsOnly.length === 0) return '';
+        if (digitsOnly.length <= 3) return `(${digitsOnly}`;
+        if (digitsOnly.length <= 6) return `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3)}`;
+        return `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6, 10)}`;
+    };
+
+    const getPhoneDigits = (phoneValue) => {
+        return phoneValue.replace(/\D/g, '');
+    };
+
     const handleUsernameChange = (e) => {
         // Convert input to lowercase and remove any non-alphanumeric characters
         const sanitizedValue = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -86,8 +116,67 @@ const OrganizerSignup = () => {
 
     const handleEmailChange = (e) => {
         setEmail(e.target.value);
-        // Clear error when user starts typing
+        // Clear errors when user starts typing
         if (error) setError('');
+        if (fieldErrors.email) {
+            setFieldErrors(prev => ({ ...prev, email: '' }));
+        }
+    };
+
+    const handlePhoneChange = (e) => {
+        const value = e.target.value;
+        setPhone(value);
+        // Clear errors when user starts typing
+        if (error) setError('');
+        if (fieldErrors.phone) {
+            setFieldErrors(prev => ({ ...prev, phone: '' }));
+        }
+    };
+
+    const handlePhoneBlur = (e) => {
+        const formatted = formatPhoneNumber(phone);
+        setPhone(formatted);
+        // Validate on blur
+        if (formatted && !validatePhone(formatted)) {
+            setFieldErrors(prev => ({ ...prev, phone: 'Invalid phone number' }));
+        } else {
+            setFieldErrors(prev => ({ ...prev, phone: '' }));
+        }
+    };
+
+    const handleCityStateChange = (e) => {
+        const value = e.target.value;
+        setCityState(value);
+        // Clear errors when user starts typing
+        if (error) setError('');
+        if (fieldErrors.cityState) {
+            setFieldErrors(prev => ({ ...prev, cityState: '' }));
+        }
+    };
+
+    const handleCityStateBlur = (e) => {
+        // Validate on blur
+        if (cityState && !validateCityState(cityState)) {
+            setFieldErrors(prev => ({ ...prev, cityState: 'City/State must be at least 2 characters' }));
+        } else {
+            setFieldErrors(prev => ({ ...prev, cityState: '' }));
+        }
+    };
+
+    const handleEventTypeChange = (e) => {
+        setEventType(e.target.value);
+        // Clear errors
+        if (fieldErrors.eventType) {
+            setFieldErrors(prev => ({ ...prev, eventType: '' }));
+        }
+    };
+
+    const handleAvgAttendeesChange = (e) => {
+        setAvgAttendees(e.target.value);
+        // Clear errors
+        if (fieldErrors.avgAttendees) {
+            setFieldErrors(prev => ({ ...prev, avgAttendees: '' }));
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -109,7 +198,25 @@ const OrganizerSignup = () => {
 
         // Always validate email
         if (!email || !validateEmail(email)) {
+            setFieldErrors(prev => ({ ...prev, email: 'Please enter a valid email address' }));
             setError('Please enter a valid email address');
+            setIsLoading(false);
+            return;
+        }
+
+        // Validate phone number (required)
+        const phoneDigits = getPhoneDigits(phone);
+        if (!phone || !validatePhone(phone)) {
+            setFieldErrors(prev => ({ ...prev, phone: 'Please enter a valid phone number' }));
+            setError('Please enter a valid phone number');
+            setIsLoading(false);
+            return;
+        }
+
+        // Validate city/state (required)
+        if (!cityState || !validateCityState(cityState)) {
+            setFieldErrors(prev => ({ ...prev, cityState: 'City/State is required (minimum 2 characters)' }));
+            setError('City/State is required (minimum 2 characters)');
             setIsLoading(false);
             return;
         }
@@ -119,7 +226,7 @@ const OrganizerSignup = () => {
         const rewardfulReferral = searchParams.get('rewardful') || searchParams.get('rewardful_referral') || '';
         const affiliateCode = searchParams.get('ref') || searchParams.get('affiliate_code') || '';
 
-        // If user already has account, go straight to Stripe checkout
+        // If user already has account, update profile first, then go to Stripe checkout
         if (hasAccount) {
             const token = localStorage.getItem('access_token');
             if (!token) {
@@ -129,6 +236,25 @@ const OrganizerSignup = () => {
             }
 
             try {
+                // Update profile with new fields before Stripe checkout
+                const profileUpdateResponse = await fetch(`${window.server_url}/update_profile`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phone_number: phoneDigits,
+                        city_state: cityState,
+                        event_type: eventType || '',
+                        avg_attendees: avgAttendees || ''
+                    }),
+                });
+
+                if (!profileUpdateResponse.ok) {
+                    throw new Error('Failed to update profile');
+                }
+
                 // Create Stripe checkout session
                 const checkoutResponse = await fetch(`${window.server_url}/create-checkout-session`, {
                     method: 'POST',
@@ -218,7 +344,7 @@ const OrganizerSignup = () => {
                 new Uint8Array(imageBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
             );
 
-            // Step 6: Update profile (name=username, image=base64Image)
+            // Step 6: Update profile (name=username, image=base64Image, and new fields)
             const profileCreation = await fetch(`${window.server_url}/update_profile`, {
                 method: 'POST',
                 headers: {
@@ -227,7 +353,11 @@ const OrganizerSignup = () => {
                 },
                 body: JSON.stringify({
                     name: username,
-                    image_data: base64Image
+                    image_data: base64Image,
+                    phone_number: phoneDigits,
+                    city_state: cityState,
+                    event_type: eventType || '',
+                    avg_attendees: avgAttendees || ''
                 }),
             });
 
@@ -337,20 +467,139 @@ const OrganizerSignup = () => {
                     <div style={{ marginTop: showUsernameField ? '20px' : '0' }}>
                         <label className="step-label">
                             Email
+                            {fieldErrors.email && (
+                                <svg 
+                                    className="error-icon" 
+                                    width="16" 
+                                    height="16" 
+                                    viewBox="0 0 16 16" 
+                                    fill="none"
+                                    style={{ marginLeft: '8px', display: 'inline-block', verticalAlign: 'middle' }}
+                                >
+                                    <circle cx="8" cy="8" r="7" stroke="#dc3545" strokeWidth="1.5" fill="#ffebee"/>
+                                    <path d="M8 4V8M8 12V10" stroke="#dc3545" strokeWidth="1.5" strokeLinecap="round"/>
+                                    <circle cx="8" cy="4" r="0.5" fill="#dc3545"/>
+                                </svg>
+                            )}
                         </label>
                         <input
                             type="email"
                             value={email}
                             onChange={handleEmailChange}
                             placeholder="Enter your email"
-                            className="step-input"
+                            className={`step-input ${fieldErrors.email ? 'input-error' : ''}`}
                             autoFocus={!showUsernameField}
                         />
                     </div>
 
-                    {/* Error message */}
+                    {/* Phone number field - always shown */}
+                    <div style={{ marginTop: '20px' }}>
+                        <label className="step-label">
+                            Phone Number
+                            {fieldErrors.phone && (
+                                <svg 
+                                    className="error-icon" 
+                                    width="16" 
+                                    height="16" 
+                                    viewBox="0 0 16 16" 
+                                    fill="none"
+                                    style={{ marginLeft: '8px', display: 'inline-block', verticalAlign: 'middle' }}
+                                >
+                                    <circle cx="8" cy="8" r="7" stroke="#dc3545" strokeWidth="1.5" fill="#ffebee"/>
+                                    <path d="M8 4V8M8 12V10" stroke="#dc3545" strokeWidth="1.5" strokeLinecap="round"/>
+                                    <circle cx="8" cy="4" r="0.5" fill="#dc3545"/>
+                                </svg>
+                            )}
+                        </label>
+                        <input
+                            type="tel"
+                            value={phone}
+                            onChange={handlePhoneChange}
+                            onBlur={handlePhoneBlur}
+                            placeholder="(123) 456-7890"
+                            className={`step-input ${fieldErrors.phone ? 'input-error' : ''}`}
+                        />
+                    </div>
+
+                    {/* City/State field - always shown */}
+                    <div style={{ marginTop: '20px' }}>
+                        <label className="step-label">
+                            City / State
+                            {fieldErrors.cityState && (
+                                <svg 
+                                    className="error-icon" 
+                                    width="16" 
+                                    height="16" 
+                                    viewBox="0 0 16 16" 
+                                    fill="none"
+                                    style={{ marginLeft: '8px', display: 'inline-block', verticalAlign: 'middle' }}
+                                >
+                                    <circle cx="8" cy="8" r="7" stroke="#dc3545" strokeWidth="1.5" fill="#ffebee"/>
+                                    <path d="M8 4V8M8 12V10" stroke="#dc3545" strokeWidth="1.5" strokeLinecap="round"/>
+                                    <circle cx="8" cy="4" r="0.5" fill="#dc3545"/>
+                                </svg>
+                            )}
+                        </label>
+                        <input
+                            type="text"
+                            value={cityState}
+                            onChange={handleCityStateChange}
+                            onBlur={handleCityStateBlur}
+                            placeholder="City / State"
+                            className={`step-input ${fieldErrors.cityState ? 'input-error' : ''}`}
+                        />
+                    </div>
+
+                    {/* Event Type dropdown - always shown, optional */}
+                    <div style={{ marginTop: '20px' }}>
+                        <label className="step-label">
+                            What events do you host?
+                        </label>
+                        <select
+                            value={eventType}
+                            onChange={handleEventTypeChange}
+                            className="step-select"
+                        >
+                            <option value="">Select an option...</option>
+                            <option value="Hospitality-Restaurants">Hospitality-Restaurants</option>
+                            <option value="Social">Social</option>
+                            <option value="Residential">Residential</option>
+                            <option value="Business Networking">Business Networking</option>
+                            <option value="Event Specialist">Event Specialist</option>
+                            <option value="Education">Education</option>
+                            <option value="HR-Team Building">HR-Team Building</option>
+                            <option value="Corporate">Corporate</option>
+                            <option value="Co-working">Co-working</option>
+                            <option value="Dating">Dating</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    {/* Avg Attendees dropdown - always shown, optional */}
+                    <div style={{ marginTop: '20px' }}>
+                        <label className="step-label">
+                            Avg # of attendees
+                        </label>
+                        <select
+                            value={avgAttendees}
+                            onChange={handleAvgAttendeesChange}
+                            className="step-select"
+                        >
+                            <option value="">Select an option...</option>
+                            <option value="5-15">5-15</option>
+                            <option value="15-30">15-30</option>
+                            <option value="30-50">30-50</option>
+                            <option value="50-75">50-75</option>
+                            <option value="75-100">75-100</option>
+                            <option value="100-150">100-150</option>
+                            <option value="150-200">150-200</option>
+                            <option value="200+">200+</option>
+                        </select>
+                    </div>
+
+                    {/* Error message - combined errors above submit button */}
                     {error && (
-                        <div className="error-message" style={{ marginTop: '15px' }}>
+                        <div className="error-message" style={{ marginTop: '15px', marginBottom: '10px' }}>
                             {error}
                         </div>
                     )}

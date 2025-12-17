@@ -165,6 +165,49 @@
     cursor: not-allowed;
 }
 
+.step-input.input-error {
+    border-color: #dc3545;
+}
+
+.step-input.input-error:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.step-select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: transparent;
+    box-sizing: border-box;
+    margin-bottom: 0;
+    min-height: 44px;
+    color: #333;
+    cursor: pointer;
+}
+
+.step-select:focus {
+    border-color: #144dff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(20, 77, 255, 0.1);
+}
+
+.step-select:hover {
+    border-color: #144dff;
+}
+
+.step-select option {
+    padding: 8px;
+    background: white;
+}
+
+.error-icon {
+    flex-shrink: 0;
+}
+
 .step-label {
     display: block;
     margin-bottom: 8px;
