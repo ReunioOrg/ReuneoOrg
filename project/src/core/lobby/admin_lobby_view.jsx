@@ -87,6 +87,8 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
     const [hasOpenedCheckinModal, setHasOpenedCheckinModal] = useState(false);
     // Track if check-in modal is currently open
     const checkinModalOpen = modal === 'checkin';
+    // Ensure we only auto-open once per page load
+    const didAutoOpenCheckinModalRef = useRef(false);
 
     // Handlers
     const handleStart = () => {
@@ -109,6 +111,16 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
         setModal(null);
     };
     const handleCancel = () => setModal(null);
+
+    // Auto-open check-in modal on page load if nobody has joined yet
+    useEffect(() => {
+        if (didAutoOpenCheckinModalRef.current) return;
+        if (lobbyState === 'checkin' && playerCount === 0) {
+            didAutoOpenCheckinModalRef.current = true;
+            setHasOpenedCheckinModal(true);
+            setModal('checkin');
+        }
+    }, [lobbyState, playerCount]);
 
     // Helper for shimmer classes
     const shimmerClass = (active, available) => {
@@ -261,10 +273,10 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                         {modal === 'checkin' ? (
                             <>
                                 <div className="progress-modal-title">
-                                    Have your attendees scan the QR code to join your lobby
+                                    Check-in: Print or Display this QR code to your attendees
                                 </div>
                                 <div className="progress-modal-message">
-                                    You can start when you have 6-10 people, don't worry new people can join in the next rounds.
+                                    They scan to join. Once you have 6-10 people ready, click 'Start Rounds' - New arrivals will get paired up in the next rounds. 
                                 </div>
                                 <div className="progress-modal-qr" onClick={handleModalCopyQrPng} style={{ cursor: 'pointer', position: 'relative' }}>
                                     <QRCodeSVG
@@ -301,7 +313,7 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                         ) : (
                             <>
                                 <div className="progress-modal-title">
-                                    {modal === 'start' ? 'Are you sure you want to start rounds?' : 'Are you sure you want to end the rounds?'}
+                                    {modal === 'start' ? 'Are you sure you want to start rounds? - Dont worry new people can join in the next rounds.' : 'Are you sure you want to end the rounds?'}
                                 </div>
                                 <div className="progress-modal-actions">
                                     {modal === 'start' ? (
