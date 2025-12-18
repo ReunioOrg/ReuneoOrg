@@ -614,71 +614,71 @@ const App = () => {
           )}
         </div>
 
-        {/* Event items, the big div */}
-        <div style={{ 
-          position: 'absolute',
-          bottom: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '94%', 
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'center',
-          gap: '1.5rem',
-        }}>
-          {/* Event item */}
-          <div
-            className="event-item"
-            style={{
-              width: 'auto',
-              maxWidth: 'none',
-              margin: '0',
-              padding: '10px 20px',
-              borderRadius: '16px',
-              marginBottom: '20px',
-              cursor: 'pointer',
-              opacity: 1,
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: '1.5rem',
-              ':hover': {
-                transform: 'translateY(-5px)'
-              }
-            }}
-          >
-            {/* Keep the commented lobby count code */}
-            {/* <p
+        {/* Event items, the big div (hidden for logged-out users) */}
+        {user && (
+          <div style={{ 
+            position: 'absolute',
+            bottom: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '94%', 
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            gap: '1.5rem',
+          }}>
+            {/* Event item */}
+            <div
+              className="event-item"
               style={{
-                margin: '0 0 15px 0',
-                color: '#4299e1',
-                fontWeight: '500',
-                fontSize: '0.9em',
+                width: 'auto',
+                maxWidth: 'none',
+                margin: '0',
+                padding: '10px 20px',
+                borderRadius: '16px',
+                marginBottom: '20px',
+                cursor: 'pointer',
+                opacity: 1,
                 display: 'flex',
+                flexDirection: 'row',
                 alignItems: 'center',
-                gap: '5px'
+                gap: '1.5rem',
+                ':hover': {
+                  transform: 'translateY(-5px)'
+                }
               }}
             >
-              <span style={{
-                display: 'inline-block',
-                width: '8px',
-                height: '8px',
-                backgroundColor: '#4299e1',
-                borderRadius: '50%',
-                marginRight: '5px'
-              }}></span>
-              {lobby_state === 'terminate' ? 'Lobby closed' : `${player_count} in lobby`}
-            </p> */}
-            <div style={{ 
-              display: 'flex', 
-              gap: '1.5rem', 
-              flexDirection: 'row',
-              alignItems: 'center'
-            }}>
-              {!user ? (
+              {/* Keep the commented lobby count code */}
+              {/* <p
+                style={{
+                  margin: '0 0 15px 0',
+                  color: '#4299e1',
+                  fontWeight: '500',
+                  fontSize: '0.9em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px'
+                }}
+              >
+                <span style={{
+                  display: 'inline-block',
+                  width: '8px',
+                  height: '8px',
+                  backgroundColor: '#4299e1',
+                  borderRadius: '50%',
+                  marginRight: '5px'
+                }}></span>
+                {lobby_state === 'terminate' ? 'Lobby closed' : `${player_count} in lobby`}
+              </p> */}
+              <div style={{ 
+                display: 'flex', 
+                gap: '1.5rem', 
+                flexDirection: 'row',
+                alignItems: 'center'
+              }}>
                 <button 
                   className={`primary-button ${(permissions !== 'admin' && permissions !== 'organizer') ? 'join-lobby-button' : ''}`} 
-                  onClick={() => navigate('/signup?redirect=lobby')}
+                  onClick={() => user ? setShowLobbyCodeModal(true) : navigate('/signup?redirect=lobby')}
                   disabled={player_count === null || lobby_state === 'terminate'}
                   style={{
                     opacity: (player_count === null || lobby_state === 'terminate') ? 1 : 1,
@@ -714,17 +714,14 @@ const App = () => {
                     Join Lobby
                   </span>
                 </button>
-              ) : (
-                <>
+                {/* Become Organizer button - only for logged-in non-organizers/non-admins */}
+                {user && permissions !== 'admin' && permissions !== 'organizer' && (
                   <button 
-                    className={`primary-button ${(permissions !== 'admin' && permissions !== 'organizer') ? 'join-lobby-button' : ''}`} 
-                    onClick={() => user ? setShowLobbyCodeModal(true) : navigate('/signup?redirect=lobby')}
-                    disabled={player_count === null || lobby_state === 'terminate'}
+                    className="primary-button join-lobby-button" 
+                    onClick={() => window.location.href = 'https://reuneo.com/organizer-signup'}
                     style={{
-                      opacity: (player_count === null || lobby_state === 'terminate') ? 1 : 1,
-                      cursor: (player_count === null || lobby_state === 'terminate') ? 'not-allowed' : 'pointer',
                       padding: '16px 20px',
-                      backgroundColor: (permissions !== 'admin' && permissions !== 'organizer') ? 'transparent' : '#144dff',
+                      backgroundColor: 'transparent',
                       color: 'white',
                       border: 'none',
                       borderRadius: '14px',
@@ -739,125 +736,87 @@ const App = () => {
                       position: 'relative',
                       zIndex: 1,
                       textAlign: 'center',
-                      outline: (permissions !== 'admin' && permissions !== 'organizer') ? 'none' : '1px solid rgba(58, 53, 53, 0.7)',
+                      outline: 'none',
                       ':hover': {
-                        backgroundColor: (permissions !== 'admin' && permissions !== 'organizer') ? 'transparent' : '#535bf2',
                         transform: 'scale(1.02)'
                       }
                     }}
                   >
                     <span style={{
                       textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                      color: 'inherit',
-                     
+                      color: 'inherit'
                     }}>
-                      Join Lobby
+                      Become Organizer
                     </span>
                   </button>
-                  {/* Become Organizer button - only for logged-in non-organizers/non-admins */}
-                  {user && permissions !== 'admin' && permissions !== 'organizer' && (
-                    <button 
-                      className="primary-button join-lobby-button" 
-                      onClick={() => window.location.href = 'https://reuneo.com/organizer-signup'}
-                      style={{
-                        padding: '16px 20px',
-                        backgroundColor: 'transparent',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '14px',
-                        fontWeight: '900',
-                        fontSize: '1.2rem',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
-                        transition: 'all 0.2s ease',
-                        width: '160px',
-                        // whiteSpace: 'nowrap',
-                        margin: '0',
-                        display: 'block',
-                        position: 'relative',
-                        zIndex: 1,
-                        textAlign: 'center',
-                        outline: 'none',
-                        ':hover': {
-                          transform: 'scale(1.02)'
-                        }
-                      }}
-                    >
-                      <span style={{
-                        textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                        color: 'inherit'
-                      }}>
-                        Become Organizer
-                      </span>
-                    </button>
-                  )}
-                  {(permissions === 'admin' || permissions === 'organizer') && (
-                    <button
-                      className={`primary-button ${(permissions === 'admin' || permissions === 'organizer') ? 'create-lobby-button' : ''}`}
-                      onClick={activeLobbies.length > 0 ? undefined : () => navigate('/create_lobby')}
-                      disabled={activeLobbies.length > 0}
-                      title={activeLobbies.length > 0 ? "You already have an active lobby. Close it before creating a new one." : "Create a new lobby"}
-                      style={{
-                        padding: '16px 20px',
-                        backgroundColor: activeLobbies.length > 0 ? 'rgba(128, 128, 128, 0.3)' : 'transparent',
-                        color: activeLobbies.length > 0 ? 'rgba(255, 255, 255, 0.5)' : 'white',
-                        border: 'none',
-                        borderRadius: '14px',
-                        fontWeight: '900',
-                        fontSize: '1.2rem',
-                        boxShadow: activeLobbies.length > 0 ? '0 2px 3px rgba(0, 0, 0, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.3)',
-                        transition: 'all 0.2s ease',
-                        width: '160px',
-                        // whiteSpace: 'nowrap',
-                        margin: '0',
-                        position: 'relative',
-                        zIndex: 1,
-                        textAlign: 'center',
-                        cursor: activeLobbies.length > 0 ? 'not-allowed' : 'pointer',
-                        opacity: activeLobbies.length > 0 ? 0.6 : 1,
-                        ':hover': {
-                          transform: activeLobbies.length > 0 ? 'none' : 'scale(1.02)'
-                        }
-                      }}
-                    >
-                      <span style={{
-                        textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                        color: 'inherit'
-                      }}>
-                        Create Lobby
-                      </span>
-                    </button>
-                  )}
-                </>
-              )}
-              {/* {(permissions === 'admin' || permissions === 'organizer') && (
-                <button 
-                  className="primary-button" 
-                  onClick={redirectToAdminLobby}
-                  style={{
-                    padding: '12px 24px',
-                    backgroundColor: '#2d3748',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '14px',
-                    fontWeight: '800',
-                    transition: 'all 0.2s ease',
-                    ':hover': {
-                      backgroundColor: '#1a202c',
-                      transform: 'scale(1.02)'
-                    }
-                  }}
-                >
-                  <span style={{
-                    textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                    color: 'inherit'
-                  }}>
-                    Admin Lobby View
-                  </span>
-                </button>
-              )} */}
+                )}
+                {(permissions === 'admin' || permissions === 'organizer') && (
+                  <button
+                    className={`primary-button ${(permissions === 'admin' || permissions === 'organizer') ? 'create-lobby-button' : ''}`}
+                    onClick={activeLobbies.length > 0 ? undefined : () => navigate('/create_lobby')}
+                    disabled={activeLobbies.length > 0}
+                    title={activeLobbies.length > 0 ? "You already have an active lobby. Close it before creating a new one." : "Create a new lobby"}
+                    style={{
+                      padding: '16px 20px',
+                      backgroundColor: activeLobbies.length > 0 ? 'rgba(128, 128, 128, 0.3)' : 'transparent',
+                      color: activeLobbies.length > 0 ? 'rgba(255, 255, 255, 0.5)' : 'white',
+                      border: 'none',
+                      borderRadius: '14px',
+                      fontWeight: '900',
+                      fontSize: '1.2rem',
+                      boxShadow: activeLobbies.length > 0 ? '0 2px 3px rgba(0, 0, 0, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.3)',
+                      transition: 'all 0.2s ease',
+                      width: '160px',
+                      // whiteSpace: 'nowrap',
+                      margin: '0',
+                      position: 'relative',
+                      zIndex: 1,
+                      textAlign: 'center',
+                      cursor: activeLobbies.length > 0 ? 'not-allowed' : 'pointer',
+                      opacity: activeLobbies.length > 0 ? 0.6 : 1,
+                      ':hover': {
+                        transform: activeLobbies.length > 0 ? 'none' : 'scale(1.02)'
+                      }
+                    }}
+                  >
+                    <span style={{
+                      textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
+                      color: 'inherit'
+                    }}>
+                      Create Lobby
+                    </span>
+                  </button>
+                )}
+                {/* {(permissions === 'admin' || permissions === 'organizer') && (
+                  <button 
+                    className="primary-button" 
+                    onClick={redirectToAdminLobby}
+                    style={{
+                      padding: '12px 24px',
+                      backgroundColor: '#2d3748',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '14px',
+                      fontWeight: '800',
+                      transition: 'all 0.2s ease',
+                      ':hover': {
+                        backgroundColor: '#1a202c',
+                        transform: 'scale(1.02)'
+                      }
+                    }}
+                  >
+                    <span style={{
+                      textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
+                      color: 'inherit'
+                    }}>
+                      Admin Lobby View
+                    </span>
+                  </button>
+                )} */}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* User's Current Lobby Section */}
         {userCurrentLobby && !((permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0) && (
