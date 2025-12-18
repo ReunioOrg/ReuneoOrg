@@ -16,13 +16,16 @@ const OrganizerSignupSuccess = () => {
 
         // Verify payment with backend
         const verifyPayment = async () => {
+            // Default behavior: go home unless verification succeeds
+            let redirectPath = '/';
+
             if (!sessionId) {
                 setError('Missing session ID');
                 // Still show animation and redirect
                 setActive(true);
                 timerRef.current = setTimeout(() => {
                     setActive(false);
-                    navigate('/');
+                    navigate(redirectPath);
                 }, 2000);
                 return;
             }
@@ -34,7 +37,7 @@ const OrganizerSignupSuccess = () => {
                     setActive(true);
                     timerRef.current = setTimeout(() => {
                         setActive(false);
-                        navigate('/');
+                        navigate(redirectPath);
                     }, 2000);
                     return;
                 }
@@ -51,6 +54,33 @@ const OrganizerSignupSuccess = () => {
                     console.error('Payment verification failed:', data.error);
                     setError(data.error || 'Payment verification failed');
                     // Still show animation and redirect - graceful degradation
+                } else {
+                    // Happy path: payment verified
+                    // Only redirect to create lobby if user has no active lobbies.
+                    try {
+                        const activeLobbiesResponse = await fetch(`${window.server_url}/view_my_active_lobbies`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (activeLobbiesResponse.ok) {
+                            const activeLobbiesData = await activeLobbiesResponse.json();
+                            const hasActiveLobbies = Boolean(
+                                activeLobbiesData &&
+                                Array.isArray(activeLobbiesData.lobbies) &&
+                                activeLobbiesData.lobbies.length > 0
+                            );
+
+                            redirectPath = hasActiveLobbies ? '/' : '/create_lobby';
+                        } else {
+                            // If we can't confirm, default to home (safer than sending to create)
+                            redirectPath = '/';
+                        }
+                    } catch (e) {
+                        console.error('Error checking active lobbies:', e);
+                        redirectPath = '/';
+                    }
                 }
             } catch (error) {
                 console.error('Error verifying payment:', error);
@@ -64,7 +94,7 @@ const OrganizerSignupSuccess = () => {
             // Redirect after 2 seconds
             timerRef.current = setTimeout(() => {
                 setActive(false);
-                navigate('/');
+                navigate(redirectPath);
             }, 2000);
         };
 
