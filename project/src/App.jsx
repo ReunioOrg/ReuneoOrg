@@ -500,82 +500,118 @@ const App = () => {
           //center this vertically
           top: '50%'
         }}>
-          <h2 className="welcome-header" style={{ 
-            color: '#ffffff',
-            fontSize: '1rem',
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            textShadow: '4px 4px 8px rgba(0,0,0,0.9)',
-            margin: 0
-          }}>
-            {user && userProfile && (permissions === "admin" || permissions === "organizer") ? (
-              (() => {
-                const mainText = `Create a Lobby`;
-                const nameText = userProfile ? userProfile.name.slice(0, 15) : "";
-                
-                return (
-                  <>
-                    {mainText.split("").map((char, index) => (
-                      <span 
-                        key={`main-${index}`} 
-                        style={{ 
-                          "--i": index + 1,
-                          marginRight: char === " " ? "0.5em" : "1px"
-                        }}
-                      >
-                        {char}
-                      </span>
-                    ))}
-                    <br />
-                    {nameText && nameText.split("").map((char, index) => (
-                      <span 
-                        key={`name-${index}`} 
-                        style={{ 
-                          "--i": index + 1,
-                          marginRight: char === " " ? "0.5em" : "1px"
-                        }}
-                      >
-                        {char}
-                      </span>
-                    ))}
-                  </>
-                );
-              })()
-            ) : (
-              (() => {
-                const mainText = "Join the Experience";
-                const nameText = userProfile ? userProfile.name.slice(0, 15) : "";
-                
-                return (
-                  <>
-                    {mainText.split("").map((char, index) => (
-                      <span 
-                        key={`main-${index}`} 
-                        style={{ 
-                          "--i": index + 1,
-                          marginRight: char === " " ? "0.5em" : "1px"
-                        }}
-                      >
-                        {char}
-                      </span>
-                    ))}
-                    <br />
-                    {nameText && nameText.split("").map((char, index) => (
-                      <span 
-                        key={`name-${index}`} 
-                        style={{ 
-                          "--i": index + 1,
-                          marginRight: char === " " ? "0.5em" : "1px"
-                        }}
-                      >
-                        {char}
-                      </span>
-                    ))}
-                  </>
-                );
-              })()
-            )}
-          </h2>
+          {!user ? (
+            <button 
+              className="primary-button join-lobby-button" 
+              onClick={() => window.location.href = 'https://reuneo.com/organizer-signup'}
+              style={{
+                padding: '16px 20px',
+                backgroundColor: 'transparent',
+                color: 'white',
+                border: 'none',
+                borderRadius: '14px',
+                fontWeight: '900',
+                fontSize: '1.2rem',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+                transition: 'all 0.2s ease',
+                width: '160px',
+                // whiteSpace: 'nowrap',
+                margin: '0 auto',
+                display: 'block',
+                position: 'relative',
+                zIndex: 1,
+                textAlign: 'center',
+                outline: 'none',
+                ':hover': {
+                  transform: 'scale(1.02)'
+                }
+              }}
+            >
+              <span style={{
+                textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
+                color: 'inherit'
+              }}>
+                Become Organizer
+              </span>
+            </button>
+          ) : (
+            <h2 className="welcome-header" style={{ 
+              color: '#ffffff',
+              fontSize: '1rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              textShadow: '4px 4px 8px rgba(0,0,0,0.9)',
+              margin: 0
+            }}>
+              {user && userProfile && (permissions === "admin" || permissions === "organizer") ? (
+                (() => {
+                  const mainText = `Create a Lobby`;
+                  const nameText = userProfile ? userProfile.name.slice(0, 15) : "";
+                  
+                  return (
+                    <>
+                      {mainText.split("").map((char, index) => (
+                        <span 
+                          key={`main-${index}`} 
+                          style={{ 
+                            "--i": index + 1,
+                            marginRight: char === " " ? "0.5em" : "1px"
+                          }}
+                        >
+                          {char}
+                        </span>
+                      ))}
+                      <br />
+                      {nameText && nameText.split("").map((char, index) => (
+                        <span 
+                          key={`name-${index}`} 
+                          style={{ 
+                            "--i": index + 1,
+                            marginRight: char === " " ? "0.5em" : "1px"
+                          }}
+                        >
+                          {char}
+                        </span>
+                      ))}
+                    </>
+                  );
+                })()
+              ) : (
+                (() => {
+                  const mainText = "Join the Experience";
+                  const nameText = userProfile ? userProfile.name.slice(0, 15) : "";
+                  
+                  return (
+                    <>
+                      {mainText.split("").map((char, index) => (
+                        <span 
+                          key={`main-${index}`} 
+                          style={{ 
+                            "--i": index + 1,
+                            marginRight: char === " " ? "0.5em" : "1px"
+                          }}
+                        >
+                          {char}
+                        </span>
+                      ))}
+                      <br />
+                      {nameText && nameText.split("").map((char, index) => (
+                        <span 
+                          key={`name-${index}`} 
+                          style={{ 
+                            "--i": index + 1,
+                            marginRight: char === " " ? "0.5em" : "1px"
+                          }}
+                        >
+                          {char}
+                        </span>
+                      ))}
+                    </>
+                  );
+                })()
+              )}
+            </h2>
+          )}
         </div>
 
         {/* Event items, the big div */}
@@ -639,52 +675,16 @@ const App = () => {
               flexDirection: 'row',
               alignItems: 'center'
             }}>
-              <button 
-                className={`primary-button ${(permissions !== 'admin' && permissions !== 'organizer') ? 'join-lobby-button' : ''}`} 
-                onClick={() => user ? setShowLobbyCodeModal(true) : navigate('/signup?redirect=lobby')}
-                disabled={player_count === null || lobby_state === 'terminate'}
-                style={{
-                  opacity: (player_count === null || lobby_state === 'terminate') ? 1 : 1,
-                  cursor: (player_count === null || lobby_state === 'terminate') ? 'not-allowed' : 'pointer',
-                  padding: '16px 20px',
-                  backgroundColor: (permissions !== 'admin' && permissions !== 'organizer') ? 'transparent' : '#144dff',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '14px',
-                  fontWeight: '900',
-                  fontSize: '1.2rem',
-                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.2s ease',
-                  width: '160px',
-                  // whiteSpace: 'nowrap',
-                  margin: '0',
-                  display: 'block',
-                  position: 'relative',
-                  zIndex: 1,
-                  textAlign: 'center',
-                  outline: (permissions !== 'admin' && permissions !== 'organizer') ? 'none' : '1px solid rgba(58, 53, 53, 0.7)',
-                  ':hover': {
-                    backgroundColor: (permissions !== 'admin' && permissions !== 'organizer') ? 'transparent' : '#535bf2',
-                    transform: 'scale(1.02)'
-                  }
-                }}
-              >
-                <span style={{
-                  textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                  color: 'inherit',
-                 
-                }}>
-                  Join Lobby
-                </span>
-              </button>
-              {/* Become a Host button - visible to non-logged in users and regular logged-in users */}
-              {permissions !== 'admin' && permissions !== 'organizer' && (
+              {!user ? (
                 <button 
-                  className="primary-button join-lobby-button" 
-                  onClick={() => window.location.href = 'https://reuneo.com/organizer-signup'}
+                  className={`primary-button ${(permissions !== 'admin' && permissions !== 'organizer') ? 'join-lobby-button' : ''}`} 
+                  onClick={() => navigate('/signup?redirect=lobby')}
+                  disabled={player_count === null || lobby_state === 'terminate'}
                   style={{
+                    opacity: (player_count === null || lobby_state === 'terminate') ? 1 : 1,
+                    cursor: (player_count === null || lobby_state === 'terminate') ? 'not-allowed' : 'pointer',
                     padding: '16px 20px',
-                    backgroundColor: 'transparent',
+                    backgroundColor: (permissions !== 'admin' && permissions !== 'organizer') ? 'transparent' : '#144dff',
                     color: 'white',
                     border: 'none',
                     borderRadius: '14px',
@@ -699,56 +699,135 @@ const App = () => {
                     position: 'relative',
                     zIndex: 1,
                     textAlign: 'center',
-                    outline: 'none',
+                    outline: (permissions !== 'admin' && permissions !== 'organizer') ? 'none' : '1px solid rgba(58, 53, 53, 0.7)',
                     ':hover': {
+                      backgroundColor: (permissions !== 'admin' && permissions !== 'organizer') ? 'transparent' : '#535bf2',
                       transform: 'scale(1.02)'
                     }
                   }}
                 >
                   <span style={{
                     textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                    color: 'inherit'
+                    color: 'inherit',
+                   
                   }}>
-                    Become Organizer
+                    Join Lobby
                   </span>
                 </button>
-              )}
-              {(permissions === 'admin' || permissions === 'organizer') && (
-                <button
-                  className={`primary-button ${(permissions === 'admin' || permissions === 'organizer') ? 'create-lobby-button' : ''}`}
-                  onClick={activeLobbies.length > 0 ? undefined : () => navigate('/create_lobby')}
-                  disabled={activeLobbies.length > 0}
-                  title={activeLobbies.length > 0 ? "You already have an active lobby. Close it before creating a new one." : "Create a new lobby"}
-                  style={{
-                    padding: '16px 20px',
-                    backgroundColor: activeLobbies.length > 0 ? 'rgba(128, 128, 128, 0.3)' : 'transparent',
-                    color: activeLobbies.length > 0 ? 'rgba(255, 255, 255, 0.5)' : 'white',
-                    border: 'none',
-                    borderRadius: '14px',
-                    fontWeight: '900',
-                    fontSize: '1.2rem',
-                    boxShadow: activeLobbies.length > 0 ? '0 2px 3px rgba(0, 0, 0, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.3)',
-                    transition: 'all 0.2s ease',
-                    width: '160px',
-                    // whiteSpace: 'nowrap',
-                    margin: '0',
-                    position: 'relative',
-                    zIndex: 1,
-                    textAlign: 'center',
-                    cursor: activeLobbies.length > 0 ? 'not-allowed' : 'pointer',
-                    opacity: activeLobbies.length > 0 ? 0.6 : 1,
-                    ':hover': {
-                      transform: activeLobbies.length > 0 ? 'none' : 'scale(1.02)'
-                    }
-                  }}
-                >
-                  <span style={{
-                    textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                    color: 'inherit'
-                  }}>
-                    Create Lobby
-                  </span>
-                </button>
+              ) : (
+                <>
+                  <button 
+                    className={`primary-button ${(permissions !== 'admin' && permissions !== 'organizer') ? 'join-lobby-button' : ''}`} 
+                    onClick={() => user ? setShowLobbyCodeModal(true) : navigate('/signup?redirect=lobby')}
+                    disabled={player_count === null || lobby_state === 'terminate'}
+                    style={{
+                      opacity: (player_count === null || lobby_state === 'terminate') ? 1 : 1,
+                      cursor: (player_count === null || lobby_state === 'terminate') ? 'not-allowed' : 'pointer',
+                      padding: '16px 20px',
+                      backgroundColor: (permissions !== 'admin' && permissions !== 'organizer') ? 'transparent' : '#144dff',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '14px',
+                      fontWeight: '900',
+                      fontSize: '1.2rem',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+                      transition: 'all 0.2s ease',
+                      width: '160px',
+                      // whiteSpace: 'nowrap',
+                      margin: '0',
+                      display: 'block',
+                      position: 'relative',
+                      zIndex: 1,
+                      textAlign: 'center',
+                      outline: (permissions !== 'admin' && permissions !== 'organizer') ? 'none' : '1px solid rgba(58, 53, 53, 0.7)',
+                      ':hover': {
+                        backgroundColor: (permissions !== 'admin' && permissions !== 'organizer') ? 'transparent' : '#535bf2',
+                        transform: 'scale(1.02)'
+                      }
+                    }}
+                  >
+                    <span style={{
+                      textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
+                      color: 'inherit',
+                     
+                    }}>
+                      Join Lobby
+                    </span>
+                  </button>
+                  {/* Become Organizer button - only for logged-in non-organizers/non-admins */}
+                  {user && permissions !== 'admin' && permissions !== 'organizer' && (
+                    <button 
+                      className="primary-button join-lobby-button" 
+                      onClick={() => window.location.href = 'https://reuneo.com/organizer-signup'}
+                      style={{
+                        padding: '16px 20px',
+                        backgroundColor: 'transparent',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '14px',
+                        fontWeight: '900',
+                        fontSize: '1.2rem',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+                        transition: 'all 0.2s ease',
+                        width: '160px',
+                        // whiteSpace: 'nowrap',
+                        margin: '0',
+                        display: 'block',
+                        position: 'relative',
+                        zIndex: 1,
+                        textAlign: 'center',
+                        outline: 'none',
+                        ':hover': {
+                          transform: 'scale(1.02)'
+                        }
+                      }}
+                    >
+                      <span style={{
+                        textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
+                        color: 'inherit'
+                      }}>
+                        Become Organizer
+                      </span>
+                    </button>
+                  )}
+                  {(permissions === 'admin' || permissions === 'organizer') && (
+                    <button
+                      className={`primary-button ${(permissions === 'admin' || permissions === 'organizer') ? 'create-lobby-button' : ''}`}
+                      onClick={activeLobbies.length > 0 ? undefined : () => navigate('/create_lobby')}
+                      disabled={activeLobbies.length > 0}
+                      title={activeLobbies.length > 0 ? "You already have an active lobby. Close it before creating a new one." : "Create a new lobby"}
+                      style={{
+                        padding: '16px 20px',
+                        backgroundColor: activeLobbies.length > 0 ? 'rgba(128, 128, 128, 0.3)' : 'transparent',
+                        color: activeLobbies.length > 0 ? 'rgba(255, 255, 255, 0.5)' : 'white',
+                        border: 'none',
+                        borderRadius: '14px',
+                        fontWeight: '900',
+                        fontSize: '1.2rem',
+                        boxShadow: activeLobbies.length > 0 ? '0 2px 3px rgba(0, 0, 0, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.3)',
+                        transition: 'all 0.2s ease',
+                        width: '160px',
+                        // whiteSpace: 'nowrap',
+                        margin: '0',
+                        position: 'relative',
+                        zIndex: 1,
+                        textAlign: 'center',
+                        cursor: activeLobbies.length > 0 ? 'not-allowed' : 'pointer',
+                        opacity: activeLobbies.length > 0 ? 0.6 : 1,
+                        ':hover': {
+                          transform: activeLobbies.length > 0 ? 'none' : 'scale(1.02)'
+                        }
+                      }}
+                    >
+                      <span style={{
+                        textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
+                        color: 'inherit'
+                      }}>
+                        Create Lobby
+                      </span>
+                    </button>
+                  )}
+                </>
               )}
               {/* {(permissions === 'admin' || permissions === 'organizer') && (
                 <button 
