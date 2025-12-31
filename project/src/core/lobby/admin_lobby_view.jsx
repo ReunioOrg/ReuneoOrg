@@ -68,6 +68,99 @@ const JoinConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
     );
 };
 
+// Generate styled QR code image with logo, text, and footer
+const generateStyledQRCodeImage = (svgElement, code) => {
+    return new Promise((resolve, reject) => {
+        // Serialize SVG to string
+        const serializer = new XMLSerializer();
+        const svgString = serializer.serializeToString(svgElement);
+
+        // Canvas dimensions for printing (4:5 ratio)
+        const canvasWidth = 800;
+        const canvasHeight = 1000;
+        const canvas = document.createElement('canvas');
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+        const ctx = canvas.getContext('2d');
+
+        // Set white background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+        // Load logo image
+        const logoImg = new window.Image();
+        logoImg.crossOrigin = 'anonymous';
+        
+        logoImg.onload = () => {
+            // Load QR code SVG as image
+            const qrImg = new window.Image();
+            qrImg.onload = () => {
+                // Padding and spacing
+                const topPadding = 2; // Further reduced to raise logo up more
+                const bottomPadding = 32; // Further increased to bring footer code text up more from bottom
+                const logoHeight = 180; // Tripled from 60
+                const logoWidth = (logoImg.width / logoImg.height) * logoHeight;
+                const subheaderFontSize = 36; // Doubled from 18
+                const footerFontSize = 28; // Doubled from 14
+                const qrSize = 550; // Largest element
+                const spacing = 22; // Further reduced to tighten spacing
+
+                // Calculate heights for centering
+                const logoSectionHeight = topPadding + logoHeight + spacing;
+                const subheaderSectionHeight = subheaderFontSize + spacing * 1.2; // Slightly reduced spacing
+                const footerSectionHeight = footerFontSize + bottomPadding;
+                const topSectionHeight = logoSectionHeight + subheaderSectionHeight;
+                const bottomSectionHeight = footerSectionHeight;
+                const availableHeight = canvasHeight - topSectionHeight - bottomSectionHeight;
+                
+                // Center QR code vertically in available space (shifted up more)
+                const qrY = topSectionHeight + (availableHeight - qrSize) / 2 - 35; // Shifted up by 35px (was 20px)
+                const qrX = (canvasWidth - qrSize) / 2;
+
+                let currentY = topPadding;
+
+                // Draw logo (centered)
+                const logoX = (canvasWidth - logoWidth) / 2;
+                ctx.drawImage(logoImg, logoX, currentY, logoWidth, logoHeight);
+                currentY += logoHeight + spacing;
+
+                // Draw subheader text
+                ctx.fillStyle = '#000000';
+                ctx.font = `600 ${subheaderFontSize}px Helvetica, Arial, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                const subheaderText = 'Scan to join the ice-breaking session!';
+                ctx.fillText(subheaderText, canvasWidth / 2, currentY);
+                currentY += subheaderFontSize + spacing * 1.2;
+
+                // Draw QR code (centered horizontally and vertically, shifted up)
+                ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+
+                // Draw footer text - brought up from bottom
+                const footerY = canvasHeight - bottomPadding - footerFontSize;
+                ctx.font = `${footerFontSize}px Helvetica, Arial, sans-serif`;
+                ctx.fillStyle = '#000000';
+                ctx.textBaseline = 'top';
+                const footerText = `code (optional): ${code}`;
+                ctx.fillText(footerText, canvasWidth / 2, footerY);
+
+                // Convert canvas to blob
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        resolve(blob);
+                    } else {
+                        reject(new Error('Failed to create blob'));
+                    }
+                }, 'image/png');
+            };
+            qrImg.onerror = () => reject(new Error('Failed to load QR code image'));
+            qrImg.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgString)));
+        };
+        logoImg.onerror = () => reject(new Error('Failed to load logo image'));
+        logoImg.src = '/assets/reuneo_test_9.png';
+    });
+};
+
 // Progress bar component for lobby phases
 const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, currentRound }) => {
     // Determine states for each arrow
@@ -82,7 +175,7 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
 
     // Modal state
     const [modal, setModal] = useState(null); // 'start' | 'end' | 'checkin' | null
-    const [modalCopied, setModalCopied] = useState({ code: false, qr: false });
+    const [modalCopied, setModalCopied] = useState({ qr: false });
     // Track if check-in modal has ever been opened
     const [hasOpenedCheckinModal, setHasOpenedCheckinModal] = useState(false);
     // Track if check-in modal is currently open
@@ -139,53 +232,9 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
     const showEndArrow = lobbyState === 'active' && (currentRound + 1) >= 12;
    
 
-    // Copy QR code as PNG (for modal only)
-    const handleModalCopyQrPng = () => {
-        const svg = document.getElementById('modal-qr-svg');
-        if (!svg) return;
-
-        // Serialize SVG to string
-        const serializer = new XMLSerializer();
-        const svgString = serializer.serializeToString(svg);
-
-        // Create a canvas and draw the SVG onto it
-        const img = new window.Image();
-        const size = 512; // High quality
-        const canvas = document.createElement('canvas');
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-
-        // Wait for image to load
-        img.onload = () => {
-            ctx.clearRect(0, 0, size, size);
-            ctx.drawImage(img, 0, 0, size, size);
-
-            // Convert canvas to blob
-            canvas.toBlob((blob) => {
-                // Try to use Clipboard API first (for Chrome/Edge)
-                if (navigator.clipboard && navigator.clipboard.write) {
-                    navigator.clipboard.write([
-                        new window.ClipboardItem({ "image/png": blob })
-                    ]).then(() => {
-                        setModalCopied((prev) => ({ ...prev, qr: true }));
-                        setTimeout(() => setModalCopied((prev) => ({ ...prev, qr: false })), 800);
-                    }).catch(() => {
-                        // If Clipboard API fails, fall back to download
-                        downloadQRCode(blob);
-                    });
-                } else {
-                    // For browsers that don't support Clipboard API (Safari, Firefox)
-                    downloadQRCode(blob);
-                }
-            }, "image/png");
-        };
-        img.onerror = () => alert("Failed to render QR code image.");
-        img.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgString)));
-    };
-
     // Helper function to download QR code
-    function downloadQRCode(blob) {
+    function downloadQRCode(blob, options = {}) {
+        const { silent = false } = options;
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -194,16 +243,48 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        setModalCopied((prev) => ({ ...prev, qr: true }));
-        setTimeout(() => setModalCopied((prev) => ({ ...prev, qr: false })), 800);
+        
+        if (!silent) {
+            setModalCopied((prev) => ({ ...prev, qr: true }));
+            setTimeout(() => setModalCopied((prev) => ({ ...prev, qr: false })), 800);
+        }
     }
 
-    // Copy lobby code text (for modal only)
-    const handleModalCopyCode = () => {
-        navigator.clipboard.writeText(lobbyCode);
-        setModalCopied((prev) => ({ ...prev, code: true }));
-        setTimeout(() => setModalCopied((prev) => ({ ...prev, code: false })), 800);
+    // Copy QR code as PNG (for modal only)
+    const handleModalCopyQrPng = () => {
+        const svg = document.getElementById('modal-qr-svg');
+        if (!svg) return;
+
+        generateStyledQRCodeImage(svg, lobbyCode)
+            .then((blob) => {
+                // Always download first (silent - no feedback yet)
+                downloadQRCode(blob, { silent: true });
+
+                // Try clipboard (bonus feature)
+                if (navigator.clipboard && navigator.clipboard.write) {
+                    navigator.clipboard.write([
+                        new window.ClipboardItem({ "image/png": blob })
+                    ]).then(() => {
+                        // Clipboard succeeded - show unified feedback
+                        setModalCopied((prev) => ({ ...prev, qr: true }));
+                        setTimeout(() => setModalCopied((prev) => ({ ...prev, qr: false })), 800);
+                    }).catch(() => {
+                        // Clipboard failed, but download already happened - show feedback
+                        setModalCopied((prev) => ({ ...prev, qr: true }));
+                        setTimeout(() => setModalCopied((prev) => ({ ...prev, qr: false })), 800);
+                    });
+                } else {
+                    // No clipboard API - download already happened, show feedback
+                    setModalCopied((prev) => ({ ...prev, qr: true }));
+                    setTimeout(() => setModalCopied((prev) => ({ ...prev, qr: false })), 800);
+                }
+            })
+            .catch((error) => {
+                console.error('Error generating QR code image:', error);
+                alert("Failed to generate QR code image.");
+            });
     };
+
 
     return (
         <div className="lobby-progress-bar" style={{ marginTop: '-1rem', height: '40px' }}>
@@ -285,7 +366,7 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                                         level="H"
                                         includeMargin={false}
                                         bgColor="#ffffff"
-                                        fgColor="#144dff"
+                                        fgColor="#000000"
                                         id="modal-qr-svg"
                                     />
                                     <span className="copy-icon modal-copy-icon" aria-label="Copy" style={{ position: 'absolute', right: 8, bottom: 8, background: '#fff', borderRadius: '50%', padding: '2px' }}>
@@ -296,15 +377,15 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                                     </span>
                                     {modalCopied.qr && <span className="modal-copied-feedback" style={{ position: 'absolute', left: '50%', bottom: '-1.5rem', transform: 'translateX(-50%)', color: '#28a745', fontWeight: 600, fontSize: '0.95rem' }}>Copied!</span>}
                                 </div>
-                                <div className={`progress-modal-lobbycode${modalCopied.code ? ' copied' : ''}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                                    <b>lobby code: {lobbyCode}</b>
-                                    <span className="copy-icon modal-copy-icon" aria-label="Copy" onClick={handleModalCopyCode} style={{ cursor: 'pointer' }}>
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
-                                            <rect x="9" y="9" width="13" height="13" rx="2.5" />
-                                            <rect x="2" y="2" width="13" height="13" rx="2.5" />
-                                        </svg>
-                                    </span>
-                                    {modalCopied.code && <span className="modal-copied-feedback" style={{ color: '#28a745', fontWeight: 600, fontSize: '0.95rem' }}>Copied!</span>}
+                                <div style={{ 
+                                    textAlign: 'center', 
+                                    marginTop: '1rem', 
+                                    marginBottom: '0.5rem',
+                                    fontSize: '1rem',
+                                    color: '#3b3b3b',
+                                    fontFamily: 'Helvetica, Arial, sans-serif'
+                                }}>
+                                    code (optional): {lobbyCode}
                                 </div>
                                 <div className="progress-modal-actions">
                                     <button className="progress-modal-btn confirm" onClick={handleCancel}>Got it</button>
@@ -644,51 +725,9 @@ const AdminLobbyView = () => {
         handleCloseJoinModal();
     };
 
-    async function handleCopyQrPng() {
-        const svg = document.getElementById('admin-qr-svg');
-        if (!svg) return;
-
-        // Serialize SVG to string
-        const serializer = new XMLSerializer();
-        const svgString = serializer.serializeToString(svg);
-
-        // Create a canvas and draw the SVG onto it
-        const img = new window.Image();
-        const size = 512; // High quality
-        const canvas = document.createElement('canvas');
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-
-        // Wait for image to load
-        img.onload = () => {
-            ctx.clearRect(0, 0, size, size);
-            ctx.drawImage(img, 0, 0, size, size);
-
-            // Convert canvas to blob
-            canvas.toBlob((blob) => {
-                // Try to use Clipboard API first (for Chrome/Edge)
-                if (navigator.clipboard && navigator.clipboard.write) {
-                    navigator.clipboard.write([
-                        new window.ClipboardItem({ "image/png": blob })
-                    ]).then(() => {
-                        toast.success("QR code copied to clipboard!");
-                    }).catch(() => {
-                        // If Clipboard API fails, fall back to download
-                        downloadQRCode(blob);
-                    });
-                } else {
-                    // For browsers that don't support Clipboard API (Safari, Firefox)
-                    downloadQRCode(blob);
-                }
-            }, "image/png");
-        };
-        img.onerror = () => toast.error("Failed to generate QR code image.");
-        img.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgString)));
-    }
-
     // Helper function to download QR code
-    function downloadQRCode(blob) {
+    function downloadQRCode(blob, options = {}) {
+        const { silent = false } = options;
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -697,7 +736,41 @@ const AdminLobbyView = () => {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        toast.success("QR code downloaded!");
+        
+        if (!silent) {
+            toast.success("QR code downloaded!");
+        }
+    }
+
+    async function handleCopyQrPng() {
+        const svg = document.getElementById('admin-qr-svg');
+        if (!svg) return;
+
+        generateStyledQRCodeImage(svg, lobbyCode)
+            .then((blob) => {
+                // Always download first (silent - no feedback yet)
+                downloadQRCode(blob, { silent: true });
+
+                // Try clipboard (bonus feature)
+                if (navigator.clipboard && navigator.clipboard.write) {
+                    navigator.clipboard.write([
+                        new window.ClipboardItem({ "image/png": blob })
+                    ]).then(() => {
+                        // Clipboard succeeded - show unified feedback
+                        toast.success("Downloaded and copied to clipboard!");
+                    }).catch(() => {
+                        // Clipboard failed, but download already happened - show feedback
+                        toast.success("QR code downloaded!");
+                    });
+                } else {
+                    // No clipboard API - download already happened, show feedback
+                    toast.success("QR code downloaded!");
+                }
+            })
+            .catch((error) => {
+                console.error('Error generating QR code image:', error);
+                toast.error("Failed to generate QR code image.");
+            });
     }
 
     // Handlers for progress bar actions
@@ -820,7 +893,7 @@ const AdminLobbyView = () => {
                                 level="H"
                                 includeMargin={false}
                                 bgColor="#ffffff"
-                                fgColor="#144dff"
+                                fgColor="#000000"
                                 id="admin-qr-svg"
                             />
                         </div>
