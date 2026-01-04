@@ -1086,7 +1086,7 @@ const LobbyScreen = () => {
 
                 <button className="leave-lobby-button" onClick={leaveLobby}>Leave</button>
                 <button className="how-to-tutorial-button" onClick={() => setShowTutorial(true)}>Tutorial</button>
-                {permissions === "admin" && (
+                {(permissions === "admin" || permissions === "organizer") && (
                     <button 
                         className="admin-view-button" 
                         onClick={() => navigate(`/admin_lobby_view?code=${lobbyCode}`)}
