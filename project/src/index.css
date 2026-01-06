@@ -115,6 +115,23 @@ button:focus-visible {
   }
 }
 
+/* Dashboard: Full-width layout override for desktop - MUST come after mobile viewport simulation */
+@media (min-width: 769px) {
+  /* Remove body padding for full-width dashboard */
+  body.dashboard-view {
+    padding: 0;
+  }
+  
+  /* Full-width root container for dashboard */
+  #root.dashboard-view {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    overflow-y: visible;
+  }
+}
+
 /* Subtle gradient animation */
 @keyframes gradientShift {
   0% {

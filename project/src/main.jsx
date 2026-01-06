@@ -5,6 +5,7 @@ import App from './App.jsx'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './core/Auth/AuthContext.jsx'
 import ScrollToTop from './core/ScrollToTop.jsx'
+import RouteLayoutHandler from './core/RouteLayoutHandler.jsx'
 
 import LoginSignupPage from './core/Auth/LoginSignupPage.jsx'
 import LogoutPage from './core/Auth/LogoutPage.jsx'
@@ -16,6 +17,7 @@ import CreateLobby from './core/organizer/create_lobby.jsx'
 import OrganizerSignup from './core/organizer/organizer_signup.jsx'
 import OrganizerSignupSuccess from './core/organizer/organizer_signup_success.jsx'
 import OrganizerAccountDetails from './core/organizer/organizer_account_details.jsx'
+import OrganizerDashboard from './core/organizer/organizer-dashboard.jsx'
 import LobbyCountdown from './core/lobby/lobby_countdown.jsx'
 import HowToTutorial from './core/lobby/how_to_tutorial.jsx'
 import MasterLobbyView from './core/lobby/master_lobby_view.jsx'
@@ -25,6 +27,7 @@ createRoot(document.getElementById('root')).render(
     <AuthProvider>
       <Router basename="/">
         <ScrollToTop />
+        <RouteLayoutHandler />
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/login" element={<LoginSignupPage />} />
@@ -37,6 +40,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/organizer-signup" element={<OrganizerSignup />} />
           <Route path="/organizer-signup-success" element={<OrganizerSignupSuccess />} />
           <Route path="/organizer-account-details" element={<OrganizerAccountDetails />} />
+          <Route path="/organizer-dashboard" element={<OrganizerDashboard />} />
           <Route path="/master_lobby_view" element={<MasterLobbyView />} />
           {/* <Route path="/cofounders" element={<MyCF />} /> */}
         </Routes>
