@@ -457,6 +457,13 @@ const AdminLobbyView = () => {
     const location = useLocation();
     const DEVMODE = false;
     
+    // Audio sound feature - same as lobby.jsx
+    const playat = Math.floor(9*60); // 540 seconds (9 minutes)
+    const { audioRef, error, playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying } = usePlaySound();
+    const [showSoundPrompt, setShowSoundPrompt] = useState(true);
+    const [isPageVisible, setIsPageVisible] = useState(!document.hidden);
+    const roundPosition = useRef(null);
+    
     // Extract lobby code from URL parameters
     const params = new URLSearchParams(location.search);
     const codeParam = params.get('code');
@@ -552,6 +559,43 @@ const AdminLobbyView = () => {
             console.error("Failed to create lobby");
         }
     }
+    // Sound checking useEffect - same as lobby.jsx
+    useEffect(() => {
+        if (!checkSound()) {
+            setSoundEnabled(false);
+        } else {
+            setSoundEnabled(true);
+        }
+    }, []);
+
+    // Page visibility handler - same as lobby.jsx
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            const isVisible = !document.hidden;
+            
+            // If page is becoming visible (was hidden before), update state
+            // The polling interval will handle fetching with updated visibility state
+            if (isVisible && !isPageVisible) {
+                console.log("Page became visible - next poll will fetch latest data");
+            }
+            
+            setIsPageVisible(isVisible);
+        };
+        
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        
+        return () => {
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
+    }, [isPageVisible]);
+
+    // Cleanup audio when lobby becomes inactive or terminated
+    useEffect(() => {
+        if (lobbyState === "terminated" || lobbyState === "inactive") {
+            cancelSound();
+        }
+    }, [lobbyState]);
+
     useEffect(() => {
         checkAuth();
 
@@ -602,9 +646,11 @@ const AdminLobbyView = () => {
 
         const interval = setInterval(async () => {
             try {
-                const response = await fetch(window.server_url + '/admin_lobby_data', {
+                const isTabVisible = !document.hidden;
+                const response = await fetch(`${window.server_url}/admin_lobby_data?is_visible=${isTabVisible}`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'is_visible_t_f': (isTabVisible) ? "t" : "f",
                         'lobby_code': lobbyCode
                     },
                 });
@@ -613,6 +659,25 @@ const AdminLobbyView = () => {
                     const data = await response.json();
                     console.log("Admin lobby data:", lobbyCode, data);
                     
+                    // Audio synchronization - same as lobby.jsx
+                    // Check if lobby is inactive and cleanup audio
+                    if (data.lobby_state === "inactive" || data.status === "inactive") {
+                        cancelSound();
+                    }
+                    
+                    // Audio seek logic - sync audio with round timing
+                    const timeLeft = typeof data.round_time_left === 'number' && !isNaN(data.round_time_left) 
+                        ? data.round_time_left 
+                        : 0;
+                    
+                    roundPosition.current = timeLeft;
+                    
+                    if ((roundPosition.current != null) && (data.lobby_state === "active")) {
+                        if (roundPosition.current != 0) {
+                            seekTo(playat - roundPosition.current);
+                            console.log("seeking to", playat - roundPosition.current);
+                        }
+                    }
                     
                     // Update maxActiveRound only if lobbyState is 'active' and current_round is higher
                     if (data.lobby_state === 'active') {
@@ -621,6 +686,7 @@ const AdminLobbyView = () => {
                     // Reset maxActiveRound if lobby is terminated
                     if (data.lobby_state === 'terminated') {
                         setMaxActiveRound(0);
+                        cancelSound(); // Cleanup audio when terminated
                     }
                     
                     // Check if data has the expected structure
@@ -773,6 +839,73 @@ const AdminLobbyView = () => {
             });
     }
 
+    // SoundPrompt component - same as lobby.jsx but with bigger X button
+    const SoundPrompt = () => {
+        return (
+            <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                backgroundColor: 'rgba(0, 0, 0, 0.125)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                zIndex: 1100
+            }}>
+                <div style={{
+                    backgroundColor: 'white',
+                    padding: '20px',
+                    borderRadius: '8px',
+                    position: 'relative',
+                    minWidth: '300px'
+                }}>
+                    <button 
+                        onClick={() => setShowSoundPrompt(false)}
+                        style={{
+                            color: '#144fff',
+                            position: 'absolute',
+                            right: '10px',
+                            top: '10px',
+                            border: 'none',
+                            background: 'none',
+                            fontSize: '16px', // Bigger than lobby.jsx (was 2px)
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            padding: '4px 8px'
+                        }}
+                    >
+                    X   
+                    </button>
+                    <h2 style={{ marginTop: '5px' }}>The Sound is Important</h2>
+                    <h3 style={{ marginTop: '5px' }}>Raise your volume also</h3>
+                    <p style={{
+                            color: '#144dff',
+                        }}>You'll need this for the best experience.</p>
+                    <button 
+                        onClick={() => {
+                            loadSound();
+                            setShowSoundPrompt(false);
+                        }}
+                        style={{
+                            padding: '10px 20px',
+                            marginTop: '20px',
+                            backgroundColor: '#144dff',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '14px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Enable Sound
+                    </button>
+                </div>
+            </div>
+        );
+    };
+
     // Handlers for progress bar actions
     const handleStartRounds = async () => {
         const response = await fetch(window.server_url + '/start_rounds', {
@@ -785,6 +918,7 @@ const AdminLobbyView = () => {
         // Optionally handle response
     };
     const handleEndRounds = async () => {
+        cancelSound(); // Cleanup audio when terminating lobby
         const response = await fetch(window.server_url + '/terminate_lobby', {
             method: 'GET',
             headers: {
@@ -1206,6 +1340,9 @@ const AdminLobbyView = () => {
                     userName={selectedUser?.name || "this user"}
                 />
             </div>
+
+            {/* Sound Prompt - same conditional rendering as lobby.jsx */}
+            {(soundEnabled || !showSoundPrompt) || (lobbyState == "checkin") || (lobbyState == null) || isPlaying ? null : <SoundPrompt />}
         </>
     );
 }
