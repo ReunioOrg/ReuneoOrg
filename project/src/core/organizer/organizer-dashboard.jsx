@@ -24,6 +24,16 @@ const CommunityAttendeesCarousel = ({ attendees = [] }) => {
     const [imageLoadingState, setImageLoadingState] = useState({}); // Track which images are loading
     const lastLoadedIndexRef = useRef(-1);
     const debounceTimerRef = useRef(null);
+    
+    // Modal state
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedUsername, setSelectedUsername] = useState(null);
+    const [attendeeDetails, setAttendeeDetails] = useState({}); // Cache: username -> details
+    const [loadingDetails, setLoadingDetails] = useState(false);
+    const [detailsError, setDetailsError] = useState(null);
+    const currentFetchRef = useRef(null); // Track current fetch to prevent race conditions
+    const closeTimeoutRef = useRef(null); // Track setTimeout for cleanup
+    const detailsCacheRef = useRef({}); // Ref to track cache for synchronous access
 
     // Detect coarse pointer (touch devices)
     useEffect(() => {
@@ -240,6 +250,159 @@ const CommunityAttendeesCarousel = ({ attendees = [] }) => {
         };
     }, [attendees.length, loadImageBatch]);
 
+    // Fetch attendee details
+    const fetchAttendeeDetails = useCallback(async (username) => {
+        // Check cache first using ref for synchronous access
+        if (detailsCacheRef.current[username]) {
+            // Found in cache, open modal immediately
+            setSelectedUsername(username);
+            setModalOpen(true);
+            setDetailsError(null);
+            return;
+        }
+
+        // Cancel any ongoing fetch for a different user
+        if (currentFetchRef.current && currentFetchRef.current !== username) {
+            // Let previous fetch complete but ignore its result if it's for different user
+        }
+        currentFetchRef.current = username;
+
+        setLoadingDetails(true);
+        setDetailsError(null);
+        setModalOpen(true); // Open modal immediately to show loading state
+        setSelectedUsername(username);
+
+        try {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                throw new Error('Authentication required');
+            }
+
+            const response = await fetch(`${window.server_url}/organizer_attendees/${username}/details`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            // Check if this fetch is still relevant
+            if (currentFetchRef.current !== username) {
+                return; // User clicked another attendee, ignore this result
+            }
+
+            if (response.status === 401) {
+                localStorage.removeItem('access_token');
+                throw new Error('Session expired. Please log in again.');
+            }
+
+            if (response.status === 403) {
+                throw new Error('Access denied. Organizer permissions required.');
+            }
+
+            if (response.status === 404) {
+                throw new Error('Attendee details not found.');
+            }
+
+            if (!response.ok) {
+                throw new Error('Failed to load attendee details');
+            }
+
+            const data = await response.json();
+            if (data.status === 'success' && data.attendee) {
+                // Process the data
+                const processedDetails = {
+                    username: data.attendee.username,
+                    name: data.attendee.name || data.attendee.username,
+                    image_data: data.attendee.image_data 
+                        ? `data:image/jpeg;base64,${data.attendee.image_data}` 
+                        : null,
+                    last_joined_date: data.attendee.last_joined_date,
+                    self_tags: data.attendee.tags?.tags_work || [],
+                    desiring_tags: data.attendee.tags?.desiring_tags_work || [],
+                    lobbies_attended: data.attendee.stats?.lobbies_attended || 0,
+                    rounds_paired: data.attendee.stats?.rounds_paired || 0
+                };
+
+                // Cache the details using functional update and ref
+                setAttendeeDetails(prev => {
+                    const updated = {
+                        ...prev,
+                        [username]: processedDetails
+                    };
+                    detailsCacheRef.current = updated; // Keep ref in sync
+                    return updated;
+                });
+
+                // Only update if this is still the current fetch
+                if (currentFetchRef.current === username) {
+                    setSelectedUsername(username);
+                    // Modal is already open from above
+                }
+            } else {
+                throw new Error(data.error || 'Failed to load attendee details');
+            }
+        } catch (err) {
+            // Only show error if this is still the current fetch
+            if (currentFetchRef.current === username) {
+                console.error('Error fetching attendee details:', err);
+                setDetailsError(err.message || 'An error occurred while loading details.');
+            }
+        } finally {
+            // Only clear loading if this is still the current fetch
+            if (currentFetchRef.current === username) {
+                setLoadingDetails(false);
+                currentFetchRef.current = null;
+            }
+        }
+    }, []); // Remove attendeeDetails dependency - use functional updates instead
+
+    // Handle modal close
+    const handleCloseModal = useCallback(() => {
+        // Clear any pending timeout
+        if (closeTimeoutRef.current) {
+            clearTimeout(closeTimeoutRef.current);
+        }
+        
+        setModalOpen(false);
+        setDetailsError(null);
+        // Don't clear selectedUsername immediately to allow for smooth transitions
+        closeTimeoutRef.current = setTimeout(() => {
+            setSelectedUsername(null);
+            closeTimeoutRef.current = null;
+        }, 300);
+    }, []);
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (closeTimeoutRef.current) {
+                clearTimeout(closeTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    // Handle Escape key - modal takes precedence over carousel
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && modalOpen) {
+                e.stopPropagation(); // Prevent carousel from handling it
+                handleCloseModal();
+            }
+        };
+        document.addEventListener('keydown', handleEscape, true); // Use capture phase
+        return () => document.removeEventListener('keydown', handleEscape, true);
+    }, [modalOpen, handleCloseModal]);
+
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        if (modalOpen) {
+            const originalStyle = window.getComputedStyle(document.body).overflow;
+            document.body.style.overflow = 'hidden';
+            return () => {
+                document.body.style.overflow = originalStyle;
+            };
+        }
+    }, [modalOpen]);
+
     // Normalize attendees with fallbacks
     const normalizedAttendees = useMemo(
         () =>
@@ -302,7 +465,7 @@ const CommunityAttendeesCarousel = ({ attendees = [] }) => {
                                     onFocus={() => setActiveUsername(attendee.username)}
                                     onClick={() => {
                                         if (isCoarsePointer) setActiveUsername(attendee.username);
-                                        // Future: open details modal
+                                        fetchAttendeeDetails(attendee.username);
                                     }}
                                     onKeyDown={(e) => {
                                         if (e.key === "Enter" || e.key === " ") {
@@ -360,6 +523,47 @@ const CommunityAttendeesCarousel = ({ attendees = [] }) => {
                     <span className="attendees-dot" />
                 </div>
             </div>
+
+            {/* Attendee Details Modal */}
+            {modalOpen && (
+                <div 
+                    className="attendee-modal-overlay"
+                    onClick={handleCloseModal}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="attendee-modal-title"
+                >
+                    <div 
+                        className="attendee-modal-content"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {loadingDetails ? (
+                            <div className="attendee-modal-loading">
+                                <LoadingSpinner size={60} />
+                                <p>Loading attendee details...</p>
+                            </div>
+                        ) : detailsError ? (
+                            <div className="attendee-modal-error">
+                                <p className="attendee-modal-error-message">{detailsError}</p>
+                            </div>
+                        ) : selectedUsername ? (
+                            (() => {
+                                const details = attendeeDetails[selectedUsername];
+                                if (!details) return null;
+                                
+                                return (
+                                    <div className="attendee-modal-body">
+                                        {/* Modal content will be implemented based on UX/UI requirements */}
+                                        <p>Details for: {details.name}</p>
+                                        <p>Lobbies Attended: {details.lobbies_attended}</p>
+                                        <p>Rounds Paired: {details.rounds_paired}</p>
+                                    </div>
+                                );
+                            })()
+                        ) : null}
+                    </div>
+                </div>
+            )}
         </section>
     );
 };

@@ -503,7 +503,7 @@ const App = () => {
           {!user ? (
             <button 
               className="primary-button join-lobby-button" 
-              onClick={() => window.location.href = 'https://reuneo.com/organizer-signup'}
+              onClick={() => window.location.href = 'https://reuneo.app/access'}
               style={{
                 padding: '16px 20px',
                 backgroundColor: 'transparent',
