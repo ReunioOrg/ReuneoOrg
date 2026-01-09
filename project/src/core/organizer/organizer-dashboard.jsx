@@ -12,6 +12,72 @@ const LoadingSpinner = ({ size = 60, className = '' }) => {
     );
 };
 
+// Tag Color Palette - predefined colors with good contrast for white text
+const TAG_COLORS = [
+    '#6366f1', // indigo
+    '#8b5cf6', // purple
+    '#ec4899', // pink
+    '#f59e0b', // amber
+    '#10b981', // emerald
+    '#3b82f6', // blue
+    '#ef4444', // red
+    '#14b8a6', // teal
+    '#f97316', // orange
+    '#a855f7', // violet
+    '#06b6d4', // cyan
+    '#84cc16', // lime
+];
+
+// Get tag color based on tag string hash (consistent color for same tag)
+const getTagColor = (tag) => {
+    if (!tag) return TAG_COLORS[0];
+    let hash = 0;
+    for (let i = 0; i < tag.length; i++) {
+        hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % TAG_COLORS.length;
+    return TAG_COLORS[index];
+};
+
+// Tag Pill Component
+const TagPill = React.memo(({ tag }) => {
+    const color = getTagColor(tag);
+    return (
+        <span
+            className="attendee-modal-tag-pill"
+            style={{ background: color }}
+        >
+            {tag}
+        </span>
+    );
+});
+TagPill.displayName = 'TagPill';
+
+// Format date to "Dec 14, 2025" format
+const formatDate = (dateValue) => {
+    if (!dateValue) return 'Date not available';
+    
+    let date;
+    if (typeof dateValue === 'number') {
+        // If timestamp (seconds), convert to milliseconds
+        date = dateValue < 10000000000 ? new Date(dateValue * 1000) : new Date(dateValue);
+    } else if (typeof dateValue === 'string') {
+        date = new Date(dateValue);
+    } else {
+        return 'Date not available';
+    }
+    
+    if (isNaN(date.getTime())) {
+        return 'Date not available';
+    }
+    
+    return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+    });
+};
+
 // Community Attendees Carousel Component
 const CommunityAttendeesCarousel = ({ attendees = [] }) => {
     const scrollerRef = useRef(null);
@@ -31,9 +97,12 @@ const CommunityAttendeesCarousel = ({ attendees = [] }) => {
     const [attendeeDetails, setAttendeeDetails] = useState({}); // Cache: username -> details
     const [loadingDetails, setLoadingDetails] = useState(false);
     const [detailsError, setDetailsError] = useState(null);
+    const [swipeDirection, setSwipeDirection] = useState(null);
+    const [isInitialOpen, setIsInitialOpen] = useState(false);
     const currentFetchRef = useRef(null); // Track current fetch to prevent race conditions
     const closeTimeoutRef = useRef(null); // Track setTimeout for cleanup
     const detailsCacheRef = useRef({}); // Ref to track cache for synchronous access
+    const swipeTimeoutRef = useRef(null); // Track swipe animation timeout
 
     // Detect coarse pointer (touch devices)
     useEffect(() => {
@@ -250,14 +319,69 @@ const CommunityAttendeesCarousel = ({ attendees = [] }) => {
         };
     }, [attendees.length, loadImageBatch]);
 
+    // Get current attendee index
+    const getCurrentIndex = useCallback(() => {
+        if (!selectedUsername || attendees.length === 0) return -1;
+        return attendees.findIndex(a => a.username === selectedUsername);
+    }, [selectedUsername, attendees]);
+
+    // Get next/previous username with wrap-around
+    const getAdjacentUsername = useCallback((direction) => {
+        const currentIndex = getCurrentIndex();
+        if (currentIndex === -1 || attendees.length === 0) return null;
+        
+        let nextIndex;
+        if (direction === 'next') {
+            nextIndex = (currentIndex + 1) % attendees.length;
+        } else {
+            nextIndex = currentIndex === 0 ? attendees.length - 1 : currentIndex - 1;
+        }
+        
+        return attendees[nextIndex]?.username || null;
+    }, [getCurrentIndex, attendees]);
+
+    // Navigate to adjacent attendee
+    const navigateToAttendee = useCallback(async (direction) => {
+        const nextUsername = getAdjacentUsername(direction);
+        if (!nextUsername) return;
+
+        // Set swipe direction for animation
+        setSwipeDirection(direction === 'next' ? 'left' : 'right');
+        
+        // Clear swipe direction after animation
+        if (swipeTimeoutRef.current) {
+            clearTimeout(swipeTimeoutRef.current);
+        }
+        swipeTimeoutRef.current = setTimeout(() => {
+            setSwipeDirection(null);
+            swipeTimeoutRef.current = null;
+        }, 400);
+
+        // Navigate (will check cache and fetch if needed)
+        await fetchAttendeeDetails(nextUsername, false); // false = not initial open
+    }, [getAdjacentUsername]);
+
+    // Check if navigation arrows should be disabled
+    const canNavigateLeft = useMemo(() => {
+        if (attendees.length <= 1) return false;
+        // For wrap-around, always enabled, but you can change this logic
+        return true;
+    }, [attendees.length]);
+
+    const canNavigateRight = useMemo(() => {
+        if (attendees.length <= 1) return false;
+        return true;
+    }, [attendees.length]);
+
     // Fetch attendee details
-    const fetchAttendeeDetails = useCallback(async (username) => {
+    const fetchAttendeeDetails = useCallback(async (username, isInitial = true) => {
         // Check cache first using ref for synchronous access
         if (detailsCacheRef.current[username]) {
             // Found in cache, open modal immediately
             setSelectedUsername(username);
             setModalOpen(true);
             setDetailsError(null);
+            setIsInitialOpen(isInitial);
             return;
         }
 
@@ -271,6 +395,7 @@ const CommunityAttendeesCarousel = ({ attendees = [] }) => {
         setDetailsError(null);
         setModalOpen(true); // Open modal immediately to show loading state
         setSelectedUsername(username);
+        setIsInitialOpen(isInitial);
 
         try {
             const token = localStorage.getItem('access_token');
@@ -357,13 +482,18 @@ const CommunityAttendeesCarousel = ({ attendees = [] }) => {
 
     // Handle modal close
     const handleCloseModal = useCallback(() => {
-        // Clear any pending timeout
+        // Clear any pending timeouts
         if (closeTimeoutRef.current) {
             clearTimeout(closeTimeoutRef.current);
+        }
+        if (swipeTimeoutRef.current) {
+            clearTimeout(swipeTimeoutRef.current);
         }
         
         setModalOpen(false);
         setDetailsError(null);
+        setSwipeDirection(null);
+        setIsInitialOpen(false);
         // Don't clear selectedUsername immediately to allow for smooth transitions
         closeTimeoutRef.current = setTimeout(() => {
             setSelectedUsername(null);
@@ -403,6 +533,15 @@ const CommunityAttendeesCarousel = ({ attendees = [] }) => {
         }
     }, [modalOpen]);
 
+    // Cleanup swipe timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (swipeTimeoutRef.current) {
+                clearTimeout(swipeTimeoutRef.current);
+            }
+        };
+    }, []);
+
     // Normalize attendees with fallbacks
     const normalizedAttendees = useMemo(
         () =>
@@ -415,7 +554,11 @@ const CommunityAttendeesCarousel = ({ attendees = [] }) => {
     );
 
     return (
-        <section className="attendees-root" ref={rootRef} aria-label="Your Community">
+        <section 
+            className={`attendees-root ${modalOpen && isInitialOpen ? 'attendees-root-modal-open' : ''}`}
+            ref={rootRef}
+            aria-label="Your Community"
+        >
             <div className="attendees-card">
                 <header className="attendees-header">
                     <h2 className="attendees-title">Your Community</h2>
@@ -465,7 +608,7 @@ const CommunityAttendeesCarousel = ({ attendees = [] }) => {
                                     onFocus={() => setActiveUsername(attendee.username)}
                                     onClick={() => {
                                         if (isCoarsePointer) setActiveUsername(attendee.username);
-                                        fetchAttendeeDetails(attendee.username);
+                                        fetchAttendeeDetails(attendee.username, true); // true = initial open
                                     }}
                                     onKeyDown={(e) => {
                                         if (e.key === "Enter" || e.key === " ") {
@@ -526,43 +669,162 @@ const CommunityAttendeesCarousel = ({ attendees = [] }) => {
 
             {/* Attendee Details Modal */}
             {modalOpen && (
-                <div 
-                    className="attendee-modal-overlay"
-                    onClick={handleCloseModal}
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="attendee-modal-title"
-                >
+                <>
+                    {/* Navigation Arrows */}
+                    {attendees.length > 1 && (
+                        <>
+                            <button
+                                type="button"
+                                className="attendee-modal-nav-arrow attendee-modal-nav-left"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigateToAttendee('prev');
+                                }}
+                                disabled={!canNavigateLeft}
+                            >
+                                ‹
+                            </button>
+                            <button
+                                type="button"
+                                className="attendee-modal-nav-arrow attendee-modal-nav-right"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigateToAttendee('next');
+                                }}
+                                disabled={!canNavigateRight}
+                            >
+                                ›
+                            </button>
+                        </>
+                    )}
+
                     <div 
-                        className="attendee-modal-content"
-                        onClick={(e) => e.stopPropagation()}
+                        className="attendee-modal-overlay"
+                        onClick={handleCloseModal}
                     >
-                        {loadingDetails ? (
-                            <div className="attendee-modal-loading">
-                                <LoadingSpinner size={60} />
-                                <p>Loading attendee details...</p>
-                            </div>
-                        ) : detailsError ? (
-                            <div className="attendee-modal-error">
-                                <p className="attendee-modal-error-message">{detailsError}</p>
-                            </div>
-                        ) : selectedUsername ? (
-                            (() => {
-                                const details = attendeeDetails[selectedUsername];
-                                if (!details) return null;
-                                
-                                return (
-                                    <div className="attendee-modal-body">
-                                        {/* Modal content will be implemented based on UX/UI requirements */}
-                                        <p>Details for: {details.name}</p>
-                                        <p>Lobbies Attended: {details.lobbies_attended}</p>
-                                        <p>Rounds Paired: {details.rounds_paired}</p>
-                                    </div>
-                                );
-                            })()
-                        ) : null}
+                        <div 
+                            className={`attendee-modal-content ${swipeDirection ? `swipe-${swipeDirection}` : ''}`}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {loadingDetails ? (
+                                <div className="attendee-modal-loading">
+                                    <LoadingSpinner size={60} />
+                                    <p>Loading attendee details...</p>
+                                </div>
+                            ) : detailsError ? (
+                                <div className="attendee-modal-error">
+                                    <p className="attendee-modal-error-message">{detailsError}</p>
+                                </div>
+                            ) : selectedUsername && attendeeDetails[selectedUsername] ? (
+                                <div className="attendee-modal-inner">
+                                    {(() => {
+                                        const details = attendeeDetails[selectedUsername];
+                                        
+                                        return (
+                                            <>
+                                                {/* Header */}
+                                                <h2 className="attendee-modal-header" id="attendee-modal-title">
+                                                    {details.name}
+                                                </h2>
+
+                                                {/* Main Content Grid */}
+                                                <div className="attendee-modal-grid">
+                                                    {/* Left Column */}
+                                                    <div className="attendee-modal-left">
+                                                        {/* Date Stamp */}
+                                                        <div className="attendee-modal-date">
+                                                            {formatDate(details.last_joined_date)}
+                                                        </div>
+
+                                                        {/* Profile Image Card */}
+                                                        <div className="attendee-modal-profile-card">
+                                                            <div className="attendee-modal-profile-img-wrapper">
+                                                                {details.image_data ? (
+                                                                    <img
+                                                                        className="attendee-modal-profile-img"
+                                                                        src={details.image_data}
+                                                                        alt={details.name}
+                                                                        onError={(e) => {
+                                                                            e.target.src = "/assets/fakeprofile.png";
+                                                                        }}
+                                                                    />
+                                                                ) : (
+                                                                    <img
+                                                                        className="attendee-modal-profile-img"
+                                                                        src="/assets/fakeprofile.png"
+                                                                        alt={details.name}
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                            <div className="attendee-modal-profile-footer">
+                                                                {details.name}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Right Column */}
+                                                    <div className="attendee-modal-right">
+                                                        {/* Events Attended */}
+                                                        <div className="attendee-modal-stat">
+                                                            <span className="attendee-modal-stat-label">events attended</span>
+                                                            <span className="attendee-modal-stat-value">{details.lobbies_attended}</span>
+                                                        </div>
+
+                                                        {/* Real Connections */}
+                                                        <div className="attendee-modal-stat">
+                                                            <span className="attendee-modal-stat-label">real connections</span>
+                                                            <div className="attendee-modal-stat-value-with-icons">
+                                                                <span className="attendee-modal-stat-value">{details.rounds_paired}</span>
+                                                                <div className="attendee-modal-staggered-icons">
+                                                                    {[...Array(4)].map((_, i) => (
+                                                                        <img
+                                                                            key={i}
+                                                                            className="attendee-modal-staggered-icon"
+                                                                            src="/assets/fakeprofile.png"
+                                                                            alt=""
+                                                                        />
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Who I Am Tags */}
+                                                        <div className="attendee-modal-tags-section">
+                                                            <h3 className="attendee-modal-tags-label">who I am:</h3>
+                                                            <div className="attendee-modal-tags-container">
+                                                                {details.self_tags && details.self_tags.length > 0 ? (
+                                                                    details.self_tags.map((tag, index) => (
+                                                                        <TagPill key={`self-${index}-${tag}`} tag={tag} />
+                                                                    ))
+                                                                ) : (
+                                                                    <span className="attendee-modal-empty-state">No tags</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Looking For Tags */}
+                                                        <div className="attendee-modal-tags-section">
+                                                            <h3 className="attendee-modal-tags-label">looking for:</h3>
+                                                            <div className="attendee-modal-tags-container">
+                                                                {details.desiring_tags && details.desiring_tags.length > 0 ? (
+                                                                    details.desiring_tags.map((tag, index) => (
+                                                                        <TagPill key={`desiring-${index}-${tag}`} tag={tag} />
+                                                                    ))
+                                                                ) : (
+                                                                    <span className="attendee-modal-empty-state">No tags</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        );
+                                    })()}
+                                </div>
+                            ) : null}
+                        </div>
                     </div>
-                </div>
+                </>
             )}
         </section>
     );

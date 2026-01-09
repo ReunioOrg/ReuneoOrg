@@ -400,6 +400,398 @@
     }
 }
 
+/* Attendee Modal Styles */
+.attendees-root-modal-open {
+    background: linear-gradient(90deg, #b4b8f6, #ffffff) !important;
+    transition: background 300ms ease;
+}
+
+.attendee-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 300ms ease-out;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.attendee-modal-content {
+    position: relative;
+    max-width: 1200px;
+    max-height: 90vh;
+    width: 100%;
+    background: white;
+    border-radius: 28px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+    overflow-x: hidden;
+    animation: modalSlideIn 300ms ease-out;
+    box-sizing: border-box;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.attendee-modal-content.swipe-left {
+    animation: swipeLeft 400ms ease-in-out;
+}
+
+.attendee-modal-content.swipe-right {
+    animation: swipeRight 400ms ease-in-out;
+}
+
+@keyframes swipeLeft {
+    0% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(-20px);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes swipeRight {
+    0% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(20px);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.attendee-modal-nav-arrow {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    border: 1px solid var(--attendees-border);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: var(--attendees-soft-shadow);
+    color: rgba(15, 23, 42, 0.7);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    line-height: 1;
+    text-align: center;
+    user-select: none;
+    transition: transform 180ms ease, background 180ms ease;
+    z-index: 1001;
+}
+
+.attendee-modal-nav-arrow:hover:not(:disabled) {
+    transform: translateY(-50%) translateY(-1px);
+    background: rgba(255, 255, 255, 1);
+}
+
+.attendee-modal-nav-arrow:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.attendee-modal-nav-left {
+    left: 20px;
+}
+
+.attendee-modal-nav-right {
+    right: 20px;
+}
+
+.attendee-modal-inner {
+    padding: 32px;
+    box-sizing: border-box;
+}
+
+.attendee-modal-header {
+    font-size: 32px;
+    font-weight: 700;
+    color: #4b73ef;
+    margin: 0 0 24px 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.attendee-modal-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 32px;
+    align-items: start;
+}
+
+.attendee-modal-left {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.attendee-modal-date {
+    font-size: 14px;
+    font-weight: 700;
+    color: #4b73ef;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.attendee-modal-profile-card {
+    position: relative;
+    width: 280px;
+    max-width: 280px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.attendee-modal-profile-img-wrapper {
+    width: 280px;
+    height: 360px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+    border-radius: 50px 50px 0 0;
+    overflow: hidden;
+}
+
+.attendee-modal-profile-img {
+    max-width: 280px;
+    max-height: 360px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.attendee-modal-profile-footer {
+    background-color: #144dff;
+    color: white;
+    padding: 12px 0;
+    border-bottom-left-radius: 50px;
+    border-bottom-right-radius: 50px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.2rem;
+    font-family: Helvetica, Arial, sans-serif;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.attendee-modal-right {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.attendee-modal-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.attendee-modal-stat-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4b73ef;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.attendee-modal-stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #3b3b3b;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.attendee-modal-stat-value-with-icons {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.attendee-modal-staggered-icons {
+    position: relative;
+    width: 112px;
+    height: 40px;
+}
+
+.attendee-modal-staggered-icon {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.attendee-modal-staggered-icon:nth-child(1) {
+    left: 0;
+    z-index: 4;
+}
+
+.attendee-modal-staggered-icon:nth-child(2) {
+    left: 28px;
+    z-index: 3;
+}
+
+.attendee-modal-staggered-icon:nth-child(3) {
+    left: 56px;
+    z-index: 2;
+}
+
+.attendee-modal-staggered-icon:nth-child(4) {
+    left: 84px;
+    z-index: 1;
+}
+
+.attendee-modal-tags-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.attendee-modal-tags-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4b73ef;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.attendee-modal-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.attendee-modal-tag-pill {
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.65rem;
+    font-weight: 650;
+    white-space: nowrap;
+    text-align: center;
+    font-family: Helvetica, sans-serif;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.attendee-modal-empty-state {
+    font-size: 14px;
+    color: rgba(15, 23, 42, 0.58);
+    font-style: italic;
+}
+
+.attendee-modal-loading,
+.attendee-modal-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 32px;
+    gap: 16px;
+}
+
+.attendee-modal-error-message {
+    color: rgba(15, 23, 42, 0.92);
+    font-size: 16px;
+    text-align: center;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .attendee-modal-overlay {
+        padding: 10px;
+    }
+
+    .attendee-modal-content {
+        max-height: 95vh;
+        border-radius: 20px;
+    }
+
+    .attendee-modal-nav-arrow {
+        display: none;
+    }
+
+    .attendee-modal-inner {
+        padding: 24px;
+    }
+
+    .attendee-modal-header {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .attendee-modal-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .attendee-modal-left {
+        order: 2;
+    }
+
+    .attendee-modal-date {
+        order: 1;
+        margin-bottom: 8px;
+    }
+
+    .attendee-modal-profile-card {
+        width: 100%;
+        max-width: 280px;
+        margin: 0 auto;
+    }
+
+    .attendee-modal-profile-img {
+        width: 100%;
+    }
+
+    .attendee-modal-right {
+        order: 3;
+        gap: 20px;
+    }
+
+    .attendee-modal-stat-value {
+        font-size: 28px;
+    }
+}
+
 /* Responsive design for mobile */
 @media (max-width: 768px) {
     .organizer-dashboard {
