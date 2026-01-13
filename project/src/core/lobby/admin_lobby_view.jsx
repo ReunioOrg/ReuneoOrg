@@ -162,13 +162,17 @@ const generateStyledQRCodeImage = (svgElement, code) => {
 };
 
 // Progress bar component for lobby phases
-const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, currentRound }) => {
+const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onPause, onEnd, lobbyCode, currentRound, isPaused }) => {
     // Determine states for each arrow
     // Check-in
     const checkinActive = lobbyState === 'checkin';
     // Start Rounds
-    const startAvailable = playerCount >= 2 && lobbyState === 'checkin';
+    const startAvailable = playerCount >= 2 && (lobbyState === 'checkin' || isPaused === true);
     const startActive = lobbyState === 'active';
+    // Show Start Rounds button when: lobbyState === 'checkin' OR isPaused === true
+    const showStartRounds = (lobbyState === 'checkin' || isPaused === true) && lobbyState !== 'terminate' && lobbyState !== 'terminated';
+    // Show Pause Rounds button when: (lobbyState === 'active' AND isPaused === false) OR (lobbyState === 'interrim' AND isPaused === false)
+    const showPauseRounds = ((lobbyState === 'active' && isPaused === false) || (lobbyState === 'interrim' && isPaused === false)) && lobbyState !== 'terminate' && lobbyState !== 'terminated';
     // End Rounds
     const endAvailable = lobbyState === 'active';
     const endActive = lobbyState === 'terminated';
@@ -186,6 +190,9 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
     // Handlers
     const handleStart = () => {
         setModal('start');
+    };
+    const handlePause = () => {
+        onPause();
     };
     const handleEnd = () => {
         setModal('end');
@@ -309,21 +316,42 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
             <div
                 style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}
             >
-                <div
-                    className={shimmerClass(startActive, startAvailable && !startActive)}
-                    tabIndex={0}
-                    title={startAvailable ? 'Start rounds' : 'At least 2 players required'}
-                    onClick={handleStart}
-                    style={{ 
-                        cursor: 'pointer', 
-                        width: '100%', 
-                        color: '#f5f7ff', 
-                        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)',
-                        boxShadow: '0 7px 4px rgba(0, 0, 0, 0.1)'
-                    }}
-                >
-                    Start Rounds
-                </div>
+                {showStartRounds && (
+                    <div
+                        className={shimmerClass(startActive, startAvailable && !startActive)}
+                        tabIndex={0}
+                        title={startAvailable ? 'Start rounds' : 'At least 2 players required'}
+                        onClick={handleStart}
+                        style={{ 
+                            cursor: 'pointer', 
+                            width: '100%', 
+                            color: '#f5f7ff', 
+                            textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)',
+                            boxShadow: '0 7px 4px rgba(0, 0, 0, 0.1)',
+                            marginBottom: showPauseRounds ? '0.5rem' : '0'
+                        }}
+                    >
+                        Start Rounds
+                    </div>
+                )}
+                {showPauseRounds && (
+                    <div
+                        className={shimmerClass(false, true)}
+                        tabIndex={0}
+                        title="Pause rounds"
+                        onClick={handlePause}
+                        style={{ 
+                            cursor: 'pointer', 
+                            width: '100%', 
+                            color: '#f5f7ff', 
+                            textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)',
+                            boxShadow: '0 7px 4px rgba(0, 0, 0, 0.1)',
+                            marginTop: showStartRounds ? '0.5rem' : '0'
+                        }}
+                    >
+                        Pause Rounds
+                    </div>
+                )}
                 <ArrowHint direction="down" show={showStartArrow} />
             </div>
             <div
@@ -528,6 +556,7 @@ const AdminLobbyView = () => {
     const [profilePictures, setProfilePictures] = useState({}); // Cache for profile pictures
     const [customTags, setCustomTags] = useState([]); // Add state for custom tags
     const [maxActiveRound, setMaxActiveRound] = useState(0);
+    const [isPaused, setIsPaused] = useState(false);
 
     // Add playerCount and lobbyState for progress bar
     const playerCount = (lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0);
@@ -651,6 +680,7 @@ const AdminLobbyView = () => {
                         setLobbyState(data.lobby_state);
                         setRoundDuration(data.lobby_duration || 300); // Set lobby duration from server
                         setCustomTags(data.custom_tags || []); // Set custom tags from server
+                        setIsPaused(data.is_paused || false); // Set is_paused from server
                     } else {
                         console.error("Invalid lobby data structure:", data);
                         setLobbyData([]);
@@ -784,6 +814,16 @@ const AdminLobbyView = () => {
         });
         // Optionally handle response
     };
+    const handlePauseRounds = async () => {
+        const response = await fetch(window.server_url + '/pause_rounds', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                'lobby_code': lobbyCode
+            }
+        });
+        // Optionally handle response
+    };
     const handleEndRounds = async () => {
         const response = await fetch(window.server_url + '/terminate_lobby', {
             method: 'GET',
@@ -827,9 +867,11 @@ const AdminLobbyView = () => {
                     lobbyState={lobbyState}
                     playerCount={playerCount}
                     onStart={handleStartRounds}
+                    onPause={handlePauseRounds}
                     onEnd={handleEndRounds}
                     lobbyCode={lobbyCode}
                     currentRound={maxActiveRound}
+                    isPaused={isPaused}
                 />
                 {/* Overlapping user profile list below progress bar */}
                 <OverlappingProfileList players={{ pairedPlayers, lobbyData }} />
