@@ -139,6 +139,51 @@ const getInteractionKey = (interaction, index) => {
     return `interaction-${index}`;
 };
 
+// Helper function: Find interaction by key using same key generation logic
+const findInteractionByKey = (interactions, targetKey) => {
+    return interactions.find((interaction, index) => {
+        const key = getInteractionKey(interaction, index);
+        return key === targetKey;
+    }) || null;
+};
+
+// Helper function: Update paired interaction via API
+const updatePairedInteraction = async (lobbyId, pairedWithUsername, updates, signal) => {
+    try {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            throw new Error('Not authenticated');
+        }
+        
+        const response = await fetch(`${window.server_url}/update-paired-interaction`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                lobby_id: lobbyId,
+                paired_with_username: pairedWithUsername,
+                ...updates
+            }),
+            signal // AbortSignal support
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || `HTTP ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return { success: true, data };
+    } catch (err) {
+        if (err.name === 'AbortError') {
+            throw err; // Re-throw abort errors (handled silently)
+        }
+        return { success: false, error: err.message };
+    }
+};
+
 // Star Rating Component
 const StarRating = ({ rating, onRatingChange, interactionKey }) => {
     const currentRating = rating || 0;
@@ -223,6 +268,35 @@ const PairedPlayerHistory = () => {
     const sentinelRef = useRef(null);
     const interactionsRef = useRef([]);
     const hasInitialLoadRef = useRef(false);
+    
+    // Refs for debounce and request management
+    const debounceTimersRef = useRef(new Map()); // interactionKey -> timeoutId
+    const abortControllersRef = useRef(new Map()); // interactionKey -> AbortController
+    
+    // Original values (separate per field type) - tracks committed value at start of change sequence
+    const originalRatingsRef = useRef(new Map()); // interactionKey -> rating value
+    const originalShareContactRef = useRef(new Map()); // interactionKey -> shareContact value
+    
+    // Refs for current state (to avoid stale closures)
+    const interactionRatingsRef = useRef(new Map());
+    const interactionShareContactRef = useRef(new Map());
+    
+    // Helper function: Clear pending updates for an interaction
+    const clearPendingUpdates = useCallback((interactionKey) => {
+        // Clear debounce timer
+        const timerId = debounceTimersRef.current.get(interactionKey);
+        if (timerId) {
+            clearTimeout(timerId);
+            debounceTimersRef.current.delete(interactionKey);
+        }
+        
+        // Abort pending request
+        const controller = abortControllersRef.current.get(interactionKey);
+        if (controller) {
+            controller.abort();
+            abortControllersRef.current.delete(interactionKey);
+        }
+    }, []);
     
     // Data fetching function
     const fetchInteractions = useCallback(async (offset, isInitialLoad, isPollingUpdate) => {
@@ -456,6 +530,16 @@ const PairedPlayerHistory = () => {
         interactionsRef.current = interactions;
     }, [interactions]);
     
+    // Sync interactionRatings ref
+    useEffect(() => {
+        interactionRatingsRef.current = interactionRatings;
+    }, [interactionRatings]);
+    
+    // Sync interactionShareContact ref
+    useEffect(() => {
+        interactionShareContactRef.current = interactionShareContact;
+    }, [interactionShareContact]);
+    
     // Initialize Maps from interactions data (smart merge: preserve user changes, use backend values when user hasn't changed)
     useEffect(() => {
         if (interactions.length === 0) return;
@@ -505,28 +589,360 @@ const PairedPlayerHistory = () => {
     
     // Handlers for rating and share contact changes
     const handleRatingChange = useCallback((interactionKey, rating) => {
+        // Use interactionsRef.current to avoid stale closure
+        const interaction = findInteractionByKey(interactionsRef.current, interactionKey);
+        
+        // Validation
+        if (!interaction?.lobby_id || !interaction.paired_with?.username) {
+            toast.error('Unable to save: interaction not found');
+            return;
+        }
+        
+        // Get original value (committed value at start of change sequence)
+        let originalRating = originalRatingsRef.current.get(interactionKey);
+        if (originalRating === undefined) {
+            // First change in sequence - capture current committed value
+            const currentRating = interactionRatingsRef.current.get(interactionKey);
+            const backendRating = interaction.partner_star_rating;
+            const committedRating = currentRating ?? 
+                                   (backendRating !== null && backendRating >= 1 && backendRating <= 5 
+                                    ? backendRating : null);
+            originalRating = committedRating;
+            originalRatingsRef.current.set(interactionKey, originalRating);
+        }
+        
+        // Cancel previous operations
+        clearPendingUpdates(interactionKey);
+        
+        // Optimistic update (state + ref)
         setInteractionRatings(prev => {
             const newMap = new Map(prev);
             newMap.set(interactionKey, rating);
+            interactionRatingsRef.current = newMap; // Sync ref
             return newMap;
         });
-    }, []);
+        
+        // Set debounce timer (500ms)
+        const timerId = setTimeout(async () => {
+            // Check mount
+            if (!isMountedRef.current) return;
+            
+            // Re-find interaction (might have changed via polling)
+            const currentInteraction = findInteractionByKey(interactionsRef.current, interactionKey);
+            if (!currentInteraction?.lobby_id || !currentInteraction.paired_with?.username) {
+                // Interaction not found - rollback
+                if (!isMountedRef.current) return;
+                setInteractionRatings(prev => {
+                    const newMap = new Map(prev);
+                    if (originalRating !== null && originalRating !== undefined) {
+                        newMap.set(interactionKey, originalRating);
+                    } else {
+                        newMap.delete(interactionKey);
+                    }
+                    interactionRatingsRef.current = newMap;
+                    return newMap;
+                });
+                originalRatingsRef.current.delete(interactionKey);
+                toast.error('Unable to save: interaction not found');
+                return;
+            }
+            
+            // Create abort controller
+            const controller = new AbortController();
+            abortControllersRef.current.set(interactionKey, controller);
+            
+            const partnerUsername = currentInteraction.paired_with.username;
+            const lobbyId = currentInteraction.lobby_id;
+            
+            console.log('[PairedHistory] Updating rating:', {
+                partner_username: partnerUsername,
+                lobby_id: lobbyId,
+                rating: rating,
+                previous_rating: originalRating
+            });
+            
+            try {
+                const result = await updatePairedInteraction(
+                    lobbyId,
+                    partnerUsername,
+                    { partner_star_rating: rating },
+                    controller.signal
+                );
+                
+                if (!isMountedRef.current) return;
+                
+                // Clean up
+                abortControllersRef.current.delete(interactionKey);
+                
+                if (result.success) {
+                    // Success: clear original value (committed)
+                    originalRatingsRef.current.delete(interactionKey);
+                    console.log('[PairedHistory] Rating update successful:', {
+                        partner_username: partnerUsername,
+                        lobby_id: lobbyId,
+                        rating: rating,
+                        response: result.data
+                    });
+                    toast.success('Saved', {
+                        duration: 1000,
+                        style: {
+                            background: '#144dff',
+                            color: 'white',
+                            borderRadius: '8px',
+                            padding: '12px 20px',
+                            fontSize: '0.9rem',
+                            fontWeight: '500'
+                        }
+                    });
+                } else {
+                    // Error: rollback
+                    console.error('[PairedHistory] Rating update failed:', {
+                        partner_username: partnerUsername,
+                        lobby_id: lobbyId,
+                        rating: rating,
+                        error: result.error
+                    });
+                    setInteractionRatings(prev => {
+                        const newMap = new Map(prev);
+                        if (originalRating !== null && originalRating !== undefined) {
+                            newMap.set(interactionKey, originalRating);
+                        } else {
+                            newMap.delete(interactionKey);
+                        }
+                        interactionRatingsRef.current = newMap;
+                        return newMap;
+                    });
+                    originalRatingsRef.current.delete(interactionKey);
+                    toast.error(result.error || 'Failed to save. Please try again.');
+                }
+            } catch (err) {
+                if (!isMountedRef.current) return;
+                abortControllersRef.current.delete(interactionKey);
+                
+                if (err.name === 'AbortError') {
+                    // Silent - new request in progress
+                    console.log('[PairedHistory] Rating update aborted:', {
+                        partner_username: partnerUsername,
+                        lobby_id: lobbyId
+                    });
+                    return;
+                }
+                
+                // Rollback on error
+                console.error('[PairedHistory] Rating update error:', {
+                    partner_username: partnerUsername,
+                    lobby_id: lobbyId,
+                    rating: rating,
+                    error: err.message
+                });
+                setInteractionRatings(prev => {
+                    const newMap = new Map(prev);
+                    if (originalRating !== null && originalRating !== undefined) {
+                        newMap.set(interactionKey, originalRating);
+                    } else {
+                        newMap.delete(interactionKey);
+                    }
+                    interactionRatingsRef.current = newMap;
+                    return newMap;
+                });
+                originalRatingsRef.current.delete(interactionKey);
+                toast.error(err.message || 'Failed to save. Please try again.');
+            }
+        }, 500);
+        
+        debounceTimersRef.current.set(interactionKey, timerId);
+    }, [clearPendingUpdates]);
     
     const handleShareContactChange = useCallback((interactionKey, value) => {
+        // Use interactionsRef.current to avoid stale closure
+        const interaction = findInteractionByKey(interactionsRef.current, interactionKey);
+        
+        // Validation
+        if (!interaction?.lobby_id || !interaction.paired_with?.username) {
+            toast.error('Unable to save: interaction not found');
+            return;
+        }
+        
+        // Get original value (committed value at start of change sequence)
+        let originalShareContact = originalShareContactRef.current.get(interactionKey);
+        if (originalShareContact === undefined) {
+            // First change in sequence - capture current committed value
+            const currentShareContact = interactionShareContactRef.current.get(interactionKey);
+            const backendShareContact = interaction.user_show_contact;
+            const committedShareContact = currentShareContact ?? 
+                                        (backendShareContact !== null && typeof backendShareContact === 'boolean'
+                                         ? backendShareContact : null);
+            originalShareContact = committedShareContact;
+            originalShareContactRef.current.set(interactionKey, originalShareContact);
+        }
+        
+        // Cancel previous operations
+        clearPendingUpdates(interactionKey);
+        
+        // Optimistic update (state + ref)
         setInteractionShareContact(prev => {
             const newMap = new Map(prev);
             newMap.set(interactionKey, value);
+            interactionShareContactRef.current = newMap; // Sync ref
             return newMap;
         });
-    }, []);
+        
+        // Set debounce timer (300ms)
+        const timerId = setTimeout(async () => {
+            // Check mount
+            if (!isMountedRef.current) return;
+            
+            // Re-find interaction (might have changed via polling)
+            const currentInteraction = findInteractionByKey(interactionsRef.current, interactionKey);
+            if (!currentInteraction?.lobby_id || !currentInteraction.paired_with?.username) {
+                // Interaction not found - rollback
+                if (!isMountedRef.current) return;
+                setInteractionShareContact(prev => {
+                    const newMap = new Map(prev);
+                    if (originalShareContact !== null && originalShareContact !== undefined) {
+                        newMap.set(interactionKey, originalShareContact);
+                    } else {
+                        newMap.delete(interactionKey);
+                    }
+                    interactionShareContactRef.current = newMap;
+                    return newMap;
+                });
+                originalShareContactRef.current.delete(interactionKey);
+                toast.error('Unable to save: interaction not found');
+                return;
+            }
+            
+            // Create abort controller
+            const controller = new AbortController();
+            abortControllersRef.current.set(interactionKey, controller);
+            
+            const partnerUsername = currentInteraction.paired_with.username;
+            const lobbyId = currentInteraction.lobby_id;
+            
+            console.log('[PairedHistory] Updating share contact:', {
+                partner_username: partnerUsername,
+                lobby_id: lobbyId,
+                user_show_contact: value,
+                previous_value: originalShareContact
+            });
+            
+            try {
+                const result = await updatePairedInteraction(
+                    lobbyId,
+                    partnerUsername,
+                    { user_show_contact: value },
+                    controller.signal
+                );
+                
+                if (!isMountedRef.current) return;
+                
+                // Clean up
+                abortControllersRef.current.delete(interactionKey);
+                
+                if (result.success) {
+                    // Success: clear original value (committed)
+                    originalShareContactRef.current.delete(interactionKey);
+                    console.log('[PairedHistory] Share contact update successful:', {
+                        partner_username: partnerUsername,
+                        lobby_id: lobbyId,
+                        user_show_contact: value,
+                        response: result.data
+                    });
+                    toast.success('Saved', {
+                        duration: 1000,
+                        style: {
+                            background: '#144dff',
+                            color: 'white',
+                            borderRadius: '8px',
+                            padding: '12px 20px',
+                            fontSize: '0.9rem',
+                            fontWeight: '500'
+                        }
+                    });
+                } else {
+                    // Error: rollback
+                    console.error('[PairedHistory] Share contact update failed:', {
+                        partner_username: partnerUsername,
+                        lobby_id: lobbyId,
+                        user_show_contact: value,
+                        error: result.error
+                    });
+                    setInteractionShareContact(prev => {
+                        const newMap = new Map(prev);
+                        if (originalShareContact !== null && originalShareContact !== undefined) {
+                            newMap.set(interactionKey, originalShareContact);
+                        } else {
+                            newMap.delete(interactionKey);
+                        }
+                        interactionShareContactRef.current = newMap;
+                        return newMap;
+                    });
+                    originalShareContactRef.current.delete(interactionKey);
+                    toast.error(result.error || 'Failed to save. Please try again.');
+                }
+            } catch (err) {
+                if (!isMountedRef.current) return;
+                abortControllersRef.current.delete(interactionKey);
+                
+                if (err.name === 'AbortError') {
+                    // Silent - new request in progress
+                    console.log('[PairedHistory] Share contact update aborted:', {
+                        partner_username: partnerUsername,
+                        lobby_id: lobbyId
+                    });
+                    return;
+                }
+                
+                // Rollback on error
+                console.error('[PairedHistory] Share contact update error:', {
+                    partner_username: partnerUsername,
+                    lobby_id: lobbyId,
+                    user_show_contact: value,
+                    error: err.message
+                });
+                setInteractionShareContact(prev => {
+                    const newMap = new Map(prev);
+                    if (originalShareContact !== null && originalShareContact !== undefined) {
+                        newMap.set(interactionKey, originalShareContact);
+                    } else {
+                        newMap.delete(interactionKey);
+                    }
+                    interactionShareContactRef.current = newMap;
+                    return newMap;
+                });
+                originalShareContactRef.current.delete(interactionKey);
+                toast.error(err.message || 'Failed to save. Please try again.');
+            }
+        }, 300);
+        
+        debounceTimersRef.current.set(interactionKey, timerId);
+    }, [clearPendingUpdates]);
     
     // Cleanup on unmount
     useEffect(() => {
         return () => {
             isMountedRef.current = false;
+            
+            // Clear new info timeout
             if (newInfoTimeoutRef.current) {
                 clearTimeout(newInfoTimeoutRef.current);
             }
+            
+            // Abort all pending API requests
+            abortControllersRef.current.forEach(controller => {
+                controller.abort();
+            });
+            
+            // Clear all debounce timers
+            debounceTimersRef.current.forEach(timer => {
+                clearTimeout(timer);
+            });
+            
+            // Clear refs
+            debounceTimersRef.current.clear();
+            abortControllersRef.current.clear();
+            originalRatingsRef.current.clear();
+            originalShareContactRef.current.clear();
         };
     }, []);
     
