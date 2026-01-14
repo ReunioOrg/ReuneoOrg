@@ -614,6 +614,56 @@ const App = () => {
           )}
         </div>
 
+        {/* Post Event Auth Button - Only for authenticated non-organizer/admin users */}
+        {user && permissions !== 'admin' && permissions !== 'organizer' && (
+          <div style={{ 
+            position: 'absolute', 
+            left: '50%', 
+            transform: 'translateX(-50%)',
+            width: '90%',
+            maxWidth: '1200px',
+            textAlign: 'center',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            zIndex: 1,
+            top: 'calc(50% + 100px)'
+          }}>
+            <button 
+              className="primary-button join-lobby-button" 
+              onClick={() => navigate('/post-event-auth')}
+              style={{
+                padding: '16px 20px',
+                backgroundColor: 'transparent',
+                color: 'white',
+                border: 'none',
+                borderRadius: '14px',
+                fontWeight: '900',
+                fontSize: '1.2rem',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+                transition: 'all 0.2s ease',
+                width: '160px',
+                margin: '0 auto',
+                display: 'block',
+                position: 'relative',
+                zIndex: 1,
+                textAlign: 'center',
+                outline: 'none',
+                cursor: 'pointer',
+                ':hover': {
+                  transform: 'scale(1.02)'
+                }
+              }}
+            >
+              <span style={{
+                textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
+                color: 'inherit'
+              }}>
+                View Matches
+              </span>
+            </button>
+          </div>
+        )}
+
         {/* Event items, the big div (hidden for logged-out users) */}
         {user && (
           <div style={{ 
