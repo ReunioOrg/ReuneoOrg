@@ -1,0 +1,397 @@
+/* Loading Spinner Styles (from organizer-dashboard.css) */
+.attendees-spinner {
+    border: 3px solid rgba(75, 115, 239, 0.1);
+    border-top: 3px solid #4b73ef;
+    border-radius: 50%;
+    animation: attendees-spin 1s linear infinite;
+    display: inline-block;
+}
+
+.attendees-spinner-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+
+@keyframes attendees-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Main Container */
+.paired-player-history-container {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #f5f7ff;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.paired-player-history-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.paired-player-history-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #144dff;
+    margin: 0 0 2rem 0;
+    text-align: center;
+}
+
+/* "New Notifications" Indicator */
+.new-info-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: linear-gradient(135deg, #144dff, #535bf2);
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 4px 8px rgba(20, 77, 255, 0.3);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Loading Grid */
+.loading-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem 0;
+}
+
+.loading-grid .attendees-spinner {
+    margin: 0 auto;
+}
+
+/* Empty State */
+.empty-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    width: 100%;
+}
+
+.empty-state p {
+    font-size: 1.5rem;
+    color: rgba(15, 23, 42, 0.6);
+    font-weight: 500;
+}
+
+/* Interactions List */
+.interactions-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem 0;
+}
+
+/* Interaction Card */
+.interaction-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(20, 77, 255, 0.1);
+    border: 1px solid rgba(20, 77, 255, 0.1);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.interaction-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(20, 77, 255, 0.2);
+}
+
+/* Main two-column layout */
+.interaction-card-main {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+/* Left Column: Profile Image and Name */
+.interaction-card-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 0 0 auto;
+    min-width: 120px;
+}
+
+.interaction-card-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #4b7ef0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.interaction-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.interaction-card-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #4b7ef0;
+    text-align: center;
+    word-wrap: break-word;
+    max-width: 120px;
+}
+
+/* Right Column: Star Rating and Share Contact */
+.interaction-card-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    flex: 1 1 auto;
+}
+
+/* Star Rating Component */
+.star-rating-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.star-rating-question {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4b7ef0;
+    margin-bottom: 0.25rem;
+}
+
+.star-rating-stars {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.star-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: transform 0.2s ease;
+    color: #4b7ef0;
+}
+
+.star-button:hover {
+    transform: scale(1.1);
+}
+
+.star-button.star-filled {
+    color: #4b7ef0;
+}
+
+.star-button.star-empty {
+    color: rgba(75, 126, 240, 0.3);
+    -webkit-text-stroke: 1px #4b7ef0;
+    -webkit-text-fill-color: transparent;
+}
+
+.star-rating-disclaimer {
+    font-size: 0.75rem;
+    font-style: italic;
+    color: rgba(15, 23, 42, 0.6);
+    margin-top: 0.25rem;
+}
+
+/* Share Contact Toggle Component */
+.share-contact-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.share-contact-question {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4b7ef0;
+    margin-bottom: 0.25rem;
+}
+
+.share-contact-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.share-contact-button {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border: 2px solid #4b7ef0;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #4b7ef0;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.share-contact-button:hover {
+    background: rgba(75, 126, 240, 0.1);
+}
+
+.share-contact-button.selected {
+    background: #4b7ef0;
+    color: white;
+}
+
+.share-contact-button.selected:hover {
+    background: #3d6bd8;
+}
+
+/* Contact URL Row - Full Width */
+.interaction-card-contact-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(75, 126, 240, 0.05);
+    border-radius: 8px;
+    border-top: 1px solid rgba(75, 126, 240, 0.1);
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.contact-url-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    object-fit: contain;
+}
+
+.contact-url-link {
+    color: #4b7ef0;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+}
+
+.contact-url-link:hover {
+    color: #3d6bd8;
+    text-decoration: underline;
+}
+
+/* Infinite Scroll Sentinel */
+.infinite-scroll-sentinel {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    min-height: 100px;
+}
+
+/* No More Interactions Message */
+.no-more-interactions {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem;
+    color: rgba(15, 23, 42, 0.5);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .paired-player-history-container {
+        padding: 1rem;
+    }
+    
+    .paired-player-history-title {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .interactions-list {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+    
+    .loading-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+    
+    .interaction-card-main {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .interaction-card-right {
+        width: 100%;
+        align-items: center;
+    }
+    
+    .star-rating-stars {
+        justify-content: center;
+    }
+    
+    .share-contact-buttons {
+        justify-content: center;
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .interactions-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .loading-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    
+    .interaction-card {
+        padding: 1rem;
+    }
+    
+    .interaction-card-image {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .star-rating-question,
+    .share-contact-question {
+        font-size: 0.9rem;
+    }
+    
+    .star-button {
+        font-size: 1.3rem;
+    }
+}
