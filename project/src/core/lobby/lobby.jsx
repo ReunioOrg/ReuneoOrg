@@ -400,7 +400,7 @@ const LobbyScreen = () => {
                 console.log("LOBBY PAIR DATA:",currentLobbyCode, data);
                 if (data.status=="inactive"){
                     cancelSound();
-                    navigate('/');
+                    navigate('/post-event-auth');
                 }
                 
                 setOpponentName(data.opponent_name);
