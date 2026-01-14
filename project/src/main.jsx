@@ -23,6 +23,7 @@ import HowToTutorial from './core/lobby/how_to_tutorial.jsx'
 import MasterLobbyView from './core/lobby/master_lobby_view.jsx'
 import MyCF from './core/community/mycf.jsx'
 import PairedPlayerHistory from './core/communities/paired-player-history.jsx'
+import PostEventAuth from './core/Auth/post-event-auth.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
@@ -44,6 +45,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/organizer-dashboard" element={<OrganizerDashboard />} />
           <Route path="/master_lobby_view" element={<MasterLobbyView />} />
           <Route path="/paired-player-history" element={<PairedPlayerHistory />} />
+          <Route path="/post-event-auth" element={<PostEventAuth />} />
           {/* <Route path="/cofounders" element={<MyCF />} /> */}
         </Routes>
         </Router>
