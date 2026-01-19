@@ -110,15 +110,16 @@ const App = () => {
             // Mark as validated
             markLobbyValidated();
           }
-        } else {
-          // Lobby doesn't exist anymore, clean up
+        } else if (response.status === 404) {
+          // Only clear if lobby definitively doesn't exist (404)
+          // For other errors (401, 500, etc.), keep the tile visible
           clearLobbyStorage();
           setUserCurrentLobby(null);
         }
       } catch (error) {
         console.error("Error validating current lobby:", error);
-        // On error, hide the tile to be safe
-        setUserCurrentLobby(null);
+        // On network error, keep showing the tile - only hide if explicitly terminated
+        // The lobby page will handle any connection issues when user clicks
       }
     }
   };

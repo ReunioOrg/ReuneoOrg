@@ -11,7 +11,7 @@ import LobbyCountdown from './lobby_countdown';
 import HowToTutorial from './how_to_tutorial';
 import ShowMatchAnimation from './show_match_animation';
 import UserIsReadyAnimation from './user_is_ready_animation';
-import { storeLobbyCode, clearLobbyStorage } from '../utils/lobbyStorage';
+import { storeLobbyCode, clearLobbyStorage, refreshLobbyTimestamp } from '../utils/lobbyStorage';
 import { CommunityPageButton } from '../community/mycf';
 
 const AVAILABLE_TAGS = []; // Remove hardcoded tags
@@ -401,6 +401,12 @@ const LobbyScreen = () => {
                 if (data.status=="inactive"){
                     cancelSound();
                     navigate('/post-event-auth');
+                    return;  // Exit early, don't continue processing
+                }
+                
+                // Refresh lobby timestamp to prevent 30-minute expiry during active session
+                if (data.lobby_state !== "terminated") {
+                    refreshLobbyTimestamp();
                 }
                 
                 setOpponentName(data.opponent_name);
