@@ -51,6 +51,8 @@
     position: absolute;
     top: 17px;
     left: 15px;
+    right: auto;
+    width: auto;
     padding: 12px 20px;
     background-color: #144dff;
     border: 2px solid #e9ecef;

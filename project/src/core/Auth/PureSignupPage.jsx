@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { AuthContext } from './AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import getCroppedImg from '../cropImage'; // Utility function for cropping
@@ -25,6 +25,11 @@ const PureSignupPage = () => {
     const [canProceed, setCanProceed] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
     const [typingTimeout, setTypingTimeout] = useState(null);
+    
+    // Selfie modal state
+    const [showSelfieModal, setShowSelfieModal] = useState(false);
+    const [hasShownSelfieModal, setHasShownSelfieModal] = useState(false);
+    const fileInputRef = useRef(null);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -100,6 +105,34 @@ const PureSignupPage = () => {
             setFieldErrors(prev => ({ ...prev, displayName: '' }));
         }
     }, [currentStep, displayName]);
+
+    // Show selfie modal when arriving at image step (step 3)
+    useEffect(() => {
+        const isImageStep = currentStep === 3;
+        const isNotDemoLobby = lobbyCode !== 'demolobby';
+        const allPreviousFieldsFilled = username && password && displayName;
+        
+        if (isImageStep && isNotDemoLobby && allPreviousFieldsFilled && !hasShownSelfieModal) {
+            setShowSelfieModal(true);
+            setHasShownSelfieModal(true);
+        }
+    }, [currentStep, lobbyCode, username, password, displayName, hasShownSelfieModal]);
+
+    // Handle selfie modal "Understood" click
+    const handleSelfieModalUnderstood = () => {
+        setShowSelfieModal(false);
+        // Trigger file picker after a brief delay for smooth transition
+        setTimeout(() => {
+            if (fileInputRef.current) {
+                fileInputRef.current.click();
+            }
+        }, 150);
+    };
+
+    // Handle clicking outside the modal (overlay click)
+    const handleSelfieModalOverlayClick = () => {
+        setShowSelfieModal(false);
+    };
 
     const validateUsername = (username) => {
         // Regular expression to match only lowercase letters and numbers
@@ -429,7 +462,7 @@ const PureSignupPage = () => {
         },
         {
             id: 'image',
-            label: lobbyCode === 'demolobby' ? 'Profile Image (Upload Any Image)' : 'Upload a Selfie (so people can find you)',
+            label: lobbyCode === 'demolobby' ? 'Profile Image (Upload Any Image)' : 'Take a Selfie (so people can find you)',
             type: 'file',
             onChange: handleImageChange,
             accept: 'image/*'
@@ -529,6 +562,7 @@ const PureSignupPage = () => {
                                                 {!isCropping ? (
                                                     <>
                                                         <input
+                                                            ref={fileInputRef}
                                                             type="file"
                                                             onChange={steps[currentStep].onChange}
                                                             accept={steps[currentStep].accept}
@@ -676,6 +710,47 @@ const PureSignupPage = () => {
                     )}
                 </form>
             </div>
+
+            {/* Selfie Reminder Modal */}
+            <AnimatePresence>
+                {showSelfieModal && (
+                    <motion.div
+                        className="selfie-modal-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        onClick={handleSelfieModalOverlayClick}
+                    >
+                        <motion.div
+                            className="selfie-modal-content"
+                            initial={{ opacity: 0, scale: 0.85 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.85 }}
+                            transition={{ 
+                                type: "spring",
+                                stiffness: 400,
+                                damping: 25
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <h2 className="selfie-modal-header">
+                                📸 You Must Take a Selfie
+                            </h2>
+                            <p className="selfie-modal-subtext">
+                                Don't use old photos, people need to know how you look in order to find you in the room - trust us.
+                            </p>
+                            <button
+                                type="button"
+                                className="selfie-modal-button"
+                                onClick={handleSelfieModalUnderstood}
+                            >
+                                Understood
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
