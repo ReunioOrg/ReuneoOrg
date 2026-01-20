@@ -27,7 +27,29 @@ export const AuthProvider = ({ children }) => {
     // }, []);
 
     const checkAuth = async () => {
-      // Check if we have a token
+      // 1. First try session-based auth (cookie from email magic link)
+      try {
+        const sessionResponse = await fetch(window.server_url + '/auth/session', {
+          method: 'GET',
+          credentials: 'include', // Send cookies cross-origin
+        });
+        
+        if (sessionResponse.ok) {
+          const sessionData = await sessionResponse.json();
+          if (sessionData.authenticated) {
+            console.log("SESSION AUTH SUCCESS:", sessionData);
+            setIsAuthenticated(true);
+            setUser(sessionData.user.username);
+            setUserProfile(sessionData.user.profile || null);
+            setPermissions(sessionData.user.permissions || null);
+            return; // Session auth succeeded, no need to try JWT
+          }
+        }
+      } catch (error) {
+        console.log("Session auth check failed (this is ok if using JWT):", error);
+      }
+
+      // 2. Fall back to JWT auth (localStorage token from username/password login)
       const token = localStorage.getItem('access_token');
       
       if (token) {
@@ -37,20 +59,18 @@ export const AuthProvider = ({ children }) => {
             headers: { 
               'Authorization': `Bearer ${token}` 
             },
-            // credentials: 'include',
-            // mode: 'no-cors',
+            credentials: 'include', // Also include cookies for future compatibility
           });
           
           if (response.ok) {
             setIsAuthenticated(true);
             // Set user data
             const userData = await response.json();
-            console.log("USER DATA:", userData);
+            console.log("JWT AUTH SUCCESS:", userData);
             setUser(userData.username);
             setUserProfile(userData.profile);
             setPermissions(userData.permissions);
             console.log("PERMISSIONS:", userData.permissions);
-            // setUser(userData);
           } else {
             // Token invalid - clean up
             console.log("TOKEN INVALID");
@@ -63,7 +83,7 @@ export const AuthProvider = ({ children }) => {
           }
         } catch (error) {
           // Handle error
-          console.log("ERROR:", error);
+          console.log("JWT auth error:", error);
         }
       }
     };
@@ -99,12 +119,28 @@ export const AuthProvider = ({ children }) => {
       }
     };
 
-    const logout = () => {
+    const logout = async () => {
+      // Clear session cookie on backend (for email auth)
+      try {
+        await fetch(window.server_url + '/auth/logout', {
+          method: 'POST',
+          credentials: 'include',
+        });
+      } catch (error) {
+        console.log("Logout request failed (session may already be cleared):", error);
+      }
+
+      // Clear local state and localStorage (for JWT auth)
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      
       setUser(null);
       setUserProfile(null);
       setAccessToken(null);
       setRefreshToken(null);
       setIsAuthenticated(false);
+      setPermissions(null);
     };
 
     return (
