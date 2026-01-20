@@ -14,6 +14,7 @@ const PostEventAuth = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
+    const [magicLinkSent, setMagicLinkSent] = useState(false);
 
     // Fetch user data on mount
     useEffect(() => {
@@ -64,6 +65,21 @@ const PostEventAuth = () => {
         setIsSubmitting(true);
         setError('');
 
+        // Validate email is required
+        if (!email || !email.trim()) {
+            setError('Email is required to access your matches.');
+            setIsSubmitting(false);
+            return;
+        }
+
+        // Basic email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email.trim())) {
+            setError('Please enter a valid email address.');
+            setIsSubmitting(false);
+            return;
+        }
+
         try {
             const token = localStorage.getItem('access_token');
             if (!token) {
@@ -95,29 +111,51 @@ const PostEventAuth = () => {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to update profile');
+                throw new Error(errorData.detail || errorData.message || 'Failed to update profile');
             }
 
-            // Show success toast
-            toast.success('Profile updated successfully!', {
-                duration: 2000,
-                style: {
-                    background: '#4b73ef',
-                    color: 'white',
-                    borderRadius: '8px',
-                    padding: '12px 20px',
-                    fontSize: '0.9rem',
-                    fontWeight: '500'
+            // Profile updated - now send magic link
+            try {
+                const magicLinkResponse = await fetch(`${window.server_url}/auth/send-magic-link`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: email.trim() })
+                });
+
+                const magicLinkData = await magicLinkResponse.json();
+
+                if (magicLinkData.success) {
+                    // Show success screen
+                    setMagicLinkSent(true);
+                    toast.success('Check your email for the magic link!', {
+                        duration: 4000,
+                        style: {
+                            background: '#4b73ef',
+                            color: 'white',
+                            borderRadius: '8px',
+                            padding: '12px 20px',
+                            fontSize: '0.9rem',
+                            fontWeight: '500'
+                        }
+                    });
+                } else {
+                    // Magic link failed but profile was updated - still allow access (Option A fallback)
+                    console.error('Magic link failed:', magicLinkData.error);
+                    toast.success('Profile saved! (Email verification unavailable)', {
+                        duration: 3000
+                    });
+                    await checkAuth();
+                    setTimeout(() => navigate('/paired-player-history'), 1500);
                 }
-            });
-
-            // Call checkAuth to refresh context
-            await checkAuth();
-
-            // Redirect to paired-player-history after 1.5 seconds
-            setTimeout(() => {
-                navigate('/paired-player-history');
-            }, 1500);
+            } catch (magicLinkErr) {
+                // Magic link request failed but profile was updated (Option A fallback)
+                console.error('Magic link request error:', magicLinkErr);
+                toast.success('Profile saved!', { duration: 2000 });
+                await checkAuth();
+                setTimeout(() => navigate('/paired-player-history'), 1500);
+            }
 
         } catch (err) {
             console.error('Error updating profile:', err);
@@ -131,6 +169,60 @@ const PostEventAuth = () => {
         return (
             <div className="post-event-auth-container">
                 <div className="loading-message">Loading...</div>
+            </div>
+        );
+    }
+
+    // Show "check your email" screen after magic link is sent
+    if (magicLinkSent) {
+        return (
+            <div className="post-event-auth-container">
+                <Toaster position="top-center" />
+                
+                <div className="step-form-container" style={{ textAlign: 'center', padding: '40px 20px' }}>
+                    <div style={{ 
+                        fontSize: '48px', 
+                        marginBottom: '20px'
+                    }}>
+                        📧
+                    </div>
+                    <h2 style={{ 
+                        color: '#ffffff', 
+                        marginBottom: '16px',
+                        fontSize: '1.5rem'
+                    }}>
+                        Check Your Email!
+                    </h2>
+                    <p style={{ 
+                        color: 'rgba(255,255,255,0.8)', 
+                        marginBottom: '24px',
+                        lineHeight: '1.6'
+                    }}>
+                        We sent a magic link to <strong>{email}</strong>
+                        <br /><br />
+                        Click the link in your email to access your matches.
+                    </p>
+                    <p style={{ 
+                        color: 'rgba(255,255,255,0.6)', 
+                        fontSize: '0.85rem',
+                        marginBottom: '24px'
+                    }}>
+                        The link expires in 15 minutes.
+                        <br />
+                        Don't see it? Check your spam folder.
+                    </p>
+                    <button 
+                        onClick={() => setMagicLinkSent(false)}
+                        className="primary-button"
+                        style={{ 
+                            backgroundColor: 'transparent',
+                            border: '1px solid rgba(255,255,255,0.3)',
+                            marginTop: '10px'
+                        }}
+                    >
+                        ← Back to Form
+                    </button>
+                </div>
             </div>
         );
     }
@@ -173,7 +265,7 @@ const PostEventAuth = () => {
 
                     <div style={{ marginTop: '20px' }}>
                         <label className="step-label">
-                            Email
+                            Email <span style={{ color: '#ff6b6b' }}>*</span>
                         </label>
                         <input
                             type="email"
@@ -181,6 +273,7 @@ const PostEventAuth = () => {
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Enter your email"
                             className="step-input"
+                            required
                         />
                     </div>
 
