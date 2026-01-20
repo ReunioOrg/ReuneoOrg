@@ -4,6 +4,16 @@ import { AuthContext } from './AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
 import './post-event-auth.css';
 
+// ============================================================
+// FEATURE FLAG: Toggle email authentication mode
+// ============================================================
+// true  = Full email auth (sends magic link, shows "check email" screen)
+// false = Direct access (saves email, skips magic link, redirects immediately)
+// 
+// Set to FALSE if Postmark isn't approved before the event!
+// ============================================================
+const ENABLE_MAGIC_LINK = false;
+
 const PostEventAuth = () => {
     const navigate = useNavigate();
     const { checkAuth } = useContext(AuthContext);
@@ -114,45 +124,64 @@ const PostEventAuth = () => {
                 throw new Error(errorData.detail || errorData.message || 'Failed to update profile');
             }
 
-            // Profile updated - now send magic link
-            try {
-                const magicLinkResponse = await fetch(`${window.server_url}/auth/send-magic-link`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email: email.trim() })
-                });
-
-                const magicLinkData = await magicLinkResponse.json();
-
-                if (magicLinkData.success) {
-                    // Show success screen
-                    setMagicLinkSent(true);
-                    toast.success('Check your email for the magic link!', {
-                        duration: 4000,
-                        style: {
-                            background: '#4b73ef',
-                            color: 'white',
-                            borderRadius: '8px',
-                            padding: '12px 20px',
-                            fontSize: '0.9rem',
-                            fontWeight: '500'
-                        }
+            // Check if magic link is enabled
+            if (ENABLE_MAGIC_LINK) {
+                // Full email auth mode - send magic link
+                try {
+                    const magicLinkResponse = await fetch(`${window.server_url}/auth/send-magic-link`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email: email.trim() })
                     });
-                } else {
-                    // Magic link failed but profile was updated - still allow access (Option A fallback)
-                    console.error('Magic link failed:', magicLinkData.error);
-                    toast.success('Profile saved! (Email verification unavailable)', {
-                        duration: 3000
-                    });
+
+                    const magicLinkData = await magicLinkResponse.json();
+
+                    if (magicLinkData.success) {
+                        // Show success screen
+                        setMagicLinkSent(true);
+                        toast.success('Check your email for the magic link!', {
+                            duration: 4000,
+                            style: {
+                                background: '#4b73ef',
+                                color: 'white',
+                                borderRadius: '8px',
+                                padding: '12px 20px',
+                                fontSize: '0.9rem',
+                                fontWeight: '500'
+                            }
+                        });
+                    } else {
+                        // Magic link failed but profile was updated - still allow access (Option A fallback)
+                        console.error('Magic link failed:', magicLinkData.error);
+                        toast.success('Profile saved! (Email verification unavailable)', {
+                            duration: 3000
+                        });
+                        await checkAuth();
+                        setTimeout(() => navigate('/paired-player-history'), 1500);
+                    }
+                } catch (magicLinkErr) {
+                    // Magic link request failed but profile was updated (Option A fallback)
+                    console.error('Magic link request error:', magicLinkErr);
+                    toast.success('Profile saved!', { duration: 2000 });
                     await checkAuth();
                     setTimeout(() => navigate('/paired-player-history'), 1500);
                 }
-            } catch (magicLinkErr) {
-                // Magic link request failed but profile was updated (Option A fallback)
-                console.error('Magic link request error:', magicLinkErr);
-                toast.success('Profile saved!', { duration: 2000 });
+            } else {
+                // Direct access mode - skip magic link, redirect immediately
+                // Email is saved for future use when Postmark is approved
+                toast.success('Profile saved! Redirecting to your matches...', {
+                    duration: 2000,
+                    style: {
+                        background: '#4b73ef',
+                        color: 'white',
+                        borderRadius: '8px',
+                        padding: '12px 20px',
+                        fontSize: '0.9rem',
+                        fontWeight: '500'
+                    }
+                });
                 await checkAuth();
                 setTimeout(() => navigate('/paired-player-history'), 1500);
             }
