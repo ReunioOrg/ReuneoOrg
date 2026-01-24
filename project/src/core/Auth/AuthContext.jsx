@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
     const [refreshToken, setRefreshToken] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [permissions, setPermissions] = useState(null);
+    const [isAuthLoading, setIsAuthLoading] = useState(true); // Start true - we're checking auth on mount
 
     // useEffect(() => {
     //   // Check for cached user data (e.g., from localStorage or cookies)
@@ -27,64 +28,70 @@ export const AuthProvider = ({ children }) => {
     // }, []);
 
     const checkAuth = async () => {
-      // 1. First try session-based auth (cookie from email magic link)
-      try {
-        const sessionResponse = await fetch(window.server_url + '/auth/session', {
-          method: 'GET',
-          credentials: 'include', // Send cookies cross-origin
-        });
-        
-        if (sessionResponse.ok) {
-          const sessionData = await sessionResponse.json();
-          if (sessionData.authenticated) {
-            console.log("SESSION AUTH SUCCESS:", sessionData);
-            setIsAuthenticated(true);
-            setUser(sessionData.user.username);
-            setUserProfile(sessionData.user.profile || null);
-            setPermissions(sessionData.user.permissions || null);
-            return; // Session auth succeeded, no need to try JWT
-          }
-        }
-      } catch (error) {
-        console.log("Session auth check failed (this is ok if using JWT):", error);
-      }
-
-      // 2. Fall back to JWT auth (localStorage token from username/password login)
-      const token = localStorage.getItem('access_token');
+      setIsAuthLoading(true);
       
-      if (token) {
+      try {
+        // 1. First try session-based auth (cookie from email magic link)
         try {
-          // Verify token with your backend
-          const response = await fetch(window.server_url+'/load_user', {
-            headers: { 
-              'Authorization': `Bearer ${token}` 
-            },
-            credentials: 'include', // Also include cookies for future compatibility
+          const sessionResponse = await fetch(window.server_url + '/auth/session', {
+            method: 'GET',
+            credentials: 'include', // Send cookies cross-origin
           });
           
-          if (response.ok) {
-            setIsAuthenticated(true);
-            // Set user data
-            const userData = await response.json();
-            console.log("JWT AUTH SUCCESS:", userData);
-            setUser(userData.username);
-            setUserProfile(userData.profile);
-            setPermissions(userData.permissions);
-            console.log("PERMISSIONS:", userData.permissions);
-          } else {
-            // Token invalid - clean up
-            console.log("TOKEN INVALID");
-            localStorage.removeItem('access_token');
-            setUser(null);
-            setUserProfile(null);
-            setAccessToken(null);
-            setRefreshToken(null);
-            setIsAuthenticated(false);
+          if (sessionResponse.ok) {
+            const sessionData = await sessionResponse.json();
+            if (sessionData.authenticated) {
+              console.log("SESSION AUTH SUCCESS:", sessionData);
+              setIsAuthenticated(true);
+              setUser(sessionData.user.username);
+              setUserProfile(sessionData.user.profile || null);
+              setPermissions(sessionData.user.permissions || null);
+              return; // Session auth succeeded, no need to try JWT
+            }
           }
         } catch (error) {
-          // Handle error
-          console.log("JWT auth error:", error);
+          console.log("Session auth check failed (this is ok if using JWT):", error);
         }
+
+        // 2. Fall back to JWT auth (localStorage token from username/password login)
+        const token = localStorage.getItem('access_token');
+        
+        if (token) {
+          try {
+            // Verify token with your backend
+            const response = await fetch(window.server_url+'/load_user', {
+              headers: { 
+                'Authorization': `Bearer ${token}` 
+              },
+              credentials: 'include', // Also include cookies for future compatibility
+            });
+            
+            if (response.ok) {
+              setIsAuthenticated(true);
+              // Set user data
+              const userData = await response.json();
+              console.log("JWT AUTH SUCCESS:", userData);
+              setUser(userData.username);
+              setUserProfile(userData.profile);
+              setPermissions(userData.permissions);
+              console.log("PERMISSIONS:", userData.permissions);
+            } else {
+              // Token invalid - clean up
+              console.log("TOKEN INVALID");
+              localStorage.removeItem('access_token');
+              setUser(null);
+              setUserProfile(null);
+              setAccessToken(null);
+              setRefreshToken(null);
+              setIsAuthenticated(false);
+            }
+          } catch (error) {
+            // Handle error
+            console.log("JWT auth error:", error);
+          }
+        }
+      } finally {
+        setIsAuthLoading(false); // Always set loading to false when done
       }
     };
 
@@ -144,7 +151,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, signup, logout, userProfile, checkAuth, permissions}}>
+        <AuthContext.Provider value={{ user, login, signup, logout, userProfile, checkAuth, permissions, isAuthLoading }}>
             {children}
         </AuthContext.Provider>
     );

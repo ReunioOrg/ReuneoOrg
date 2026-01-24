@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../Auth/AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
 import './paired-player-history.css';
+import LoadingSpinner from '../components/LoadingSpinner';
+import { apiFetch } from '../utils/api';
 
-// Loading Spinner Component
-const LoadingSpinner = ({ size = 60, className = '' }) => {
+// Inline Loading Spinner for list items (uses existing CSS)
+const InlineLoadingSpinner = ({ size = 60, className = '' }) => {
     return (
         <div className={`attendees-spinner ${className}`} style={{ width: size, height: size }}>
             <div className="attendees-spinner-inner"></div>
@@ -150,15 +152,9 @@ const findInteractionByKey = (interactions, targetKey) => {
 // Helper function: Update paired interaction via API
 const updatePairedInteraction = async (lobbyId, pairedWithUsername, updates, signal) => {
     try {
-        const token = localStorage.getItem('access_token');
-        if (!token) {
-            throw new Error('Not authenticated');
-        }
-        
-        const response = await fetch(`${window.server_url}/update-paired-interaction`, {
+        const response = await apiFetch('/update-paired-interaction', {
             method: 'PATCH',
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
@@ -246,7 +242,7 @@ const ShareContactToggle = ({ value, onChange, interactionKey }) => {
 
 const PairedPlayerHistory = () => {
     const navigate = useNavigate();
-    const { checkAuth, user } = useContext(AuthContext);
+    const { checkAuth, user, isAuthLoading } = useContext(AuthContext);
     
     // State management
     const [interactions, setInteractions] = useState([]);
@@ -307,21 +303,7 @@ const PairedPlayerHistory = () => {
         isFetchingRef.current = true;
         
         try {
-            const token = localStorage.getItem('access_token');
-            if (!token) {
-                if (isMountedRef.current) {
-                    navigate('/');
-                }
-                return;
-            }
-            
-            const url = `${window.server_url}/paired-player-history?offset=${offset}&limit=30`;
-            
-            const response = await fetch(url, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const response = await apiFetch(`/paired-player-history?offset=${offset}&limit=30`);
             
             if (!response.ok) {
                 if (response.status === 401) {
@@ -424,30 +406,29 @@ const PairedPlayerHistory = () => {
     useEffect(() => {
         isMountedRef.current = true;
         
+        // Wait for auth loading to complete
+        if (isAuthLoading) return;
+        
+        // If not authenticated, redirect to home
+        if (!user) {
+            navigate('/');
+            return;
+        }
+        
         // Only do initial load once
         if (hasInitialLoadRef.current) {
             return;
         }
         
-        const token = localStorage.getItem('access_token');
-        if (!token) {
-            navigate('/');
-            return;
-        }
-        
         hasInitialLoadRef.current = true;
         
-        // Call checkAuth but don't wait for it
-        checkAuth();
-        
-        // Initial fetch - check token exists, then fetch immediately
+        // Initial fetch
         fetchInteractions(0, true, false);
         
         return () => {
             isMountedRef.current = false;
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); // Empty deps - only run once on mount
+    }, [isAuthLoading, user, navigate, fetchInteractions]);
     
     // Polling mechanism
     useEffect(() => {
@@ -946,6 +927,11 @@ const PairedPlayerHistory = () => {
         };
     }, []);
     
+    // Show fullscreen spinner while checking auth
+    if (isAuthLoading) {
+        return <LoadingSpinner fullScreen />;
+    }
+    
     return (
         <div className="paired-player-history-container">
             <Toaster position="top-center" />
@@ -964,7 +950,7 @@ const PairedPlayerHistory = () => {
                 {isLoading && (
                     <div className="loading-grid">
                         {Array.from({ length: 30 }).map((_, index) => (
-                            <LoadingSpinner key={index} size={60} />
+                            <InlineLoadingSpinner key={index} size={60} />
                         ))}
                     </div>
                 )}
@@ -1064,7 +1050,7 @@ const PairedPlayerHistory = () => {
                                 data-sentinel="true"
                                 className="infinite-scroll-sentinel"
                             >
-                                {isLoadingMore && <LoadingSpinner size={40} />}
+                                {isLoadingMore && <InlineLoadingSpinner size={40} />}
                             </div>
                         )}
                         

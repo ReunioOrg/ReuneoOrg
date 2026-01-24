@@ -1,7 +1,8 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from './AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import './LoginSignupPage.css';
+import { apiFetch } from '../utils/api';
 
 const LoginSignupPage = () => {
     const { login, signup, user, logout, checkAuth } = useContext(AuthContext);
@@ -12,8 +13,20 @@ const LoginSignupPage = () => {
     const [isLoginMode, setIsLoginMode] = useState(true);
     const [fieldErrors, setFieldErrors] = useState({});
     const [showUsernameHint, setShowUsernameHint] = useState(false);
+    const [linkError, setLinkError] = useState('');
 
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+
+    // Check for error query param (e.g., from expired magic link)
+    useEffect(() => {
+        const errorParam = searchParams.get('error');
+        if (errorParam === 'invalid_or_expired_link') {
+            setLinkError('Your login link has expired or is invalid. Please request a new one.');
+            // Clean up the URL
+            window.history.replaceState({}, '', '/login');
+        }
+    }, [searchParams]);
 
     const validateUsername = (username) => {
         // Regular expression to match only lowercase letters and numbers
@@ -57,14 +70,12 @@ const LoginSignupPage = () => {
 
         try {
             const endpoint = isLoginMode ? '/login' : '/signup';
-            const response = await fetch(window.server_url+endpoint, {
+            const response = await apiFetch(endpoint, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
                 },
                 body: JSON.stringify({ username, password }),
-                mode: 'cors'
             });
 
             if (response.ok) {
@@ -106,6 +117,17 @@ const LoginSignupPage = () => {
             <h1 className="login-header">Login</h1>
             
             <div className="login-signup-form">
+                {linkError && (
+                    <div className="error-message" style={{ 
+                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                        border: '1px solid rgba(255, 107, 107, 0.3)',
+                        padding: '12px 16px',
+                        borderRadius: '8px',
+                        marginBottom: '16px'
+                    }}>
+                        {linkError}
+                    </div>
+                )}
                 {error && <div className="error-message">{error}</div>}
                 
                 <form onSubmit={handleSubmit}>

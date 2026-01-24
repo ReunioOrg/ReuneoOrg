@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState, useRef, useMemo, useCallback } 
 import { AuthContext } from '../Auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import './organizer-dashboard.css';
+import { apiFetch } from '../utils/api';
 
 // Loading Spinner Component
 const LoadingSpinner = ({ size = 60, className = '' }) => {
@@ -207,11 +208,9 @@ const CommunityAttendeesCarousel = ({ attendees = [] }) => {
         setImageLoadingState(newLoadingState);
 
         try {
-            const token = localStorage.getItem('access_token');
-            const response = await fetch(`${window.server_url}/organizer_attendees/images`, {
+            const response = await apiFetch('/organizer_attendees/images', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ usernames: usernamesToLoad })
@@ -398,16 +397,7 @@ const CommunityAttendeesCarousel = ({ attendees = [] }) => {
         setIsInitialOpen(isInitial);
 
         try {
-            const token = localStorage.getItem('access_token');
-            if (!token) {
-                throw new Error('Authentication required');
-            }
-
-            const response = await fetch(`${window.server_url}/organizer_attendees/${username}/details`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const response = await apiFetch(`/organizer_attendees/${username}/details`);
 
             // Check if this fetch is still relevant
             if (currentFetchRef.current !== username) {
@@ -858,18 +848,7 @@ const OrganizerDashboard = () => {
         setError(null);
 
         try {
-            const token = localStorage.getItem('access_token');
-            if (!token) {
-                setError('Authentication required');
-                setIsLoading(false);
-                return;
-            }
-
-            const response = await fetch(`${window.server_url}/organizer_attendees`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const response = await apiFetch('/organizer_attendees');
 
             if (response.status === 401) {
                 // Token expired - redirect to login

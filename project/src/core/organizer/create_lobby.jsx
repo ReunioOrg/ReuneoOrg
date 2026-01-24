@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../cropImage';
 import './create_lobby.css';
+import { apiFetch } from '../utils/api';
 
 const CreateLobbyView = () => {
     const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
@@ -303,10 +304,9 @@ const CreateLobbyView = () => {
                 requestBody.logo_hyperlink = logoUrl.trim();
             }
 
-            const response = await fetch(window.server_url + '/create_lobby', {
+            const response = await apiFetch('/create_lobby', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(requestBody)

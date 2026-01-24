@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './organizer_signup_success.css';
+import { apiFetch } from '../utils/api';
 
 const OrganizerSignupSuccess = () => {
     const [active, setActive] = useState(false);
@@ -42,11 +43,7 @@ const OrganizerSignupSuccess = () => {
                     return;
                 }
 
-                const response = await fetch(`${window.server_url}/organizer-signup-success?session_id=${sessionId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+                const response = await apiFetch(`/organizer-signup-success?session_id=${sessionId}`);
 
                 const data = await response.json();
 
@@ -58,11 +55,7 @@ const OrganizerSignupSuccess = () => {
                     // Happy path: payment verified
                     // Only redirect to create lobby if user has no active lobbies.
                     try {
-                        const activeLobbiesResponse = await fetch(`${window.server_url}/view_my_active_lobbies`, {
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
+                        const activeLobbiesResponse = await apiFetch('/view_my_active_lobbies');
 
                         if (activeLobbiesResponse.ok) {
                             const activeLobbiesData = await activeLobbiesResponse.json();

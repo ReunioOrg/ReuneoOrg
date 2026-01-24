@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../Auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import './organizer_account_details.css';
+import { apiFetch } from '../utils/api';
 
 const OrganizerAccountDetails = () => {
     const { user, checkAuth, permissions } = useContext(AuthContext);
@@ -27,17 +28,7 @@ const OrganizerAccountDetails = () => {
     useEffect(() => {
         const fetchAccountDetails = async () => {
             try {
-                const token = localStorage.getItem('access_token');
-                if (!token) {
-                    navigate('/organizer-signup');
-                    return;
-                }
-
-                const response = await fetch(`${window.server_url}/organizer-account-details`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+                const response = await apiFetch('/organizer-account-details');
 
                 const data = await response.json();
 
@@ -116,17 +107,9 @@ const OrganizerAccountDetails = () => {
         setError('');
 
         try {
-            const token = localStorage.getItem('access_token');
-            if (!token) {
-                setError('Authentication required');
-                setIsCanceling(false);
-                return;
-            }
-
-            const response = await fetch(`${window.server_url}/cancel-subscription`, {
+            const response = await apiFetch('/cancel-subscription', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
             });

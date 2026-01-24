@@ -1,6 +1,7 @@
 //create a custom hook that takes arg setPlayerCount and calls the server with display_lobby_metadata and then sets the player count
 
 import { useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 
 const fetchLobbyDataTime=5000;
 
@@ -9,14 +10,12 @@ const useGetLobbyMetadata = (setPlayerCount, setLobbyState = null, lobbyCode = n
     const fetchLobbyMetadata = async () => {
       try {
         // Include lobby code in the request if provided
-        const url = lobbyCode 
-          ? `${window.server_url}/display_lobby_metadata?lobby_code=${lobbyCode}`
-          : `${window.server_url}/display_lobby_metadata`;
+        const endpoint = lobbyCode 
+          ? `/display_lobby_metadata?lobby_code=${lobbyCode}`
+          : `/display_lobby_metadata`;
           
-        const token = localStorage.getItem('access_token');
-        const response = await fetch(url, {
+        const response = await apiFetch(endpoint, {
           headers: {
-            'Authorization': `Bearer ${token}`,
             'lobby_code': lobbyCode
           }
         });

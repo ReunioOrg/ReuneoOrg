@@ -4,6 +4,7 @@ import { useContext } from 'react';
 import { AuthContext } from './Auth/AuthContext';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from './cropImage'; // Utility function for cropping
+import { apiFetch } from './utils/api';
 
 const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
   const { user, userProfile, checkAuth } = useContext(AuthContext);
@@ -87,14 +88,10 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
 
     console.log('Image data (first 100 chars):', base64Image.substring(0, 100));
 
-    // Get access token from localStorage
-    const token = localStorage.getItem('access_token');
-
     try {
-      const response = await fetch(`${window.server_url}/update_profile`, {
+      const response = await apiFetch('/update_profile', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(jsonDataToSend),

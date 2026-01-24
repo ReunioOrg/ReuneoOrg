@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { AuthContext } from '../Auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import './master_lobby_view.css';
+import { apiFetch } from '../utils/api';
 
 const POLL_INTERVAL = 5000;
 
@@ -42,12 +43,7 @@ const MasterLobbyView = () => {
             setError(null);
             
             try {
-                const token = localStorage.getItem('access_token');
-                if (!token) return;
-                
-                const response = await fetch(window.server_url + '/admin_all_lobbies', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const response = await apiFetch('/admin_all_lobbies');
                 
                 if (!response.ok) throw new Error('Failed to fetch lobbies');
                 const data = await response.json();

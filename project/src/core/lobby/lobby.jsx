@@ -13,6 +13,8 @@ import ShowMatchAnimation from './show_match_animation';
 import UserIsReadyAnimation from './user_is_ready_animation';
 import { storeLobbyCode, clearLobbyStorage, refreshLobbyTimestamp } from '../utils/lobbyStorage';
 import { CommunityPageButton } from '../community/mycf';
+import LoadingSpinner from '../components/LoadingSpinner';
+import { apiFetch } from '../utils/api';
 
 const AVAILABLE_TAGS = []; // Remove hardcoded tags
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
@@ -40,48 +42,24 @@ const LobbyScreen = () => {
     const { code } = useParams();
     const [player_count, setPlayerCount] = useState(null);
     useGetLobbyMetadata(setPlayerCount, null, lobbyCode);
-    const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
+    const { user, userProfile, checkAuth, permissions, isAuthLoading } = useContext(AuthContext);
 
     // Add useEffect to check authentication and redirect if needed
     useEffect(() => {
-        const checkAuthentication = async () => {
-            const token = localStorage.getItem('access_token');
-            if (!token) {
-                // User is not authenticated, redirect to signup page
-                await fetch(window.server_url+'/debug?username='+user+"&message=no token on the lobby page", {
-                    method: 'GET',
-                  });
-                const params = new URLSearchParams(window.location.search);
-                const codeParam = params.get('code') || code;
-                if (codeParam) {
-                    // Redirect to signup with the lobby code as a redirect parameter
-                    navigate(`/signup?redirect=lobby&code=${codeParam}`);
-                } else {
-                    navigate('/signup?redirect=lobby');
-                }
-            } else {
-                // Verify token is valid - only do this once when component mounts
-                try {
-                    // Only check auth if we don't already have user data
-                    if (!user) {
-                        await checkAuth();
-                    }
-                } catch (error) {
-                    console.error("Authentication error:", error);
-                    // If token is invalid, redirect to signup
-                    const params = new URLSearchParams(window.location.search);
-                    const codeParam = params.get('code') || code;
-                    if (codeParam) {
-                        navigate(`/signup?redirect=lobby&code=${codeParam}`);
-                    } else {
-                        navigate('/signup?redirect=lobby');
-                    }
-                }
-            }
-        };
+        // Wait for auth loading to complete
+        if (isAuthLoading) return;
         
-        checkAuthentication();
-    }, [navigate, code, checkAuth, user]); // Add user to dependencies
+        // If not authenticated, redirect to signup page
+        if (!user) {
+            const params = new URLSearchParams(window.location.search);
+            const codeParam = params.get('code') || code;
+            if (codeParam) {
+                navigate(`/signup?redirect=lobby&code=${codeParam}`);
+            } else {
+                navigate('/signup?redirect=lobby');
+            }
+        }
+    }, [isAuthLoading, user, navigate, code]);
 
     useEffect(() => {
         const checkParams = () => {
@@ -204,36 +182,25 @@ const LobbyScreen = () => {
     // }, [lobbyCode, lobbyState]);
 
     async function test_fetch(){
-        const token = localStorage.getItem('access_token');
-        const response = await fetch(window.server_url+'/player_info', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
+        const response = await apiFetch('/player_info');
         const data = await response.json();
         console.log("PLAYER INFO:", data);
     }
 
     async function define_profile_info(self_tags, desiring_tags){
-        const token = localStorage.getItem('access_token');
-        const response = await fetch(window.server_url+'/set_profile_info', {
+        const response = await apiFetch('/set_profile_info', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                'Content-Type': 'application/json'
             },
-            mode: 'cors',
             body: JSON.stringify({
                 tags_work: self_tags,
                 tags_desiring_work: desiring_tags
             })
-
         });
 
         const data = await response.json();
         console.log("SET PROFILE INFO:", data);
-
     }
 
     const fetchProfileImages = async (usernamesToFetch) => {
@@ -241,11 +208,9 @@ const LobbyScreen = () => {
         
         setIsLoadingProfiles(true);
         try {
-            const token = localStorage.getItem('access_token');
-            const response = await fetch(`${window.server_url}/load_batch_pfp_small_icons`, {
+            const response = await apiFetch('/load_batch_pfp_small_icons', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                     'lobby_code': lobbyCodeRef.current
                 },
@@ -273,7 +238,7 @@ const LobbyScreen = () => {
 
     const fetchLobbySetupData = async (currentLobbyCode) => {
         try {
-            const response = await fetch(`${window.server_url}/lobby_setup_data`, {
+            const response = await apiFetch('/lobby_setup_data', {
                 headers: {
                     'lobby_code': currentLobbyCode
                 }
@@ -299,16 +264,14 @@ const LobbyScreen = () => {
 
     async function leaveLobby(){
         try {
-            const token = localStorage.getItem('access_token');
             cancelSound();
             
             // Clear profile images cache
             profileImagesCache.current = {};
             currentUsernamesRef.current = [];
             
-            const response = await fetch(window.server_url+'/disconnect_lobby', {
+            const response = await apiFetch('/disconnect_lobby', {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'lobby_code': lobbyCode
                 }
             });
@@ -376,7 +339,6 @@ const LobbyScreen = () => {
                 isFetchingCounter.current=0;
                 isFetchingProfile.current=false;
             }
-            const token = localStorage.getItem('access_token');
             const isTabVisible = !document.hidden;
             // Use the ref value instead of the state directly
             const currentLobbyCode = lobbyCodeRef.current;
@@ -387,9 +349,8 @@ const LobbyScreen = () => {
             }
 
             // First fetch lobby data
-            const response = await fetch(`${window.server_url}/lobby?is_visible=${isTabVisible}`, {
+            const response = await apiFetch(`/lobby?is_visible=${isTabVisible}`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'is_visible_t_f': (isTabVisible)?"t":"f",
                     'lobby_code': currentLobbyCode
                 }
@@ -456,9 +417,8 @@ const LobbyScreen = () => {
                 }
 
                 // Also fetch metadata in the same cycle
-                const metadataResponse = await fetch(`${window.server_url}/display_lobby_metadata?lobby_code=${currentLobbyCode}`, {
+                const metadataResponse = await apiFetch(`/display_lobby_metadata?lobby_code=${currentLobbyCode}`, {
                     headers: {
-                        'Authorization': `Bearer ${token}`,
                         'lobby_code': currentLobbyCode
                     }
                 });
@@ -496,11 +456,7 @@ const LobbyScreen = () => {
                     if ((!isFetchingProfile.current) && (data.opponent_name!=null)) {
                         isFetchingProfile.current=true;
                         console.log("fetching profile");
-                        const profile_response=await fetch(window.server_url+'/paired_player_profile', {
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
+                        const profile_response = await apiFetch('/paired_player_profile');
                         if (profile_response.ok) {
                             const profile_data=await profile_response.json();
                             setOpponentProfile(profile_data);
@@ -787,6 +743,11 @@ const LobbyScreen = () => {
             setHasScrolledToTags(true);
         }
     }, [serverselfTags, serverdesiringTags, tagsState, hasScrolledToTags]);
+
+    // Show fullscreen spinner while checking auth
+    if (isAuthLoading) {
+        return <LoadingSpinner fullScreen />;
+    }
 
     return (
         <div className="lobby-container">

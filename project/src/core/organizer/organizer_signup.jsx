@@ -2,6 +2,7 @@ import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../Auth/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './organizer_signup.css';
+import { apiFetch } from '../utils/api';
 
 const getRewardfulReferralFromBrowser = (locationSearch) => {
     try {
@@ -83,11 +84,7 @@ const OrganizerSignup = () => {
                     const token = localStorage.getItem('access_token');
                     if (!token) return;
 
-                    const response = await fetch(`${window.server_url}/check-subscription-status`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
+                    const response = await apiFetch('/check-subscription-status');
 
                     if (response.ok) {
                         const data = await response.json();
@@ -273,10 +270,9 @@ const OrganizerSignup = () => {
 
             try {
                 // Update profile with new fields before Stripe checkout
-                const profileUpdateResponse = await fetch(`${window.server_url}/update_profile`, {
+                const profileUpdateResponse = await apiFetch('/update_profile', {
                     method: 'POST',
                     headers: {
-                        Authorization: `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
@@ -292,10 +288,9 @@ const OrganizerSignup = () => {
                 }
 
                 // Create Stripe checkout session
-                const checkoutResponse = await fetch(`${window.server_url}/create-checkout-session`, {
+                const checkoutResponse = await apiFetch('/create-checkout-session', {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
@@ -334,11 +329,10 @@ const OrganizerSignup = () => {
         try {
             // Step 1: Create account (username, password=username)
             const endpoint = '/signup';
-            const response = await fetch(window.server_url + endpoint, {
+            const response = await apiFetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
                 },
                 body: JSON.stringify({ username, password: username }),
             });
@@ -381,10 +375,9 @@ const OrganizerSignup = () => {
             );
 
             // Step 6: Update profile (name=username, image=base64Image, and new fields)
-            const profileCreation = await fetch(`${window.server_url}/update_profile`, {
+            const profileCreation = await apiFetch('/update_profile', {
                 method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -405,10 +398,9 @@ const OrganizerSignup = () => {
             await checkAuth();
 
             // Step 8: Create Stripe checkout session
-            const checkoutResponse = await fetch(`${window.server_url}/create-checkout-session`, {
+            const checkoutResponse = await apiFetch('/create-checkout-session', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({

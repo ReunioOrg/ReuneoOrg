@@ -5,6 +5,7 @@ import getCroppedImg from '../cropImage'; // Utility function for cropping
 import ReactCropper from 'react-easy-crop';
 import { motion, AnimatePresence } from 'framer-motion';
 import './PureSignupPage.css';
+import { apiFetch } from '../utils/api';
 
 const PureSignupPage = () => {
     const { login, signup, user, logout, checkAuth } = useContext(AuthContext);
@@ -320,14 +321,12 @@ const PureSignupPage = () => {
     
         try {
             const endpoint = '/signup';
-            const response = await fetch(window.server_url + endpoint, {
+            const response = await apiFetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
                 },
                 body: JSON.stringify({ username, password }),
-                
             });
     
             const userData = await response.json();
@@ -341,11 +340,10 @@ const PureSignupPage = () => {
                     setPassword(newPassword);
                     
                     // Retry with new credentials
-                    const retryResponse = await fetch(window.server_url + endpoint, {
+                    const retryResponse = await apiFetch(endpoint, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': '*'
                         },
                         body: JSON.stringify({ username: newUsername, password: newPassword }),
                     });
@@ -394,10 +392,9 @@ const PureSignupPage = () => {
                 );
             }
     
-            const profileCreation = await fetch(`${window.server_url}/update_profile`, {
+            const profileCreation = await apiFetch('/update_profile', {
                 method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({

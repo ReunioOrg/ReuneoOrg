@@ -9,10 +9,10 @@ export default defineConfig({
   base: '/',
   // base: '192.168.1.70:8080/',
   server: {
-    host: true,
+    host: '0.0.0.0',
     port: 5173
   },
   build: {
-    outDir: '../'
+    outDir: 'dist'
   },
 })

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from './AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
 import './post-event-auth.css';
+import LoadingSpinner from '../components/LoadingSpinner';
+import { apiFetch } from '../utils/api';
 
 // ============================================================
 // FEATURE FLAG: Toggle email authentication mode
@@ -12,38 +14,36 @@ import './post-event-auth.css';
 // 
 // Set to FALSE if Postmark isn't approved before the event!
 // ============================================================
-const ENABLE_MAGIC_LINK = false;
+const ENABLE_MAGIC_LINK = true;
 
 const PostEventAuth = () => {
     const navigate = useNavigate();
-    const { checkAuth } = useContext(AuthContext);
+    const { checkAuth, user, isAuthLoading } = useContext(AuthContext);
     
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [contactUrl, setContactUrl] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingUserData, setIsLoadingUserData] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [magicLinkSent, setMagicLinkSent] = useState(false);
 
-    // Fetch user data on mount
+    // Wait for auth check, then fetch user data
     useEffect(() => {
+        // Wait for auth loading to complete
+        if (isAuthLoading) return;
+        
+        // If not authenticated, redirect to login
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+
         const fetchUserData = async () => {
             try {
-                const token = localStorage.getItem('access_token');
-                if (!token) {
-                    navigate('/login');
-                    return;
-                }
-
-                const response = await fetch(`${window.server_url}/load_user`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+                const response = await apiFetch('/load_user');
 
                 if (response.status === 401) {
-                    localStorage.removeItem('access_token');
                     navigate('/login');
                     return;
                 }
@@ -63,12 +63,12 @@ const PostEventAuth = () => {
                 console.error('Error fetching user data:', err);
                 setError('Failed to load user data. Please try again.');
             } finally {
-                setIsLoading(false);
+                setIsLoadingUserData(false);
             }
         };
 
         fetchUserData();
-    }, [navigate]);
+    }, [isAuthLoading, user, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -91,12 +91,6 @@ const PostEventAuth = () => {
         }
 
         try {
-            const token = localStorage.getItem('access_token');
-            if (!token) {
-                navigate('/login');
-                return;
-            }
-
             // Build payload with all three fields (backend handles it)
             const payload = {
                 name: name || '',
@@ -104,17 +98,15 @@ const PostEventAuth = () => {
                 contact_url: contactUrl || ''
             };
 
-            const response = await fetch(`${window.server_url}/update_profile`, {
+            const response = await apiFetch('/update_profile', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload)
             });
 
             if (response.status === 401) {
-                localStorage.removeItem('access_token');
                 navigate('/login');
                 return;
             }
@@ -128,7 +120,7 @@ const PostEventAuth = () => {
             if (ENABLE_MAGIC_LINK) {
                 // Full email auth mode - send magic link
                 try {
-                    const magicLinkResponse = await fetch(`${window.server_url}/auth/send-magic-link`, {
+                    const magicLinkResponse = await apiFetch('/auth/send-magic-link', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -194,12 +186,9 @@ const PostEventAuth = () => {
         }
     };
 
-    if (isLoading) {
-        return (
-            <div className="post-event-auth-container">
-                <div className="loading-message">Loading...</div>
-            </div>
-        );
+    // Show fullscreen spinner while checking auth
+    if (isAuthLoading || isLoadingUserData) {
+        return <LoadingSpinner fullScreen />;
     }
 
     // Show "check your email" screen after magic link is sent

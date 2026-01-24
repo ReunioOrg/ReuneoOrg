@@ -5,6 +5,7 @@ import usePlaySound from './core/playsound';
 import AuthProvider from './core/Auth/AuthContext';
 import { AuthContext } from './core/Auth/AuthContext';
 import './App.css';
+import { apiFetch } from './core/utils/api';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 import LoginSignupLogoutButton from './core/Auth/LoginSignupLogoutButton';
@@ -45,12 +46,7 @@ const App = () => {
   // Function to fetch and redirect to admin's active lobby
   const redirectToAdminLobby = async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(window.server_url + '/view_my_active_lobbies', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiFetch('/view_my_active_lobbies');
       
       if (response.ok) {
         // Parse the response as JSON
@@ -92,10 +88,8 @@ const App = () => {
     // Always validate on home page load, or validate in background if cache expired
     if (forceValidation || shouldValidateLobby()) {
       try {
-        const token = localStorage.getItem('access_token');
-        const response = await fetch(`${window.server_url}/display_lobby_metadata?lobby_code=${storedLobbyCode}`, {
+        const response = await apiFetch(`/display_lobby_metadata?lobby_code=${storedLobbyCode}`, {
           headers: {
-            'Authorization': `Bearer ${token}`,
             'lobby_code': storedLobbyCode
           }
         });
@@ -130,12 +124,7 @@ const App = () => {
     
     setIsLoadingLobbies(true);
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(window.server_url + '/view_my_active_lobbies', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiFetch('/view_my_active_lobbies');
       
       if (response.ok) {
         const data = await response.json();

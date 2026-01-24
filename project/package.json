@@ -7,6 +7,7 @@
     "dev": "vite",
     "dev:client": "vite",
     "build": "vite build",
+    "build:deploy": "vite build && cp dist/assets/index-*.js ../assets/ && cp dist/assets/index-*.css ../assets/ && cp dist/index.html ../",
     "lint": "eslint .",
     "preview": "vite preview"
   },

@@ -9,6 +9,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from './AuthContext';
 import './AuthSuccess.css';
+import { apiFetch } from '../utils/api';
 
 const AuthSuccess = () => {
   const navigate = useNavigate();
@@ -20,9 +21,8 @@ const AuthSuccess = () => {
     const verifySession = async () => {
       try {
         // Call the session endpoint to verify the cookie was set correctly
-        const response = await fetch(`${window.server_url}/auth/session`, {
+        const response = await apiFetch('/auth/session', {
           method: 'GET',
-          credentials: 'include', // Important: send cookies cross-origin
         });
 
         if (response.ok) {

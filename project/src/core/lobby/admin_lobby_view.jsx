@@ -8,6 +8,7 @@ import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { QRCodeSVG } from 'qrcode.react';
 import toast, { Toaster } from 'react-hot-toast';
 import ArrowHint from './lobby_progress_arrows';
+import { apiFetch } from '../utils/api';
 
 //load asset image earthart.jpg
 import { returnBase64TestImg } from '../misc/misc';
@@ -472,10 +473,9 @@ const AdminLobbyView = () => {
 
     // function to reset_lobby_timer
     const resetLobbyTimer = async () => {
-        const response = await fetch(window.server_url + '/reset_lobby_timer', {
+        const response = await apiFetch('/reset_lobby_timer', {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                 'lobby_code': lobbyCode
             }
         });
@@ -488,12 +488,7 @@ const AdminLobbyView = () => {
             // If no code in URL, try to fetch the active lobby
             const fetchActiveLobby = async () => {
                 try {
-                    const token = localStorage.getItem('access_token');
-                    const response = await fetch(window.server_url + '/view_my_active_lobbies', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
+                    const response = await apiFetch('/view_my_active_lobbies');
                     
                     if (response.ok) {
                         // Parse the response as JSON
@@ -542,10 +537,9 @@ const AdminLobbyView = () => {
     const [showLobbyDetails, setShowLobbyDetails] = useState(false);
 
     const CreateLobby = async () => {
-        const response = await fetch(window.server_url + '/create_lobby', {
+        const response = await apiFetch('/create_lobby', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
@@ -611,11 +605,7 @@ const AdminLobbyView = () => {
             }
             
             try {
-                const response = await fetch(`${window.server_url}/pfp_small_icon?username=${encodeURIComponent(username)}`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                    }
-                });
+                const response = await apiFetch(`/pfp_small_icon?username=${encodeURIComponent(username)}`);
                 if (response.ok) {
                     // Get the base64 data from the response
                     let base64Data = await response.text();
@@ -647,9 +637,8 @@ const AdminLobbyView = () => {
         const interval = setInterval(async () => {
             try {
                 const isTabVisible = !document.hidden;
-                const response = await fetch(`${window.server_url}/admin_lobby_data?is_visible=${isTabVisible}`, {
+                const response = await apiFetch(`/admin_lobby_data?is_visible=${isTabVisible}`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                         'is_visible_t_f': (isTabVisible) ? "t" : "f",
                         'lobby_code': lobbyCode
                     },
@@ -908,10 +897,9 @@ const AdminLobbyView = () => {
 
     // Handlers for progress bar actions
     const handleStartRounds = async () => {
-        const response = await fetch(window.server_url + '/start_rounds', {
+        const response = await apiFetch('/start_rounds', {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                 'lobby_code': lobbyCode
             }
         });
@@ -919,10 +907,9 @@ const AdminLobbyView = () => {
     };
     const handleEndRounds = async () => {
         cancelSound(); // Cleanup audio when terminating lobby
-        const response = await fetch(window.server_url + '/terminate_lobby', {
+        const response = await apiFetch('/terminate_lobby', {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                 'lobby_code': lobbyCode
             }
         });
