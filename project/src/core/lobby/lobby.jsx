@@ -42,7 +42,7 @@ const LobbyScreen = () => {
     const { code } = useParams();
     const [player_count, setPlayerCount] = useState(null);
     useGetLobbyMetadata(setPlayerCount, null, lobbyCode);
-    const { user, userProfile, checkAuth, permissions, isAuthLoading } = useContext(AuthContext);
+    const { user, userProfile, checkAuth, permissions, isAuthLoading, authLoadingMessage } = useContext(AuthContext);
 
     // Add useEffect to check authentication and redirect if needed
     useEffect(() => {
@@ -746,7 +746,7 @@ const LobbyScreen = () => {
 
     // Show fullscreen spinner while checking auth
     if (isAuthLoading) {
-        return <LoadingSpinner fullScreen />;
+        return <LoadingSpinner fullScreen message={authLoadingMessage} />;
     }
 
     return (
@@ -835,7 +835,7 @@ const LobbyScreen = () => {
                             </span>
                         ) : lobbyState === "checkin" ? (
                             <>
-                                Wait here {userProfile.name.slice(0, 15)}.
+                                Wait here {userProfile?.name?.slice(0, 15) || user || 'Guest'}.
                                 <br />
                                 Your host will start the experience.
                             </>
@@ -845,6 +845,8 @@ const LobbyScreen = () => {
                             "Get ready for the next round!"
                         ) : lobbyState === "terminated" ? (
                             "This session has ended. Thank you for participating!"
+                        ) : lobbyState === null ? (
+                            "Connecting to lobby..."
                         ) : (
                             ""
                         )}

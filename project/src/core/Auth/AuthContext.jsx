@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useRef } from 'react';
 
 export const AuthContext = createContext(null);
 
@@ -10,6 +10,10 @@ export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [permissions, setPermissions] = useState(null);
     const [isAuthLoading, setIsAuthLoading] = useState(true); // Start true - we're checking auth on mount
+    const [authLoadingMessage, setAuthLoadingMessage] = useState('Connecting...');
+    
+    // Ref to track slow connection timer (for cleanup)
+    const slowConnectionTimerRef = useRef(null);
 
     // useEffect(() => {
     //   // Check for cached user data (e.g., from localStorage or cookies)
@@ -29,6 +33,17 @@ export const AuthProvider = ({ children }) => {
 
     const checkAuth = async () => {
       setIsAuthLoading(true);
+      setAuthLoadingMessage('Connecting...');
+      
+      // Clear any existing slow connection timer
+      if (slowConnectionTimerRef.current) {
+        clearTimeout(slowConnectionTimerRef.current);
+      }
+      
+      // Start 10-second timer for slow connection message
+      slowConnectionTimerRef.current = setTimeout(() => {
+        setAuthLoadingMessage('Taking longer than expected. Check your connection.');
+      }, 10000);
       
       try {
         // 1. First try session-based auth (cookie from email magic link)
@@ -76,7 +91,7 @@ export const AuthProvider = ({ children }) => {
               setPermissions(userData.permissions);
               console.log("PERMISSIONS:", userData.permissions);
             } else {
-              // Token invalid - clean up
+              // Token invalid (server explicitly rejected) - clean up
               console.log("TOKEN INVALID");
               localStorage.removeItem('access_token');
               setUser(null);
@@ -86,11 +101,24 @@ export const AuthProvider = ({ children }) => {
               setIsAuthenticated(false);
             }
           } catch (error) {
-            // Handle error
-            console.log("JWT auth error:", error);
+            // Network error - use optimistic auth if we have cached user data
+            console.log("JWT auth error (network issue):", error);
+            const cachedUser = localStorage.getItem('user');
+            if (token && cachedUser) {
+              console.log("Using optimistic auth with cached user:", cachedUser);
+              setUser(cachedUser);
+              setIsAuthenticated(true);
+              // Note: userProfile and permissions will be null/stale, but user stays "logged in"
+              // Once network recovers, API calls will fetch fresh data
+            }
           }
         }
       } finally {
+        // Clear the slow connection timer
+        if (slowConnectionTimerRef.current) {
+          clearTimeout(slowConnectionTimerRef.current);
+          slowConnectionTimerRef.current = null;
+        }
         setIsAuthLoading(false); // Always set loading to false when done
       }
     };
@@ -151,7 +179,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, signup, logout, userProfile, checkAuth, permissions, isAuthLoading }}>
+        <AuthContext.Provider value={{ user, login, signup, logout, userProfile, checkAuth, permissions, isAuthLoading, authLoadingMessage }}>
             {children}
         </AuthContext.Provider>
     );

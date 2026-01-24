@@ -6,9 +6,10 @@ import ReactCropper from 'react-easy-crop';
 import { motion, AnimatePresence } from 'framer-motion';
 import './PureSignupPage.css';
 import { apiFetch } from '../utils/api';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const PureSignupPage = () => {
-    const { login, signup, user, logout, checkAuth } = useContext(AuthContext);
+    const { login, signup, user, logout, checkAuth, isAuthLoading, authLoadingMessage } = useContext(AuthContext);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [displayName, setDisplayName] = useState('');
@@ -80,10 +81,13 @@ const PureSignupPage = () => {
     }, [isLobbyRedirect, username, password, displayName]);
 
     // Check if user is already authenticated when component mounts
+    // Wait for auth loading to complete before checking, to avoid race conditions
     useEffect(() => {
-        const token = localStorage.getItem('access_token');
-        if (token) {
-            // User is authenticated (has valid token), redirect them appropriately
+        // Don't redirect while auth is still being checked
+        if (isAuthLoading) return;
+        
+        // If user is authenticated, redirect them appropriately
+        if (user) {
             if (redirectTo === 'lobby') {
                 if (lobbyCode) {
                     navigate(`/lobby?code=${lobbyCode}`);
@@ -96,7 +100,7 @@ const PureSignupPage = () => {
                 navigate('/');
             }
         }
-    }, [redirectTo, lobbyCode, navigate]);
+    }, [isAuthLoading, user, redirectTo, lobbyCode, navigate]);
 
     // Check if displayName is valid when currentStep changes to the display name step
     useEffect(() => {
@@ -465,6 +469,12 @@ const PureSignupPage = () => {
             accept: 'image/*'
         }
     ];
+
+    // Show loading spinner while auth is being checked
+    // This prevents showing the signup form briefly before redirecting authenticated users
+    if (isAuthLoading) {
+        return <LoadingSpinner fullScreen message={authLoadingMessage} />;
+    }
 
     return (
         <div className="signup-container">
