@@ -57,6 +57,28 @@ export const AuthProvider = ({ children }) => {
             const sessionData = await sessionResponse.json();
             if (sessionData.authenticated) {
               console.log("SESSION AUTH SUCCESS:", sessionData);
+              
+              // Check if session is for a different user than what's cached in localStorage
+              const cachedUser = localStorage.getItem('user');
+              if (cachedUser && cachedUser !== sessionData.user.username) {
+                // Different user - clear stale credentials to avoid conflicts
+                console.log("Session user differs from cached user, clearing stale credentials");
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+                localStorage.removeItem('user');
+              }
+              
+              // If session response includes JWT, store it (forward-compatible)
+              // This enables magic link users to get JWT persistence
+              if (sessionData.access_token) {
+                console.log("Session includes JWT, storing in localStorage");
+                localStorage.setItem('access_token', sessionData.access_token);
+                localStorage.setItem('user', sessionData.user.username);
+                if (sessionData.refresh_token) {
+                  localStorage.setItem('refresh_token', sessionData.refresh_token);
+                }
+              }
+              
               setIsAuthenticated(true);
               setUser(sessionData.user.username);
               setUserProfile(sessionData.user.profile || null);
