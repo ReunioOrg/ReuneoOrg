@@ -330,7 +330,11 @@ const PureSignupPage = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, password }),
+                body: JSON.stringify({ 
+                    username, 
+                    password,
+                    is_lobby_signup: isLobbyRedirect  // Flag for lobby signups - triggers password_setup_complete=false
+                }),
             });
     
             const userData = await response.json();
@@ -349,7 +353,11 @@ const PureSignupPage = () => {
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ username: newUsername, password: newPassword }),
+                        body: JSON.stringify({ 
+                            username: newUsername, 
+                            password: newPassword,
+                            is_lobby_signup: true  // This is always a lobby signup in retry scenario
+                        }),
                     });
                     
                     const retryUserData = await retryResponse.json();
@@ -448,7 +456,7 @@ const PureSignupPage = () => {
             label: 'Password',
             value: password,
             onChange: handlePasswordChange,
-            type: 'text',
+            type: 'password',
             placeholder: 'Create a password',
             validate: validatePassword
         },

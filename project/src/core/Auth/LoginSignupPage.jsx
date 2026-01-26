@@ -28,25 +28,27 @@ const LoginSignupPage = () => {
         }
     }, [searchParams]);
 
-    const validateUsername = (username) => {
-        // Regular expression to match only lowercase letters and numbers
-        const validUsernameRegex = /^[a-z0-9]+$/;
-        return username.length >= 2 && validUsernameRegex.test(username);
+    const validateIdentifier = (identifier) => {
+        // Accept either email format or username format (lowercase alphanumeric)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const usernameRegex = /^[a-z0-9]+$/;
+        return identifier.length >= 2 && (emailRegex.test(identifier) || usernameRegex.test(identifier));
     };
 
     const handleUsernameChange = (e) => {
-        // Convert input to lowercase and remove any non-alphanumeric characters
-        const sanitizedValue = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+        // Convert to lowercase, allow email characters (letters, numbers, @, ., -, _)
+        const sanitizedValue = e.target.value.toLowerCase().replace(/[^a-z0-9@._\-]/g, '');
         setUsername(sanitizedValue);
         
-        // Show the hint when user starts typing
-        if (sanitizedValue.length > 0) {
+        // Show the hint when user starts typing (only for non-email input)
+        const isEmail = sanitizedValue.includes('@');
+        if (sanitizedValue.length > 0 && !isEmail) {
             setShowUsernameHint(true);
         } else {
             setShowUsernameHint(false);
         }
         
-        if (validateUsername(sanitizedValue)) {
+        if (validateIdentifier(sanitizedValue)) {
             setFieldErrors(prev => ({ ...prev, username: '' }));
         } else {
             setFieldErrors(prev => ({ ...prev, username: ' ' }));
@@ -63,8 +65,8 @@ const LoginSignupPage = () => {
         e.preventDefault();
         setError('');
 
-        if (!validateUsername(username)) {
-            setError('Please enter a valid username');
+        if (!validateIdentifier(username)) {
+            setError('Please enter a valid email or username');
             return;
         }
 
@@ -134,15 +136,16 @@ const LoginSignupPage = () => {
                     <div className="form-group">
                         <input
                             type="text"
-                            placeholder="Username"
+                            placeholder="Email"
                             className="login-input"
                             value={username}
                             onChange={handleUsernameChange}
                             required
+                            autoComplete="email"
                         />
                         {showUsernameHint && (
                             <div className="step-success">
-                                lowercase letters and numbers only
+                                or username (lowercase letters and numbers)
                             </div>
                         )}
                     </div>
