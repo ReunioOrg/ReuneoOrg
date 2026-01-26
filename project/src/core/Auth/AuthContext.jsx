@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
     const [refreshToken, setRefreshToken] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [permissions, setPermissions] = useState(null);
+    const [emailVerified, setEmailVerified] = useState(false);
     const [isAuthLoading, setIsAuthLoading] = useState(true); // Start true - we're checking auth on mount
     const [authLoadingMessage, setAuthLoadingMessage] = useState('Connecting...');
     
@@ -83,6 +84,7 @@ export const AuthProvider = ({ children }) => {
               setUser(sessionData.user.username);
               setUserProfile(sessionData.user.profile || null);
               setPermissions(sessionData.user.permissions || null);
+              setEmailVerified(sessionData.user.email_verified === true);
               return; // Session auth succeeded, no need to try JWT
             }
           }
@@ -111,6 +113,7 @@ export const AuthProvider = ({ children }) => {
               setUser(userData.username);
               setUserProfile(userData.profile);
               setPermissions(userData.permissions);
+              setEmailVerified(userData.email_verified === true);
               console.log("PERMISSIONS:", userData.permissions);
             } else {
               // Token invalid (server explicitly rejected) - clean up
@@ -198,10 +201,11 @@ export const AuthProvider = ({ children }) => {
       setRefreshToken(null);
       setIsAuthenticated(false);
       setPermissions(null);
+      setEmailVerified(false);
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, signup, logout, userProfile, checkAuth, permissions, isAuthLoading, authLoadingMessage }}>
+        <AuthContext.Provider value={{ user, login, signup, logout, userProfile, checkAuth, permissions, emailVerified, isAuthLoading, authLoadingMessage }}>
             {children}
         </AuthContext.Provider>
     );

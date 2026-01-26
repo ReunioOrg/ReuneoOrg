@@ -9,8 +9,12 @@ export default defineConfig({
   base: '/',
   // base: '192.168.1.70:8080/',
   server: {
-    host: '0.0.0.0',
-    port: 5173
+    host: 'localhost',
+    port: 5173,
+    watch: {
+      usePolling: true,
+      interval: 100
+    }
   },
   build: {
     outDir: 'dist'

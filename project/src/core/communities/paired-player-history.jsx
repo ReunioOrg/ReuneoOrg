@@ -936,6 +936,20 @@ const PairedPlayerHistory = () => {
         <div className="paired-player-history-container">
             <Toaster position="top-center" />
             
+            <button 
+                onClick={() => navigate('/')} 
+                className="homescreen-button"
+            >
+                Home
+            </button>
+            
+            <button 
+                onClick={() => navigate('/post-event-auth')} 
+                className="update-profile-button"
+            >
+                Update Profile
+            </button>
+            
             {/* "New Notifications" indicator */}
             {newInfoIndicator && (
                 <div className="new-info-indicator">
@@ -944,7 +958,7 @@ const PairedPlayerHistory = () => {
             )}
             
             <div className="paired-player-history-content">
-                <h1 className="paired-player-history-title">Paired Player History</h1>
+                <h1 className="paired-player-history-title">View Your Matches</h1>
                 
                 {/* Loading state - initial load */}
                 {isLoading && (

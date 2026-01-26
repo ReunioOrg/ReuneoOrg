@@ -28,7 +28,7 @@ const App = () => {
   const [nameInput, setNameInput] = useState('');
   const [profileData, handleProfileSubmit] = useState(null);
   const { audioRef, error, playSound, loadSound, cancelSound } = usePlaySound();
-  const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
+  const { user, userProfile, checkAuth, permissions, emailVerified } = useContext(AuthContext);
 
   const [player_count, setPlayerCount] = useState(null);
   const [lobby_state, setLobbyState] = useState(null);
@@ -620,7 +620,7 @@ const App = () => {
           }}>
             <button 
               className="primary-button join-lobby-button" 
-              onClick={() => navigate('/post-event-auth')}
+              onClick={() => navigate(emailVerified ? '/paired-player-history' : '/post-event-auth')}
               style={{
                 padding: '16px 20px',
                 backgroundColor: 'transparent',

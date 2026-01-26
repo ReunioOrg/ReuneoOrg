@@ -25,15 +25,71 @@
     background-color: #f5f7ff;
     padding: 2rem;
     box-sizing: border-box;
+    position: relative;
+}
+
+/* Home Button */
+.paired-player-history-container .homescreen-button {
+    position: absolute;
+    top: 17px;
+    left: 15px;
+    right: auto;
+    width: auto;
+    padding: 8px 16px;
+    background-color: #144dff;
+    border: 2px solid #e9ecef;
+    border-radius: 14px;
+    color: #ffffff;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    z-index: 2;
+}
+
+.paired-player-history-container .homescreen-button:hover {
+    background-color: #e9ecef;
+    color: #144dff;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Update Profile Button */
+.paired-player-history-container .update-profile-button {
+    position: absolute;
+    top: 17px;
+    right: 15px;
+    left: auto;
+    width: auto;
+    padding: 8px 16px;
+    background-color: #144dff;
+    border: 2px solid #e9ecef;
+    border-radius: 14px;
+    color: #ffffff;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    z-index: 2;
+}
+
+.paired-player-history-container .update-profile-button:hover {
+    background-color: #e9ecef;
+    color: #144dff;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .paired-player-history-content {
     max-width: 1200px;
     margin: 0 auto;
+    padding-top: 40px;
 }
 
 .paired-player-history-title {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
     color: #144dff;
     margin: 0 0 2rem 0;
@@ -334,8 +390,22 @@
     }
     
     .paired-player-history-title {
-        font-size: 2rem;
+        font-size: 1.75rem;
         margin-bottom: 1.5rem;
+    }
+    
+    .paired-player-history-container .homescreen-button {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        top: 10px;
+        left: 10px;
+    }
+    
+    .paired-player-history-container .update-profile-button {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        top: 10px;
+        right: 10px;
     }
     
     .interactions-list {

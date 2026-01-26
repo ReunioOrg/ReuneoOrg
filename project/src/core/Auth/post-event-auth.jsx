@@ -23,6 +23,7 @@ const PostEventAuth = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [contactUrl, setContactUrl] = useState('');
+    const [isEmailVerified, setIsEmailVerified] = useState(false);
     const [isLoadingUserData, setIsLoadingUserData] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -58,6 +59,9 @@ const PostEventAuth = () => {
                 setName(userData.profile?.name || '');
                 setEmail(userData.email || '');
                 setContactUrl(userData.profile?.contact_url || '');
+                
+                // Check if email is already verified
+                setIsEmailVerified(userData.email_verified === true);
 
             } catch (err) {
                 console.error('Error fetching user data:', err);
@@ -91,12 +95,16 @@ const PostEventAuth = () => {
         }
 
         try {
-            // Build payload with all three fields (backend handles it)
+            // Build payload - only include email if not already verified
             const payload = {
                 name: name || '',
-                email: email || '',
                 contact_url: contactUrl || ''
             };
+
+            // Only include email if not already verified (verified emails are locked)
+            if (!isEmailVerified) {
+                payload.email = email || '';
+            }
 
             const response = await apiFetch('/update_profile', {
                 method: 'POST',
@@ -116,8 +124,8 @@ const PostEventAuth = () => {
                 throw new Error(errorData.detail || errorData.message || 'Failed to update profile');
             }
 
-            // Check if magic link is enabled
-            if (ENABLE_MAGIC_LINK) {
+            // Check if magic link is enabled (skip if email already verified)
+            if (ENABLE_MAGIC_LINK && !isEmailVerified) {
                 // Full email auth mode - send magic link
                 try {
                     const magicLinkResponse = await apiFetch('/auth/send-magic-link', {
@@ -284,6 +292,16 @@ const PostEventAuth = () => {
                     <div style={{ marginTop: '20px' }}>
                         <label className="step-label">
                             Email <span style={{ color: '#ff6b6b' }}>*</span>
+                            {isEmailVerified && (
+                                <span style={{ 
+                                    color: '#4ade80', 
+                                    fontSize: '0.75rem', 
+                                    marginLeft: '8px',
+                                    fontWeight: '500'
+                                }}>
+                                    (Verified)
+                                </span>
+                            )}
                         </label>
                         <input
                             type="email"
@@ -292,6 +310,13 @@ const PostEventAuth = () => {
                             placeholder="Enter your email"
                             className="step-input"
                             required
+                            disabled={isEmailVerified}
+                            style={isEmailVerified ? {
+                                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                                color: '#888888',
+                                cursor: 'not-allowed',
+                                borderColor: 'rgba(255, 255, 255, 0.15)'
+                            } : {}}
                         />
                     </div>
 
@@ -314,7 +339,9 @@ const PostEventAuth = () => {
                         disabled={isSubmitting}
                         style={{ marginTop: '30px' }}
                     >
-                        {isSubmitting ? 'Submitting...' : 'Submit'}
+                        {isSubmitting 
+                            ? (isEmailVerified ? 'Updating...' : 'Submitting...') 
+                            : (isEmailVerified ? 'Update' : 'Submit')}
                     </button>
                 </form>
             </div>
