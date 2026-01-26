@@ -213,14 +213,14 @@ const PostEventAuth = () => {
                         📧
                     </div>
                     <h2 style={{ 
-                        color: '#ffffff', 
+                        color: '#545454', 
                         marginBottom: '16px',
                         fontSize: '1.5rem'
                     }}>
                         Check Your Email!
                     </h2>
                     <p style={{ 
-                        color: 'rgba(255,255,255,0.8)', 
+                        color: '#545454', 
                         marginBottom: '24px',
                         lineHeight: '1.6'
                     }}>
@@ -229,7 +229,7 @@ const PostEventAuth = () => {
                         Click the link in your email to access your matches.
                     </p>
                     <p style={{ 
-                        color: 'rgba(255,255,255,0.6)', 
+                        color: '#777777', 
                         fontSize: '0.85rem',
                         marginBottom: '24px'
                     }}>
@@ -241,8 +241,6 @@ const PostEventAuth = () => {
                         onClick={() => setMagicLinkSent(false)}
                         className="primary-button"
                         style={{ 
-                            backgroundColor: 'transparent',
-                            border: '1px solid rgba(255,255,255,0.3)',
                             marginTop: '10px'
                         }}
                     >
