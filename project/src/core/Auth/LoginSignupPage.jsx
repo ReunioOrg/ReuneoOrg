@@ -56,9 +56,7 @@ const LoginSignupPage = () => {
     };
 
     const handlePasswordChange = (e) => {
-        // Convert input to lowercase to handle iPhone auto-capitalization
-        const sanitizedValue = e.target.value.toLowerCase();
-        setPassword(sanitizedValue);
+        setPassword(e.target.value);
     };
 
     const handleSubmit = async (e) => {
@@ -151,12 +149,13 @@ const LoginSignupPage = () => {
                     </div>
                     <div className="form-group">
                         <input
-                            type="text"
+                            type="password"
                             placeholder="Password" 
                             className="login-input"
                             value={password}
                             onChange={handlePasswordChange}
                             required
+                            autoComplete="current-password"
                         />
                     </div>
 
