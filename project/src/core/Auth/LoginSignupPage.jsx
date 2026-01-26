@@ -163,6 +163,14 @@ const LoginSignupPage = () => {
                         Login
                     </button>
                 </form>
+
+                <button 
+                    type="button"
+                    onClick={() => navigate('/forgot-password')}
+                    className="forgot-password-link"
+                >
+                    Forgot password?
+                </button>
             </div>
         </div>
     );

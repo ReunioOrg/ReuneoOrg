@@ -26,6 +26,7 @@ import PairedPlayerHistory from './core/communities/paired-player-history.jsx'
 import PostEventAuth from './core/Auth/post-event-auth.jsx'
 import AuthSuccess from './core/Auth/AuthSuccess.jsx'
 import SetPasswordPage from './core/Auth/SetPasswordPage.jsx'
+import ForgotPasswordPage from './core/Auth/ForgotPasswordPage.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
@@ -49,6 +50,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/paired-player-history" element={<PairedPlayerHistory />} />
           <Route path="/post-event-auth" element={<PostEventAuth />} />
           <Route path="/set-password" element={<SetPasswordPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/auth/success" element={<AuthSuccess />} />
           {/* <Route path="/cofounders" element={<MyCF />} /> */}
         </Routes>
