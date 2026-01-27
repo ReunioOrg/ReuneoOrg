@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from './AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
@@ -28,6 +28,15 @@ const PostEventAuth = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [magicLinkSent, setMagicLinkSent] = useState(false);
+    
+    // Email confirmation flow state
+    const [hasShownEmailToast, setHasShownEmailToast] = useState(false);
+    const [hasShownEmailModal, setHasShownEmailModal] = useState(false);
+    const [showEmailConfirmModal, setShowEmailConfirmModal] = useState(false);
+    const [showEmailWarningToast, setShowEmailWarningToast] = useState(false);
+    
+    // Ref for email input focus
+    const emailInputRef = useRef(null);
 
     // Wait for auth check, then fetch user data
     useEffect(() => {
@@ -74,25 +83,28 @@ const PostEventAuth = () => {
         fetchUserData();
     }, [isAuthLoading, user, navigate]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    // Auto-dismiss email warning toast after 4 seconds
+    useEffect(() => {
+        if (showEmailWarningToast) {
+            const timer = setTimeout(() => {
+                setShowEmailWarningToast(false);
+            }, 4000);
+            return () => clearTimeout(timer);
+        }
+    }, [showEmailWarningToast]);
+
+    // Handle email input focus - show warning toast once
+    const handleEmailFocus = () => {
+        if (!isEmailVerified && !hasShownEmailToast) {
+            setHasShownEmailToast(true);
+            setShowEmailWarningToast(true);
+        }
+    };
+
+    // Actual submission logic (extracted from handleSubmit)
+    const executeSubmit = async () => {
         setIsSubmitting(true);
         setError('');
-
-        // Validate email is required
-        if (!email || !email.trim()) {
-            setError('Email is required to access your matches.');
-            setIsSubmitting(false);
-            return;
-        }
-
-        // Basic email format validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email.trim())) {
-            setError('Please enter a valid email address.');
-            setIsSubmitting(false);
-            return;
-        }
 
         try {
             // Build payload - only include email if not already verified
@@ -194,6 +206,49 @@ const PostEventAuth = () => {
         }
     };
 
+    // Handle modal "Yes, it's correct" click
+    const handleModalConfirm = () => {
+        setShowEmailConfirmModal(false);
+        executeSubmit();
+    };
+
+    // Handle modal "Let me edit" click
+    const handleModalCancel = () => {
+        setShowEmailConfirmModal(false);
+        // Focus the email input for editing
+        setTimeout(() => {
+            emailInputRef.current?.focus();
+        }, 100);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+
+        // Validate email is required
+        if (!email || !email.trim()) {
+            setError('Email is required to access your matches.');
+            return;
+        }
+
+        // Basic email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email.trim())) {
+            setError('Please enter a valid email address.');
+            return;
+        }
+
+        // Show confirmation modal once (only if email is not verified)
+        if (!isEmailVerified && !hasShownEmailModal) {
+            setHasShownEmailModal(true);
+            setShowEmailConfirmModal(true);
+            return;
+        }
+
+        // If modal already shown or email is verified, proceed with submission
+        executeSubmit();
+    };
+
     // Show fullscreen spinner while checking auth
     if (isAuthLoading || isLoadingUserData) {
         return <LoadingSpinner fullScreen />;
@@ -287,7 +342,7 @@ const PostEventAuth = () => {
                         />
                     </div>
 
-                    <div style={{ marginTop: '20px' }}>
+                    <div style={{ marginTop: '20px', position: 'relative' }}>
                         <label className="step-label">
                             Email <span style={{ color: '#ff6b6b' }}>*</span>
                             {isEmailVerified && (
@@ -301,10 +356,21 @@ const PostEventAuth = () => {
                                 </span>
                             )}
                         </label>
+                        
+                        {/* Email Warning Toast - positioned above input */}
+                        {showEmailWarningToast && (
+                            <div className="email-warning-toast">
+                                <span className="email-warning-icon">⚠️</span>
+                                <span className="email-warning-text">Make sure the email is correct</span>
+                            </div>
+                        )}
+                        
                         <input
+                            ref={emailInputRef}
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            onFocus={handleEmailFocus}
                             placeholder="Enter your email"
                             className="step-input"
                             required
@@ -343,6 +409,32 @@ const PostEventAuth = () => {
                     </button>
                 </form>
             </div>
+
+            {/* Email Confirmation Modal */}
+            {showEmailConfirmModal && (
+                <div className="email-confirm-modal-overlay">
+                    <div className="email-confirm-modal">
+                        <div className="email-confirm-modal-icon">📧</div>
+                        <h3 className="email-confirm-modal-title">Is this email correct?</h3>
+                        <p className="email-confirm-modal-subtitle">Make sure its right</p>
+                        <div className="email-confirm-modal-email">{email}</div>
+                        <div className="email-confirm-modal-buttons">
+                            <button 
+                                className="email-confirm-btn email-confirm-btn-yes"
+                                onClick={handleModalConfirm}
+                            >
+                                Yes, it's correct
+                            </button>
+                            <button 
+                                className="email-confirm-btn email-confirm-btn-no"
+                                onClick={handleModalCancel}
+                            >
+                                Let me edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
