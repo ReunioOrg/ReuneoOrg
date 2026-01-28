@@ -128,7 +128,7 @@
     transform: translateX(100%);
     transition: all 0.5s ease;
     position: relative;
-    min-height: 200px;
+    min-height: auto;
     display: flex;
     flex-direction: column;
 }
@@ -203,6 +203,127 @@
     min-height: 20px;
 }
 
+/* Combined credentials step styles */
+.credentials-step {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.name-field-container {
+    margin-bottom: 0.5rem;
+}
+
+.credentials-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.credentials-fields.de-emphasized {
+    opacity: 0.6;
+    padding-top: 1.25rem;
+    margin-top: 0.5rem;
+}
+
+.credentials-fields.de-emphasized:hover,
+.credentials-fields.de-emphasized:focus-within {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+
+.credentials-hint {
+    font-size: 0.75rem;
+    color: #888;
+    margin: 0 0 0.5rem 0;
+    text-align: center;
+    font-style: italic;
+}
+
+.field-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.step-label.small-label {
+    font-size: 0.8rem;
+    margin-bottom: 4px;
+}
+
+.step-error.small-feedback,
+.step-success.small-feedback {
+    font-size: 0.7rem;
+    margin-top: 2px;
+    min-height: 16px;
+}
+
+.button-container.combined-step-buttons {
+    position: relative;
+    top: auto;
+    margin-top: 1.5rem;
+}
+
+/* Inline Next button for combined step */
+.inline-next-button-container {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0 0.5rem 0;
+}
+
+.inline-next-button {
+    background: linear-gradient(45deg, #144dff, #2979ff);
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(20, 77, 255, 0.3);
+}
+
+.inline-next-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(20, 77, 255, 0.4);
+}
+
+.inline-next-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(20, 77, 255, 0.3);
+}
+
+/* Inline Back button for image step */
+.inline-back-button-container {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 1rem;
+}
+
+.inline-back-button {
+    background: #144dff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+}
+
+.inline-back-button:hover {
+    background: #2979ff;
+}
+
+.inline-back-button:active {
+    transform: scale(0.97);
+    background: #0d3cc5;
+}
+
 /* Logo styles */
 .logo-image {
     width: 100px;
@@ -265,9 +386,10 @@
 .button-container {
     width: 100%;
     display: flex;
-    justify-content: flex-end;
-    position: absolute;
-    top: 135px;
+    justify-content: flex-start;
+    position: relative;
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
     padding: 0 4px;
     align-items: center;
     flex-direction: row;
@@ -354,9 +476,9 @@
     height: 250px;
     object-fit: cover;
     border-radius: 12px;
-    margin-top: 45px;
+    margin-top: 16px;
+    margin-bottom: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-   
 }
 
 .cropper-container {

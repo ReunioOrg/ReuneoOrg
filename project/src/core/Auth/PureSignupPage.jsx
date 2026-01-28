@@ -25,8 +25,6 @@ const PureSignupPage = () => {
     const [fieldErrors, setFieldErrors] = useState({});
     const [fieldSuccess, setFieldSuccess] = useState({});
     const [canProceed, setCanProceed] = useState(false);
-    const [isTyping, setIsTyping] = useState(false);
-    const [typingTimeout, setTypingTimeout] = useState(null);
     
     // Selfie modal state
     const [showSelfieModal, setShowSelfieModal] = useState(false);
@@ -54,7 +52,7 @@ const PureSignupPage = () => {
         return result;
     };
 
-    // Auto-populate credentials for lobby users
+    // Auto-populate credentials for lobby users (no step skipping - just pre-fill)
     useEffect(() => {
         if (isLobbyRedirect && !username && !password) {
             const autoUsername = generateRandomString();
@@ -74,19 +72,14 @@ const PureSignupPage = () => {
                 username: '', 
                 password: '' 
             }));
-            
-            // Skip to display name step
-            setCurrentStep(2);
+            // Note: canProceed stays false until user enters displayName
         }
-    }, [isLobbyRedirect, username, password, displayName]);
+    }, [isLobbyRedirect]);
 
     // Check if user is already authenticated when component mounts
-    // Wait for auth loading to complete before checking, to avoid race conditions
     useEffect(() => {
-        // Don't redirect while auth is still being checked
         if (isAuthLoading) return;
         
-        // If user is authenticated, redirect them appropriately
         if (user) {
             if (redirectTo === 'lobby') {
                 if (lobbyCode) {
@@ -102,18 +95,9 @@ const PureSignupPage = () => {
         }
     }, [isAuthLoading, user, redirectTo, lobbyCode, navigate]);
 
-    // Check if displayName is valid when currentStep changes to the display name step
+    // Show selfie modal when arriving at image step (step 1 in new flow)
     useEffect(() => {
-        if (currentStep === 2 && displayName && validateDisplayName(displayName)) {
-            setCanProceed(true);
-            setFieldSuccess(prev => ({ ...prev, displayName: true }));
-            setFieldErrors(prev => ({ ...prev, displayName: '' }));
-        }
-    }, [currentStep, displayName]);
-
-    // Show selfie modal when arriving at image step (step 3)
-    useEffect(() => {
-        const isImageStep = currentStep === 3;
+        const isImageStep = currentStep === 1;
         const isNotDemoLobby = lobbyCode !== 'demolobby';
         const allPreviousFieldsFilled = username && password && displayName;
         
@@ -126,7 +110,6 @@ const PureSignupPage = () => {
     // Handle selfie modal "Understood" click
     const handleSelfieModalUnderstood = () => {
         setShowSelfieModal(false);
-        // Trigger file picker after a brief delay for smooth transition
         setTimeout(() => {
             if (fileInputRef.current) {
                 fileInputRef.current.click();
@@ -140,7 +123,6 @@ const PureSignupPage = () => {
     };
 
     const validateUsername = (username) => {
-        // Regular expression to match only lowercase letters and numbers
         const validUsernameRegex = /^[a-z0-9]+$/;
         return username.length >= 2 && validUsernameRegex.test(username);
     };
@@ -153,100 +135,78 @@ const PureSignupPage = () => {
         return name.length >= 2;
     };
 
+    // Helper to update canProceed for combined step (step 0)
+    const updateCanProceedForCombinedStep = (newDisplayName, newUsername, newPassword) => {
+        const allValid = 
+            validateDisplayName(newDisplayName) && 
+            validateUsername(newUsername) && 
+            validatePassword(newPassword);
+        setCanProceed(allValid);
+    };
+
     const handleNextStep = () => {
         if (currentStep < steps.length - 1) {
-            // If we're on username step (0) and moving to password step (1)
-            // and display name is empty, set it to username
-            if (currentStep === 0 && !displayName) {
-                setDisplayName(username);
-                // Since we know the username is valid (as Next was clickable),
-                // we can set the success state for display name
-                setFieldSuccess(prev => ({ ...prev, displayName: true }));
-                setFieldErrors(prev => ({ ...prev, displayName: '' }));
-            }
-            
-            // If we're moving to the display name step and it's pre-filled
-            if (currentStep === 1 && displayName && displayName.length >= 2) {
-                setCanProceed(true);
-            } else {
-                setCanProceed(false);
-            }
-            
+            setCanProceed(false); // Reset for next step
             setCurrentStep(prev => prev + 1);
         }
     };
 
     const handlePreviousStep = () => {
         if (currentStep > 0) {
-            const previousStep = currentStep - 1;
-            setCurrentStep(previousStep);
-            
-            // Check if the previous field was valid
-            const previousField = steps[previousStep];
-            if (previousField.validate) {
-                const value = previousField.value;
-                if (previousField.validate(value)) {
-                    setCanProceed(true);
-                }
-            } else {
-                // For non-validating fields (like file upload), maintain canProceed state
-                setCanProceed(true);
+            setCurrentStep(prev => prev - 1);
+            // When going back to step 0, recalculate canProceed
+            if (currentStep === 1) {
+                updateCanProceedForCombinedStep(displayName, username, password);
             }
         }
     };
 
-    const validateCurrentStep = () => {
-        const currentField = steps[currentStep];
-        if (!currentField.validate) return true;
-
-        const value = currentField.value;
-        if (currentField.validate(value)) {
-            setFieldSuccess(prev => ({ ...prev, [currentField.id]: true }));
-            setFieldErrors(prev => ({ ...prev, [currentField.id]: '' }));
-            return true;
-        } else {
-            setFieldSuccess(prev => ({ ...prev, [currentField.id]: false }));
-            setFieldErrors(prev => ({ ...prev, [currentField.id]: `Invalid ${currentField.label.toLowerCase()}` }));
-            return false;
-        }
-    };
-
-    const handleInputChange = (e, validateFn, setFieldFn) => {
-        setFieldFn(e.target.value);
-        const value = e.target.value;
-        if (validateFn(value)) {
-            setFieldSuccess(prev => ({ ...prev, [steps[currentStep].id]: true }));
-            setFieldErrors(prev => ({ ...prev, [steps[currentStep].id]: '' }));
-            setCanProceed(true);
-        } else {
-            setFieldSuccess(prev => ({ ...prev, [steps[currentStep].id]: false }));
-            setFieldErrors(prev => ({ ...prev, [steps[currentStep].id]: `Must be at least 2 characters` }));
-            setCanProceed(false);
-        }
-    };
-
     const handleUsernameChange = (e) => {
-        // Convert input to lowercase and remove any non-alphanumeric characters
         const sanitizedValue = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '');
         setUsername(sanitizedValue);
         
         if (validateUsername(sanitizedValue)) {
             setFieldSuccess(prev => ({ ...prev, username: true }));
             setFieldErrors(prev => ({ ...prev, username: '' }));
-            setCanProceed(true);
         } else {
             setFieldSuccess(prev => ({ ...prev, username: false }));
-            setFieldErrors(prev => ({ ...prev, username: 'Must be at least 2 characters' }));
-            setCanProceed(false);
+            setFieldErrors(prev => ({ ...prev, username: 'Must be at least 2 characters (letters and numbers only)' }));
         }
+        
+        // Update canProceed for combined step
+        updateCanProceedForCombinedStep(displayName, sanitizedValue, password);
     };
 
     const handlePasswordChange = (e) => {
-        handleInputChange(e, validatePassword, setPassword);
+        const value = e.target.value;
+        setPassword(value);
+        
+        if (validatePassword(value)) {
+            setFieldSuccess(prev => ({ ...prev, password: true }));
+            setFieldErrors(prev => ({ ...prev, password: '' }));
+        } else {
+            setFieldSuccess(prev => ({ ...prev, password: false }));
+            setFieldErrors(prev => ({ ...prev, password: 'Must be at least 2 characters' }));
+        }
+        
+        // Update canProceed for combined step
+        updateCanProceedForCombinedStep(displayName, username, value);
     };
 
     const handleDisplayNameChange = (e) => {
-        handleInputChange(e, validateDisplayName, setDisplayName);
+        const value = e.target.value;
+        setDisplayName(value);
+        
+        if (validateDisplayName(value)) {
+            setFieldSuccess(prev => ({ ...prev, displayName: true }));
+            setFieldErrors(prev => ({ ...prev, displayName: '' }));
+        } else {
+            setFieldSuccess(prev => ({ ...prev, displayName: false }));
+            setFieldErrors(prev => ({ ...prev, displayName: 'Must be at least 2 characters' }));
+        }
+        
+        // Update canProceed for combined step
+        updateCanProceedForCombinedStep(value, username, password);
     };
 
     const handleImageChange = (e) => {
@@ -303,12 +263,29 @@ const PureSignupPage = () => {
         }
     };
 
+    // Web Credentials API - save credentials to password manager
+    const saveCredentialsToPasswordManager = async (user, pass, name) => {
+        if ('credentials' in navigator && window.PasswordCredential) {
+            try {
+                const credential = new PasswordCredential({
+                    id: user,
+                    password: pass,
+                    name: name
+                });
+                await navigator.credentials.store(credential);
+                console.log('Credentials saved to password manager');
+            } catch (err) {
+                console.warn('Could not save credentials:', err);
+                // Non-blocking - continue even if this fails
+            }
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
 
-        // Quality control logging
         console.log('Signup attempt - Username:', username, 'Password:', password);
     
         if (!username || !password || !displayName) {
@@ -318,7 +295,7 @@ const PureSignupPage = () => {
         }
     
         if (!profileImage || !imagePreview) {
-            setError('Your profile picture is required👆🏼');
+            setError('Your profile picture is required');
             setIsLoading(false);
             return;
         }
@@ -333,21 +310,23 @@ const PureSignupPage = () => {
                 body: JSON.stringify({ 
                     username, 
                     password,
-                    is_lobby_signup: isLobbyRedirect  // Flag for lobby signups - triggers password_setup_complete=false
+                    is_lobby_signup: isLobbyRedirect
                 }),
             });
     
             const userData = await response.json();
     
+            // Track which credentials to save (may change in retry scenario)
+            let finalUsername = username;
+            let finalPassword = password;
+    
             if (userData.error === "Username already taken") {
-                // If this is a lobby user with auto-generated credentials, regenerate and retry
                 if (isLobbyRedirect) {
                     const newUsername = generateRandomString();
                     const newPassword = generateRandomString();
                     setUsername(newUsername);
                     setPassword(newPassword);
                     
-                    // Retry with new credentials
                     const retryResponse = await apiFetch(endpoint, {
                         method: 'POST',
                         headers: {
@@ -356,7 +335,7 @@ const PureSignupPage = () => {
                         body: JSON.stringify({ 
                             username: newUsername, 
                             password: newPassword,
-                            is_lobby_signup: true  // This is always a lobby signup in retry scenario
+                            is_lobby_signup: true
                         }),
                     });
                     
@@ -368,8 +347,10 @@ const PureSignupPage = () => {
                         return;
                     }
                     
-                    // Continue with the retry data
                     login(retryUserData);
+                    // Use the new credentials for password manager
+                    finalUsername = newUsername;
+                    finalPassword = newPassword;
                 } else {
                     setError("Username is taken");
                     setIsLoading(false);
@@ -421,6 +402,9 @@ const PureSignupPage = () => {
     
             await checkAuth();
             
+            // Save credentials to password manager before navigating
+            await saveCredentialsToPasswordManager(finalUsername, finalPassword, displayName);
+            
             if (redirectTo === 'lobby') {
                 if (lobbyCode) {
                     navigate(`/lobby?code=${lobbyCode}`);
@@ -441,33 +425,11 @@ const PureSignupPage = () => {
         setIsLoading(false);
     };
 
+    // Simplified 2-step structure
     const steps = [
         {
-            id: 'username',
-            label: 'Username',
-            value: username,
-            onChange: handleUsernameChange,
-            type: 'text',
-            placeholder: 'Enter a username',
-            validate: validateUsername
-        },
-        {
-            id: 'password',
-            label: 'Password',
-            value: password,
-            onChange: handlePasswordChange,
-            type: 'password',
-            placeholder: 'Create a password',
-            validate: validatePassword
-        },
-        {
-            id: 'displayName',
-            label: lobbyCode === 'demolobby' ? 'Display Name (Type Any Name)' : 'Display Name (what people will see)',
-            value: displayName,
-            onChange: handleDisplayNameChange,
-            type: 'text',
-            placeholder: 'Enter your preferred name',
-            validate: validateDisplayName
+            id: 'credentials',
+            type: 'combined'
         },
         {
             id: 'image',
@@ -479,7 +441,6 @@ const PureSignupPage = () => {
     ];
 
     // Show loading spinner while auth is being checked
-    // This prevents showing the signup form briefly before redirecting authenticated users
     if (isAuthLoading) {
         return <LoadingSpinner fullScreen message={authLoadingMessage} />;
     }
@@ -526,19 +487,15 @@ const PureSignupPage = () => {
 
             <div className="step-form-container">
                 <div className="step-progress">
-                    {(isLobbyRedirect ? steps.slice(2) : steps).map((_, index) => (
+                    {steps.map((_, index) => (
                         <div
                             key={index}
-                            className={`progress-dot ${
-                                isLobbyRedirect 
-                                    ? (index === currentStep - 2 ? 'active' : '') + (index < currentStep - 2 ? ' completed' : '')
-                                    : (index === currentStep ? 'active' : '') + (index < currentStep ? ' completed' : '')
-                            }`}
+                            className={`progress-dot ${index === currentStep ? 'active' : ''} ${index < currentStep ? 'completed' : ''}`}
                         />
                     ))}
                 </div>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} autoComplete="on">
                     <AnimatePresence mode="wait" initial={false}>
                         <motion.div
                             key={currentStep}
@@ -555,135 +512,208 @@ const PureSignupPage = () => {
                             style={{ willChange: 'transform, opacity' }}
                         >
                             <div className="step-content">
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.1 }}
-                                >
-                                    <label className="step-label">
-                                        {steps[currentStep].label}
-                                    </label>
-                                    
+                                {/* Step 0: Combined credentials step */}
+                                {currentStep === 0 && (
                                     <motion.div
-                                        initial={{ opacity: 0, y: 4 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{
-                                            duration: 0.15,
-                                            ease: "easeOut"
-                                        }}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.1 }}
+                                        className="credentials-step"
                                     >
-                                        {steps[currentStep].type === 'file' ? (
-                                            <div className="image-upload-container">
-                                                {!isCropping ? (
-                                                    <>
-                                                        <input
-                                                            ref={fileInputRef}
-                                                            type="file"
-                                                            onChange={steps[currentStep].onChange}
-                                                            accept={steps[currentStep].accept}
-                                                            className="step-input"
-                                                        />
-                                                        {imagePreview && (
-                                                            <div>
-                                                                <img
-                                                                    src={imagePreview}
-                                                                    alt="Profile preview"
-                                                                    className="profile-preview-image"
-                                                                />
-                                                            </div>
-                                                        )}
-                                                    </>
-                                                ) : (
-                                                    <div className="cropper-container">
-                                                        <div className="cropper-wrapper">
-                                                            <ReactCropper
-                                                                image={imagePreview}
-                                                                crop={crop}
-                                                                zoom={zoom}
-                                                                aspect={1}
-                                                                onCropComplete={handleCropComplete}
-                                                                onCropChange={setCrop}
-                                                                onZoomChange={setZoom}
-                                                            />
-                                                        </div>
-                                                        <div className="cropper-controls">
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    setIsCropping(false);
-                                                                    setImagePreview(null);
-                                                                    setProfileImage(null);
-                                                                }}
-                                                                className="cancel-crop-button"
-                                                            >
-                                                                Cancel
-                                                            </button>
-                                                            <button
-                                                                type="button"
-                                                                onClick={handleSaveCroppedImage}
-                                                                className="save-crop-button"
-                                                            >
-                                                                Good
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ) : (
+                                        {/* Name Field - Primary Focus */}
+                                        <div className="name-field-container">
+                                            <label className="step-label">
+                                                {lobbyCode === 'demolobby' ? 'Your Name (Type Any Name)' : 'Your Name'}
+                                            </label>
                                             <input
-                                                type={steps[currentStep].type}
-                                                value={steps[currentStep].value}
-                                                onChange={steps[currentStep].onChange}
-                                                placeholder={steps[currentStep].placeholder}
+                                                type="text"
+                                                name="displayName"
+                                                autoComplete="name"
+                                                value={displayName}
+                                                onChange={handleDisplayNameChange}
+                                                placeholder="Enter your name"
                                                 className="step-input"
                                                 autoFocus
                                             />
-                                        )}
-                                    </motion.div>
+                                            <AnimatePresence mode="wait">
+                                                {fieldErrors.displayName && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: -5 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -5 }}
+                                                        className="step-error"
+                                                    >
+                                                        {fieldErrors.displayName}
+                                                    </motion.div>
+                                                )}
+                                                {fieldSuccess.displayName && !fieldErrors.displayName && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, scale: 0.8 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        exit={{ opacity: 0, scale: 0.8 }}
+                                                        className="step-success"
+                                                    >
+                                                        ✓ Valid
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </div>
 
-                                    <AnimatePresence mode="wait">
-                                        {fieldErrors[steps[currentStep].id] && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: -10 }}
-                                                transition={{ duration: 0.2 }}
-                                                className="step-error"
-                                            >
-                                                {fieldErrors[steps[currentStep].id]}
-                                            </motion.div>
+                                        {/* Next Button - Positioned below name, above credentials */}
+                                        {canProceed && (
+                                            <div className="inline-next-button-container">
+                                                <motion.button
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.2 }}
+                                                    type="button"
+                                                    onClick={handleNextStep}
+                                                    className="inline-next-button"
+                                                >
+                                                    Continue →
+                                                </motion.button>
+                                            </div>
                                         )}
+
+                                        {/* Username/Password - De-emphasized for lobby, normal for regular */}
+                                        <div className={`credentials-fields ${isLobbyRedirect ? 'de-emphasized' : ''}`}>
+                                            {isLobbyRedirect && (
+                                                <p className="credentials-hint">
+                                                    Auto-generated login (edit if you want)
+                                                </p>
+                                            )}
+                                            
+                                            <div className="field-row">
+                                                <label className="step-label small-label">Username</label>
+                                                <input
+                                                    type="text"
+                                                    name="username"
+                                                    autoComplete="username"
+                                                    value={username}
+                                                    onChange={handleUsernameChange}
+                                                    placeholder="Choose a username"
+                                                    className="step-input"
+                                                />
+                                                {fieldErrors.username && (
+                                                    <div className="step-error small-feedback">{fieldErrors.username}</div>
+                                                )}
+                                                {fieldSuccess.username && !fieldErrors.username && (
+                                                    <div className="step-success small-feedback">✓ Valid</div>
+                                                )}
+                                            </div>
+                                            
+                                            <div className="field-row">
+                                                <label className="step-label small-label">Password</label>
+                                                <input
+                                                    type="password"
+                                                    name="password"
+                                                    autoComplete="new-password"
+                                                    value={password}
+                                                    onChange={handlePasswordChange}
+                                                    placeholder="Create a password"
+                                                    className="step-input"
+                                                />
+                                                {fieldErrors.password && (
+                                                    <div className="step-error small-feedback">{fieldErrors.password}</div>
+                                                )}
+                                                {fieldSuccess.password && !fieldErrors.password && (
+                                                    <div className="step-success small-feedback">✓ Valid</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {/* Step 1: Image upload step */}
+                                {currentStep === 1 && (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.1 }}
+                                    >
+                                        {/* Inline Back button for image step */}
+                                        <div className="inline-back-button-container">
+                                            <motion.button
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                transition={{ delay: 0.2 }}
+                                                type="button"
+                                                onClick={handlePreviousStep}
+                                                className="inline-back-button"
+                                            >
+                                                ← Back
+                                            </motion.button>
+                                        </div>
+
+                                        <label className="step-label">
+                                            {steps[1].label}
+                                        </label>
                                         
-                                        {fieldSuccess[steps[currentStep].id] && (
-                                            <motion.div
-                                                initial={{ opacity: 0, scale: 0.8 }}
-                                                animate={{ opacity: 1, scale: 1 }}
-                                                exit={{ opacity: 0, scale: 0.8 }}
-                                                transition={{ duration: 0.2 }}
-                                                className="step-success"
-                                            >
-                                                ✓ Valid
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </motion.div>
+                                        <div className="image-upload-container">
+                                            {!isCropping ? (
+                                                <>
+                                                    <input
+                                                        ref={fileInputRef}
+                                                        type="file"
+                                                        onChange={handleImageChange}
+                                                        accept="image/*"
+                                                        className="step-input"
+                                                    />
+                                                    {imagePreview && (
+                                                        <div>
+                                                            <img
+                                                                src={imagePreview}
+                                                                alt="Profile preview"
+                                                                className="profile-preview-image"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <div className="cropper-container">
+                                                    <div className="cropper-wrapper">
+                                                        <ReactCropper
+                                                            image={imagePreview}
+                                                            crop={crop}
+                                                            zoom={zoom}
+                                                            aspect={1}
+                                                            onCropComplete={handleCropComplete}
+                                                            onCropChange={setCrop}
+                                                            onZoomChange={setZoom}
+                                                        />
+                                                    </div>
+                                                    <div className="cropper-controls">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setIsCropping(false);
+                                                                setImagePreview(null);
+                                                                setProfileImage(null);
+                                                            }}
+                                                            className="cancel-crop-button"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleSaveCroppedImage}
+                                                            className="save-crop-button"
+                                                        >
+                                                            Good
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </motion.div>
+                                )}
                             </div>
 
                             {!isCropping && (
-                                <div className="button-container">
-                                    {currentStep > 0 && (
-                                        <motion.button
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            transition={{ delay: 0.3 }}
-                                            type="button"
-                                            onClick={handlePreviousStep}
-                                            className="backz-button"
-                                        >
-                                            ← Back
-                                        </motion.button>
-                                    )}
-                                    {canProceed && currentStep < steps.length - 1 && (
+                                <div className={`button-container ${currentStep === 0 ? 'combined-step-buttons' : ''}`}>
+                                    {/* Back button hidden - using inline back buttons in each step now */}
+                                    {/* Next button only shown here for steps > 0 (step 0 has inline button) */}
+                                    {canProceed && currentStep > 0 && currentStep < steps.length - 1 && (
                                         <motion.button
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
@@ -700,7 +730,7 @@ const PureSignupPage = () => {
                         </motion.div>
                     </AnimatePresence>
 
-                {error && (
+                    {error && (
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -750,7 +780,7 @@ const PureSignupPage = () => {
                             onClick={(e) => e.stopPropagation()}
                         >
                             <h2 className="selfie-modal-header">
-                                📸 You Must Take a Selfie
+                                You Must Take a Selfie
                             </h2>
                             <p className="selfie-modal-subtext">
                                 Don't use old photos, people need to know how you look in order to find you in the room - trust us.
@@ -771,5 +801,3 @@ const PureSignupPage = () => {
 };
 
 export default PureSignupPage;
-
-
