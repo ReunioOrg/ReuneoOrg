@@ -15,6 +15,7 @@ import { storeLobbyCode, clearLobbyStorage, refreshLobbyTimestamp } from '../uti
 import { CommunityPageButton } from '../community/mycf';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { apiFetch } from '../utils/api';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AVAILABLE_TAGS = []; // Remove hardcoded tags
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
@@ -42,7 +43,13 @@ const LobbyScreen = () => {
     const { code } = useParams();
     const [player_count, setPlayerCount] = useState(null);
     useGetLobbyMetadata(setPlayerCount, null, lobbyCode);
-    const { user, userProfile, checkAuth, permissions, isAuthLoading, authLoadingMessage } = useContext(AuthContext);
+    const { user, userProfile, checkAuth, permissions, isAuthLoading, authLoadingMessage, emailVerified } = useContext(AuthContext);
+    
+    // Credentials modal state (for showing login credentials to screenshot)
+    const [showCredentialsModal, setShowCredentialsModal] = useState(false);
+    const [previousMatchProfiles, setPreviousMatchProfiles] = useState([]);
+    const [credentialsCopied, setCredentialsCopied] = useState(false);
+    const hasShownCredentialsModal = useRef(false);
 
     // Add useEffect to check authentication and redirect if needed
     useEffect(() => {
@@ -482,6 +489,28 @@ const LobbyScreen = () => {
                         isAnimating.current = true;
                         setShowMatchAnimation(true);
                     }
+                    
+                    // Check if should show credentials modal
+                    // Only for non-email-verified users who haven't seen it yet this session
+                    if (!emailVerified && !hasShownCredentialsModal.current) {
+                        // Fetch previous match profiles from server
+                        try {
+                            const profilesResponse = await apiFetch('/lobby/previous_match_profiles', {
+                                headers: { 'lobby_code': currentLobbyCode }
+                            });
+                            const profilesData = await profilesResponse.json();
+                            
+                            // Show modal if they have at least 2 matches (current + at least 1 previous)
+                            // This ensures they've completed at least one real interaction
+                            if (profilesData.profiles && profilesData.profiles.length >= 2) {
+                                setPreviousMatchProfiles(profilesData.profiles);
+                                setShowCredentialsModal(true);
+                                hasShownCredentialsModal.current = true;
+                            }
+                        } catch (error) {
+                            console.error('Error fetching previous match profiles:', error);
+                        }
+                    }
                 }
                 
                 setPrevLobbyState(data.lobby_state);
@@ -743,6 +772,25 @@ const LobbyScreen = () => {
             setHasScrolledToTags(true);
         }
     }, [serverselfTags, serverdesiringTags, tagsState, hasScrolledToTags]);
+
+    // Handle copy credential to clipboard
+    // Note: `user` is the username string directly (not an object)
+    const handleCopyCredential = async () => {
+        if (user) {
+            try {
+                await navigator.clipboard.writeText(user);
+                setCredentialsCopied(true);
+                setTimeout(() => setCredentialsCopied(false), 2000);
+            } catch (error) {
+                console.error('Failed to copy:', error);
+            }
+        }
+    };
+
+    // Handle credentials modal close
+    const handleCredentialsModalClose = () => {
+        setShowCredentialsModal(false);
+    };
 
     // Show fullscreen spinner while checking auth
     if (isAuthLoading) {
@@ -1193,6 +1241,77 @@ const LobbyScreen = () => {
                     isReadyAnimating.current = false;
                 }} 
             />
+
+            {/* Credentials Modal for screenshot reminder - inline to prevent re-render jank */}
+            <AnimatePresence>
+                {showCredentialsModal && (
+                    <motion.div
+                        className="credentials-modal-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        onClick={handleCredentialsModalClose}
+                    >
+                        <motion.div
+                            className="credentials-modal-content"
+                            initial={{ opacity: 0, scale: 0.85 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.85 }}
+                            transition={{ 
+                                type: "spring",
+                                stiffness: 400,
+                                damping: 25
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Previous match faces */}
+                            {previousMatchProfiles.length > 0 && (
+                                <div className="previous-matches-row">
+                                    {previousMatchProfiles.slice(0, 2).map((profile, index) => (
+                                        <img
+                                            key={index}
+                                            src={profile.small_image_data 
+                                                ? `data:image/jpeg;base64,${profile.small_image_data}`
+                                                : "/assets/avatar_3.png"}
+                                            alt={profile.name}
+                                            className="match-avatar"
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                            
+                            <h2 className="credentials-modal-header">
+                                Your matches are saved — but take a snapshot in case your browser resets.
+                            </h2>
+                            
+                            {/* Credential display */}
+                            <div className="credential-display-container">
+                                <div className="credential-display">
+                                    <span className="credential-text">{user}</span>
+                                    <button 
+                                        type="button"
+                                        className="copy-icon-button"
+                                        onClick={handleCopyCredential}
+                                        title="Copy to clipboard"
+                                    >
+                                        {credentialsCopied ? '✓' : '📋'}
+                                    </button>
+                                </div>
+                                <p className="credential-hint">Your login (username & password)</p>
+                            </div>
+                            
+                            <button
+                                type="button"
+                                className="credentials-modal-button"
+                                onClick={handleCredentialsModalClose}
+                            >
+                                Screenshot to save a quick copy 📸
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

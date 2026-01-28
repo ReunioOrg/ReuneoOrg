@@ -222,16 +222,45 @@
     border-top: 1px solid #e0e0e0;
 }
 
-.credentials-fields.de-emphasized {
-    opacity: 0.6;
-    padding-top: 1.25rem;
+/* Collapsible credentials section for lobby redirect users */
+.credentials-collapsible {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
     margin-top: 0.5rem;
+    opacity: 0.6;
 }
 
-.credentials-fields.de-emphasized:hover,
-.credentials-fields.de-emphasized:focus-within {
+.credentials-collapsible:hover,
+.credentials-collapsible:focus-within {
     opacity: 1;
     transition: opacity 0.2s ease;
+}
+
+.see-more-toggle {
+    background: none;
+    border: none;
+    color: #144dff;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 0;
+    text-align: center;
+    transition: color 0.2s ease;
+}
+
+.see-more-toggle:hover {
+    color: #2979ff;
+}
+
+.credentials-fields-expanded {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 0.5rem;
+    overflow: hidden;
 }
 
 .credentials-hint {

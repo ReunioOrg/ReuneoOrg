@@ -30,6 +30,9 @@ const PureSignupPage = () => {
     const [showSelfieModal, setShowSelfieModal] = useState(false);
     const [hasShownSelfieModal, setHasShownSelfieModal] = useState(false);
     const fileInputRef = useRef(null);
+    
+    // Collapsible credentials section state (for lobby redirect users)
+    const [credentialsExpanded, setCredentialsExpanded] = useState(false);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -53,13 +56,13 @@ const PureSignupPage = () => {
     };
 
     // Auto-populate credentials for lobby users (no step skipping - just pre-fill)
+    // Uses SAME value for both username and password (easier to remember/screenshot)
     useEffect(() => {
         if (isLobbyRedirect && !username && !password) {
-            const autoUsername = generateRandomString();
-            const autoPassword = generateRandomString();
+            const autoCredential = generateRandomString();
             
-            setUsername(autoUsername);
-            setPassword(autoPassword);
+            setUsername(autoCredential);
+            setPassword(autoCredential);
             
             // Set success states for auto-generated credentials
             setFieldSuccess(prev => ({ 
@@ -322,8 +325,10 @@ const PureSignupPage = () => {
     
             if (userData.error === "Username already taken") {
                 if (isLobbyRedirect) {
-                    const newUsername = generateRandomString();
-                    const newPassword = generateRandomString();
+                    // Use same value for both username and password on retry
+                    const newCredential = generateRandomString();
+                    const newUsername = newCredential;
+                    const newPassword = newCredential;
                     setUsername(newUsername);
                     setPassword(newPassword);
                     
@@ -575,52 +580,109 @@ const PureSignupPage = () => {
                                             </div>
                                         )}
 
-                                        {/* Username/Password - De-emphasized for lobby, normal for regular */}
-                                        <div className={`credentials-fields ${isLobbyRedirect ? 'de-emphasized' : ''}`}>
-                                            {isLobbyRedirect && (
+                                        {/* Username/Password - Collapsible for lobby, normal for regular */}
+                                        {isLobbyRedirect ? (
+                                            <div className="credentials-collapsible">
                                                 <p className="credentials-hint">
                                                     Auto-generated login (edit if you want)
                                                 </p>
-                                            )}
-                                            
-                                            <div className="field-row">
-                                                <label className="step-label small-label">Username</label>
-                                                <input
-                                                    type="text"
-                                                    name="username"
-                                                    autoComplete="username"
-                                                    value={username}
-                                                    onChange={handleUsernameChange}
-                                                    placeholder="Choose a username"
-                                                    className="step-input"
-                                                />
-                                                {fieldErrors.username && (
-                                                    <div className="step-error small-feedback">{fieldErrors.username}</div>
-                                                )}
-                                                {fieldSuccess.username && !fieldErrors.username && (
-                                                    <div className="step-success small-feedback">✓ Valid</div>
+                                                <button
+                                                    type="button"
+                                                    className="see-more-toggle"
+                                                    onClick={() => setCredentialsExpanded(!credentialsExpanded)}
+                                                >
+                                                    {credentialsExpanded ? 'Hide ▲' : 'See More ▼'}
+                                                </button>
+                                                
+                                                {credentialsExpanded && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, height: 0 }}
+                                                        animate={{ opacity: 1, height: 'auto' }}
+                                                        exit={{ opacity: 0, height: 0 }}
+                                                        transition={{ duration: 0.2 }}
+                                                        className="credentials-fields-expanded"
+                                                    >
+                                                        <div className="field-row">
+                                                            <label className="step-label small-label">Username</label>
+                                                            <input
+                                                                type="text"
+                                                                name="username"
+                                                                autoComplete="username"
+                                                                value={username}
+                                                                onChange={handleUsernameChange}
+                                                                placeholder="Choose a username"
+                                                                className="step-input"
+                                                            />
+                                                            {fieldErrors.username && (
+                                                                <div className="step-error small-feedback">{fieldErrors.username}</div>
+                                                            )}
+                                                            {fieldSuccess.username && !fieldErrors.username && (
+                                                                <div className="step-success small-feedback">✓ Valid</div>
+                                                            )}
+                                                        </div>
+                                                        
+                                                        <div className="field-row">
+                                                            <label className="step-label small-label">Password</label>
+                                                            <input
+                                                                type="password"
+                                                                name="password"
+                                                                autoComplete="new-password"
+                                                                value={password}
+                                                                onChange={handlePasswordChange}
+                                                                placeholder="Create a password"
+                                                                className="step-input"
+                                                            />
+                                                            {fieldErrors.password && (
+                                                                <div className="step-error small-feedback">{fieldErrors.password}</div>
+                                                            )}
+                                                            {fieldSuccess.password && !fieldErrors.password && (
+                                                                <div className="step-success small-feedback">✓ Valid</div>
+                                                            )}
+                                                        </div>
+                                                    </motion.div>
                                                 )}
                                             </div>
-                                            
-                                            <div className="field-row">
-                                                <label className="step-label small-label">Password</label>
-                                                <input
-                                                    type="password"
-                                                    name="password"
-                                                    autoComplete="new-password"
-                                                    value={password}
-                                                    onChange={handlePasswordChange}
-                                                    placeholder="Create a password"
-                                                    className="step-input"
-                                                />
-                                                {fieldErrors.password && (
-                                                    <div className="step-error small-feedback">{fieldErrors.password}</div>
-                                                )}
-                                                {fieldSuccess.password && !fieldErrors.password && (
-                                                    <div className="step-success small-feedback">✓ Valid</div>
-                                                )}
+                                        ) : (
+                                            <div className="credentials-fields">
+                                                <div className="field-row">
+                                                    <label className="step-label small-label">Username</label>
+                                                    <input
+                                                        type="text"
+                                                        name="username"
+                                                        autoComplete="username"
+                                                        value={username}
+                                                        onChange={handleUsernameChange}
+                                                        placeholder="Choose a username"
+                                                        className="step-input"
+                                                    />
+                                                    {fieldErrors.username && (
+                                                        <div className="step-error small-feedback">{fieldErrors.username}</div>
+                                                    )}
+                                                    {fieldSuccess.username && !fieldErrors.username && (
+                                                        <div className="step-success small-feedback">✓ Valid</div>
+                                                    )}
+                                                </div>
+                                                
+                                                <div className="field-row">
+                                                    <label className="step-label small-label">Password</label>
+                                                    <input
+                                                        type="password"
+                                                        name="password"
+                                                        autoComplete="new-password"
+                                                        value={password}
+                                                        onChange={handlePasswordChange}
+                                                        placeholder="Create a password"
+                                                        className="step-input"
+                                                    />
+                                                    {fieldErrors.password && (
+                                                        <div className="step-error small-feedback">{fieldErrors.password}</div>
+                                                    )}
+                                                    {fieldSuccess.password && !fieldErrors.password && (
+                                                        <div className="step-success small-feedback">✓ Valid</div>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
                                     </motion.div>
                                 )}
 

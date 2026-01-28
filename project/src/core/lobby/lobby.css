@@ -1040,3 +1040,147 @@
 .sponsor-logo img {
     display: block;
 }
+
+/* Credentials Modal Styles */
+.credentials-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.credentials-modal-content {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+    border-radius: 20px;
+    padding: 32px 28px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 40px rgba(75, 115, 239, 0.15);
+    border: 1px solid rgba(75, 115, 239, 0.1);
+}
+
+.previous-matches-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.match-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #4b73ef;
+    box-shadow: 0 4px 12px rgba(75, 115, 239, 0.3);
+}
+
+.credentials-modal-header {
+    color: #333;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    line-height: 1.4;
+}
+
+.credential-display-container {
+    margin: 20px 0;
+}
+
+.credential-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #f0f4ff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    border: 2px solid #e0e8ff;
+}
+
+.credential-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #144dff;
+    letter-spacing: 0.5px;
+    font-family: monospace;
+}
+
+.copy-icon-button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 4px;
+    transition: transform 0.15s ease;
+}
+
+.copy-icon-button:hover {
+    transform: scale(1.1);
+}
+
+.copy-icon-button:active {
+    transform: scale(0.95);
+}
+
+.credential-hint {
+    color: #666;
+    font-size: 0.85rem;
+    margin: 8px 0 0 0;
+    font-weight: 500;
+}
+
+.credentials-modal-button {
+    background: linear-gradient(135deg, #4b73ef 0%, #3a5fcf 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 32px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(75, 115, 239, 0.35);
+    width: 100%;
+    max-width: 240px;
+    margin-top: 8px;
+}
+
+.credentials-modal-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(75, 115, 239, 0.45);
+}
+
+.credentials-modal-button:active {
+    transform: translateY(0);
+}
+
+/* Mobile adjustments for credentials modal */
+@media (max-width: 480px) {
+    .credentials-modal-content {
+        padding: 28px 24px;
+        max-width: 300px;
+    }
+    
+    .credentials-modal-header {
+        font-size: 1rem;
+    }
+    
+    .credential-text {
+        font-size: 1.1rem;
+    }
+    
+    .match-avatar {
+        width: 48px;
+        height: 48px;
+    }
+}
