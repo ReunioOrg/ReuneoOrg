@@ -35,8 +35,36 @@ const PostEventAuth = () => {
     const [showEmailConfirmModal, setShowEmailConfirmModal] = useState(false);
     const [showEmailWarningToast, setShowEmailWarningToast] = useState(false);
     
+    // Account claim flow state (for claiming existing accounts)
+    const [showAccountClaimModal, setShowAccountClaimModal] = useState(false);
+    const [accountClaimSent, setAccountClaimSent] = useState(false);
+    const [isClaimingAccount, setIsClaimingAccount] = useState(false);
+    const [claimError, setClaimError] = useState('');
+    
     // Ref for email input focus
     const emailInputRef = useRef(null);
+
+    // Handle error query params from failed account claim redirects
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const claimErrorParam = params.get('error');
+        
+        if (claimErrorParam) {
+            // Map error codes to user-friendly messages
+            const errorMessages = {
+                'claim_expired': 'Your verification link has expired. Please try again.',
+                'claim_invalid': 'Invalid verification link. Please try again.',
+                'claim_failed': 'Account linking failed. Please try again.',
+                'claim_blocked': 'This account is an organizer account and cannot be linked this way. Please contact support.'
+            };
+            
+            const message = errorMessages[claimErrorParam] || 'An error occurred. Please try again.';
+            setError(message);
+            
+            // Clean up the URL
+            window.history.replaceState({}, '', '/post-event-auth');
+        }
+    }, []);
 
     // Wait for auth check, then fetch user data
     useEffect(() => {
@@ -200,10 +228,69 @@ const PostEventAuth = () => {
 
         } catch (err) {
             console.error('Error updating profile:', err);
-            setError(err.message || 'An error occurred. Please try again.');
+            
+            // Check if email is already associated with another account
+            if (err.message?.toLowerCase().includes('already associated with another account')) {
+                // Show account claim modal instead of generic error
+                setShowAccountClaimModal(true);
+                setError(''); // Clear any previous error
+            } else {
+                setError(err.message || 'An error occurred. Please try again.');
+            }
         } finally {
             setIsSubmitting(false);
         }
+    };
+    
+    // Handle sending account claim verification email
+    const handleSendClaimEmail = async () => {
+        setIsClaimingAccount(true);
+        setClaimError('');
+        
+        try {
+            const response = await apiFetch('/auth/claim-existing-account', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email.trim() })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                setShowAccountClaimModal(false);
+                setAccountClaimSent(true);
+                toast.success('Verification email sent!', {
+                    duration: 4000,
+                    style: {
+                        background: '#4b73ef',
+                        color: 'white',
+                        borderRadius: '8px',
+                        padding: '12px 20px',
+                        fontSize: '0.9rem',
+                        fontWeight: '500'
+                    }
+                });
+            } else {
+                setClaimError(data.error || 'Failed to send verification email. Please try again.');
+            }
+        } catch (err) {
+            console.error('Error sending claim email:', err);
+            setClaimError('Network error. Please try again.');
+        } finally {
+            setIsClaimingAccount(false);
+        }
+    };
+    
+    // Handle closing account claim modal
+    const handleClaimModalClose = () => {
+        setShowAccountClaimModal(false);
+        setClaimError('');
+        // Focus email input so they can change it
+        setTimeout(() => {
+            emailInputRef.current?.focus();
+        }, 100);
     };
 
     // Handle modal "Yes, it's correct" click
@@ -294,6 +381,58 @@ const PostEventAuth = () => {
                     </p>
                     <button 
                         onClick={() => setMagicLinkSent(false)}
+                        className="primary-button"
+                        style={{ 
+                            marginTop: '10px'
+                        }}
+                    >
+                        ← Back to Form
+                    </button>
+                </div>
+            </div>
+        );
+    }
+    
+    // Show "check your email" screen after account claim email is sent
+    if (accountClaimSent) {
+        return (
+            <div className="post-event-auth-container">
+                <Toaster position="top-center" />
+                
+                <div className="step-form-container" style={{ textAlign: 'center', padding: '40px 20px' }}>
+                    <div style={{ 
+                        fontSize: '48px', 
+                        marginBottom: '20px'
+                    }}>
+                        🔗
+                    </div>
+                    <h2 style={{ 
+                        color: '#545454', 
+                        marginBottom: '16px',
+                        fontSize: '1.5rem'
+                    }}>
+                        Check Your Email!
+                    </h2>
+                    <p style={{ 
+                        color: '#545454', 
+                        marginBottom: '24px',
+                        lineHeight: '1.6'
+                    }}>
+                        We sent a verification link to <strong>{email}</strong>
+                        <br /><br />
+                        Click the link to link your matches to your existing account.
+                    </p>
+                    <p style={{ 
+                        color: '#777777', 
+                        fontSize: '0.85rem',
+                        marginBottom: '24px'
+                    }}>
+                        The link expires in 24 hours.
+                        <br />
+                        Don't see it? Check your spam folder.
+                    </p>
+                    <button 
+                        onClick={() => setAccountClaimSent(false)}
                         className="primary-button"
                         style={{ 
                             marginTop: '10px'
@@ -430,6 +569,50 @@ const PostEventAuth = () => {
                                 onClick={handleModalCancel}
                             >
                                 Let me edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {/* Account Claim Modal - for claiming existing accounts */}
+            {showAccountClaimModal && (
+                <div className="email-confirm-modal-overlay">
+                    <div className="email-confirm-modal">
+                        <div className="email-confirm-modal-icon">🔗</div>
+                        <h3 className="email-confirm-modal-title">This email is already registered</h3>
+                        <p className="email-confirm-modal-subtitle">
+                            To link your matches to your existing account, we'll send a verification email to:
+                        </p>
+                        <div className="email-confirm-modal-email">{email}</div>
+                        
+                        {claimError && (
+                            <div style={{ 
+                                color: '#ff6b6b', 
+                                fontSize: '0.85rem', 
+                                marginBottom: '16px',
+                                padding: '8px 12px',
+                                backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                                borderRadius: '6px'
+                            }}>
+                                {claimError}
+                            </div>
+                        )}
+                        
+                        <div className="email-confirm-modal-buttons">
+                            <button 
+                                className="email-confirm-btn email-confirm-btn-yes"
+                                onClick={handleSendClaimEmail}
+                                disabled={isClaimingAccount}
+                            >
+                                {isClaimingAccount ? 'Sending...' : 'Send Verification Email'}
+                            </button>
+                            <button 
+                                className="email-confirm-btn email-confirm-btn-no"
+                                onClick={handleClaimModalClose}
+                                disabled={isClaimingAccount}
+                            >
+                                Use Different Email
                             </button>
                         </div>
                     </div>
