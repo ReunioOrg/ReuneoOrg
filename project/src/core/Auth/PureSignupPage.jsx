@@ -478,17 +478,15 @@ const PureSignupPage = () => {
             )}
 
             <p className="login-link-text">
-                Already have an account? <a 
-                    href="#" 
-                    onClick={(e) => {
-                        e.preventDefault();
-                        navigate('/login');
-                    }}
-                    className="login-link"
-                >
-                    Login here
-                </a>
+                Already have an account?
             </p>
+            <button
+                type="button"
+                onClick={() => navigate('/login')}
+                className="login-cta-button"
+            >
+                I already have an account
+            </button>
 
             <div className="step-form-container">
                 <div className="step-progress">
