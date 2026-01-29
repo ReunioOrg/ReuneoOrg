@@ -487,8 +487,9 @@ const App = () => {
           marginLeft: 'auto',
           marginRight: 'auto',
           zIndex: 1,
-          //center this vertically
-          top: '50%'
+          //center this vertically - shift up when lobby tile is displayed
+          top: (userCurrentLobby && user && permissions !== 'admin' && permissions !== 'organizer') ? '32%' : '50%',
+          transition: 'top 0.3s ease'
         }}>
           {!user ? (
             <button 
@@ -616,7 +617,8 @@ const App = () => {
             marginLeft: 'auto',
             marginRight: 'auto',
             zIndex: 1,
-            top: 'calc(50% + 100px)'
+            top: userCurrentLobby ? 'calc(32% + 170px)' : 'calc(50% + 100px)',
+            transition: 'top 0.3s ease'
           }}>
             <button 
               className="primary-button join-lobby-button" 
@@ -860,114 +862,143 @@ const App = () => {
 
         {/* User's Current Lobby Section */}
         {userCurrentLobby && !((permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0) && (
-          <div className="events-list" style={{ 
+          <div style={{ 
             position: 'absolute',
-            bottom: 'calc(20px + 120px + 10px)',  // 20px bottom padding + ~120px button height + 10px gap
+            top: 'calc(32% + 80px)',
             left: '50%',
             transform: 'translateX(-50%)',
-            width: '44%',
-            height: '15%', 
-            background: 'linear-gradient(135deg, rgba(20, 77, 255, 0.05), rgba(83, 91, 242, 0.05))',
-            borderRadius: '30px',
-            padding: '1rem',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            width: '85%',
+            maxWidth: '280px',
+            display: 'flex',
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
+            zIndex: 10,
+            transition: 'all 0.3s ease'
           }}>
-            <div style={{ 
-              display: 'flex', 
-              flexWrap: 'wrap', 
-              justifyContent: 'center', 
-              perspective: '1000px',
-            }}>
-              <div
-                className="card"
-                style={{
-                  width: 'calc(100% - 2rem)',
-                  maxWidth: '200px',
-                  minWidth: '150px',
-                  background: 'rgba(255, 255, 255, 0.95)',
-                  borderRadius: '20px',
-                  boxShadow: '0 10px 30px rgba(20, 77, 255, 0.15)',
-                  border: '1px solid rgba(20, 77, 255, 0.2)',
-                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                  cursor: 'pointer',
-                  padding: '1rem 1rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transformStyle: 'preserve-3d',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'linear-gradient(135deg, rgba(20, 77, 255, 0.1), rgba(83, 91, 242, 0.1))',
-                    opacity: 0,
-                    transition: 'opacity 0.4s ease'
-                  }
-                }}
-                onClick={() => navigate(`/lobby?code=${userCurrentLobby}`)}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-10px) rotateX(5deg)';
-                  e.currentTarget.style.boxShadow = '0 20px 40px rgba(20, 77, 255, 0.25)';
-                  e.currentTarget.style.border = '1px solid rgba(20, 77, 255, 0.4)';
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.98)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0) rotateX(0)';
-                  e.currentTarget.style.boxShadow = '0 10px 30px rgba(20, 77, 255, 0.15)';
-                  e.currentTarget.style.border = '1px solid rgba(20, 77, 255, 0.2)';
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.95)';
-                }}
-              >
-                <div className="glow-button" style={{ 
-                  width: '30px', 
-                  height: '30px', 
-                  borderRadius: '50%', 
-                  background: 'linear-gradient(135deg, #144dff, #535bf2)',
-                  marginBottom: '.5rem',
-                  marginTop: '-1rem',
+            <div
+              onClick={() => navigate(`/lobby?code=${userCurrentLobby}`)}
+              style={{
+                width: '100%',
+                background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05))',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                borderRadius: '24px',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                padding: '16px 20px',
+                cursor: 'pointer',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: '14px',
+                overflow: 'hidden'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.02)';
+                e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
+                e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)';
+                e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.25)';
+              }}
+            >
+              {/* Animated pulse indicator */}
+              <div style={{
+                position: 'relative',
+                flexShrink: 0
+              }}>
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #144dff 0%, #8b5cf6 50%, #ec4899 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'white',
-                  fontWeight: 'bold',
-                  fontSize: '.8rem',
-                  boxShadow: '0 8px 20px rgba(20, 77, 255, 0.3)',
-                  transition: 'all 0.4s ease',
-                  position: 'relative',
-                  '&::after': {
-                    content: '""',
-                    position: 'absolute',
-                    top: '-5px',
-                    left: '-5px',
-                    right: '-5px',
-                    bottom: '-5px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, rgba(20, 77, 255, 0.2), rgba(83, 91, 242, 0.2))',
-                    zIndex: -1,
-                    animation: 'pulse 2s infinite'
-                  }
+                  boxShadow: '0 4px 15px rgba(20, 77, 255, 0.4)',
+                  animation: 'pulse-glow 2s ease-in-out infinite'
                 }}>
-                  {userCurrentLobby.charAt(0).toUpperCase()}
+                  <span style={{
+                    color: 'white',
+                    fontWeight: '800',
+                    fontSize: '1.1rem',
+                    textTransform: 'uppercase'
+                  }}>
+                    {userCurrentLobby.charAt(0).toUpperCase()}
+                  </span>
                 </div>
-                <h3 style={{ 
-                  marginTop: '0.5rem',
-                  color: '#144dff',
-                  fontWeight: '700',
-                  fontSize: '.9em',
-                  fontFamily: 'Helvetica',
-                  textAlign: 'center',
-                  textShadow: '0 2px 4px rgba(20, 77, 255, 0.1)',
-                  letterSpacing: '0.5px'
+                {/* Live indicator dot */}
+                <div style={{
+                  position: 'absolute',
+                  top: '-2px',
+                  right: '-2px',
+                  width: '14px',
+                  height: '14px',
+                  borderRadius: '50%',
+                  background: '#22c55e',
+                  border: '2px solid rgba(255, 255, 255, 0.9)',
+                  boxShadow: '0 0 8px rgba(34, 197, 94, 0.6)',
+                  animation: 'pulse-dot 1.5s ease-in-out infinite'
+                }} />
+              </div>
+              
+              {/* Text content with wrapping */}
+              <div style={{
+                flex: 1,
+                minWidth: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '2px'
+              }}>
+                <span style={{
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  fontSize: '0.7rem',
+                  fontWeight: '600',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em'
                 }}>
-                  Return to {userCurrentLobby}
-                </h3>
+                  Active Lobby
+                </span>
+                <span style={{
+                  color: 'white',
+                  fontWeight: '700',
+                  fontSize: '1rem',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
+                }}>
+                  {userCurrentLobby.length > 15 ? userCurrentLobby.slice(0, 15) + '...' : userCurrentLobby}
+                </span>
+              </div>
+              
+              {/* Arrow indicator */}
+              <div style={{
+                flexShrink: 0,
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.3s ease'
+              }}>
+                <svg 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="white" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
               </div>
             </div>
           </div>
