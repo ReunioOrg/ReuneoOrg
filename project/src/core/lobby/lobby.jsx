@@ -304,6 +304,7 @@ const LobbyScreen = () => {
     // Match banner state
     const [showMatchBanner, setShowMatchBanner] = useState(false);
     const [matchingTags, setMatchingTags] = useState(null);
+    const [showBannerSparkles, setShowBannerSparkles] = useState(false);
 
     // Add this function to check for matches
     const checkForMatches = (playerTags, opponentTags) => {
@@ -995,7 +996,22 @@ const LobbyScreen = () => {
 
                 {/* Match Banner */}
                 {showMatchBanner && matchingTags && lobbyState === "active" && opponentProfile && (
-                    <div className="match-banner">
+                    <div className={`match-banner ${showBannerSparkles ? 'sparkling' : ''}`}>
+                        {/* Sparkle effects */}
+                        {showBannerSparkles && (
+                            <div className="banner-sparkles">
+                                {[...Array(8)].map((_, i) => (
+                                    <span 
+                                        key={i} 
+                                        className="banner-sparkle"
+                                        style={{
+                                            left: `${10 + (i * 12)}%`,
+                                            animationDelay: `${i * 0.15}s`
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        )}
                         <span className="match-tag">
                             <span className="match-tag-text">
                                 {matchingTags.playerTag.split(' ').map(word => 
@@ -1259,6 +1275,9 @@ const LobbyScreen = () => {
                 onAnimationEnd={() => {
                     setShowMatchAnimation(false);
                     isAnimating.current = false;
+                    // Trigger sparkles on the match banner
+                    setShowBannerSparkles(true);
+                    setTimeout(() => setShowBannerSparkles(false), 3000);
                 }} 
             />
 

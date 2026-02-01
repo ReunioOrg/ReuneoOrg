@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import './user_is_ready_animation.css';
 
 const UserIsReadyAnimation = ({ isVisible, onAnimationEnd }) => {
@@ -18,7 +19,7 @@ const UserIsReadyAnimation = ({ isVisible, onAnimationEnd }) => {
                 if (onAnimationEnd) {
                     onAnimationEnd();
                 }
-            }, 1800);
+            }, 2200);
         } else {
             setActive(false);
         }
@@ -31,40 +32,104 @@ const UserIsReadyAnimation = ({ isVisible, onAnimationEnd }) => {
         };
     }, [isVisible, onAnimationEnd]);
 
-    if (!active) return null;
-
     return (
-        <div className="ready-overlay">
-            <div className="confetti-container">
-                {/* First burst */}
-                {[...Array(50)].map((_, i) => (
-                    <div 
-                        key={`first-${i}`} 
-                        className={`confetti confetti-${i % 5}`}
-                        style={{
-                            '--rand-x': Math.random(),
-                            '--rand-y': Math.random(),
-                            '--rand-rotation': Math.random() * 720,
-                            '--rand-delay': Math.random() * 0.2
+        <AnimatePresence>
+            {active && (
+                <motion.div 
+                    className="ready-overlay"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                >
+                    {/* Frosted backdrop */}
+                    <div className="ready-backdrop" />
+                    
+                    {/* Main content card */}
+                    <motion.div 
+                        className="ready-card"
+                        initial={{ scale: 0.8, opacity: 0, y: 20 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0.9, opacity: 0, y: -10 }}
+                        transition={{ 
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 25,
+                            delay: 0.1
                         }}
-                    />
-                ))}
-                {/* Second burst */}
-                {[...Array(50)].map((_, i) => (
-                    <div 
-                        key={`second-${i}`} 
-                        className={`confetti confetti-${i % 5}`}
-                        style={{
-                            '--rand-x': Math.random(),
-                            '--rand-y': Math.random(),
-                            '--rand-rotation': Math.random() * 720,
-                            '--rand-delay': `${0.6 + Math.random() * 0.2}s`
-                        }}
-                    />
-                ))}
-            </div>
-            <div className="ready-text">You're ready!</div>
-        </div>
+                    >
+                        {/* Animated checkmark circle */}
+                        <div className="checkmark-container">
+                            {/* Circle that draws itself */}
+                            <svg className="checkmark-svg" viewBox="0 0 100 100">
+                                <motion.circle
+                                    className="checkmark-circle"
+                                    cx="50"
+                                    cy="50"
+                                    r="45"
+                                    fill="none"
+                                    strokeWidth="4"
+                                    initial={{ pathLength: 0 }}
+                                    animate={{ pathLength: 1 }}
+                                    transition={{ 
+                                        duration: 0.5,
+                                        delay: 0.2,
+                                        ease: "easeOut"
+                                    }}
+                                />
+                                {/* Checkmark that draws itself */}
+                                <motion.path
+                                    className="checkmark-check"
+                                    d="M30 50 L45 65 L70 35"
+                                    fill="none"
+                                    strokeWidth="5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    initial={{ pathLength: 0 }}
+                                    animate={{ pathLength: 1 }}
+                                    transition={{ 
+                                        duration: 0.4,
+                                        delay: 0.6,
+                                        ease: "easeOut"
+                                    }}
+                                />
+                            </svg>
+                            
+                            {/* Success pulse ring */}
+                            <motion.div 
+                                className="success-pulse"
+                                initial={{ scale: 0.8, opacity: 0.6 }}
+                                animate={{ scale: 1.8, opacity: 0 }}
+                                transition={{ 
+                                    duration: 0.8,
+                                    delay: 0.9,
+                                    ease: "easeOut"
+                                }}
+                            />
+                        </div>
+
+                        {/* Text */}
+                        <motion.div 
+                            className="ready-text"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.8, duration: 0.3 }}
+                        >
+                            You're ready!
+                        </motion.div>
+                        
+                        <motion.div 
+                            className="ready-subtext"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 1, duration: 0.3 }}
+                        >
+                            Waiting for the next round
+                        </motion.div>
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
     );
 };
 
