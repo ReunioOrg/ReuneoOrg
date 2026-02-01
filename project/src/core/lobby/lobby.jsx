@@ -51,7 +51,10 @@ const LobbyScreen = () => {
     const [showCredentialsModal, setShowCredentialsModal] = useState(false);
     const [previousMatchProfiles, setPreviousMatchProfiles] = useState([]);
     const [credentialsCopied, setCredentialsCopied] = useState(false);
-    const hasShownCredentialsModal = useRef(false);
+    // Check localStorage to persist across page refreshes
+    const hasShownCredentialsModal = useRef(
+        localStorage.getItem('hasShownCredentialsModal') === 'true'
+    );
 
     // Add useEffect to check authentication and redirect if needed
     useEffect(() => {
@@ -509,6 +512,8 @@ const LobbyScreen = () => {
                                 setPreviousMatchProfiles(profilesData.profiles);
                                 setShowCredentialsModal(true);
                                 hasShownCredentialsModal.current = true;
+                                // Persist to localStorage so it doesn't show again after page refresh
+                                localStorage.setItem('hasShownCredentialsModal', 'true');
                             }
                         } catch (error) {
                             console.error('Error fetching previous match profiles:', error);
