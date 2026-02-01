@@ -16,6 +16,7 @@ import { CommunityPageButton } from '../community/mycf';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { apiFetch } from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import AnimatedTagList from './animated_tag_list';
 
 const AVAILABLE_TAGS = []; // Remove hardcoded tags
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
@@ -36,6 +37,7 @@ const LobbyScreen = () => {
     const [showReadyAnimation, setShowReadyAnimation] = useState(false);
     const isReadyAnimating = useRef(false);
     const [tagsCompleted, setTagsCompleted] = useState(false);
+    const [showTagsFocusOverlay, setShowTagsFocusOverlay] = useState(false);
     
     const { audioRef, error, playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying } = usePlaySound();
     const [lobbyCode, setLobbyCode] = useState('yonder');
@@ -720,6 +722,7 @@ const LobbyScreen = () => {
                 }
             }, 500);
         }
+        setShowTagsFocusOverlay(false); // Dismiss the focus overlay
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -778,12 +781,18 @@ const LobbyScreen = () => {
     const tagsSectionRef = useRef(null);
 
     // Add useEffect to scroll to tags if no server tags exist and custom tags are available
+    // Also shows focus overlay to draw attention to tag selection
     useEffect(() => {
-        if (!hasScrolledToTags && !serverselfTags?.length && !serverdesiringTags?.length && tagsState?.length > 0) {
+        // Check if sound prompt is currently visible
+        const isSoundPromptVisible = !soundEnabled && showSoundPrompt && 
+            lobbyState !== "checkin" && lobbyState !== null && !isPlaying;
+        
+        if (!hasScrolledToTags && !isSoundPromptVisible && !serverselfTags?.length && !serverdesiringTags?.length && tagsState?.length > 0) {
             tagsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
             setHasScrolledToTags(true);
+            setShowTagsFocusOverlay(true);
         }
-    }, [serverselfTags, serverdesiringTags, tagsState, hasScrolledToTags]);
+    }, [serverselfTags, serverdesiringTags, tagsState, hasScrolledToTags, soundEnabled, showSoundPrompt, lobbyState, isPlaying]);
 
     // Handle copy credential to clipboard
     // Note: `user` is the username string directly (not an object)
@@ -1005,10 +1014,10 @@ const LobbyScreen = () => {
                     </div>
                 )}
 
-                <div style={{display: 'flex', justifyContent: 'center', width: '100%', margin: '0 auto'}}>
+                <div style={{display: 'flex', justifyContent: 'center', width: '100%', margin: '0 auto', marginTop: '-2rem'}}>
                     {(lobbyState === "active" || lobbyState === "interrim") ? (
                         opponentProfile ? (
-                            <div style={{marginTop: '-3rem', width: '100%', display: 'flex', justifyContent: 'center'}}>
+                            <div style={{marginTop: '-1rem', width: '100%', display: 'flex', justifyContent: 'center'}}>
                                 <PlayerCard player={opponentProfile} />
                             </div>
                         ) : (
@@ -1139,6 +1148,9 @@ const LobbyScreen = () => {
                     </button>
                 )}
 
+                {/* Tags Focus Overlay - dims the rest of the page when tags need attention */}
+                {showTagsFocusOverlay && <div className="tags-focus-overlay" />}
+
                 {/* Only show tags section if there are custom tags available */}
                 {Array.isArray(tagsState) && tagsState.length > 0 && (
                     <form onSubmit={(e) => {
@@ -1149,7 +1161,7 @@ const LobbyScreen = () => {
                             handleSave();
                         }
                     }}>
-                        <div className="tags-section" ref={tagsSectionRef}>
+                        <div className={`tags-section ${showTagsFocusOverlay ? 'focused' : ''}`} ref={tagsSectionRef}>
                             {/* Progress Bar Tabs */}
                             <div className="progress-bar-container">
                                 <div 
@@ -1168,39 +1180,29 @@ const LobbyScreen = () => {
 
                             {/* Tag Selection Groups */}
                             <div className={`tag-group ${selectionPhase === 'self' ? 'active' : 'hidden'}`}>
-                                <div className="bounce-wrapper">
-                                    <h2>Who are you?</h2>
-                                </div>
-                                <div className="tag-labels-container">
-                                    {tagsState.map(tag => (
-                                        <label key={`self-${tag}`} className="tag-label">
-                                            <input
-                                                type="checkbox"
-                                                checked={(selfTags != null) ? selfTags.includes(tag) : serverselfTags.includes(tag)}
-                                                onChange={() => handleTagChange('self', tag)}
-                                            />
-                                            {tag}
-                                        </label>
-                                    ))}
-                                </div>
+                                <h2 style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", color: '#1a1a2e' }}>Who are you?</h2>
+                                <AnimatedTagList
+                                    tags={tagsState}
+                                    selectedTags={(selfTags != null) ? selfTags : serverselfTags}
+                                    onTagChange={(tag) => handleTagChange('self', tag)}
+                                    showGradients={true}
+                                    enableArrowNavigation={selectionPhase === 'self'}
+                                    displayScrollbar={true}
+                                    maxHeight={350}
+                                />
                             </div>
 
                             <div className={`tag-group ${selectionPhase === 'desiring' ? 'active' : 'hidden'}`} ref={desiringTagsRef}>
-                                <div className="bounce-wrapper">
-                                    <h2>Who do you want to meet?</h2>
-                                </div>
-                                <div className="tag-labels-container">
-                                    {tagsState.map(tag => (
-                                        <label key={`desiring-${tag}`} className="tag-label">
-                                            <input
-                                                type="checkbox"
-                                                checked={(desiringTags != null) ? desiringTags.includes(tag) : serverdesiringTags.includes(tag)}
-                                                onChange={() => handleTagChange('desiring', tag)}
-                                            />
-                                            {tag}
-                                        </label>
-                                    ))}
-                                </div>
+                                <h2 style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", color: '#1a1a2e' }}>Who do you want to meet?</h2>
+                                <AnimatedTagList
+                                    tags={tagsState}
+                                    selectedTags={(desiringTags != null) ? desiringTags : serverdesiringTags}
+                                    onTagChange={(tag) => handleTagChange('desiring', tag)}
+                                    showGradients={true}
+                                    enableArrowNavigation={selectionPhase === 'desiring'}
+                                    displayScrollbar={true}
+                                    maxHeight={350}
+                                />
                             </div>
 
                             <button 
