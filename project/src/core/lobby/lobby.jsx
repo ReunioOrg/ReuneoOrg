@@ -575,53 +575,65 @@ const LobbyScreen = () => {
                 left: 0,
                 width: '100%',
                 height: '100%',
-                backgroundColor: 'rgba(0, 0, 0, 0.125)',
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                backdropFilter: 'blur(4px)',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
                 zIndex: 1100
             }}>
                 <div style={{
-                    backgroundColor: 'white',
-                    padding: '20px',
-                    borderRadius: '8px',
+                    backgroundColor: '#ffffff',
+                    padding: '32px 28px',
+                    borderRadius: '24px',
                     position: 'relative',
-                    minWidth: '300px'
+                    minWidth: '300px',
+                    maxWidth: '340px',
+                    boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2)',
+                    textAlign: 'center'
                 }}>
                     <button 
                         onClick={() => setShowSoundPrompt(false)}
                         style={{
-                            color: '#144fff',
+                            color: '#ffffff',
                             position: 'absolute',
-                            right: '10px',
-                            top: '10px',
+                            right: '12px',
+                            top: '12px',
                             border: 'none',
-                            background: 'none',
-                            fontSize: '2px',
-                            cursor: 'pointer'
+                            background: 'transparent',
+                            fontSize: '10px',
+                            cursor: 'pointer',
+                            width: '10px',
+                            height: '10px',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: 0
                         }}
                     >
-                    X   
+                        ✕
                     </button>
-                    <h2 style={{ marginTop: '5px' }}>The Sound is Important</h2>
-                    <h3 style={{ marginTop: '5px' }}>Raise your volume also</h3>
-                    <p style={{
-                            color: '#144dff',
-                        }}>You'll need this for the best experience.</p>
+                    <h2 style={{ marginTop: '8px', marginBottom: '8px', color: '#1a1a2e', fontWeight: 700, fontSize: '1.25rem', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>Sound is Important</h2>
+                    <p style={{ color: '#6b7280', fontSize: '0.9rem', marginBottom: '4px' }}>Raise your volume for the best experience</p>
                     <button 
                         onClick={() => {
                             loadSound();
                             setShowSoundPrompt(false);
                         }}
                         style={{
-                            padding: '10px 20px',
+                            padding: '14px 32px',
                             marginTop: '20px',
-                            backgroundColor: '#144dff',
+                            backgroundColor: '#1a1a2e',
                             color: '#ffffff',
                             border: 'none',
-                            borderRadius: '14px',
-                            fontWeight: 'bold',
-                            cursor: 'pointer'
+                            borderRadius: '16px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            fontSize: '1rem',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                            transition: 'all 0.2s ease'
                         }}
                     >
                         Enable Sound
@@ -809,9 +821,9 @@ const LobbyScreen = () => {
                 }}>
                     <img 
                         src="/assets/reuneo_test_8.png"
-                        alt="Reunio Logo"
+                        alt="Reuneo Logo"
                         style={{
-                            maxWidth: '85px',
+                            maxWidth: '90px',
                             height: 'auto',
                             objectFit: 'contain'
                         }}
@@ -865,16 +877,16 @@ const LobbyScreen = () => {
                     </div>
                 )}
 
-                <div className="lobby-header" style={{marginTop: '-50px'}} key={lobbyState}>
+                <div className="lobby-header" style={{marginTop: '-30px'}} key={lobbyState}>
                     <h2>
                         {tagsState.length > 0 && (serverselfTags.length == 0 || serverdesiringTags.length == 0) ? (
                             <>
-                                You're not ready, complete your profile to get matched up.
+                                You're not ready, complete your interests.
                                 <button 
                                     className="missing-tags-button"
                                     onClick={() => tagsSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
                                 >
-                                    Complete Profile
+                                    Complete Interests
                                 </button>
                             </>
                         ) : lobbyState === "active" && opponentProfile ? (
@@ -888,7 +900,7 @@ const LobbyScreen = () => {
                                 Your host will start the experience.
                             </>
                         ) : lobbyState === "active" && !opponentProfile ? (
-                            "You will be paired with someone in the next round."
+                            "You'll be paired up when the timer ends."
                         ) : lobbyState === "interrim" ? (
                             "Get ready for the next round!"
                         ) : lobbyState === "terminated" ? (
@@ -904,7 +916,7 @@ const LobbyScreen = () => {
                 {/* Table number display - moved here to be right below the header */}
                 {lobbyState === "active" && opponentProfile && tableNumber && (
                     <div className="table-number">
-                        <h3>at table: {tableNumber}</h3>
+                        <h3 style={{color: '#4b73ef'}}>at table: {tableNumber}</h3>
                     </div>
                 )}
 
@@ -928,7 +940,7 @@ const LobbyScreen = () => {
 
                     {/* Timer - Only visible when not in checkin state */}
                     {lobbyState !== "checkin" && (
-                        <div className="time-left" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'white'}}>
+                        <div className="time-left" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'transparent', padding: '8px'}}>
                             {((lobbyState === "active" || lobbyState === "interrim") && roundTimeLeft) ? (
                                 <>
                                     <CountdownCircleTimer
@@ -936,10 +948,12 @@ const LobbyScreen = () => {
                                         isPlaying={lobbyState === "active"}
                                         duration={roundDuration || 300}
                                         initialRemainingTime={roundTimeLeft || 0}
-                                        colors={["#144dff"]} 
-                                        size={90}
-                                        strokeWidth={12}
-                                        trailColor="#f5f7ff"
+                                        colors={["#64B5F6", "#2196F3", "#1976D2"]}
+                                        colorsTime={[roundDuration || 300, (roundDuration || 300) / 2, 0]}
+                                        size={100}
+                                        strokeWidth={8}
+                                        trailColor="#f0f1f4"
+                                        strokeLinecap="round"
                                         onComplete={() => {
                                             fetchLobbyData();
                                             return { shouldRepeat: false }
@@ -952,14 +966,15 @@ const LobbyScreen = () => {
                                             const mins = Math.floor(validTime / 60);
                                             const secs = Math.floor(validTime % 60);
                                             return (
-                                                <span style={{ fontSize: '.95rem', color: '#144dff', fontWeight: 600 }}>
-                                                    {mins}:{String(secs).padStart(2, '0')}
-                                                </span>
+                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                    <span style={{ fontSize: '1.5rem', color: '#1a1a2e', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+                                                        {mins}:{String(secs).padStart(2, '0')}
+                                                    </span>
+                                                    <span style={{ fontSize: '0.65rem', color: '#6b7280', fontWeight: 500, marginTop: '2px' }}>time left</span>
+                                                </div>
                                             );
                                         }}
                                     </CountdownCircleTimer>
-                                    {/* <span style={{color: '#144dff'}}>{parseInt(roundTimeLeft)}s</span> */}
-                                    <span style={{ fontWeight: 700, fontSize: '0.7em', marginTop: '4px', opacity: '1', color: '#144dff', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.1)' }}>round time left</span>
                                 </>
                             ) : (
                                 <span className="time-left-text"></span>
@@ -972,9 +987,21 @@ const LobbyScreen = () => {
                 {/* Match Banner */}
                 {showMatchBanner && matchingTags && lobbyState === "active" && opponentProfile && (
                     <div className="match-banner">
-                        <span className="match-tag">{matchingTags.playerTag}</span>
+                        <span className="match-tag">
+                            <span className="match-tag-text">
+                                {matchingTags.playerTag.split(' ').map(word => 
+                                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                                ).join(' ')}
+                            </span>
+                        </span>
                         <div className="match-arrow"></div>
-                        <span className="match-tag">{matchingTags.opponentTag}</span>
+                        <span className="match-tag">
+                            <span className="match-tag-text">
+                                {matchingTags.opponentTag.split(' ').map(word => 
+                                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                                ).join(' ')}
+                            </span>
+                        </span>
                     </div>
                 )}
 
@@ -1083,7 +1110,7 @@ const LobbyScreen = () => {
                                 <h4>I am:</h4>
                                 <div className="tag-list">
                                     {serverselfTags.map(tag => (
-                                        <span key={`self-${tag}`} className="tag-item">{tag}</span>
+                                        <span key={`self-${tag}`} className="tag-item" style={{color: '#1a1a2e'}}>{tag}</span>
                                     ))}
                                 </div>
                             </div>
@@ -1093,7 +1120,7 @@ const LobbyScreen = () => {
                                 <h4>Looking for:</h4>
                                 <div className="tag-list">
                                     {serverdesiringTags.map(tag => (
-                                        <span key={`desiring-${tag}`} className="tag-item">{tag}</span>
+                                        <span key={`desiring-${tag}`} className="tag-item" style={{color: '#1a1a2e'}}>{tag}</span>
                                     ))}
                                 </div>
                             </div>
@@ -1101,7 +1128,7 @@ const LobbyScreen = () => {
                     </div>
                 )}
 
-                <button className="leave-lobby-button" onClick={leaveLobby}>Take Break</button>
+                <button className="leave-lobby-button" onClick={leaveLobby}>Pause</button>
                 <button className="how-to-tutorial-button" onClick={() => setShowTutorial(true)}>Tutorial</button>
                 {(permissions === "admin" || permissions === "organizer") && (
                     <button 
@@ -1129,13 +1156,13 @@ const LobbyScreen = () => {
                                     className={`self-progress-bar-tab ${selectionPhase === 'self' ? 'active' : ''} ${serverselfTags.length > 0 ? 'complete' : ''}`}
                                     onClick={() => setSelectionPhase('self')}
                                 >
-                                    👤 Who are you?
+                                    Who are you?
                                 </div>
                                 <div 
                                     className={`desiring-progress-bar-tab ${selectionPhase === 'desiring' ? 'active' : ''} ${serverdesiringTags.length > 0 ? 'complete' : ''}`}
                                     onClick={() => serverselfTags.length > 0 ? setSelectionPhase('desiring') : null}
                                 >
-                                    👤 Who do you want to meet?
+                                    Who do you want to meet?
                                 </div>
                             </div>
 

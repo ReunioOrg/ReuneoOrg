@@ -401,11 +401,11 @@ const App = () => {
           
         </div>
 
-        {/* Settings Button - Only visible to admin/organizer */}
+        {/* Settings Button - Hidden for now */}
         <div style={{ 
           position: 'absolute', 
           top: '85px', 
-          display: (permissions === 'admin' || permissions === 'organizer') ? 'flex' : 'none',
+          display: 'none',
           justifyContent: 'flex-end',
           width: '94%',
           left: '3%',

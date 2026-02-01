@@ -37,8 +37,8 @@ const PlayerCard = ({ player }) => {
                 width: '350px',
                 height: '450px',
                 objectFit: 'cover',
-                borderRadius: '50px',
-                boxShadow: '0 6px 12px rgba(0, 0, 0, 0.3)',
+                borderRadius: '28px',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
                 margin: 'auto',
                 display: 'block',
               }}
@@ -49,20 +49,20 @@ const PlayerCard = ({ player }) => {
             />
             <div style={{
               position: 'absolute',
-              bottom: 0,
-              left: 0,
-              width: '100%',
-              backgroundColor: '#144dff',
+              bottom: '0',
+              left: '0',
+              right: '0',
+              background: 'linear-gradient(135deg, #42A5F5 0%, #2196F3 30%, #1976D2 70%, #1565C0 100%)',
               color: 'white',
-              padding: '12px 0',
-              borderBottomLeftRadius: '50px',
-              borderBottomRightRadius: '50px',
+              padding: '16px 24px',
+              borderBottomLeftRadius: '28px',
+              borderBottomRightRadius: '28px',
               textAlign: 'center',
               fontWeight: '600',
               fontSize: '1.2rem',
-              fontFamily: 'Helvetica, Arial, sans-serif',
-              boxShadow: '0 -4px 10px rgba(0, 0, 0, 0.1)',
-              textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)'
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              boxShadow: '0 -4px 20px rgba(33, 150, 243, 0.3)',
+              letterSpacing: '0.02em'
             }}>
               {player.name}
             </div>
@@ -71,31 +71,32 @@ const PlayerCard = ({ player }) => {
           <div style={{
             width: '350px',
             height: '450px',
-            backgroundColor: '#f0f0f0',
-            borderRadius: '50px',
+            backgroundColor: '#f0f1f4',
+            borderRadius: '28px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            position: 'relative'
+            position: 'relative',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
           }}>
-            <p style={{ marginBottom: '60px' }}>No image available</p>
+            <p style={{ marginBottom: '60px', color: '#6b7280' }}>No image available</p>
             <div style={{
               position: 'absolute',
-              bottom: 0,
-              left: 0,
-              width: '100%',
-              backgroundColor: '#144dff',
+              bottom: '0',
+              left: '0',
+              right: '0',
+              background: 'linear-gradient(135deg, #42A5F5 0%, #2196F3 30%, #1976D2 70%, #1565C0 100%)',
               color: 'white',
-              padding: '12px 0',
-              borderBottomLeftRadius: '50px',
-              borderBottomRightRadius: '50px',
+              padding: '16px 24px',
+              borderBottomLeftRadius: '28px',
+              borderBottomRightRadius: '28px',
               textAlign: 'center',
               fontWeight: '600',
               fontSize: '1.2rem',
-              fontFamily: 'Helvetica, Arial, sans-serif',
-              boxShadow: '0 -4px 10px rgba(0, 0, 0, 0.1)',
-              textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)'
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              boxShadow: '0 -4px 20px rgba(33, 150, 243, 0.3)',
+              letterSpacing: '0.02em'
             }}>
               {player.name}
             </div>
