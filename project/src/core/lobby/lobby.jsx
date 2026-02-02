@@ -959,7 +959,7 @@ const LobbyScreen = () => {
                                     className="missing-tags-button"
                                     onClick={() => tagsSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
                                 >
-                                    Complete Interests
+                                    Complete Your Interests
                                 </button>
                             </>
                         ) : lobbyState === "active" && opponentProfile ? (
