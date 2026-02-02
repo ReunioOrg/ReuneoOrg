@@ -120,6 +120,7 @@ const LobbyScreen = () => {
 
     const isFetchingProfile=useRef(false);
     const lastAnimatedOpponentRef = useRef(null);  // Track which opponent we've shown animation for
+    const notificationSoundRef = useRef(null);  // Purgatory match notification sound
 
     const roundPosition = useRef(null);
     const beatGoOff = useRef(null);
@@ -506,6 +507,14 @@ const LobbyScreen = () => {
                         isAnimating.current = true;
                         setShowMatchAnimation(true);
                         
+                        // Play notification sound to alert user of purgatory match
+                        if (notificationSoundRef.current) {
+                            notificationSoundRef.current.currentTime = 0;
+                            notificationSoundRef.current.play().catch(e => 
+                                console.log('Purgatory notification sound blocked:', e)
+                            );
+                        }
+                        
                         // Banner only if there's also an interest match
                         if (matchDetails) {
                             console.log('Purgatory pairing also has interest match:', matchDetails);
@@ -567,6 +576,29 @@ const LobbyScreen = () => {
 
         return () => clearInterval(interval);
     }, []); 
+
+    // Opportunistic audio unlock for purgatory notification sound
+    // Unlocks on ANY user interaction, independent of main sound prompt
+    useEffect(() => {
+        const unlockNotificationSound = () => {
+            if (!notificationSoundRef.current) {
+                notificationSoundRef.current = new Audio('./assets/sounds/new_banger_chorus.mp3');
+                notificationSoundRef.current.load();
+                console.log('Purgatory notification sound unlocked');
+            }
+            // One-time unlock, remove listeners after first interaction
+            document.removeEventListener('click', unlockNotificationSound);
+            document.removeEventListener('touchstart', unlockNotificationSound);
+        };
+        
+        document.addEventListener('click', unlockNotificationSound);
+        document.addEventListener('touchstart', unlockNotificationSound);
+        
+        return () => {
+            document.removeEventListener('click', unlockNotificationSound);
+            document.removeEventListener('touchstart', unlockNotificationSound);
+        };
+    }, []);
 
     // Add this new useEffect that runs whenever lobbyState changes
     useEffect(() => {
@@ -861,7 +893,7 @@ const LobbyScreen = () => {
                     marginTop: '-1.85rem'
                 }}>
                     <img 
-                        src="/assets/reuneo_test_10.png"
+                        src="/assets/reuneo_test_11.png"
                         alt="Reuneo Logo"
                         style={{
                             maxWidth: '90px',
