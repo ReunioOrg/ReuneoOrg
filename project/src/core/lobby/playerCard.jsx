@@ -49,19 +49,18 @@ const PlayerCard = ({ player }) => {
             />
             <div style={{
               position: 'absolute',
-              bottom: '0',
-              left: '0',
-              right: '0',
+              bottom: '-6px',
+              left: '1px',
+              right: '1px',
               background: 'linear-gradient(135deg, #42A5F5 0%, #2196F3 30%, #1976D2 70%, #1565C0 100%)',
               color: 'white',
-              padding: '16px 24px',
-              borderBottomLeftRadius: '28px',
-              borderBottomRightRadius: '28px',
+              padding: '14px 28px',
+              borderRadius: '50px',
               textAlign: 'center',
               fontWeight: '600',
               fontSize: '1.2rem',
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              boxShadow: '0 -4px 20px rgba(33, 150, 243, 0.3)',
+              boxShadow: '0 4px 12px rgba(33, 150, 243, 0.25)',
               letterSpacing: '0.02em'
             }}>
               {player.name}
@@ -83,19 +82,18 @@ const PlayerCard = ({ player }) => {
             <p style={{ marginBottom: '60px', color: '#6b7280' }}>No image available</p>
             <div style={{
               position: 'absolute',
-              bottom: '0',
-              left: '0',
-              right: '0',
+              bottom: '-6px',
+              left: '1px',
+              right: '1px',
               background: 'linear-gradient(135deg, #42A5F5 0%, #2196F3 30%, #1976D2 70%, #1565C0 100%)',
               color: 'white',
-              padding: '16px 24px',
-              borderBottomLeftRadius: '28px',
-              borderBottomRightRadius: '28px',
+              padding: '14px 28px',
+              borderRadius: '50px',
               textAlign: 'center',
               fontWeight: '600',
               fontSize: '1.2rem',
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              boxShadow: '0 -4px 20px rgba(33, 150, 243, 0.3)',
+              boxShadow: '0 4px 12px rgba(33, 150, 243, 0.25)',
               letterSpacing: '0.02em'
             }}>
               {player.name}

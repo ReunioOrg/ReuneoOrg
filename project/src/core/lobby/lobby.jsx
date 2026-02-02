@@ -119,6 +119,7 @@ const LobbyScreen = () => {
     const [tableNumber, setTableNumber] = useState(null);
 
     const isFetchingProfile=useRef(false);
+    const lastAnimatedOpponentRef = useRef(null);  // Track which opponent we've shown animation for
 
     const roundPosition = useRef(null);
     const beatGoOff = useRef(null);
@@ -481,15 +482,39 @@ const LobbyScreen = () => {
                     }
                 }
 
-                // Check for state change from interrim to active
-                if (prevLobbyState === "interrim" && 
-                    data.lobby_state === "active" && 
+                // Detect "new pairing" events
+                const isNormalPairingStart = prevLobbyState === "interrim" && data.lobby_state === "active" && data.opponent_name;
+                // Use ref to check if we've already animated for this opponent (avoids stale closure issue with opponentName state)
+                const isPurgatoryPairing = data.lobby_state === "active" && 
                     data.opponent_name && 
-                    !isAnimating.current) {
-                    console.log('Checking for matches...');
+                    data.is_purgatory_pair && 
+                    lastAnimatedOpponentRef.current !== data.opponent_name;
+                const isNewPairing = isNormalPairingStart || isPurgatoryPairing;
+
+                if (isNewPairing && !isAnimating.current) {
+                    console.log('New pairing detected:', { isNormalPairingStart, isPurgatoryPairing });
+                    
+                    // Track this opponent so we don't re-animate
+                    lastAnimatedOpponentRef.current = data.opponent_name;
+                    
+                    // Check for interest-based match (applies to both scenarios)
                     const matchDetails = getMatchingTags(data.player_tags, data.opponent_tags);
-                    if (matchDetails) {
-                        console.log('Match found! Setting animation and banner...', matchDetails);
+                    
+                    if (isPurgatoryPairing) {
+                        // Purgatory: ALWAYS show animation (user was waiting mid-round)
+                        console.log('Purgatory pairing - triggering animation');
+                        isAnimating.current = true;
+                        setShowMatchAnimation(true);
+                        
+                        // Banner only if there's also an interest match
+                        if (matchDetails) {
+                            console.log('Purgatory pairing also has interest match:', matchDetails);
+                            setMatchingTags(matchDetails);
+                            setShowMatchBanner(true);
+                        }
+                    } else if (matchDetails) {
+                        // Normal round start: only show if interest match exists
+                        console.log('Normal pairing with interest match:', matchDetails);
                         setMatchingTags(matchDetails);
                         setShowMatchBanner(true);
                         isAnimating.current = true;
@@ -766,11 +791,12 @@ const LobbyScreen = () => {
         setShowTutorial(false);
     };
 
-    // Reset match banner when lobby state changes or opponent leaves
+    // Reset match banner and animation tracking when lobby state changes or opponent leaves
     useEffect(() => {
         if (lobbyState !== "active" || !opponentProfile) {
             setShowMatchBanner(false);
             setMatchingTags(null);
+            lastAnimatedOpponentRef.current = null;  // Reset so animation can trigger for next pairing
         }
     }, [lobbyState, opponentProfile]);
 
@@ -832,10 +858,10 @@ const LobbyScreen = () => {
                     display: 'flex',
                     justifyContent: 'center',
                     marginBottom: '0',
-                    marginTop: '-1.5rem'
+                    marginTop: '-1.85rem'
                 }}>
                     <img 
-                        src="/assets/reuneo_test_8.png"
+                        src="/assets/reuneo_test_10.png"
                         alt="Reuneo Logo"
                         style={{
                             maxWidth: '90px',
