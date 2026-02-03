@@ -1195,8 +1195,8 @@
     border-radius: 12px;
 }
 
-/* Credentials Modal Styles */
-.credentials-modal-overlay {
+/* Email Backup Modal Styles */
+.email-backup-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -1212,7 +1212,7 @@
     box-sizing: border-box;
 }
 
-.credentials-modal-content {
+.email-backup-modal-content {
     background: #ffffff;
     border-radius: 24px;
     padding: 32px 28px;
@@ -1235,71 +1235,82 @@
     height: 56px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid var(--primary-color);
-    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.25);
+    border: 2px solid #d1d5db;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.credentials-modal-header {
+.email-backup-modal-header {
     color: var(--text-dark);
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 0 0 20px 0;
-    line-height: 1.4;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.credential-display-container {
-    margin: 20px 0;
-}
-
-.credential-display {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: #f0f1f4;
-    border-radius: 16px;
-    padding: 14px 16px;
-    border: none;
-}
-
-.credential-text {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    letter-spacing: 0.5px;
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', monospace;
-}
-
-.copy-icon-button {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 4px;
-    transition: transform 0.15s ease;
-}
-
-.copy-icon-button:hover {
-    transform: scale(1.1);
-}
-
-.copy-icon-button:active {
-    transform: scale(0.95);
-}
-
-.credential-hint {
+.email-backup-modal-subtext {
     color: var(--text-muted);
-    font-size: 0.85rem;
-    margin: 8px 0 0 0;
+    font-size: 0.9rem;
     font-weight: 500;
+    margin: 0 0 24px 0;
+    line-height: 1.5;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.credentials-modal-button {
+.email-backup-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.email-backup-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 14px;
+    background: #f9fafb;
+    font-size: 1rem;
+    color: var(--text-dark);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.email-backup-input::placeholder {
+    color: #9ca3af;
+}
+
+.email-backup-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.12);
+    background: #ffffff;
+}
+
+.email-backup-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.email-backup-error {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: rgba(185, 28, 28, 0.08);
+    border-radius: 10px;
+    color: #b91c1c;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: left;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.email-backup-submit-button {
     background: #1a1a2e;
     color: white;
     border: none;
-    border-radius: 16px;
+    border-radius: 14px;
     padding: 14px 32px;
     font-size: 1rem;
     font-weight: 600;
@@ -1307,35 +1318,66 @@
     transition: all 0.2s ease;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     width: 100%;
-    max-width: 260px;
-    margin-top: 8px;
+    margin-top: 16px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.credentials-modal-button:hover {
+.email-backup-submit-button:hover:not(:disabled) {
     background: #2d2d44;
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
-.credentials-modal-button:active {
+.email-backup-submit-button:active:not(:disabled) {
     transform: translateY(0);
     background: #1a1a2e;
 }
 
-/* Mobile adjustments for credentials modal */
+.email-backup-submit-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.email-backup-skip-button {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 12px 16px;
+    margin-top: 8px;
+    transition: color 0.2s ease;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.email-backup-skip-button:hover:not(:disabled) {
+    color: var(--text-dark);
+}
+
+.email-backup-skip-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Mobile adjustments for email backup modal */
 @media (max-width: 480px) {
-    .credentials-modal-content {
+    .email-backup-modal-content {
         padding: 28px 24px;
         max-width: 300px;
     }
     
-    .credentials-modal-header {
-        font-size: 1rem;
+    .email-backup-modal-header {
+        font-size: 1.05rem;
     }
     
-    .credential-text {
-        font-size: 1.1rem;
+    .email-backup-modal-subtext {
+        font-size: 0.85rem;
+    }
+    
+    .email-backup-input {
+        padding: 12px 14px;
+        font-size: 0.95rem;
     }
     
     .match-avatar {

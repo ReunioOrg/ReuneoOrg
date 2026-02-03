@@ -47,13 +47,16 @@ const LobbyScreen = () => {
     useGetLobbyMetadata(setPlayerCount, null, lobbyCode);
     const { user, userProfile, checkAuth, permissions, isAuthLoading, authLoadingMessage, emailVerified } = useContext(AuthContext);
     
-    // Credentials modal state (for showing login credentials to screenshot)
-    const [showCredentialsModal, setShowCredentialsModal] = useState(false);
+    // Email backup modal state (for saving email as backup sign-in method)
+    const [showEmailBackupModal, setShowEmailBackupModal] = useState(false);
     const [previousMatchProfiles, setPreviousMatchProfiles] = useState([]);
-    const [credentialsCopied, setCredentialsCopied] = useState(false);
+    const [backupEmail, setBackupEmail] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
+    const emailInputRef = useRef(null);
     // Check localStorage to persist across page refreshes
-    const hasShownCredentialsModal = useRef(
-        localStorage.getItem('hasShownCredentialsModal') === 'true'
+    const hasShownEmailBackupModal = useRef(
+        localStorage.getItem('hasShownEmailBackupModal') === 'true'
     );
 
     // Add useEffect to check authentication and redirect if needed
@@ -530,9 +533,9 @@ const LobbyScreen = () => {
                         setShowMatchAnimation(true);
                     }
                     
-                    // Check if should show credentials modal
+                    // Check if should show email backup modal
                     // Only for non-email-verified users who haven't seen it yet this session
-                    if (!emailVerified && !hasShownCredentialsModal.current) {
+                    if (!emailVerified && !hasShownEmailBackupModal.current) {
                         // Fetch previous match profiles from server
                         try {
                             const profilesResponse = await apiFetch('/lobby/previous_match_profiles', {
@@ -544,10 +547,10 @@ const LobbyScreen = () => {
                             // This ensures they've completed at least one real interaction
                             if (profilesData.profiles && profilesData.profiles.length >= 2) {
                                 setPreviousMatchProfiles(profilesData.profiles);
-                                setShowCredentialsModal(true);
-                                hasShownCredentialsModal.current = true;
+                                setShowEmailBackupModal(true);
+                                hasShownEmailBackupModal.current = true;
                                 // Persist to localStorage so it doesn't show again after page refresh
-                                localStorage.setItem('hasShownCredentialsModal', 'true');
+                                localStorage.setItem('hasShownEmailBackupModal', 'true');
                             }
                         } catch (error) {
                             console.error('Error fetching previous match profiles:', error);
@@ -858,24 +861,84 @@ const LobbyScreen = () => {
         }
     }, [serverselfTags, serverdesiringTags, tagsState, hasScrolledToTags, soundEnabled, showSoundPrompt, lobbyState, isPlaying]);
 
-    // Handle copy credential to clipboard
-    // Note: `user` is the username string directly (not an object)
-    const handleCopyCredential = async () => {
-        if (user) {
-            try {
-                await navigator.clipboard.writeText(user);
-                setCredentialsCopied(true);
-                setTimeout(() => setCredentialsCopied(false), 2000);
-            } catch (error) {
-                console.error('Failed to copy:', error);
+    // Handle email backup modal close
+    const handleEmailBackupModalClose = () => {
+        if (isSubmittingEmail) return; // Prevent close during submission
+        setShowEmailBackupModal(false);
+        // Reset form state
+        setBackupEmail('');
+        setEmailError('');
+    };
+
+    // Handle email backup form submission
+    const handleEmailBackupSubmit = async (e) => {
+        e.preventDefault();
+        setEmailError('');
+
+        // Validate email
+        if (!backupEmail || !backupEmail.trim()) {
+            setEmailError('Email is required.');
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(backupEmail.trim())) {
+            setEmailError('Please enter a valid email.');
+            return;
+        }
+
+        setIsSubmittingEmail(true);
+
+        try {
+            // Step 1: Save email to auth doc
+            const updateResponse = await apiFetch('/update_profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: backupEmail.trim() })
+            });
+
+            if (!updateResponse.ok) {
+                const errorData = await updateResponse.json();
+                if (errorData.detail?.toLowerCase().includes('already associated')) {
+                    setEmailError('This email is already in use. Try a different one or skip.');
+                } else {
+                    setEmailError(errorData.detail || 'Failed to save email.');
+                }
+                setIsSubmittingEmail(false);
+                return;
             }
+
+            // Step 2: Send magic link (don't block on failure - email is already saved)
+            try {
+                await apiFetch('/auth/send-magic-link', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: backupEmail.trim() })
+                });
+            } catch (magicLinkErr) {
+                // Magic link failed but email was saved - still close modal
+                console.error('Magic link send failed:', magicLinkErr);
+            }
+
+            // Success - close modal silently
+            setShowEmailBackupModal(false);
+            setBackupEmail('');
+            setEmailError('');
+
+        } catch (err) {
+            console.error('Email backup error:', err);
+            setEmailError('Something went wrong. Try again.');
+        } finally {
+            setIsSubmittingEmail(false);
         }
     };
 
-    // Handle credentials modal close
-    const handleCredentialsModalClose = () => {
-        setShowCredentialsModal(false);
-    };
+    // Auto-focus email input when modal opens
+    useEffect(() => {
+        if (showEmailBackupModal && emailInputRef.current) {
+            setTimeout(() => emailInputRef.current?.focus(), 100);
+        }
+    }, [showEmailBackupModal]);
 
     // Show fullscreen spinner while checking auth
     if (isAuthLoading) {
@@ -1353,19 +1416,19 @@ const LobbyScreen = () => {
                 }} 
             />
 
-            {/* Credentials Modal for screenshot reminder - inline to prevent re-render jank */}
+            {/* Email Backup Modal - saves email as backup sign-in method */}
             <AnimatePresence>
-                {showCredentialsModal && (
+                {showEmailBackupModal && (
                     <motion.div
-                        className="credentials-modal-overlay"
+                        className="email-backup-modal-overlay"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        onClick={handleCredentialsModalClose}
+                        onClick={handleEmailBackupModalClose}
                     >
                         <motion.div
-                            className="credentials-modal-content"
+                            className="email-backup-modal-content"
                             initial={{ opacity: 0, scale: 0.85 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.85 }}
@@ -1392,32 +1455,47 @@ const LobbyScreen = () => {
                                 </div>
                             )}
                             
-                            <h2 className="credentials-modal-header">
-                                Your matches are saved — but take a snapshot in case your browser resets.
+                            <h2 className="email-backup-modal-header">
+                                Save Your Match History
                             </h2>
+                            <p className="email-backup-modal-subtext">
+                                We'll send you a sign-in link in case you get logged out.
+                            </p>
                             
-                            {/* Credential display */}
-                            <div className="credential-display-container">
-                                <div className="credential-display">
-                                    <span className="credential-text">{user}</span>
-                                    <button 
-                                        type="button"
-                                        className="copy-icon-button"
-                                        onClick={handleCopyCredential}
-                                        title="Copy to clipboard"
-                                    >
-                                        {credentialsCopied ? '✓' : '📋'}
-                                    </button>
-                                </div>
-                                <p className="credential-hint">Your login (username & password)</p>
-                            </div>
+                            {/* Email form */}
+                            <form onSubmit={handleEmailBackupSubmit} className="email-backup-form">
+                                <input
+                                    ref={emailInputRef}
+                                    type="email"
+                                    value={backupEmail}
+                                    onChange={(e) => setBackupEmail(e.target.value)}
+                                    placeholder="you@example.com"
+                                    className="email-backup-input"
+                                    disabled={isSubmittingEmail}
+                                />
+                                
+                                {emailError && (
+                                    <div className="email-backup-error">
+                                        {emailError}
+                                    </div>
+                                )}
+                                
+                                <button
+                                    type="submit"
+                                    className="email-backup-submit-button"
+                                    disabled={isSubmittingEmail}
+                                >
+                                    {isSubmittingEmail ? 'Sending...' : 'Save Matches'}
+                                </button>
+                            </form>
                             
                             <button
                                 type="button"
-                                className="credentials-modal-button"
-                                onClick={handleCredentialsModalClose}
+                                className="email-backup-skip-button"
+                                onClick={handleEmailBackupModalClose}
+                                disabled={isSubmittingEmail}
                             >
-                                Screenshot to save a quick copy 📸
+                                Don't back up matches
                             </button>
                         </motion.div>
                     </motion.div>
