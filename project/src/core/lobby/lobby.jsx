@@ -61,6 +61,12 @@ const LobbyScreen = () => {
         localStorage.getItem('hasShownEmailBackupModal') === 'true'
     );
 
+    // Pause info modal state (explains the Pause button after 4 interactions)
+    const [showPauseInfoModal, setShowPauseInfoModal] = useState(false);
+    const hasShownPauseInfoModal = useRef(
+        localStorage.getItem('hasShownPauseInfoModal') === 'true'
+    );
+
     // Add useEffect to check authentication and redirect if needed
     useEffect(() => {
         // Wait for auth loading to complete
@@ -535,24 +541,31 @@ const LobbyScreen = () => {
                         setShowMatchAnimation(true);
                     }
                     
-                    // Check if should show email backup modal
-                    // Only for non-email-verified users who haven't seen it yet this session
-                    if (!emailVerified && !hasShownEmailBackupModal.current) {
+                    // Check if we need match count data for any modal triggers
+                    const needsEmailModal = !emailVerified && !hasShownEmailBackupModal.current;
+                    const needsPauseInfoModal = !hasShownPauseInfoModal.current;
+                    
+                    if (needsEmailModal || needsPauseInfoModal) {
                         // Fetch previous match profiles from server
                         try {
                             const profilesResponse = await apiFetch('/lobby/previous_match_profiles', {
                                 headers: { 'lobby_code': currentLobbyCode }
                             });
                             const profilesData = await profilesResponse.json();
+                            const totalMatches = profilesData.total_match_count || 0;
                             
-                            // Show modal if they have at least 2 matches (current + at least 1 previous)
-                            // This ensures they've completed at least one real interaction
-                            if (profilesData.profiles && profilesData.profiles.length >= 2) {
+                            // Email backup modal: show at 2+ matches for non-verified users
+                            if (needsEmailModal && profilesData.profiles && profilesData.profiles.length >= 2) {
                                 setPreviousMatchProfiles(profilesData.profiles);
                                 setShowEmailBackupModal(true);
                                 hasShownEmailBackupModal.current = true;
-                                // Persist to localStorage so it doesn't show again after page refresh
                                 localStorage.setItem('hasShownEmailBackupModal', 'true');
+                            }
+                            // Pause info modal: show at 4+ matches (only if email modal isn't being shown)
+                            else if (needsPauseInfoModal && totalMatches >= 4 && !showEmailBackupModal) {
+                                setShowPauseInfoModal(true);
+                                hasShownPauseInfoModal.current = true;
+                                localStorage.setItem('hasShownPauseInfoModal', 'true');
                             }
                         } catch (error) {
                             console.error('Error fetching previous match profiles:', error);
@@ -873,6 +886,12 @@ const LobbyScreen = () => {
         // Reset form state
         setBackupEmail('');
         setEmailError('');
+        setPreviousMatchProfiles([]); // Free memory - profile images no longer needed
+    };
+
+    // Handle pause info modal close
+    const handlePauseInfoModalClose = () => {
+        setShowPauseInfoModal(false);
     };
 
     // Handle email backup form submission
@@ -1284,7 +1303,7 @@ const LobbyScreen = () => {
                     </div>
                 )}
 
-                <button className="leave-lobby-button" onClick={leaveLobby}>Pause</button>
+                <button className={`leave-lobby-button ${showPauseInfoModal ? 'pause-button-elevated' : ''}`} onClick={leaveLobby}>Pause</button>
                 <ProfileDropdown 
                     onProfileClick={() => setShowProfileModal(true)}
                     onTutorialClick={() => setShowTutorial(true)}
@@ -1511,6 +1530,51 @@ const LobbyScreen = () => {
                                 disabled={isSubmittingEmail}
                             >
                                 Don't back up matches
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Pause Info Modal - explains the Pause button after 4 interactions */}
+            <AnimatePresence>
+                {showPauseInfoModal && (
+                    <motion.div
+                        className="pause-info-modal-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        onClick={handlePauseInfoModalClose}
+                    >
+                        <motion.div
+                            className="pause-info-modal-content"
+                            initial={{ opacity: 0, scale: 0.85 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.85 }}
+                            transition={{ 
+                                type: "spring",
+                                stiffness: 400,
+                                damping: 25
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <h2 className="pause-info-modal-header">
+                                Need a Break?
+                            </h2>
+                            <p className="pause-info-modal-body">
+                                Tap <strong>"Pause"</strong> anytime to stop being paired. This way no one's left looking for you
+                            </p>
+                            <p className="pause-info-modal-subtext">
+                                Your matches are saved and you can rejoin whenever you're ready
+                            </p>
+                            
+                            <button
+                                type="button"
+                                className="pause-info-modal-button"
+                                onClick={handlePauseInfoModalClose}
+                            >
+                                Got it
                             </button>
                         </motion.div>
                     </motion.div>
