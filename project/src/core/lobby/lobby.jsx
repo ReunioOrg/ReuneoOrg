@@ -17,6 +17,8 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { apiFetch } from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import AnimatedTagList from './animated_tag_list';
+import ProfileDropdown from './ProfileDropdown';
+import LobbyProfileModal from './LobbyProfileModal';
 
 const AVAILABLE_TAGS = []; // Remove hardcoded tags
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
@@ -821,6 +823,9 @@ const LobbyScreen = () => {
     // Add this state to track if we should show the tutorial
     const [showTutorial, setShowTutorial] = useState(false);
     
+    // Profile modal state
+    const [showProfileModal, setShowProfileModal] = useState(false);
+    
     // Add this handler for when the tutorial completes
     const handleTutorialComplete = () => {
         setShowTutorial(false);
@@ -1280,7 +1285,11 @@ const LobbyScreen = () => {
                 )}
 
                 <button className="leave-lobby-button" onClick={leaveLobby}>Pause</button>
-                <button className="how-to-tutorial-button" onClick={() => setShowTutorial(true)}>Tutorial</button>
+                <ProfileDropdown 
+                    onProfileClick={() => setShowProfileModal(true)}
+                    onTutorialClick={() => setShowTutorial(true)}
+                    userImage={userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : null}
+                />
                 {(permissions === "admin" || permissions === "organizer") && (
                     <button 
                         className="admin-view-button" 
@@ -1394,6 +1403,12 @@ const LobbyScreen = () => {
             {showTutorial && (
                 <HowToTutorial onComplete={handleTutorialComplete} lobbyCode={lobbyCode} />
             )}
+
+            {/* Profile Edit Modal */}
+            <LobbyProfileModal 
+                isOpen={showProfileModal} 
+                onClose={() => setShowProfileModal(false)} 
+            />
 
             {/* Add the animation component */}
             <ShowMatchAnimation 
