@@ -46,7 +46,7 @@ const ProfileDropdown = ({ onProfileClick, onTutorialClick, userImage }) => {
                         alt="Profile" 
                     />
                 </div>
-                <span className="profile-dropdown-text">Profile</span>
+                <span className="profile-dropdown-text">            </span>
                 <svg 
                     className={`profile-dropdown-chevron ${isOpen ? 'rotated' : ''}`}
                     width="12" 
