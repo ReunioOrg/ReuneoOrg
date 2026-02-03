@@ -853,13 +853,16 @@ const LobbyScreen = () => {
         }
     }, [lobbyState, opponentProfile]);
 
-    // Clear profile images cache when lobby terminates
+    // Clear profile images cache and modal flags when lobby terminates
     useEffect(() => {
         if (lobbyState === "terminated") {
             profileImagesCache.current = {};
             currentUsernamesRef.current = [];
             // Clear lobby from localStorage since it's terminated
             clearLobbyStorage();
+            // Clear modal flags so they can show again in future lobbies
+            localStorage.removeItem('hasShownEmailBackupModal');
+            localStorage.removeItem('hasShownPauseInfoModal');
         }
     }, [lobbyState]);
 

@@ -460,9 +460,10 @@ const PureSignupPage = () => {
             </button>
 
             <img 
-                src="/assets/reuneo_test_8.png"
+                src="/assets/reuneo_test_11.png"
                 alt="Reunio Logo"
                 className="logo-image"
+                style={{ marginTop: '-1.5rem' }}
             />
 
             <h3 className="signup-header">
@@ -485,7 +486,7 @@ const PureSignupPage = () => {
                 onClick={() => navigate('/login')}
                 className="login-cta-button"
             >
-                I already have an account
+                Yes, I saved my email before
             </button>
 
             <div className="step-form-container">
