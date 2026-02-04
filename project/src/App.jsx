@@ -35,6 +35,7 @@ const App = () => {
   const [activeLobbies, setActiveLobbies] = useState([]);
   const [isLoadingLobbies, setIsLoadingLobbies] = useState(false);
   const [userCurrentLobby, setUserCurrentLobby] = useState(null);
+  const [showQRInstructionModal, setShowQRInstructionModal] = useState(false);
 
   const navigate = useNavigate();
   useGetLobbyMetadata(setPlayerCount, setLobbyState);
@@ -297,70 +298,148 @@ const App = () => {
     }
   };
 
-  // LobbyCodeModal Component
+  // LobbyCodeModal Component - Updated Design
   const LobbyCodeModal = () => {
     if (!showLobbyCodeModal) return null;
 
+    const handleClose = () => {
+      setShowLobbyCodeModal(false);
+      setLobbyCodeInput('');
+      setLobbyCodeError('');
+      stopScanning();
+    };
+
     return (
-      <div className="lobby-modal-overlay">
-        <div className="lobby-modal-container">
+      <div 
+        className="qr-instruction-overlay"
+        onClick={handleClose}
+      >
+        <div 
+          className="qr-instruction-container"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Close button */}
           <button 
-            onClick={() => {
-              setShowLobbyCodeModal(false);
-              setLobbyCodeInput('');
-              setLobbyCodeError('');
-              stopScanning();
-            }}
-            className="lobby-modal-close"
+            onClick={handleClose}
+            className="qr-modal-close"
+            aria-label="Close"
           >
             ×
           </button>
-          <h2 className="lobby-modal-title">
-            Join Lobby
+
+          {/* Heading */}
+          <h2 className="qr-instruction-title">
+            Enter Lobby Code
           </h2>
-          <form onSubmit={handleJoinLobby} className="lobby-form">
-            <div className="lobby-input-container">
+
+          {/* Body text */}
+          <p className="qr-instruction-text">
+            Ask your host for the lobby code if you don't have it.
+          </p>
+
+          {/* Form */}
+          <form onSubmit={handleJoinLobby} className="qr-code-form">
+            <div className="qr-input-container">
               <input
                 type="text"
                 name="name"
-                placeholder="Enter Lobby Code"
-                className="lobby-input"
+                placeholder="Lobby code"
+                className="qr-code-input"
                 pattern="[a-zA-Z0-9]+"
                 title="Only letters and numbers are allowed"
+                autoComplete="off"
+                autoCapitalize="none"
                 required
               />
               {lobbyCodeError && (
-                <div className="lobby-error-message">{lobbyCodeError}</div>
+                <div className="qr-error-message">{lobbyCodeError}</div>
               )}
             </div>
-            <button
-              type="submit"
-              className="lobby-submit-button"
-            >
+            <button type="submit" className="qr-instruction-primary qr-submit-button">
               Join
             </button>
-            
-            {/* {!isScanning ? (
-              <button
-                type="button"
-                className="lobby-scan-button"
-                onClick={handleScanQRCode}
-              >
-                Scan
-              </button>
-            ) : (
-              <div className="lobby-scan-container">
-                <div id="qr-reader" className="lobby-scan-video"></div>
-                <button
-                  type="button"
-                  className="lobby-scan-close"
-                  onClick={stopScanning}
-                >
-                  Close Scanner
-                </button>
-              </div>
-            )} */}
           </form>
+        </div>
+      </div>
+    );
+  };
+
+  // QR Instruction Modal Component
+  const QRInstructionModal = () => {
+    if (!showQRInstructionModal) return null;
+
+    const handleCantFindQR = () => {
+      setShowQRInstructionModal(false);
+      setShowLobbyCodeModal(true);
+    };
+
+    return (
+      <div 
+        className="qr-instruction-overlay"
+        onClick={() => setShowQRInstructionModal(false)}
+      >
+        <div 
+          className="qr-instruction-container"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Close button */}
+          <button 
+            onClick={() => setShowQRInstructionModal(false)}
+            className="qr-modal-close"
+            aria-label="Close"
+          >
+            ×
+          </button>
+
+          {/* QR Icon */}
+          <div className="qr-instruction-icon">
+            <svg 
+              width="56" 
+              height="56" 
+              viewBox="0 0 24 24" 
+              fill="none"
+            >
+              <defs>
+                <linearGradient id="qrIconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#144dff" />
+                  <stop offset="100%" stopColor="#8b5cf6" />
+                </linearGradient>
+              </defs>
+              <rect x="3" y="3" width="7" height="7" rx="1" fill="url(#qrIconGradient)" />
+              <rect x="14" y="3" width="7" height="7" rx="1" fill="url(#qrIconGradient)" />
+              <rect x="3" y="14" width="7" height="7" rx="1" fill="url(#qrIconGradient)" />
+              <rect x="14" y="14" width="3" height="3" rx="0.5" fill="url(#qrIconGradient)" />
+              <rect x="18" y="14" width="3" height="3" rx="0.5" fill="url(#qrIconGradient)" />
+              <rect x="14" y="18" width="3" height="3" rx="0.5" fill="url(#qrIconGradient)" />
+              <rect x="18" y="18" width="3" height="3" rx="0.5" fill="url(#qrIconGradient)" />
+            </svg>
+          </div>
+
+          {/* Heading */}
+          <h2 className="qr-instruction-title">
+            Open your camera app and scan the QR code provided by your host
+          </h2>
+
+          {/* Body text */}
+          <p className="qr-instruction-text">
+            Don't worry, the app will remember your matches if you are still logged in.
+          </p>
+
+          {/* Buttons */}
+          <div className="qr-instruction-buttons">
+            <button 
+              className="qr-instruction-secondary"
+              onClick={handleCantFindQR}
+            >
+              Can't find QR
+            </button>
+            <button 
+              className="qr-instruction-primary"
+              onClick={() => setShowQRInstructionModal(false)}
+            >
+              Got it
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -389,7 +468,7 @@ const App = () => {
           <img  
             src="/assets/reuneo_test_11.png"
             alt="Logo"
-            style={{width: '110px',height: '110px',objectFit: 'contain'}}
+            style={{width: '100px',height: '100px',objectFit: 'contain'}}
           />
         </div>
 
@@ -492,39 +571,8 @@ const App = () => {
           transition: 'top 0.3s ease'
         }}>
           {!user ? (
-            <button 
-              className="primary-button join-lobby-button" 
-              onClick={() => window.location.href = 'https://reuneo.app/access'}
-              style={{
-                padding: '16px 20px',
-                backgroundColor: 'transparent',
-                color: 'white',
-                border: 'none',
-                borderRadius: '14px',
-                fontWeight: '900',
-                fontSize: '1.2rem',
-                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
-                transition: 'all 0.2s ease',
-                width: '160px',
-                // whiteSpace: 'nowrap',
-                margin: '0 auto',
-                display: 'block',
-                position: 'relative',
-                zIndex: 1,
-                textAlign: 'center',
-                outline: 'none',
-                ':hover': {
-                  transform: 'scale(1.02)'
-                }
-              }}
-            >
-              <span style={{
-                textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                color: 'inherit'
-              }}>
-                Become Organizer
-              </span>
-            </button>
+            /* Become Organizer button moved to bottom row with Join Lobby */
+            null
           ) : (
             <h2 className="welcome-header" style={{ 
               color: '#ffffff',
@@ -656,9 +704,8 @@ const App = () => {
           </div>
         )}
 
-        {/* Event items, the big div (hidden for logged-out users) */}
-        {user && (
-          <div style={{ 
+        {/* Event items, the big div */}
+        <div style={{ 
             position: 'absolute',
             bottom: '20px',
             left: '50%',
@@ -720,7 +767,7 @@ const App = () => {
               }}>
                 <button 
                   className={`primary-button ${(permissions !== 'admin' && permissions !== 'organizer') ? 'join-lobby-button' : ''}`} 
-                  onClick={() => user ? setShowLobbyCodeModal(true) : navigate('/signup?redirect=lobby')}
+                  onClick={() => setShowQRInstructionModal(true)}
                   disabled={player_count === null || lobby_state === 'terminate'}
                   style={{
                     opacity: (player_count === null || lobby_state === 'terminate') ? 1 : 1,
@@ -756,8 +803,8 @@ const App = () => {
                     Join Lobby
                   </span>
                 </button>
-                {/* Become Organizer button - only for logged-in non-organizers/non-admins */}
-                {user && permissions !== 'admin' && permissions !== 'organizer' && (
+                {/* Become Organizer button - for non-logged-in users and logged-in non-organizers/non-admins */}
+                {permissions !== 'admin' && permissions !== 'organizer' && (
                   <button 
                     className="primary-button join-lobby-button" 
                     onClick={() => window.location.href = 'https://reuneo.com/organizer-signup'}
@@ -858,7 +905,6 @@ const App = () => {
               </div>
             </div>
           </div>
-        )}
 
         {/* User's Current Lobby Section */}
         {userCurrentLobby && !((permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0) && (
@@ -955,12 +1001,11 @@ const App = () => {
               }}>
                 <span style={{
                   color: 'rgba(255, 255, 255, 0.7)',
-                  fontSize: '0.7rem',
+                  fontSize: '0.65rem',
                   fontWeight: '600',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em'
+                  letterSpacing: '0.02em'
                 }}>
-                  Active Lobby
+                  Return to your active lobby
                 </span>
                 <span style={{
                   color: 'white',
@@ -1165,6 +1210,7 @@ const App = () => {
       </div>
       
       <LobbyCodeModal />
+      <QRInstructionModal />
     </div>
   );
 

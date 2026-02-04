@@ -33,6 +33,7 @@ const LoginSignupLogoutButton = ({ user, onProfileClick }) => {
                                 Login
                             </span>
                         </button>
+{/* Signup button hidden for new onboarding flows
                         <button
                             className="login-button"
                             onClick={() => navigate('/signup')}
@@ -57,6 +58,7 @@ const LoginSignupLogoutButton = ({ user, onProfileClick }) => {
                                 Sign up
                             </span>
                         </button>
+                        */}
                     </div>
                     :
                     <div style={{position: 'absolute', width: '100%', display: 'flex', justifyContent: 'space-between'}}>

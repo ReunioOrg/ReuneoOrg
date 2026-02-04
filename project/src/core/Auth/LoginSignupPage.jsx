@@ -109,7 +109,7 @@ const LoginSignupPage = () => {
             </button>
 
             <img 
-                src="/assets/reuneo_test_8.png"
+                src="/assets/reuneo_test_11.png"
                 alt="Reunio Logo"
                 className="logo-image"
             />
@@ -134,7 +134,7 @@ const LoginSignupPage = () => {
                     <div className="form-group">
                         <input
                             type="text"
-                            placeholder="Email"
+                            placeholder="email or username"
                             className="login-input"
                             value={username}
                             onChange={handleUsernameChange}
@@ -150,7 +150,7 @@ const LoginSignupPage = () => {
                     <div className="form-group">
                         <input
                             type="password"
-                            placeholder="Password" 
+                            placeholder="password" 
                             className="login-input"
                             value={password}
                             onChange={handlePasswordChange}
