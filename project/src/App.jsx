@@ -665,7 +665,7 @@ const App = () => {
             marginLeft: 'auto',
             marginRight: 'auto',
             zIndex: 1,
-            top: userCurrentLobby ? 'calc(32% + 170px)' : 'calc(50% + 100px)',
+            top: userCurrentLobby ? 'calc(32% + 210px)' : 'calc(50% + 140px)',
             transition: 'top 0.3s ease'
           }}>
             <button 
@@ -698,7 +698,7 @@ const App = () => {
                 textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
                 color: 'inherit'
               }}>
-                View Matches
+                Matches
               </span>
             </button>
           </div>
@@ -800,7 +800,7 @@ const App = () => {
                     color: 'inherit',
                    
                   }}>
-                    Join Lobby
+                    Connect
                   </span>
                 </button>
                 {/* Become Organizer button - for non-logged-in users and logged-in non-organizers/non-admins */}
@@ -835,7 +835,7 @@ const App = () => {
                       textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
                       color: 'inherit'
                     }}>
-                      Become Organizer
+                      Organize
                     </span>
                   </button>
                 )}
