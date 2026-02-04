@@ -182,15 +182,7 @@ const PostEventAuth = () => {
                         // Show success screen
                         setMagicLinkSent(true);
                         toast.success('Check your email for the magic link!', {
-                            duration: 4000,
-                            style: {
-                                background: '#4b73ef',
-                                color: 'white',
-                                borderRadius: '8px',
-                                padding: '12px 20px',
-                                fontSize: '0.9rem',
-                                fontWeight: '500'
-                            }
+                            duration: 4000
                         });
                     } else {
                         // Magic link failed but profile was updated - still allow access (Option A fallback)
@@ -212,15 +204,7 @@ const PostEventAuth = () => {
                 // Direct access mode - skip magic link, redirect immediately
                 // Email is saved for future use when Postmark is approved
                 toast.success('Profile saved! Redirecting to your matches...', {
-                    duration: 2000,
-                    style: {
-                        background: '#4b73ef',
-                        color: 'white',
-                        borderRadius: '8px',
-                        padding: '12px 20px',
-                        fontSize: '0.9rem',
-                        fontWeight: '500'
-                    }
+                    duration: 2000
                 });
                 await checkAuth();
                 setTimeout(() => navigate('/paired-player-history'), 1500);
@@ -262,15 +246,7 @@ const PostEventAuth = () => {
                 setShowAccountClaimModal(false);
                 setAccountClaimSent(true);
                 toast.success('Verification email sent!', {
-                    duration: 4000,
-                    style: {
-                        background: '#4b73ef',
-                        color: 'white',
-                        borderRadius: '8px',
-                        padding: '12px 20px',
-                        fontSize: '0.9rem',
-                        fontWeight: '500'
-                    }
+                    duration: 4000
                 });
             } else {
                 setClaimError(data.error || 'Failed to send verification email. Please try again.');
@@ -347,33 +323,59 @@ const PostEventAuth = () => {
             <div className="post-event-auth-container">
                 <Toaster position="top-center" />
                 
-                <div className="step-form-container" style={{ textAlign: 'center', padding: '40px 20px' }}>
+                <div className="step-form-container" style={{ textAlign: 'center', padding: '40px 28px' }}>
                     <div style={{ 
-                        fontSize: '48px', 
-                        marginBottom: '20px'
+                        fontSize: '56px', 
+                        marginBottom: '24px'
                     }}>
                         📧
                     </div>
                     <h2 style={{ 
-                        color: '#545454', 
-                        marginBottom: '16px',
-                        fontSize: '1.5rem'
+                        color: '#1a1a2e', 
+                        marginBottom: '12px',
+                        fontSize: '1.4rem',
+                        fontWeight: '700',
+                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
                     }}>
                         Check Your Email!
                     </h2>
                     <p style={{ 
-                        color: '#545454', 
-                        marginBottom: '24px',
-                        lineHeight: '1.6'
+                        color: '#1a1a2e', 
+                        marginBottom: '20px',
+                        lineHeight: '1.6',
+                        fontSize: '0.95rem',
+                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
                     }}>
-                        We sent a magic link to <strong>{email}</strong>
-                        <br /><br />
+                        We sent a magic link to
+                    </p>
+                    <div style={{
+                        background: '#f9fafb',
+                        border: '1.5px solid #e5e7eb',
+                        borderRadius: '12px',
+                        padding: '14px 18px',
+                        marginBottom: '20px',
+                        fontWeight: '600',
+                        color: '#1a1a2e',
+                        wordBreak: 'break-all',
+                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                    }}>
+                        {email}
+                    </div>
+                    <p style={{ 
+                        color: '#1a1a2e', 
+                        marginBottom: '24px',
+                        lineHeight: '1.6',
+                        fontSize: '0.95rem',
+                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                    }}>
                         Click the link in your email to access your matches.
                     </p>
                     <p style={{ 
-                        color: '#777777', 
+                        color: '#6b7280', 
                         fontSize: '0.85rem',
-                        marginBottom: '24px'
+                        marginBottom: '28px',
+                        lineHeight: '1.5',
+                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
                     }}>
                         The link expires in 15 minutes.
                         <br />
@@ -382,9 +384,6 @@ const PostEventAuth = () => {
                     <button 
                         onClick={() => setMagicLinkSent(false)}
                         className="primary-button"
-                        style={{ 
-                            marginTop: '10px'
-                        }}
                     >
                         ← Back to Form
                     </button>
@@ -399,33 +398,59 @@ const PostEventAuth = () => {
             <div className="post-event-auth-container">
                 <Toaster position="top-center" />
                 
-                <div className="step-form-container" style={{ textAlign: 'center', padding: '40px 20px' }}>
+                <div className="step-form-container" style={{ textAlign: 'center', padding: '40px 28px' }}>
                     <div style={{ 
-                        fontSize: '48px', 
-                        marginBottom: '20px'
+                        fontSize: '56px', 
+                        marginBottom: '24px'
                     }}>
                         🔗
                     </div>
                     <h2 style={{ 
-                        color: '#545454', 
-                        marginBottom: '16px',
-                        fontSize: '1.5rem'
+                        color: '#1a1a2e', 
+                        marginBottom: '12px',
+                        fontSize: '1.4rem',
+                        fontWeight: '700',
+                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
                     }}>
                         Check Your Email!
                     </h2>
                     <p style={{ 
-                        color: '#545454', 
-                        marginBottom: '24px',
-                        lineHeight: '1.6'
+                        color: '#1a1a2e', 
+                        marginBottom: '20px',
+                        lineHeight: '1.6',
+                        fontSize: '0.95rem',
+                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
                     }}>
-                        We sent a verification link to <strong>{email}</strong>
-                        <br /><br />
+                        We sent a verification link to
+                    </p>
+                    <div style={{
+                        background: '#f9fafb',
+                        border: '1.5px solid #e5e7eb',
+                        borderRadius: '12px',
+                        padding: '14px 18px',
+                        marginBottom: '20px',
+                        fontWeight: '600',
+                        color: '#1a1a2e',
+                        wordBreak: 'break-all',
+                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                    }}>
+                        {email}
+                    </div>
+                    <p style={{ 
+                        color: '#1a1a2e', 
+                        marginBottom: '24px',
+                        lineHeight: '1.6',
+                        fontSize: '0.95rem',
+                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                    }}>
                         Click the link to link your matches to your existing account.
                     </p>
                     <p style={{ 
-                        color: '#777777', 
+                        color: '#6b7280', 
                         fontSize: '0.85rem',
-                        marginBottom: '24px'
+                        marginBottom: '28px',
+                        lineHeight: '1.5',
+                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
                     }}>
                         The link expires in 24 hours.
                         <br />
@@ -434,9 +459,6 @@ const PostEventAuth = () => {
                     <button 
                         onClick={() => setAccountClaimSent(false)}
                         className="primary-button"
-                        style={{ 
-                            marginTop: '10px'
-                        }}
                     >
                         ← Back to Form
                     </button>
@@ -447,7 +469,29 @@ const PostEventAuth = () => {
 
     return (
         <div className="post-event-auth-container">
-            <Toaster position="top-center" />
+            <Toaster position="top-center" toastOptions={{
+                style: {
+                    background: '#1a1a2e',
+                    color: 'white',
+                    borderRadius: '12px',
+                    padding: '12px 20px',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                },
+                success: {
+                    iconTheme: {
+                        primary: '#10b981',
+                        secondary: 'white'
+                    }
+                },
+                error: {
+                    iconTheme: {
+                        primary: '#ef4444',
+                        secondary: 'white'
+                    }
+                }
+            }} />
             
             <button 
                 onClick={() => navigate('/')} 
@@ -456,8 +500,26 @@ const PostEventAuth = () => {
                 Home
             </button>
 
-            <h3 className="post-event-auth-header">
-                Gain Access to Your Matches
+            {/* Reuneo Logo */}
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                marginTop: '8px',
+                marginBottom: '0'
+            }}>
+                <img 
+                    src="/assets/reuneo_test_11.png"
+                    alt="Reuneo Logo"
+                    style={{
+                        maxWidth: '100px',
+                        height: 'auto',
+                        objectFit: 'contain'
+                    }}
+                />
+            </div>
+
+            <h3 className="post-event-auth-header" style={{ marginTop: '12px' }}>
+                Access Your Matches
             </h3>
 
             <div className="step-form-container">
@@ -483,15 +545,18 @@ const PostEventAuth = () => {
 
                     <div style={{ marginTop: '20px', position: 'relative' }}>
                         <label className="step-label">
-                            Email <span style={{ color: '#ff6b6b' }}>*</span>
+                            Email <span style={{ color: '#ef4444' }}>*</span>
                             {isEmailVerified && (
                                 <span style={{ 
-                                    color: '#4ade80', 
+                                    color: '#10b981', 
                                     fontSize: '0.75rem', 
                                     marginLeft: '8px',
-                                    fontWeight: '500'
+                                    fontWeight: '600',
+                                    background: 'rgba(16, 185, 129, 0.1)',
+                                    padding: '2px 8px',
+                                    borderRadius: '6px'
                                 }}>
-                                    (Verified)
+                                    ✓ Verified
                                 </span>
                             )}
                         </label>
@@ -515,10 +580,10 @@ const PostEventAuth = () => {
                             required
                             disabled={isEmailVerified}
                             style={isEmailVerified ? {
-                                backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                                color: '#888888',
+                                backgroundColor: '#f3f4f6',
+                                color: '#9ca3af',
                                 cursor: 'not-allowed',
-                                borderColor: 'rgba(255, 255, 255, 0.15)'
+                                borderColor: '#e5e7eb'
                             } : {}}
                         />
                     </div>
@@ -588,12 +653,15 @@ const PostEventAuth = () => {
                         
                         {claimError && (
                             <div style={{ 
-                                color: '#ff6b6b', 
+                                color: '#b91c1c', 
                                 fontSize: '0.85rem', 
                                 marginBottom: '16px',
-                                padding: '8px 12px',
-                                backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                                borderRadius: '6px'
+                                padding: '10px 14px',
+                                backgroundColor: 'rgba(185, 28, 28, 0.08)',
+                                borderRadius: '10px',
+                                fontWeight: '500',
+                                textAlign: 'left',
+                                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
                             }}>
                                 {claimError}
                             </div>
