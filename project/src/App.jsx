@@ -800,7 +800,7 @@ const App = () => {
                     color: 'inherit',
                    
                   }}>
-                    Connect
+                    Join Lobby
                   </span>
                 </button>
                 {/* Become Organizer button - for non-logged-in users and logged-in non-organizers/non-admins */}
@@ -1051,160 +1051,66 @@ const App = () => {
 
         {/* Active Lobbies Section */}
         {(permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0 && (
-          <div className="events-list" style={{ 
+          <div style={{ 
             position: 'absolute',
-            bottom: (userCurrentLobby && !((permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0)) ? 'calc(20px + 120px + 10px + 15% + 10px)' : 'calc(20px + 120px + 10px)',  // Push up if user lobby is actually shown
+            top: 'calc(32% + 80px)',
             left: '50%',
             transform: 'translateX(-50%)',
-            width: '44%',
-            height: '15%', 
-            background: 'linear-gradient(135deg, rgba(20, 77, 255, 0.05), rgba(83, 91, 242, 0.05))',
-            borderRadius: '30px',
-            padding: '1rem',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            width: '85%',
+            maxWidth: '280px',
+            display: 'flex',
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
+            zIndex: 10,
+            transition: 'all 0.3s ease'
           }}>
-            
             {isLoadingLobbies ? (
               <div style={{ textAlign: 'center', color: 'white' }}>
                 <p>Loading your lobbies...</p>
               </div>
             ) : activeLobbies.length > 0 ? (
-              <div style={{ 
-                display: 'flex', 
-                flexWrap: 'wrap', 
-                justifyContent: 'center', 
-                perspective: '1000px',
-              }}>
-                {activeLobbies.map((lobbyCode, index) => (
-                  <div
-                    key={index}
-                    className="card"
-                    style={{
-                      width: 'calc(100% - 2rem)',
-                      maxWidth: '200px',
-                      minWidth: '150px',
-                      background: 'rgba(255, 255, 255, 0.95)',
-                      borderRadius: '20px',
-                      boxShadow: '0 10px 30px rgba(20, 77, 255, 0.15)',
-                      border: '1px solid rgba(20, 77, 255, 0.2)',
-                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                      cursor: 'pointer',
-                      padding: '1rem 1rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      transformStyle: 'preserve-3d',
-                      '&::before': {
-                        content: '""',
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: 'linear-gradient(135deg, rgba(20, 77, 255, 0.1), rgba(83, 91, 242, 0.1))',
-                        opacity: 0,
-                        transition: 'opacity 0.4s ease'
-                      }
-                    }}
-                    onClick={() => navigateToAdminLobby(lobbyCode)}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-10px) rotateX(5deg)';
-                      e.currentTarget.style.boxShadow = '0 20px 40px rgba(20, 77, 255, 0.25)';
-                      e.currentTarget.style.border = '1px solid rgba(20, 77, 255, 0.4)';
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.98)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0) rotateX(0)';
-                      e.currentTarget.style.boxShadow = '0 10px 30px rgba(20, 77, 255, 0.15)';
-                      e.currentTarget.style.border = '1px solid rgba(20, 77, 255, 0.2)';
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.95)';
-                    }}
-                  >
-                    <div className="glow-button" style={{ 
-                      width: '30px', 
-                      height: '30px', 
-                      borderRadius: '50%', 
-                      background: 'linear-gradient(135deg, #144dff, #535bf2)',
-                      marginBottom: '.5rem',
-                      marginTop: '-1rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontWeight: 'bold',
-                      fontSize: '.8rem',
-                      boxShadow: '0 8px 20px rgba(20, 77, 255, 0.3)',
-                      transition: 'all 0.4s ease',
-                      position: 'relative',
-                      '&::after': {
-                        content: '""',
-                        position: 'absolute',
-                        top: '-5px',
-                        left: '-5px',
-                        right: '-5px',
-                        bottom: '-5px',
-                        borderRadius: '50%',
-                        background: 'linear-gradient(135deg, rgba(20, 77, 255, 0.2), rgba(83, 91, 242, 0.2))',
-                        zIndex: -1,
-                        animation: 'pulse 2s infinite'
-                      }
-                    }}>
-                      {lobbyCode && lobbyCode.length > 0 ? lobbyCode.charAt(0).toUpperCase() : '?'}
-                    </div>
-                    <h3 style={{ 
-                      marginTop: '0.5rem',
-                      color: '#144dff',
-                      fontWeight: '700',
-                      fontSize: '.9em',
-                      fontFamily: 'Helvetica',
-                      textAlign: 'center',
-                      textShadow: '0 2px 4px rgba(20, 77, 255, 0.1)',
-                      letterSpacing: '0.5px'
-                    }}>
-                      Lobby {lobbyCode || 'Unknown'}
-                    </h3>
+              <div
+                className="admin-lobby-tile"
+                onClick={() => navigateToAdminLobby(activeLobbies[0])}
+              >
+                {/* Animated pulse indicator */}
+                <div className="admin-lobby-tile-icon">
+                  <div className="admin-lobby-tile-icon-circle">
+                    <span>
+                      {activeLobbies[0] && activeLobbies[0].length > 0 ? activeLobbies[0].charAt(0).toUpperCase() : '?'}
+                    </span>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div style={{ 
-                // textAlign: 'center', 
-                // color: 'white',
-                // background: 'rgba(0, 0, 0, 0.3)',
-                // padding: '1rem',
-                // borderRadius: '8px',
-                // maxWidth: '400px',
-                // margin: '0 auto'
-              }}>
-                {/* <p>You don't have any active lobbies.</p>
-                {(permissions === 'admin' || permissions === 'organizer') && (
-                  <button
-                    className="primary-button"
-                    onClick={() => navigate('/create_lobby')}
-                    style={{
-                      marginTop: '1rem',
-                      padding: '8px 16px',
-                      backgroundColor: '#144dff', 
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontWeight: '600',
-                      transition: 'all 0.2s ease',
-                      ':hover': {
-                        backgroundColor: '#535bf2',
-                        transform: 'scale(1.02)'
-                      }
-                    }}
+                  {/* Live indicator dot */}
+                  <div className="admin-lobby-tile-live-dot" />
+                </div>
+                
+                {/* Text content */}
+                <div className="admin-lobby-tile-content">
+                  <span className="admin-lobby-tile-subtitle">
+                    Manage your active lobby
+                  </span>
+                  <span className="admin-lobby-tile-title">
+                    {activeLobbies[0] && activeLobbies[0].length > 15 ? activeLobbies[0].slice(0, 15) + '...' : activeLobbies[0]}
+                  </span>
+                </div>
+                
+                {/* Arrow indicator */}
+                <div className="admin-lobby-tile-arrow">
+                  <svg 
+                    width="16" 
+                    height="16" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="white" 
+                    strokeWidth="2.5" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
                   >
-                    Create a Lobby
-                  </button>
-                )} */}
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </div>
               </div>
-            )}
+            ) : null}
           </div>
         )}
       </div>
