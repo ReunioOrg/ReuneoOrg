@@ -22,7 +22,15 @@ const PostEventAuth = () => {
     
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [contactUrl, setContactUrl] = useState('');
+    
+    // Social links state
+    const [instagram, setInstagram] = useState('');
+    const [facebook, setFacebook] = useState('');
+    const [personalEmail, setPersonalEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [website, setWebsite] = useState('');
+    const [tiktok, setTiktok] = useState('');
+    const [snapchat, setSnapchat] = useState('');
     const [isEmailVerified, setIsEmailVerified] = useState(false);
     const [isLoadingUserData, setIsLoadingUserData] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -95,7 +103,16 @@ const PostEventAuth = () => {
                 // Pre-populate form fields with existing values
                 setName(userData.profile?.name || '');
                 setEmail(userData.email || '');
-                setContactUrl(userData.profile?.contact_url || '');
+                
+                // Pre-populate social links
+                const socialLinks = userData.profile?.social_links || {};
+                setInstagram(socialLinks.instagram || '');
+                setFacebook(socialLinks.facebook || '');
+                setPersonalEmail(socialLinks.email || '');
+                setPhone(socialLinks.phone || '');
+                setWebsite(socialLinks.website || '');
+                setTiktok(socialLinks.tiktok || '');
+                setSnapchat(socialLinks.snapchat || '');
                 
                 // Check if email is already verified
                 setIsEmailVerified(userData.email_verified === true);
@@ -129,6 +146,53 @@ const PostEventAuth = () => {
         }
     };
 
+    // Handle input for handle-based social platforms (strip all @ symbols)
+    const handleInstagramChange = (e) => {
+        setInstagram(e.target.value.replace(/@/g, ''));
+    };
+    const handleFacebookChange = (e) => {
+        setFacebook(e.target.value.replace(/@/g, ''));
+    };
+    const handleTiktokChange = (e) => {
+        setTiktok(e.target.value.replace(/@/g, ''));
+    };
+    const handleSnapchatChange = (e) => {
+        setSnapchat(e.target.value.replace(/@/g, ''));
+    };
+
+    // Build social_links object for API
+    const buildSocialLinks = () => {
+        const links = {};
+        if (instagram.trim()) links.instagram = instagram.trim();
+        if (facebook.trim()) links.facebook = facebook.trim();
+        if (personalEmail.trim()) links.email = personalEmail.trim();
+        if (phone.trim()) links.phone = phone.trim();
+        if (website.trim()) {
+            // Auto-prepend https:// if missing protocol
+            let url = website.trim();
+            if (url && !url.match(/^https?:\/\//i)) {
+                url = 'https://' + url;
+            }
+            links.website = url;
+        }
+        if (tiktok.trim()) links.tiktok = tiktok.trim();
+        if (snapchat.trim()) links.snapchat = snapchat.trim();
+        return Object.keys(links).length > 0 ? links : null;
+    };
+
+    // Check if at least one social link is provided
+    const hasAtLeastOneSocialLink = () => {
+        return !!(
+            instagram.trim() ||
+            facebook.trim() ||
+            personalEmail.trim() ||
+            phone.trim() ||
+            website.trim() ||
+            tiktok.trim() ||
+            snapchat.trim()
+        );
+    };
+
     // Actual submission logic (extracted from handleSubmit)
     const executeSubmit = async () => {
         setIsSubmitting(true);
@@ -138,7 +202,7 @@ const PostEventAuth = () => {
             // Build payload - only include email if not already verified
             const payload = {
                 name: name || '',
-                contact_url: contactUrl || ''
+                social_links: buildSocialLinks()
             };
 
             // Only include email if not already verified (verified emails are locked)
@@ -291,6 +355,7 @@ const PostEventAuth = () => {
         // Validate email is required
         if (!email || !email.trim()) {
             setError('Email is required to access your matches.');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
 
@@ -298,6 +363,14 @@ const PostEventAuth = () => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email.trim())) {
             setError('Please enter a valid email address.');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
+        // Validate at least one social link is provided
+        if (!hasAtLeastOneSocialLink()) {
+            setError('Please provide at least one way to contact you.');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
 
@@ -588,17 +661,97 @@ const PostEventAuth = () => {
                         />
                     </div>
 
-                    <div style={{ marginTop: '20px' }}>
-                        <label className="step-label">
-                            Contact URL
-                        </label>
-                        <input
-                            type="text"
-                            value={contactUrl}
-                            onChange={(e) => setContactUrl(e.target.value)}
-                            placeholder="Enter your contact URL (e.g., https://linkedin.com/...)"
-                            className="step-input"
-                        />
+                    {/* Social Links Section */}
+                    <div className="social-links-section">
+                        <div className="social-links-header">
+                            <span className="social-links-title">Share Your Contact Info</span>
+                            <span className="social-links-subtitle">(At least one required)</span>
+                        </div>
+                        
+                        {/* Instagram */}
+                        <div className="social-link-field">
+                            <label className="step-label">Instagram</label>
+                            <input
+                                type="text"
+                                value={instagram}
+                                onChange={handleInstagramChange}
+                                placeholder="@username"
+                                className="step-input"
+                            />
+                        </div>
+                        
+                        {/* Facebook */}
+                        <div className="social-link-field">
+                            <label className="step-label">Facebook</label>
+                            <input
+                                type="text"
+                                value={facebook}
+                                onChange={handleFacebookChange}
+                                placeholder="@username"
+                                className="step-input"
+                            />
+                        </div>
+                        
+                        {/* Personal Email */}
+                        <div className="social-link-field">
+                            <label className="step-label">Personal Email</label>
+                            <input
+                                type="email"
+                                value={personalEmail}
+                                onChange={(e) => setPersonalEmail(e.target.value)}
+                                placeholder="you@example.com"
+                                className="step-input"
+                            />
+                            <span className="social-link-helper">Separate email for people to reach you</span>
+                        </div>
+                        
+                        {/* Phone */}
+                        <div className="social-link-field">
+                            <label className="step-label">Phone</label>
+                            <input
+                                type="tel"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                placeholder="+1 (555) 123-4567"
+                                className="step-input"
+                            />
+                        </div>
+                        
+                        {/* Website */}
+                        <div className="social-link-field">
+                            <label className="step-label">Website</label>
+                            <input
+                                type="text"
+                                value={website}
+                                onChange={(e) => setWebsite(e.target.value)}
+                                placeholder="https://yourwebsite.com"
+                                className="step-input"
+                            />
+                        </div>
+                        
+                        {/* TikTok */}
+                        <div className="social-link-field">
+                            <label className="step-label">TikTok</label>
+                            <input
+                                type="text"
+                                value={tiktok}
+                                onChange={handleTiktokChange}
+                                placeholder="@username"
+                                className="step-input"
+                            />
+                        </div>
+                        
+                        {/* Snapchat */}
+                        <div className="social-link-field">
+                            <label className="step-label">Snapchat</label>
+                            <input
+                                type="text"
+                                value={snapchat}
+                                onChange={handleSnapchatChange}
+                                placeholder="@username"
+                                className="step-input"
+                            />
+                        </div>
                     </div>
 
                     <button 
