@@ -790,8 +790,8 @@
   display: flex;
   align-items: flex-end;
   width: fit-content;
-  gap: 1rem;
-  padding: 0.5rem 1rem 0.75rem;
+  gap: 1.3rem;
+  padding: 0.65rem 1.3rem 1rem;
   /* Same glass/blur as admin-lobby-tile */
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
   backdrop-filter: blur(20px);
@@ -813,8 +813,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  border-radius: 10px;
+  gap: 0.45rem;
+  border-radius: 13px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -856,13 +856,18 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 42px;
+  height: 42px;
   color: rgba(255, 255, 255, 0.95);
 }
 
+.app-dock-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
 .app-dock-label {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.95);
   text-shadow: 0 0 1px rgba(58, 53, 53, 0.5);
@@ -876,8 +881,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
-  border-radius: 14px;
+  gap: 0.6rem;
+  border-radius: 18px;
   /* Same glass/blur as dock items and admin-lobby-tile */
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
   backdrop-filter: blur(20px);
@@ -886,9 +891,9 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   cursor: pointer;
   outline: none;
-  width: 64px;
-  height: 64px;
-  padding: 0.5rem;
+  width: 83px;
+  height: 83px;
+  padding: 0.65rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

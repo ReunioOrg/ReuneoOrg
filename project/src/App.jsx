@@ -665,7 +665,7 @@ const App = () => {
         )}
 
         {/* Centered standalone button — Organizer (for non-admin/organizer) or Create Lobby (for admin/organizer with no active lobby) */}
-        {permissions !== 'admin' && permissions !== 'organizer' ? (
+        {permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby ? (
           <div style={{
             position: 'fixed',
             top: '50%',
@@ -688,7 +688,7 @@ const App = () => {
               <span className="app-dock-label">Create</span>
             </div>
           </div>
-        ) : activeLobbies.length === 0 ? (
+        ) : activeLobbies.length === 0 && (permissions === 'admin' || permissions === 'organizer') ? (
           <div style={{
             position: 'fixed',
             top: '50%',
@@ -822,7 +822,7 @@ const App = () => {
             marginLeft: 'auto',
             marginRight: 'auto',
             zIndex: 1,
-            top: userCurrentLobby ? 'calc(32% + 200px)' : 'calc(50% + 120px)',
+            top: userCurrentLobby ? 'calc(50% + 75px)' : 'calc(50% + 120px)',
             transition: 'top 0.3s ease'
           }}>
             <button 
@@ -864,7 +864,7 @@ const App = () => {
         {/* Event items, the big div */}
         <div style={{ 
             position: 'absolute',
-            bottom: '20px',
+            bottom: '40px',
             left: '50%',
             transform: 'translateX(-50%)',
             width: '94%', 
@@ -923,9 +923,9 @@ const App = () => {
                 alignItems: 'center'
               }}>
                 <AppDock
-                  panelHeight={68}
-                  baseItemSize={50}
-                  magnification={58}
+                  panelHeight={88}
+                  baseItemSize={65}
+                  magnification={75}
                   distance={200}
                   items={[
                     {
@@ -993,9 +993,9 @@ const App = () => {
         {userCurrentLobby && !((permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0) && (
           <div style={{ 
             position: 'absolute',
-            top: 'calc(32% + 80px)',
+            top: '50%',
             left: '50%',
-            transform: 'translateX(-50%)',
+            transform: 'translate(-50%, -50%)',
             width: '85%',
             maxWidth: '280px',
             display: 'flex',
