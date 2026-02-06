@@ -16,9 +16,118 @@ import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
 import { getStoredLobbyCode, shouldValidateLobby, markLobbyValidated, clearLobbyStorage } from './core/utils/lobbyStorage';
 
 import { useNavigate } from 'react-router-dom';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 // import CreateLobbyButton from './core/lobby/CreateLobbyButton';
 // import CreateLobby from './core/lobby/create_lobby';
 // import './core/lobby/create_lobby.css';
+
+/* Inline icons for dock (Join Lobby: people/high-five, Login: arrow into line) */
+const JoinLobbyIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    <path d="M12 11v6" />
+    <path d="M9 14h6" />
+  </svg>
+);
+const LoginIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+    <polyline points="10 17 15 12 10 7" />
+    <line x1="15" y1="12" x2="3" y2="12" />
+  </svg>
+);
+const Sparkle4pt = ({ cx, cy, r, className }) => (
+  <path
+    className={className}
+    d={`M${cx} ${cy - r} C${cx + r * 0.1} ${cy - r * 0.1} ${cx + r * 0.1} ${cy - r * 0.1} ${cx + r} ${cy} C${cx + r * 0.1} ${cy + r * 0.1} ${cx + r * 0.1} ${cy + r * 0.1} ${cx} ${cy + r} C${cx - r * 0.1} ${cy + r * 0.1} ${cx - r * 0.1} ${cy + r * 0.1} ${cx - r} ${cy} C${cx - r * 0.1} ${cy - r * 0.1} ${cx - r * 0.1} ${cy - r * 0.1} ${cx} ${cy - r}Z`}
+  />
+);
+const ProfileIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <circle cx="12" cy="12" r="3" />
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+  </svg>
+);
+const LogoutIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden style={{ transform: 'scaleX(-1)' }}>
+    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+    <polyline points="10 17 15 12 10 7" />
+    <line x1="15" y1="12" x2="3" y2="12" />
+  </svg>
+);
+const OrganizerIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 32 32" fill="currentColor" aria-hidden>
+    <Sparkle4pt cx={12} cy={12} r={12.5} />
+    <Sparkle4pt cx={26} cy={25} r={7} />
+    <Sparkle4pt cx={27} cy={6} r={4} />
+  </svg>
+);
+
+function AppDockItem({ children, onClick, disabled, mouseX, spring, distance, magnification, baseItemSize, ariaLabel, title }) {
+  const ref = useRef(null);
+  const mouseDistance = useTransform(mouseX, (val) => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return distance + 1; /* map to baseItemSize when ref not ready */
+    return val - rect.x - rect.width / 2;
+  });
+  const targetSize = useTransform(mouseDistance, [-distance, 0, distance], [baseItemSize, magnification, baseItemSize]);
+  const size = useSpring(targetSize, spring);
+  return (
+    <motion.div
+      ref={ref}
+      style={{ width: size, height: size, minWidth: baseItemSize, minHeight: baseItemSize }}
+      onClick={disabled ? undefined : onClick}
+      onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !disabled) { e.preventDefault(); onClick?.(); } }}
+      className="app-dock-item"
+      tabIndex={disabled ? -1 : 0}
+      role="button"
+      aria-disabled={!!disabled}
+      aria-label={ariaLabel}
+      title={title}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+const DOCK_SPRING = { mass: 0.1, stiffness: 150, damping: 12 };
+
+function AppDock({ items, panelHeight = 68, baseItemSize = 50, magnification = 58, distance = 200 }) {
+  const mouseX = useMotionValue(Infinity);
+  return (
+    <div className="app-dock-outer">
+      <motion.div
+        className="app-dock-panel"
+        style={{ minHeight: panelHeight }}
+        role="toolbar"
+        aria-label="Application dock"
+        onMouseMove={({ pageX }) => mouseX.set(pageX)}
+        onMouseLeave={() => mouseX.set(Infinity)}
+      >
+        {items.map((item, index) => (
+          <AppDockItem
+            key={index}
+            onClick={item.onClick}
+            disabled={item.disabled}
+            mouseX={mouseX}
+            spring={DOCK_SPRING}
+            distance={distance}
+            magnification={magnification}
+            baseItemSize={baseItemSize}
+            ariaLabel={item.label}
+            title={item.title}
+          >
+            <div className="app-dock-icon">{item.icon}</div>
+            <span className="app-dock-label">{item.label}</span>
+          </AppDockItem>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
 
 const App = () => {
   const [showProfileCreation, setShowProfileCreation] = useState(false);
@@ -555,20 +664,68 @@ const App = () => {
           />
         )}
 
+        {/* Centered standalone button — Organizer (for non-admin/organizer) or Create Lobby (for admin/organizer with no active lobby) */}
+        {permissions !== 'admin' && permissions !== 'organizer' ? (
+          <div style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 10,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            <div
+              className="app-dock-item-standalone"
+              onClick={() => window.location.href = 'https://reuneo.com/organizer-signup'}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.location.href = 'https://reuneo.com/organizer-signup'; } }}
+              tabIndex={0}
+              role="button"
+              aria-label="Organizer"
+            >
+              <div className="app-dock-icon"><OrganizerIcon /></div>
+              <span className="app-dock-label">Create</span>
+            </div>
+          </div>
+        ) : activeLobbies.length === 0 ? (
+          <div style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 10,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            <div
+              className="app-dock-item-standalone"
+              onClick={() => navigate('/create_lobby')}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/create_lobby'); } }}
+              tabIndex={0}
+              role="button"
+              aria-label="Create Lobby"
+            >
+              <div className="app-dock-icon"><OrganizerIcon /></div>
+              <span className="app-dock-label">Create</span>
+            </div>
+          </div>
+        ) : null}
+
         {/* Consolidated header - either "Pair up" or "Welcome" based on user role */}
         <div style={{ 
           position: 'absolute', 
           left: '50%', 
-          transform: 'translateX(-50%)',
           width: '90%',
           maxWidth: '1200px',
           textAlign: 'center',
           marginLeft: 'auto',
           marginRight: 'auto',
           zIndex: 1,
-          //center this vertically - shift up when lobby tile is displayed
-          top: (userCurrentLobby && user && permissions !== 'admin' && permissions !== 'organizer') ? '32%' : '50%',
-          transition: 'top 0.3s ease'
+          // Always right below the logo
+          top: '130px',
+          transform: 'translateX(-50%)'
         }}>
           {!user ? (
             /* Become Organizer button moved to bottom row with Join Lobby */
@@ -665,7 +822,7 @@ const App = () => {
             marginLeft: 'auto',
             marginRight: 'auto',
             zIndex: 1,
-            top: userCurrentLobby ? 'calc(32% + 210px)' : 'calc(50% + 140px)',
+            top: userCurrentLobby ? 'calc(32% + 200px)' : 'calc(50% + 120px)',
             transition: 'top 0.3s ease'
           }}>
             <button 
@@ -765,117 +922,43 @@ const App = () => {
                 flexDirection: 'row',
                 alignItems: 'center'
               }}>
-                <button 
-                  className={`primary-button ${(permissions !== 'admin' && permissions !== 'organizer') ? 'join-lobby-button' : ''}`} 
-                  onClick={() => setShowQRInstructionModal(true)}
-                  disabled={player_count === null || lobby_state === 'terminate'}
-                  style={{
-                    opacity: (player_count === null || lobby_state === 'terminate') ? 1 : 1,
-                    cursor: (player_count === null || lobby_state === 'terminate') ? 'not-allowed' : 'pointer',
-                    padding: '16px 20px',
-                    backgroundColor: (permissions !== 'admin' && permissions !== 'organizer') ? 'transparent' : '#144dff',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '14px',
-                    fontWeight: '900',
-                    fontSize: '1.2rem',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
-                    transition: 'all 0.2s ease',
-                    width: '160px',
-                    // whiteSpace: 'nowrap',
-                    margin: '0',
-                    display: 'block',
-                    position: 'relative',
-                    zIndex: 1,
-                    textAlign: 'center',
-                    outline: (permissions !== 'admin' && permissions !== 'organizer') ? 'none' : '1px solid rgba(58, 53, 53, 0.7)',
-                    ':hover': {
-                      backgroundColor: (permissions !== 'admin' && permissions !== 'organizer') ? 'transparent' : '#535bf2',
-                      transform: 'scale(1.02)'
-                    }
-                  }}
-                >
-                  <span style={{
-                    textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                    color: 'inherit',
-                   
-                  }}>
-                    Join Lobby
-                  </span>
-                </button>
-                {/* Become Organizer button - for non-logged-in users and logged-in non-organizers/non-admins */}
-                {permissions !== 'admin' && permissions !== 'organizer' && (
-                  <button 
-                    className="primary-button join-lobby-button" 
-                    onClick={() => window.location.href = 'https://reuneo.com/organizer-signup'}
-                    style={{
-                      padding: '16px 20px',
-                      backgroundColor: 'transparent',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '14px',
-                      fontWeight: '900',
-                      fontSize: '1.2rem',
-                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
-                      transition: 'all 0.2s ease',
-                      width: '160px',
-                      // whiteSpace: 'nowrap',
-                      margin: '0',
-                      display: 'block',
-                      position: 'relative',
-                      zIndex: 1,
-                      textAlign: 'center',
-                      outline: 'none',
-                      ':hover': {
-                        transform: 'scale(1.02)'
+                <AppDock
+                  panelHeight={68}
+                  baseItemSize={50}
+                  magnification={58}
+                  distance={200}
+                  items={[
+                    {
+                      icon: <JoinLobbyIcon />,
+                      label: 'Join Lobby',
+                      onClick: () => setShowQRInstructionModal(true),
+                      disabled: player_count === null || lobby_state === 'terminate',
+                      title: (player_count === null || lobby_state === 'terminate')
+                        ? (lobby_state === 'terminate' ? 'Lobby closed' : 'Lobby loading…')
+                        : undefined
+                    },
+                    ...(!user ? [{
+                      icon: <LoginIcon />,
+                      label: 'Login',
+                      onClick: () => navigate('/login'),
+                      disabled: false
+                    }] : [
+                      {
+                        icon: <ProfileIcon />,
+                        label: 'Profile',
+                        onClick: () => setShowProfileCreation(true),
+                        disabled: false
+                      },
+                      {
+                        icon: <LogoutIcon />,
+                        label: 'Logout',
+                        onClick: () => navigate('/logout'),
+                        disabled: false
                       }
-                    }}
-                  >
-                    <span style={{
-                      textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                      color: 'inherit'
-                    }}>
-                      Organize
-                    </span>
-                  </button>
-                )}
-                {(permissions === 'admin' || permissions === 'organizer') && (
-                  <button
-                    className={`primary-button ${(permissions === 'admin' || permissions === 'organizer') ? 'create-lobby-button' : ''}`}
-                    onClick={activeLobbies.length > 0 ? undefined : () => navigate('/create_lobby')}
-                    disabled={activeLobbies.length > 0}
-                    title={activeLobbies.length > 0 ? "You already have an active lobby. Close it before creating a new one." : "Create a new lobby"}
-                    style={{
-                      padding: '16px 20px',
-                      backgroundColor: activeLobbies.length > 0 ? 'rgba(128, 128, 128, 0.3)' : 'transparent',
-                      color: activeLobbies.length > 0 ? 'rgba(255, 255, 255, 0.5)' : 'white',
-                      border: 'none',
-                      borderRadius: '14px',
-                      fontWeight: '900',
-                      fontSize: '1.2rem',
-                      boxShadow: activeLobbies.length > 0 ? '0 2px 3px rgba(0, 0, 0, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.3)',
-                      transition: 'all 0.2s ease',
-                      width: '160px',
-                      // whiteSpace: 'nowrap',
-                      margin: '0',
-                      position: 'relative',
-                      zIndex: 1,
-                      textAlign: 'center',
-                      cursor: activeLobbies.length > 0 ? 'not-allowed' : 'pointer',
-                      opacity: activeLobbies.length > 0 ? 0.6 : 1,
-                      ':hover': {
-                        transform: activeLobbies.length > 0 ? 'none' : 'scale(1.02)'
-                      }
-                    }}
-                  >
-                    <span style={{
-                      textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                      color: 'inherit'
-                    }}>
-                      Create Lobby
-                    </span>
-                  </button>
-                )}
+                    ])
+                  ]}
+                />
+                {/* Create Lobby button moved to centered standalone position above */}
                 {/* {(permissions === 'admin' || permissions === 'organizer') && (
                   <button 
                     className="primary-button" 
