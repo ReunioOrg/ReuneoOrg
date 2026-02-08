@@ -40,6 +40,7 @@ const LobbyScreen = () => {
     const isReadyAnimating = useRef(false);
     const [tagsCompleted, setTagsCompleted] = useState(false);
     const [showTagsFocusOverlay, setShowTagsFocusOverlay] = useState(false);
+    const [isSessionEnding, setIsSessionEnding] = useState(false);
     
     const { audioRef, error, playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying } = usePlaySound();
     const [lobbyCode, setLobbyCode] = useState('yonder');
@@ -135,6 +136,7 @@ const LobbyScreen = () => {
 
     const roundPosition = useRef(null);
     const beatGoOff = useRef(null);
+    const isTerminatingRef = useRef(false);  // Guard: prevent re-triggering termination jingle
     const [lobbyState, setLobbyState] = useState(null);
     const [roundTimeLeft, setRoundTimeLeft] = useState(null);
     const [roundDisplayTime, setRoundDisplayTime] = useState(null);
@@ -386,8 +388,23 @@ const LobbyScreen = () => {
                 const data = await response.json();
                 console.log("LOBBY PAIR DATA:",currentLobbyCode, data);
                 if (data.status=="inactive"){
-                    cancelSound();
-                    navigate('/post-event-auth');
+                    if (!isTerminatingRef.current) {
+                        isTerminatingRef.current = true;
+                        setIsSessionEnding(true);
+                        
+                        // If audio is alive, play the termination jingle before navigating
+                        if (audioRef.current) {
+                            seekTo(playat);
+                            setTimeout(() => {
+                                cancelSound();
+                                navigate('/post-event-auth');
+                            }, 7000);
+                        } else {
+                            // No audio — navigate immediately (same as original behavior)
+                            cancelSound();
+                            navigate('/post-event-auth');
+                        }
+                    }
                     return;  // Exit early, don't continue processing
                 }
                 
@@ -970,6 +987,28 @@ const LobbyScreen = () => {
     // Show fullscreen spinner while checking auth
     if (isAuthLoading) {
         return <LoadingSpinner fullScreen message={authLoadingMessage} />;
+    }
+
+    // Show fullscreen spinner while termination jingle plays
+    if (isSessionEnding) {
+        return (
+            <div style={{
+                position: 'fixed',
+                top: 0, left: 0, right: 0, bottom: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                background: 'rgba(255, 255, 255, 0.95)',
+                zIndex: 1000,
+                gap: '1.5rem'
+            }}>
+                <LoadingSpinner size={60} />
+                <h2 className="lobby-header">
+                    Session ended. Generating your matches...
+                </h2>
+            </div>
+        );
     }
 
     return (
