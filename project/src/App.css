@@ -875,10 +875,45 @@
   text-align: center;
 }
 
+/* Expandable Logout button above Profile in dock */
+.app-dock-expand-logout {
+  position: absolute;
+  bottom: calc(100% + 0.75rem);
+  right: 1.5rem;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border-radius: 13px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  width: 65px;
+  height: 65px;
+  padding: 0.5rem;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.2s ease, border 0.2s ease;
+}
+
+.app-dock-expand-logout:hover {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.app-dock-expand-logout:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
 /* Standalone dock-style button (no outer panel) */
 .app-dock-item-standalone {
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
@@ -891,9 +926,9 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   cursor: pointer;
   outline: none;
-  width: 83px;
-  height: 83px;
-  padding: 0.65rem;
+  width: auto;
+  height: auto;
+  padding: 0.65rem 1.3rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

@@ -16,7 +16,7 @@ import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
 import { getStoredLobbyCode, shouldValidateLobby, markLobbyValidated, clearLobbyStorage } from './core/utils/lobbyStorage';
 
 import { useNavigate } from 'react-router-dom';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 // import CreateLobbyButton from './core/lobby/CreateLobbyButton';
 // import CreateLobby from './core/lobby/create_lobby';
 // import './core/lobby/create_lobby.css';
@@ -58,6 +58,12 @@ const LogoutIcon = () => (
     <line x1="15" y1="12" x2="3" y2="12" />
   </svg>
 );
+const MatchesIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path d="M12 22c-4.97 0-9-3.58-9-8 0-3.07 2.25-6.34 4.36-8.74C9.03 3.42 11 2 12 2c1 0 2.97 1.42 4.64 3.26C18.75 7.66 21 10.93 21 14c0 4.42-4.03 8-9 8z" />
+    <path d="M12 22c-1.66 0-3-1.79-3-4 0-1.48.84-3.2 1.7-4.3.5-.64 1.1-1.2 1.3-1.2s.8.56 1.3 1.2c.86 1.1 1.7 2.82 1.7 4.3 0 2.21-1.34 4-3 4z" />
+  </svg>
+);
 const OrganizerIcon = () => (
   <svg width="24" height="24" viewBox="0 0 32 32" fill="currentColor" aria-hidden>
     <Sparkle4pt cx={12} cy={12} r={12.5} />
@@ -93,7 +99,7 @@ function AppDockItem({ children, onClick, disabled, mouseX, spring, distance, ma
   );
 }
 
-const DOCK_SPRING = { mass: 0.1, stiffness: 150, damping: 12 };
+const DOCK_SPRING = { mass: 0.1, stiffness: 1400, damping: 30 };
 
 function AppDock({ items, panelHeight = 68, baseItemSize = 50, magnification = 58, distance = 200 }) {
   const mouseX = useMotionValue(Infinity);
@@ -145,6 +151,7 @@ const App = () => {
   const [isLoadingLobbies, setIsLoadingLobbies] = useState(false);
   const [userCurrentLobby, setUserCurrentLobby] = useState(null);
   const [showQRInstructionModal, setShowQRInstructionModal] = useState(false);
+  const [profileExpanded, setProfileExpanded] = useState(false);
 
   const navigate = useNavigate();
   useGetLobbyMetadata(setPlayerCount, setLobbyState);
@@ -554,6 +561,18 @@ const App = () => {
     );
   };
 
+  // Close profile expand when clicking outside the dock area
+  useEffect(() => {
+    if (!profileExpanded) return;
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('.app-dock-outer') && !e.target.closest('.app-dock-expand-logout')) {
+        setProfileExpanded(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [profileExpanded]);
+
   return (
     <div style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden' }}>
 
@@ -668,7 +687,7 @@ const App = () => {
         {permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby ? (
           <div style={{
             position: 'fixed',
-            top: '50%',
+            top: '46%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             zIndex: 10,
@@ -691,7 +710,7 @@ const App = () => {
         ) : activeLobbies.length === 0 && (permissions === 'admin' || permissions === 'organizer') ? (
           <div style={{
             position: 'fixed',
-            top: '50%',
+            top: '46%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             zIndex: 10,
@@ -728,7 +747,6 @@ const App = () => {
           transform: 'translateX(-50%)'
         }}>
           {!user ? (
-            /* Become Organizer button moved to bottom row with Join Lobby */
             null
           ) : (
             <h2 className="welcome-header" style={{ 
@@ -810,56 +828,7 @@ const App = () => {
           )}
         </div>
 
-        {/* Post Event Auth Button - Only for authenticated non-organizer/admin users */}
-        {user && permissions !== 'admin' && permissions !== 'organizer' && (
-          <div style={{ 
-            position: 'absolute', 
-            left: '50%', 
-            transform: 'translateX(-50%)',
-            width: '90%',
-            maxWidth: '1200px',
-            textAlign: 'center',
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            zIndex: 1,
-            top: userCurrentLobby ? 'calc(50% + 75px)' : 'calc(50% + 120px)',
-            transition: 'top 0.3s ease'
-          }}>
-            <button 
-              className="primary-button join-lobby-button" 
-              onClick={() => navigate(emailVerified ? '/paired-player-history' : '/post-event-auth')}
-              style={{
-                padding: '16px 20px',
-                backgroundColor: 'transparent',
-                color: 'white',
-                border: 'none',
-                borderRadius: '14px',
-                fontWeight: '900',
-                fontSize: '1.2rem',
-                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
-                transition: 'all 0.2s ease',
-                width: '160px',
-                margin: '0 auto',
-                display: 'block',
-                position: 'relative',
-                zIndex: 1,
-                textAlign: 'center',
-                outline: 'none',
-                cursor: 'pointer',
-                ':hover': {
-                  transform: 'scale(1.02)'
-                }
-              }}
-            >
-              <span style={{
-                textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                color: 'inherit'
-              }}>
-                Matches
-              </span>
-            </button>
-          </div>
-        )}
+        {/* Matches button moved into the dock */}
 
         {/* Event items, the big div */}
         <div style={{ 
@@ -922,42 +891,71 @@ const App = () => {
                 flexDirection: 'row',
                 alignItems: 'center'
               }}>
-                <AppDock
-                  panelHeight={88}
-                  baseItemSize={65}
-                  magnification={75}
-                  distance={200}
-                  items={[
-                    {
-                      icon: <JoinLobbyIcon />,
-                      label: 'Join Lobby',
-                      onClick: () => setShowQRInstructionModal(true),
-                      disabled: player_count === null || lobby_state === 'terminate',
-                      title: (player_count === null || lobby_state === 'terminate')
-                        ? (lobby_state === 'terminate' ? 'Lobby closed' : 'Lobby loading…')
-                        : undefined
-                    },
-                    ...(!user ? [{
-                      icon: <LoginIcon />,
-                      label: 'Login',
-                      onClick: () => navigate('/login'),
-                      disabled: false
-                    }] : [
+                <div style={{ position: 'relative' }}>
+                  <AppDock
+                    panelHeight={88}
+                    baseItemSize={65}
+                    magnification={75}
+                    distance={200}
+                    items={[
                       {
-                        icon: <ProfileIcon />,
-                        label: 'Profile',
-                        onClick: () => setShowProfileCreation(true),
-                        disabled: false
+                        icon: <JoinLobbyIcon />,
+                        label: 'Join Lobby',
+                        onClick: () => setShowQRInstructionModal(true),
+                        disabled: player_count === null || lobby_state === 'terminate',
+                        title: (player_count === null || lobby_state === 'terminate')
+                          ? (lobby_state === 'terminate' ? 'Lobby closed' : 'Lobby loading…')
+                          : undefined
                       },
-                      {
-                        icon: <LogoutIcon />,
-                        label: 'Logout',
-                        onClick: () => navigate('/logout'),
+                      ...(!user ? [{
+                        icon: <LoginIcon />,
+                        label: 'Login',
+                        onClick: () => navigate('/login'),
                         disabled: false
-                      }
-                    ])
-                  ]}
-                />
+                      }] : [
+                        {
+                          icon: <MatchesIcon />,
+                          label: 'Matches',
+                          onClick: () => navigate(emailVerified ? '/paired-player-history' : '/post-event-auth'),
+                          disabled: false
+                        },
+                        {
+                          icon: <ProfileIcon />,
+                          label: 'Profile',
+                          onClick: () => {
+                            if (profileExpanded) {
+                              setProfileExpanded(false);
+                              setShowProfileCreation(true);
+                            } else {
+                              setProfileExpanded(true);
+                            }
+                          },
+                          disabled: false
+                        }
+                      ])
+                    ]}
+                  />
+                  {/* Expandable Logout button — pops up above Profile */}
+                  <AnimatePresence>
+                    {profileExpanded && user && (
+                      <motion.div
+                        className="app-dock-expand-logout"
+                        initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 20, scale: 0.8 }}
+                        transition={{ duration: 0.1, ease: 'easeOut' }}
+                        onClick={() => { navigate('/logout'); setProfileExpanded(false); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/logout'); setProfileExpanded(false); } }}
+                        tabIndex={0}
+                        role="button"
+                        aria-label="Logout"
+                      >
+                        <div className="app-dock-icon"><LogoutIcon /></div>
+                        <span className="app-dock-label">Logout</span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
                 {/* Create Lobby button moved to centered standalone position above */}
                 {/* {(permissions === 'admin' || permissions === 'organizer') && (
                   <button 
