@@ -452,6 +452,11 @@ const LobbyScreen = () => {
                     setServerdesiringTags(data.player_tags.desiring_tags_work);
                 }
         
+                // Loop ambient audio during checkin to prevent jingle/crash from long checkins
+                if (data.lobby_state === "checkin" && audioRef.current && audioRef.current.currentTime > 500 && !isTerminatingRef.current) {
+                    audioRef.current.currentTime = 0;
+                }
+
                 if ((roundPosition.current!=null) && (data.lobby_state=="active")) {
                     if (roundPosition.current!=0) {
                         seekTo(playat-roundPosition.current);
@@ -590,6 +595,13 @@ const LobbyScreen = () => {
                     }
                 }
                 
+                // Detect first round start (checkin → interrim) and trigger jingle
+                if (prevLobbyState === "checkin" && data.lobby_state === "interrim") {
+                    if (audioRef.current) {
+                        seekTo(playat);
+                    }
+                }
+
                 setPrevLobbyState(data.lobby_state);
             }
         } catch (error) {
@@ -1453,7 +1465,7 @@ const LobbyScreen = () => {
                 </div> */}
             </div>
 
-            {(soundEnabled || !showSoundPrompt) || (lobbyState == "checkin") || (lobbyState == null) || isPlaying ? null : <SoundPrompt />}
+            {(soundEnabled || !showSoundPrompt) || (lobbyState == null) || isPlaying ? null : <SoundPrompt />}
 
             {/* Add the animation component */}
             {showLobbyCountdown && !(tagsState.length > 0 && serverdesiringTags.length === 0) && (
