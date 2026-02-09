@@ -535,17 +535,29 @@ const LobbyScreen = () => {
                     const matchDetails = getMatchingTags(data.player_tags, data.opponent_tags);
                     
                     if (isPurgatoryPairing) {
-                        // Purgatory: ALWAYS show animation (user was waiting mid-round)
-                        console.log('Purgatory pairing - triggering animation');
-                        isAnimating.current = true;
-                        setShowMatchAnimation(true);
+                        // Purgatory: show animation ONLY if the tutorial is not active
+                        if (!showTutorialRef.current) {
+                            console.log('Purgatory pairing - triggering animation');
+                            isAnimating.current = true;
+                            setShowMatchAnimation(true);
+                        } else {
+                            console.log('Purgatory pairing - skipping animation (tutorial active)');
+                        }
                         
-                        // Play notification sound to alert user of purgatory match
-                        if (notificationSoundRef.current) {
-                            notificationSoundRef.current.currentTime = 0;
-                            notificationSoundRef.current.play().catch(e => 
-                                console.log('Purgatory notification sound blocked:', e)
-                            );
+                        // Play notification sound to alert user of purgatory match (always, even during tutorial)
+                        const playPurgatorySound = () => {
+                            if (notificationSoundRef.current) {
+                                notificationSoundRef.current.currentTime = 0;
+                                notificationSoundRef.current.play().catch(e => 
+                                    console.log('Purgatory notification sound blocked:', e)
+                                );
+                            }
+                        };
+
+                        if (showTutorialRef.current) {
+                            setTimeout(playPurgatorySound, 8000);
+                        } else {
+                            playPurgatorySound();
                         }
                         
                         // Banner only if there's also an interest match
@@ -864,6 +876,12 @@ const LobbyScreen = () => {
 
     // Add this state to track if we should show the tutorial
     const [showTutorial, setShowTutorial] = useState(false);
+    const showTutorialRef = useRef(false);
+
+    // Keep ref in sync so polling closure always has the latest value
+    useEffect(() => {
+        showTutorialRef.current = showTutorial;
+    }, [showTutorial]);
     
     // Profile modal state
     const [showProfileModal, setShowProfileModal] = useState(false);

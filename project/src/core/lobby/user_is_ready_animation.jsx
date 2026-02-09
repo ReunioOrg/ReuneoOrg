@@ -124,7 +124,7 @@ const UserIsReadyAnimation = ({ isVisible, onAnimationEnd }) => {
                             animate={{ opacity: 1 }}
                             transition={{ delay: 1, duration: 0.3 }}
                         >
-                            Waiting for the next round
+                            You will be paired up soon.
                         </motion.div>
                     </motion.div>
                 </motion.div>
