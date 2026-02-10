@@ -42,7 +42,7 @@ const LobbyScreen = () => {
     const [showTagsFocusOverlay, setShowTagsFocusOverlay] = useState(false);
     const [isSessionEnding, setIsSessionEnding] = useState(false);
     
-    const { audioRef, error, playSound, loadSound, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying } = usePlaySound();
+    const { audioRef, error, playSound, loadSound, loadAmbientSound, switchToMainTrack, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying } = usePlaySound();
     const [lobbyCode, setLobbyCode] = useState('yonder');
     const navigate = useNavigate();
     const { code } = useParams();
@@ -137,6 +137,7 @@ const LobbyScreen = () => {
     const roundPosition = useRef(null);
     const beatGoOff = useRef(null);
     const isTerminatingRef = useRef(false);  // Guard: prevent re-triggering termination jingle
+    const audioSwitchoverDone = useRef(false);  // Guard: tracks if ambient→main audio switchover has been attempted
     const [lobbyState, setLobbyState] = useState(null);
     const [roundTimeLeft, setRoundTimeLeft] = useState(null);
     const [roundDisplayTime, setRoundDisplayTime] = useState(null);
@@ -392,18 +393,17 @@ const LobbyScreen = () => {
                         isTerminatingRef.current = true;
                         setIsSessionEnding(true);
                         
-                        // If audio is alive, play the termination jingle before navigating
-                        if (audioRef.current) {
-                            seekTo(playat);
+                        // Switch to main track for termination jingle (handles both ambient and main modes)
+                        switchToMainTrack(playat).then(() => {
                             setTimeout(() => {
                                 cancelSound();
                                 navigate('/post-event-auth');
                             }, 7000);
-                        } else {
-                            // No audio — navigate immediately (same as original behavior)
+                        }).catch(() => {
+                            // Audio switchover failed — navigate immediately
                             cancelSound();
                             navigate('/post-event-auth');
-                        }
+                        });
                     }
                     return;  // Exit early, don't continue processing
                 }
@@ -452,12 +452,21 @@ const LobbyScreen = () => {
                     setServerdesiringTags(data.player_tags.desiring_tags_work);
                 }
         
-                // Loop ambient audio during checkin to prevent jingle/crash from long checkins
-                if (data.lobby_state === "checkin" && audioRef.current && audioRef.current.currentTime > 500 && !isTerminatingRef.current) {
-                    audioRef.current.currentTime = 0;
+                // Audio switchover: when leaving checkin, switch from ambient loop to main track
+                // Uses a ref (not state) so it works correctly in the stale polling closure
+                if (!audioSwitchoverDone.current && data.lobby_state !== "checkin") {
+                    audioSwitchoverDone.current = true;
+                    const seekPos = data.lobby_state === "active" && roundPosition.current
+                        ? playat - roundPosition.current
+                        : playat;
+                    switchToMainTrack(seekPos).catch(() => {
+                        // Browser blocked audio switchover — re-show sound prompt for one-tap re-enable
+                        setShowSoundPrompt(true);
+                    });
                 }
 
-                if ((roundPosition.current!=null) && (data.lobby_state=="active")) {
+                // Regular active state audio sync (runs after switchover is complete)
+                if (audioSwitchoverDone.current && (roundPosition.current!=null) && (data.lobby_state=="active")) {
                     if (roundPosition.current!=0) {
                         seekTo(playat-roundPosition.current);
                         console.log("seeking to", playat-roundPosition.current);
@@ -607,13 +616,6 @@ const LobbyScreen = () => {
                     }
                 }
                 
-                // Detect first round start (checkin → interrim) and trigger jingle
-                if (prevLobbyState === "checkin" && data.lobby_state === "interrim") {
-                    if (audioRef.current) {
-                        seekTo(playat);
-                    }
-                }
-
                 setPrevLobbyState(data.lobby_state);
             }
         } catch (error) {
@@ -742,7 +744,11 @@ const LobbyScreen = () => {
                     <p style={{ color: '#6b7280', fontSize: '0.9rem', marginBottom: '4px' }}>Raise your volume for the best experience</p>
                     <button 
                         onClick={() => {
-                            loadSound();
+                            if (lobbyState === "checkin") {
+                                loadAmbientSound();
+                            } else {
+                                loadSound();
+                            }
                             setShowSoundPrompt(false);
                         }}
                         style={{
