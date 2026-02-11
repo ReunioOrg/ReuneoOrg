@@ -5,6 +5,8 @@ import './user_is_ready_animation.css';
 const UserIsReadyAnimation = ({ isVisible, onAnimationEnd }) => {
     const [active, setActive] = useState(false);
     const timerRef = useRef(null);
+    const callbackRef = useRef(onAnimationEnd);
+    callbackRef.current = onAnimationEnd; // Always stays fresh with latest closure
 
     useEffect(() => {
         if (timerRef.current) {
@@ -16,9 +18,7 @@ const UserIsReadyAnimation = ({ isVisible, onAnimationEnd }) => {
 
             timerRef.current = setTimeout(() => {
                 setActive(false);
-                if (onAnimationEnd) {
-                    onAnimationEnd();
-                }
+                callbackRef.current?.();
             }, 2200);
         } else {
             setActive(false);
@@ -30,7 +30,7 @@ const UserIsReadyAnimation = ({ isVisible, onAnimationEnd }) => {
                 timerRef.current = null;
             }
         };
-    }, [isVisible, onAnimationEnd]);
+    }, [isVisible]);
 
     return (
         <AnimatePresence>

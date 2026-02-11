@@ -837,21 +837,16 @@ const LobbyScreen = () => {
     const handleSave = () => {
         if (desiringTags != null) {
             define_profile_info(selfTags || [], desiringTags);
-            // Delay optimistic UI update until after scroll completes
-            setTimeout(() => {
-                setServerselfTags(selfTags || []);
-                setServerdesiringTags(desiringTags);
-            }, 800); // Delay to allow scroll animation to complete
-            setTimeout(() => {
-                if (!isReadyAnimating.current) {
-                    isReadyAnimating.current = true;
-                    setShowReadyAnimation(true);
-                    setTagsCompleted(true);
-                }
-            }, 500);
+            if (!isReadyAnimating.current) {
+                isReadyAnimating.current = true;
+                setShowReadyAnimation(true);
+                setTagsCompleted(true);
+            }
+        } else {
+            // No tags to save — just scroll back up
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         setShowTagsFocusOverlay(false); // Dismiss the focus overlay
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleBack = () => {
@@ -1525,6 +1520,13 @@ const LobbyScreen = () => {
                 onAnimationEnd={() => {
                     setShowReadyAnimation(false);
                     isReadyAnimating.current = false;
+                    // Scroll to top after animation completes
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    // Update server tags after scroll finishes to avoid layout shift interruption
+                    setTimeout(() => {
+                        setServerselfTags(selfTags || []);
+                        setServerdesiringTags(desiringTags);
+                    }, 600);
                 }} 
             />
 
