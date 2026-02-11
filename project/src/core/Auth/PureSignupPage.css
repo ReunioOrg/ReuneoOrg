@@ -106,7 +106,7 @@
 }
 
 /* Step form styles */
-.step-form-container {
+.signup-container .step-form-container {
     position: relative;
     width: 100%;
     max-width: 400px;
@@ -114,6 +114,10 @@
     overflow: hidden;
     padding: 0 15px;
     box-sizing: border-box;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
 }
 
 .step-form {
@@ -407,7 +411,7 @@
         padding: 5px;
     }
 
-    .step-form-container {
+    .signup-container .step-form-container {
         padding: 0 10px;
     }
 
