@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import AnimatedTagList from './animated_tag_list';
 import ProfileDropdown from './ProfileDropdown';
 import LobbyProfileModal from './LobbyProfileModal';
+import TagsPhaseIntroOverlay from './tags_phase_intro_overlay';
 
 const AVAILABLE_TAGS = []; // Remove hardcoded tags
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
@@ -40,6 +41,8 @@ const LobbyScreen = () => {
     const isReadyAnimating = useRef(false);
     const [tagsCompleted, setTagsCompleted] = useState(false);
     const [showTagsFocusOverlay, setShowTagsFocusOverlay] = useState(false);
+    const [showPhaseIntro, setShowPhaseIntro] = useState(false);
+    const phaseIntroTimeoutRef = useRef(null);
     const [isSessionEnding, setIsSessionEnding] = useState(false);
     
     const { audioRef, error, playSound, loadSound, loadAmbientSound, switchToMainTrack, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying } = usePlaySound();
@@ -824,6 +827,7 @@ const LobbyScreen = () => {
             }, 800); // Delay to allow scroll animation to complete
         }
         setSelectionPhase('desiring');
+        triggerPhaseIntro();
         
         // Add scroll behavior after a short delay to ensure phase transition is complete
         setTimeout(() => {
@@ -851,7 +855,27 @@ const LobbyScreen = () => {
 
     const handleBack = () => {
         setSelectionPhase('self');
+        triggerPhaseIntro();
     };
+
+    const triggerPhaseIntro = () => {
+        if (phaseIntroTimeoutRef.current) {
+            clearTimeout(phaseIntroTimeoutRef.current);
+        }
+        setShowPhaseIntro(true);
+        phaseIntroTimeoutRef.current = setTimeout(() => {
+            setShowPhaseIntro(false);
+        }, 2300); // Unmount at 2.0s + 0.3s exit animation = 2.3s total
+    };
+
+    // Cleanup phase intro timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (phaseIntroTimeoutRef.current) {
+                clearTimeout(phaseIntroTimeoutRef.current);
+            }
+        };
+    }, []);
 
     // Add this state to track if we should show the animation
     const [showLobbyCountdown, setShowLobbyCountdown] = useState(false);
@@ -927,6 +951,7 @@ const LobbyScreen = () => {
             tagsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
             setHasScrolledToTags(true);
             setShowTagsFocusOverlay(true);
+            triggerPhaseIntro();
         }
     }, [serverselfTags, serverdesiringTags, tagsState, hasScrolledToTags, soundEnabled, showSoundPrompt, lobbyState, isPlaying]);
 
@@ -1405,17 +1430,30 @@ const LobbyScreen = () => {
                         }
                     }}>
                         <div className={`tags-section ${showTagsFocusOverlay ? 'focused' : ''}`} ref={tagsSectionRef}>
+                            {/* Phase Intro Overlay */}
+                            <TagsPhaseIntroOverlay isVisible={showPhaseIntro} phase={selectionPhase} />
+
                             {/* Progress Bar Tabs */}
                             <div className="progress-bar-container">
                                 <div 
                                     className={`self-progress-bar-tab ${selectionPhase === 'self' ? 'active' : ''} ${serverselfTags.length > 0 ? 'complete' : ''}`}
-                                    onClick={() => setSelectionPhase('self')}
+                                    onClick={() => {
+                                        if (selectionPhase !== 'self') {
+                                            setSelectionPhase('self');
+                                            triggerPhaseIntro();
+                                        }
+                                    }}
                                 >
                                     Who are you?
                                 </div>
                                 <div 
                                     className={`desiring-progress-bar-tab ${selectionPhase === 'desiring' ? 'active' : ''} ${serverdesiringTags.length > 0 ? 'complete' : ''}`}
-                                    onClick={() => serverselfTags.length > 0 ? setSelectionPhase('desiring') : null}
+                                    onClick={() => {
+                                        if (serverselfTags.length > 0 && selectionPhase !== 'desiring') {
+                                            setSelectionPhase('desiring');
+                                            triggerPhaseIntro();
+                                        }
+                                    }}
                                 >
                                     Who do you want to meet?
                                 </div>

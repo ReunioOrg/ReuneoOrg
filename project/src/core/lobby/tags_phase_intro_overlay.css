@@ -1,0 +1,37 @@
+/* Tags Phase Intro Overlay - covers tags section with animated cursive title */
+
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
+
+.tags-phase-intro-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.tags-phase-intro-text {
+    font-family: 'Dancing Script', cursive;
+    color: var(--text-dark);
+    font-size: 2.4rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 0;
+    padding: 0 1.5rem;
+    white-space: nowrap;
+}
+
+/* Responsive: scale down for smaller screens */
+@media (max-width: 480px) {
+    .tags-phase-intro-text {
+        font-size: 2rem;
+        padding: 0 1rem;
+    }
+}
