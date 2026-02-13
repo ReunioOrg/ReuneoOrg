@@ -865,7 +865,7 @@ const LobbyScreen = () => {
         setShowPhaseIntro(true);
         phaseIntroTimeoutRef.current = setTimeout(() => {
             setShowPhaseIntro(false);
-        }, 2300); // Unmount at 2.0s + 0.3s exit animation = 2.3s total
+        }, 2300); // Unmount at 2.3s + 0.3s exit animation = 2.6s total
     };
 
     // Cleanup phase intro timeout on unmount
