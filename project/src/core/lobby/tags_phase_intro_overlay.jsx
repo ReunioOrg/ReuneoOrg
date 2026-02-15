@@ -22,7 +22,7 @@ const TagsPhaseIntroOverlay = ({ isVisible, phase }) => (
                     initial={{ clipPath: 'inset(0 100% 0 0)' }}
                     animate={{ clipPath: 'inset(0 0% 0 0)' }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 2.2, ease: 'easeOut' }}
+                    transition={{ duration: 1.8, ease: 'easeOut' }}
                 >
                     {PHASE_TEXT[phase] || PHASE_TEXT.self}
                 </motion.h2>
