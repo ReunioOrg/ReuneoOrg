@@ -697,8 +697,8 @@ const App = () => {
           }}>
             <div
               className="app-dock-item-standalone"
-              onClick={() => window.location.href = 'https://reuneo.com/organizer-signup'}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.location.href = 'https://reuneo.com/organizer-signup'; } }}
+              onClick={() => window.location.href = 'https://reuneo.app/become-an-organizer'}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.location.href = 'https://reuneo.app/become-an-organizer'; } }}
               tabIndex={0}
               role="button"
               aria-label="Organizer"
