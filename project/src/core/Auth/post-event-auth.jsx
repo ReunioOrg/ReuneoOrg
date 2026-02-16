@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from './AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaInstagram, FaFacebookF, FaLinkedinIn, FaEnvelope, FaPhone, FaGlobe, FaTiktok, FaSnapchatGhost } from 'react-icons/fa';
 import './post-event-auth.css';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { apiFetch } from '../utils/api';
@@ -16,6 +18,99 @@ import { apiFetch } from '../utils/api';
 // ============================================================
 const ENABLE_MAGIC_LINK = true;
 
+// Social platform config — drives both the scroll selector and the input fields
+// Order: phone, email, website, instagram, facebook, tiktok, snapchat
+const SOCIAL_PLATFORMS = [
+    { key: 'phone',     label: 'Phone',     Icon: FaPhone,          color: '#25D366', placeholder: '+1 (555) 123-4567', type: 'tel',   stripAt: false },
+    { key: 'email',     label: 'Email',     Icon: FaEnvelope,       color: '#4b7ef0', placeholder: 'you@example.com',   type: 'email', stripAt: false },
+    { key: 'website',   label: 'Website',   Icon: FaGlobe,          color: '#4b7ef0', placeholder: 'https://yourwebsite.com', type: 'text', stripAt: false },
+    { key: 'instagram', label: 'Instagram', Icon: FaInstagram,      color: '#E4405F', placeholder: '@username',          type: 'text',  stripAt: true },
+    { key: 'facebook',  label: 'Facebook',  Icon: FaFacebookF,      color: '#1877F2', placeholder: '@username',          type: 'text',  stripAt: true },
+    { key: 'linkedin',  label: 'LinkedIn',  Icon: FaLinkedinIn,     color: '#0A66C2', placeholder: 'john-smith',              type: 'text',  stripAt: false },
+    { key: 'tiktok',    label: 'TikTok',    Icon: FaTiktok,         color: '#000000', placeholder: '@username',          type: 'text',  stripAt: true },
+    { key: 'snapchat',  label: 'Snapchat',  Icon: FaSnapchatGhost,  color: '#F7D600', placeholder: '@username',          type: 'text',  stripAt: true },
+];
+
+// Infinite-loop scroll selector for choosing which social platforms to share
+const SocialPlatformSelector = ({ platforms, selectedPlatforms, onToggle }) => {
+    const listRef = useRef(null);
+    const isSnapping = useRef(false);
+
+    // After first paint, jump to the middle copy so the user can scroll in both directions
+    useEffect(() => {
+        const el = listRef.current;
+        if (!el) return;
+        const raf = requestAnimationFrame(() => {
+            const setHeight = el.scrollHeight / 3;
+            el.scrollTop = setHeight;
+        });
+        return () => cancelAnimationFrame(raf);
+    }, []);
+
+    // Infinite-loop snap: keep the viewport within the middle copy
+    const handleScroll = useCallback(() => {
+        const el = listRef.current;
+        if (!el || isSnapping.current) return;
+
+        const setHeight = el.scrollHeight / 3;
+        const scrollTop = el.scrollTop;
+
+        if (scrollTop < setHeight) {
+            isSnapping.current = true;
+            el.scrollTop = scrollTop + setHeight;
+            requestAnimationFrame(() => { isSnapping.current = false; });
+        } else if (scrollTop >= setHeight * 2) {
+            isSnapping.current = true;
+            el.scrollTop = scrollTop - setHeight;
+            requestAnimationFrame(() => { isSnapping.current = false; });
+        }
+    }, []);
+
+    // Render three identical copies: [clone A] [original B] [clone C]
+    const tripleItems = [...platforms, ...platforms, ...platforms];
+
+    return (
+        <div className="social-selector-container">
+            <div
+                ref={listRef}
+                className="social-selector-list"
+                onScroll={handleScroll}
+            >
+                {tripleItems.map((platform, index) => {
+                    const isSelected = selectedPlatforms.has(platform.key);
+                    const { Icon, color, label } = platform;
+
+                    return (
+                        <div key={`${platform.key}-${index}`} className="social-selector-item-wrapper">
+                            <label
+                                className={`social-selector-item ${isSelected ? 'selected' : ''}`}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    onToggle(platform.key);
+                                }}
+                            >
+                                <div className={`social-selector-checkbox ${isSelected ? 'checked' : ''}`}>
+                                    {isSelected && (
+                                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                            <path d="M11.5 3.5L5.5 10L2.5 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    )}
+                                </div>
+                                <span className="social-selector-label">{label}</span>
+                                <span className="social-selector-icon">
+                                    <Icon size={20} color={color} />
+                                </span>
+                            </label>
+                        </div>
+                    );
+                })}
+            </div>
+            <div className="social-selector-top-gradient"></div>
+            <div className="social-selector-bottom-gradient"></div>
+        </div>
+    );
+};
+
 const PostEventAuth = () => {
     const navigate = useNavigate();
     const { checkAuth, user, isAuthLoading } = useContext(AuthContext);
@@ -29,8 +124,10 @@ const PostEventAuth = () => {
     const [personalEmail, setPersonalEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [website, setWebsite] = useState('');
+    const [linkedin, setLinkedin] = useState('');
     const [tiktok, setTiktok] = useState('');
     const [snapchat, setSnapchat] = useState('');
+    const [selectedPlatforms, setSelectedPlatforms] = useState(new Set());
     const [isEmailVerified, setIsEmailVerified] = useState(false);
     const [isLoadingUserData, setIsLoadingUserData] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -111,8 +208,21 @@ const PostEventAuth = () => {
                 setPersonalEmail(socialLinks.email || '');
                 setPhone(socialLinks.phone || '');
                 setWebsite(socialLinks.website || '');
+                setLinkedin(socialLinks.linkedin || '');
                 setTiktok(socialLinks.tiktok || '');
                 setSnapchat(socialLinks.snapchat || '');
+                
+                // Pre-select platforms that have saved values
+                const initialSelected = new Set();
+                if (socialLinks.phone) initialSelected.add('phone');
+                if (socialLinks.email) initialSelected.add('email');
+                if (socialLinks.website) initialSelected.add('website');
+                if (socialLinks.instagram) initialSelected.add('instagram');
+                if (socialLinks.facebook) initialSelected.add('facebook');
+                if (socialLinks.linkedin) initialSelected.add('linkedin');
+                if (socialLinks.tiktok) initialSelected.add('tiktok');
+                if (socialLinks.snapchat) initialSelected.add('snapchat');
+                setSelectedPlatforms(initialSelected);
                 
                 // Check if email is already verified
                 setIsEmailVerified(userData.email_verified === true);
@@ -138,6 +248,22 @@ const PostEventAuth = () => {
         }
     }, [showEmailWarningToast]);
 
+    // Auto-redirect after magic link is sent: show spinner for 4s then go to matches
+    useEffect(() => {
+        if (!magicLinkSent) return;
+
+        const timer = setTimeout(async () => {
+            try {
+                await checkAuth();
+            } catch (err) {
+                console.error('checkAuth failed during redirect:', err);
+            }
+            navigate('/paired-player-history');
+        }, 4000);
+
+        return () => clearTimeout(timer);
+    }, [magicLinkSent, checkAuth, navigate]);
+
     // Handle email input focus - show warning toast once
     const handleEmailFocus = () => {
         if (!isEmailVerified && !hasShownEmailToast) {
@@ -146,28 +272,41 @@ const PostEventAuth = () => {
         }
     };
 
-    // Handle input for handle-based social platforms (strip all @ symbols)
-    const handleInstagramChange = (e) => {
-        setInstagram(e.target.value.replace(/@/g, ''));
+    // Social field value and setter maps for generic handling
+    const socialFieldValues = {
+        phone, email: personalEmail, website, instagram, facebook, linkedin, tiktok, snapchat
     };
-    const handleFacebookChange = (e) => {
-        setFacebook(e.target.value.replace(/@/g, ''));
-    };
-    const handleTiktokChange = (e) => {
-        setTiktok(e.target.value.replace(/@/g, ''));
-    };
-    const handleSnapchatChange = (e) => {
-        setSnapchat(e.target.value.replace(/@/g, ''));
+    const socialFieldSetters = {
+        phone: setPhone, email: setPersonalEmail, website: setWebsite,
+        instagram: setInstagram, facebook: setFacebook, linkedin: setLinkedin, tiktok: setTiktok, snapchat: setSnapchat
     };
 
-    // Build social_links object for API
+    // Generic handler for social link field changes (strips @ for handle-based platforms)
+    const handleSocialFieldChange = (key, value) => {
+        const platform = SOCIAL_PLATFORMS.find(p => p.key === key);
+        const cleanedValue = platform?.stripAt ? value.replace(/@/g, '') : value;
+        socialFieldSetters[key](cleanedValue);
+    };
+
+    // Toggle platform selection in the scroll selector
+    const handlePlatformToggle = (key) => {
+        setSelectedPlatforms(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(key)) {
+                newSet.delete(key);
+            } else {
+                newSet.add(key);
+            }
+            return newSet;
+        });
+    };
+
+    // Build social_links object for API (only includes selected platforms with values)
     const buildSocialLinks = () => {
         const links = {};
-        if (instagram.trim()) links.instagram = instagram.trim();
-        if (facebook.trim()) links.facebook = facebook.trim();
-        if (personalEmail.trim()) links.email = personalEmail.trim();
-        if (phone.trim()) links.phone = phone.trim();
-        if (website.trim()) {
+        if (selectedPlatforms.has('phone') && phone.trim()) links.phone = phone.trim();
+        if (selectedPlatforms.has('email') && personalEmail.trim()) links.email = personalEmail.trim();
+        if (selectedPlatforms.has('website') && website.trim()) {
             // Auto-prepend https:// if missing protocol
             let url = website.trim();
             if (url && !url.match(/^https?:\/\//i)) {
@@ -175,21 +314,27 @@ const PostEventAuth = () => {
             }
             links.website = url;
         }
-        if (tiktok.trim()) links.tiktok = tiktok.trim();
-        if (snapchat.trim()) links.snapchat = snapchat.trim();
+        if (selectedPlatforms.has('instagram') && instagram.trim()) links.instagram = instagram.trim();
+        if (selectedPlatforms.has('facebook') && facebook.trim()) links.facebook = facebook.trim();
+        if (selectedPlatforms.has('linkedin') && linkedin.trim()) {
+            let handle = linkedin.trim();
+            // Extract handle from full URL if user pasted one (e.g. linkedin.com/in/john-smith)
+            const linkedinMatch = handle.match(/linkedin\.com\/in\/([^/?#]+)/i);
+            if (linkedinMatch) {
+                handle = linkedinMatch[1];
+            }
+            handle = handle.replace(/^\/+|\/+$/g, '');
+            links.linkedin = handle;
+        }
+        if (selectedPlatforms.has('tiktok') && tiktok.trim()) links.tiktok = tiktok.trim();
+        if (selectedPlatforms.has('snapchat') && snapchat.trim()) links.snapchat = snapchat.trim();
         return Object.keys(links).length > 0 ? links : null;
     };
 
-    // Check if at least one social link is provided
+    // Check if at least one social link is selected and has a value
     const hasAtLeastOneSocialLink = () => {
-        return !!(
-            instagram.trim() ||
-            facebook.trim() ||
-            personalEmail.trim() ||
-            phone.trim() ||
-            website.trim() ||
-            tiktok.trim() ||
-            snapchat.trim()
+        return SOCIAL_PLATFORMS.some(p =>
+            selectedPlatforms.has(p.key) && socialFieldValues[p.key]?.trim()
         );
     };
 
@@ -426,7 +571,7 @@ const PostEventAuth = () => {
                         border: '1.5px solid #e5e7eb',
                         borderRadius: '12px',
                         padding: '14px 18px',
-                        marginBottom: '20px',
+                        marginBottom: '28px',
                         fontWeight: '600',
                         color: '#1a1a2e',
                         wordBreak: 'break-all',
@@ -434,32 +579,7 @@ const PostEventAuth = () => {
                     }}>
                         {email}
                     </div>
-                    <p style={{ 
-                        color: '#1a1a2e', 
-                        marginBottom: '24px',
-                        lineHeight: '1.6',
-                        fontSize: '0.95rem',
-                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-                    }}>
-                        Click the link in your email to access your matches.
-                    </p>
-                    <p style={{ 
-                        color: '#6b7280', 
-                        fontSize: '0.85rem',
-                        marginBottom: '28px',
-                        lineHeight: '1.5',
-                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-                    }}>
-                        The link expires in 15 minutes.
-                        <br />
-                        Don't see it? Check your spam folder.
-                    </p>
-                    <button 
-                        onClick={() => setMagicLinkSent(false)}
-                        className="primary-button"
-                    >
-                        ← Back to Form
-                    </button>
+                    <LoadingSpinner size={40} />
                 </div>
             </div>
         );
@@ -664,94 +784,43 @@ const PostEventAuth = () => {
                     {/* Social Links Section */}
                     <div className="social-links-section">
                         <div className="social-links-header">
-                            <span className="social-links-title">Share Your Contact Info</span>
-                            <span className="social-links-subtitle">(At least one required)</span>
+                            <span className="social-links-title">Choose your preferred info to share</span>
+                            <span className="social-links-subtitle">Don't worry, only people who you choose to share with can see it</span>
                         </div>
                         
-                        {/* Instagram */}
-                        <div className="social-link-field">
-                            <label className="step-label">Instagram</label>
-                            <input
-                                type="text"
-                                value={instagram}
-                                onChange={handleInstagramChange}
-                                placeholder="@username"
-                                className="step-input"
-                            />
-                        </div>
+                        {/* Platform Selector — Infinite Scroll */}
+                        <SocialPlatformSelector
+                            platforms={SOCIAL_PLATFORMS}
+                            selectedPlatforms={selectedPlatforms}
+                            onToggle={handlePlatformToggle}
+                        />
                         
-                        {/* Facebook */}
-                        <div className="social-link-field">
-                            <label className="step-label">Facebook</label>
-                            <input
-                                type="text"
-                                value={facebook}
-                                onChange={handleFacebookChange}
-                                placeholder="@username"
-                                className="step-input"
-                            />
-                        </div>
-                        
-                        {/* Personal Email */}
-                        <div className="social-link-field">
-                            <label className="step-label">Personal Email</label>
-                            <input
-                                type="email"
-                                value={personalEmail}
-                                onChange={(e) => setPersonalEmail(e.target.value)}
-                                placeholder="you@example.com"
-                                className="step-input"
-                            />
-                            <span className="social-link-helper">Separate email for people to reach you</span>
-                        </div>
-                        
-                        {/* Phone */}
-                        <div className="social-link-field">
-                            <label className="step-label">Phone</label>
-                            <input
-                                type="tel"
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                                placeholder="+1 (555) 123-4567"
-                                className="step-input"
-                            />
-                        </div>
-                        
-                        {/* Website */}
-                        <div className="social-link-field">
-                            <label className="step-label">Website</label>
-                            <input
-                                type="text"
-                                value={website}
-                                onChange={(e) => setWebsite(e.target.value)}
-                                placeholder="https://yourwebsite.com"
-                                className="step-input"
-                            />
-                        </div>
-                        
-                        {/* TikTok */}
-                        <div className="social-link-field">
-                            <label className="step-label">TikTok</label>
-                            <input
-                                type="text"
-                                value={tiktok}
-                                onChange={handleTiktokChange}
-                                placeholder="@username"
-                                className="step-input"
-                            />
-                        </div>
-                        
-                        {/* Snapchat */}
-                        <div className="social-link-field">
-                            <label className="step-label">Snapchat</label>
-                            <input
-                                type="text"
-                                value={snapchat}
-                                onChange={handleSnapchatChange}
-                                placeholder="@username"
-                                className="step-input"
-                            />
-                        </div>
+                        {/* Conditional Fields — only show selected platforms */}
+                        <AnimatePresence initial={false}>
+                            {SOCIAL_PLATFORMS.filter(p => selectedPlatforms.has(p.key)).map(platform => (
+                                <motion.div
+                                    key={platform.key}
+                                    className="social-link-field"
+                                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                                    animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+                                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                                    style={{ overflow: 'hidden' }}
+                                >
+                                    <label className="step-label">{platform.label}</label>
+                                    <input
+                                        type={platform.type}
+                                        value={socialFieldValues[platform.key]}
+                                        onChange={(e) => handleSocialFieldChange(platform.key, e.target.value)}
+                                        placeholder={platform.placeholder}
+                                        className="step-input"
+                                    />
+                                    {platform.key === 'email' && (
+                                        <span className="social-link-helper">Separate email for people to reach you</span>
+                                    )}
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
                     </div>
 
                     <button 

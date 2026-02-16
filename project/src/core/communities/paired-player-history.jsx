@@ -5,7 +5,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import './paired-player-history.css';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { apiFetch } from '../utils/api';
-import { FaInstagram, FaFacebookF, FaEnvelope, FaPhone, FaGlobe, FaTiktok, FaSnapchatGhost } from 'react-icons/fa';
+import { FaInstagram, FaFacebookF, FaLinkedinIn, FaEnvelope, FaPhone, FaGlobe, FaTiktok, FaSnapchatGhost } from 'react-icons/fa';
 
 // Inline Loading Spinner for list items (uses existing CSS)
 const InlineLoadingSpinner = ({ size = 60, className = '' }) => {
@@ -43,7 +43,7 @@ const formatImageData = (imageData) => {
 };
 
 // Social links platform order (matches post-event-auth.jsx)
-const SOCIAL_PLATFORM_ORDER = ['instagram', 'facebook', 'email', 'phone', 'website', 'tiktok', 'snapchat'];
+const SOCIAL_PLATFORM_ORDER = ['phone', 'email', 'website', 'instagram', 'facebook', 'linkedin', 'tiktok', 'snapchat'];
 
 // Helper function: Get display info for each social platform
 const getSocialPlatformInfo = (platform) => {
@@ -53,6 +53,7 @@ const getSocialPlatformInfo = (platform) => {
         email: { label: 'Email', Icon: FaEnvelope, color: '#4b7ef0', displayPrefix: '' },
         phone: { label: 'Phone', Icon: FaPhone, color: '#25D366', displayPrefix: '' },
         website: { label: 'Website', Icon: FaGlobe, color: '#4b7ef0', displayPrefix: '' },
+        linkedin: { label: 'LinkedIn', Icon: FaLinkedinIn, color: '#0A66C2', displayPrefix: '' },
         tiktok: { label: 'TikTok', Icon: FaTiktok, color: '#000000', displayPrefix: '@' },
         snapchat: { label: 'Snapchat', Icon: FaSnapchatGhost, color: '#FFFC00', displayPrefix: '@' }
     };
@@ -72,6 +73,8 @@ const buildSocialLinkUrl = (platform, value) => {
             return `https://tiktok.com/@${value}`;
         case 'snapchat':
             return `https://snapchat.com/add/${value}`;
+        case 'linkedin':
+            return `https://linkedin.com/in/${value}`;
         case 'email':
             return `mailto:${value}`;
         case 'phone':
