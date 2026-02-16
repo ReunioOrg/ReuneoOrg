@@ -712,7 +712,7 @@ const PostEventAuth = () => {
             </div>
 
             <h3 className="post-event-auth-header" style={{ marginTop: '12px' }}>
-                Access Your Matches
+                Dont Loose Your Matches!
             </h3>
 
             <div className="step-form-container">

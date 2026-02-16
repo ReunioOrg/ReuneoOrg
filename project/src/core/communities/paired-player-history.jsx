@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../Auth/AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
 import './paired-player-history.css';
@@ -295,7 +295,20 @@ const ShareContactToggle = ({ value, onChange, interactionKey }) => {
 
 const PairedPlayerHistory = () => {
     const navigate = useNavigate();
-    const { checkAuth, user, isAuthLoading } = useContext(AuthContext);
+    const location = useLocation();
+    const { checkAuth, user, isAuthLoading, emailVerified, userProfile } = useContext(AuthContext);
+    
+    // If user just came from a lobby ending AND hasn't verified their email,
+    // let them view the page but redirect to post-event-auth on any interaction
+    const requiresEmailSetup = location.state?.fromLobby === true && emailVerified !== true;
+    
+    // Check if user has zero social links saved
+    const hasSocialLinks = userProfile?.social_links && 
+        typeof userProfile.social_links === 'object' &&
+        Object.values(userProfile.social_links).some(v => v && typeof v === 'string' && v.trim());
+    
+    // Track interaction count — after 2 actions with no social links, redirect to post-event-auth
+    const interactionCountRef = useRef(0);
     
     // State management
     const [interactions, setInteractions] = useState([]);
@@ -623,6 +636,21 @@ const PairedPlayerHistory = () => {
     
     // Handlers for rating and share contact changes
     const handleRatingChange = useCallback((interactionKey, rating) => {
+        // Redirect to post-event-auth if user came from lobby and hasn't verified email
+        if (requiresEmailSetup) {
+            navigate('/post-event-auth');
+            return;
+        }
+        
+        // Nudge users with no social links to set up their profile after 2 actions
+        if (!hasSocialLinks) {
+            interactionCountRef.current += 1;
+            if (interactionCountRef.current >= 2) {
+                navigate('/post-event-auth');
+                return;
+            }
+        }
+        
         // Use interactionsRef.current to avoid stale closure
         const interaction = findInteractionByKey(interactionsRef.current, interactionKey);
         
@@ -785,9 +813,24 @@ const PairedPlayerHistory = () => {
         }, 500);
         
         debounceTimersRef.current.set(interactionKey, timerId);
-    }, [clearPendingUpdates]);
+    }, [clearPendingUpdates, requiresEmailSetup, hasSocialLinks, navigate]);
     
     const handleShareContactChange = useCallback((interactionKey, value) => {
+        // Redirect to post-event-auth if user came from lobby and hasn't verified email
+        if (requiresEmailSetup) {
+            navigate('/post-event-auth');
+            return;
+        }
+        
+        // Nudge users with no social links to set up their profile after 2 actions
+        if (!hasSocialLinks) {
+            interactionCountRef.current += 1;
+            if (interactionCountRef.current >= 2) {
+                navigate('/post-event-auth');
+                return;
+            }
+        }
+        
         // Use interactionsRef.current to avoid stale closure
         const interaction = findInteractionByKey(interactionsRef.current, interactionKey);
         
@@ -950,7 +993,7 @@ const PairedPlayerHistory = () => {
         }, 300);
         
         debounceTimersRef.current.set(interactionKey, timerId);
-    }, [clearPendingUpdates]);
+    }, [clearPendingUpdates, requiresEmailSetup, hasSocialLinks, navigate]);
     
     // Cleanup on unmount
     useEffect(() => {
@@ -991,16 +1034,22 @@ const PairedPlayerHistory = () => {
             
             <button 
                 onClick={() => navigate('/')} 
-                className="homescreen-button"
+                className="history-home-button"
             >
                 Home
             </button>
             
             <button 
                 onClick={() => navigate('/post-event-auth')} 
-                className="update-profile-button"
+                className="history-profile-button"
             >
-                Update Profile
+                <div className="history-profile-avatar">
+                    <img 
+                        src={userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : '/assets/avatar_3.png'} 
+                        alt="Profile" 
+                    />
+                </div>
+                Profile
             </button>
             
             {/* "New Notifications" indicator */}

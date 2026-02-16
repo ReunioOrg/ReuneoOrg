@@ -400,12 +400,12 @@ const LobbyScreen = () => {
                         switchToMainTrack(playat).then(() => {
                             setTimeout(() => {
                                 cancelSound();
-                                navigate('/post-event-auth');
+                                navigate('/paired-player-history', { state: { fromLobby: true } });
                             }, 7000);
                         }).catch(() => {
                             // Audio switchover failed — navigate immediately
                             cancelSound();
-                            navigate('/post-event-auth');
+                            navigate('/paired-player-history', { state: { fromLobby: true } });
                         });
                     }
                     return;  // Exit early, don't continue processing

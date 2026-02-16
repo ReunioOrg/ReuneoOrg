@@ -29,57 +29,92 @@
 }
 
 /* Home Button */
-.paired-player-history-container .homescreen-button {
-    position: absolute;
-    top: 17px;
-    left: 15px;
-    right: auto;
+/* ============================================================
+   Floating Nav Buttons — matches lobby Pause / Profile pill style
+   ============================================================ */
+.history-home-button {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: auto;
-    padding: 8px 16px;
-    background-color: #144dff;
-    border: 2px solid #e9ecef;
-    border-radius: 14px;
-    color: #ffffff;
-    font-family: Helvetica, Arial, sans-serif;
-    font-weight: 800;
+    min-width: 80px;
+    height: 36px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 20px;
     cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.9rem;
-    z-index: 2;
-}
-
-.paired-player-history-container .homescreen-button:hover {
-    background-color: #e9ecef;
-    color: #144dff;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* Update Profile Button */
-.paired-player-history-container .update-profile-button {
-    position: absolute;
-    top: 17px;
-    right: 15px;
-    left: auto;
-    width: auto;
-    padding: 8px 16px;
-    background-color: #144dff;
-    border: 2px solid #e9ecef;
-    border-radius: 14px;
+    background: #1a1a2e;
     color: #ffffff;
-    font-family: Helvetica, Arial, sans-serif;
-    font-weight: 800;
-    cursor: pointer;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.02em;
     transition: all 0.2s ease;
-    font-size: 0.9rem;
-    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.paired-player-history-container .update-profile-button:hover {
-    background-color: #e9ecef;
-    color: #144dff;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.history-home-button:hover {
+    background: #2d2d44;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.history-home-button:active {
+    transform: translateY(0);
+    background: #1a1a2e;
+}
+
+.history-profile-button {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 5px 14px 5px 10px;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    background: #1a1a2e;
+    color: #ffffff;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.02em;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.history-profile-button:hover {
+    background: #2d2d44;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.history-profile-button:active {
+    transform: translateY(0);
+    background: #1a1a2e;
+}
+
+.history-profile-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    flex-shrink: 0;
+}
+
+.history-profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .paired-player-history-content {
@@ -474,18 +509,26 @@
         margin-bottom: 1.5rem;
     }
     
-    .paired-player-history-container .homescreen-button {
-        padding: 6px 12px;
-        font-size: 0.85rem;
-        top: 10px;
-        left: 10px;
+    .history-home-button {
+        top: 12px;
+        left: 12px;
+        min-width: 70px;
+        height: 32px;
+        font-size: 0.8rem;
+        padding: 0 16px;
     }
-    
-    .paired-player-history-container .update-profile-button {
-        padding: 6px 12px;
-        font-size: 0.85rem;
-        top: 10px;
-        right: 10px;
+
+    .history-profile-button {
+        top: 12px;
+        right: 12px;
+        height: 32px;
+        font-size: 0.8rem;
+        padding: 4px 12px 4px 8px;
+    }
+
+    .history-profile-avatar {
+        width: 22px;
+        height: 22px;
     }
     
     .interactions-list {

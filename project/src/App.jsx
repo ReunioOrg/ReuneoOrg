@@ -916,7 +916,7 @@ const App = () => {
                         {
                           icon: <MatchesIcon />,
                           label: 'Matches',
-                          onClick: () => navigate(emailVerified ? '/paired-player-history' : '/post-event-auth'),
+                          onClick: () => navigate(emailVerified ? '/paired-player-history' : '/paired-player-history'),
                           disabled: false
                         },
                         {
