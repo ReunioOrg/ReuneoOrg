@@ -6,6 +6,7 @@ import Cropper from 'react-easy-crop';
 import getCroppedImg from '../cropImage';
 import './create_lobby.css';
 import { apiFetch } from '../utils/api';
+import FloatingLinesBackground from './FloatingLinesBackground';
 
 const CreateLobbyView = () => {
     const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
@@ -332,8 +333,9 @@ const CreateLobbyView = () => {
 
     return (
         <div className="create-lobby-background">
+            <FloatingLinesBackground />
             <img 
-                src="/assets/reuneo_test_9.png"
+                src="/assets/reuneo_test_11.png"
                 alt="Reunio Logo"
                 className="logo-image"
                 onClick={() => navigate(-1)}

@@ -4,8 +4,9 @@ import { useLocation } from 'react-router-dom';
 function RouteLayoutHandler() {
   const { pathname } = useLocation();
   
-  // Detect if we're on the dashboard route
-  const isDashboardRoute = pathname.startsWith('/organizer-dashboard');
+  // Detect if we're on a full-width organizer route
+  const isDashboardRoute = pathname.startsWith('/organizer-dashboard')
+    || pathname.startsWith('/create_lobby');
 
   useEffect(() => {
     const rootElement = document.getElementById('root');
