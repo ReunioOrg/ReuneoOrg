@@ -498,6 +498,76 @@
     font-weight: 500;
 }
 
+/* Profile Incomplete Modal Styles (mirrors lobby pause-info-modal) */
+.profile-incomplete-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.profile-incomplete-modal-content {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 32px 28px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.profile-incomplete-modal-header {
+    color: #1a1a2e;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    line-height: 1.3;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.profile-incomplete-modal-subtext {
+    color: #6b7280;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0 0 24px 0;
+    line-height: 1.5;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.profile-incomplete-modal-button {
+    width: 100%;
+    padding: 14px 24px;
+    background: #1a1a2e;
+    color: #ffffff;
+    border: none;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: all 0.2s ease;
+}
+
+.profile-incomplete-modal-button:hover {
+    background: #2d2d44;
+    transform: translateY(-1px);
+}
+
+.profile-incomplete-modal-button:active {
+    transform: translateY(0);
+    background: #1a1a2e;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .paired-player-history-container {
@@ -586,5 +656,23 @@
     
     .star-button {
         font-size: 1.3rem;
+    }
+    
+    .profile-incomplete-modal-content {
+        padding: 28px 24px;
+        max-width: 300px;
+    }
+    
+    .profile-incomplete-modal-header {
+        font-size: 1.15rem;
+    }
+    
+    .profile-incomplete-modal-subtext {
+        font-size: 0.9rem;
+    }
+    
+    .profile-incomplete-modal-button {
+        padding: 12px 20px;
+        font-size: 0.95rem;
     }
 }

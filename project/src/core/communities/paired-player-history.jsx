@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useContext, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { AuthContext } from '../Auth/AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
 import './paired-player-history.css';
@@ -307,7 +308,7 @@ const PairedPlayerHistory = () => {
         typeof userProfile.social_links === 'object' &&
         Object.values(userProfile.social_links).some(v => v && typeof v === 'string' && v.trim());
     
-    // Track interaction count — after 2 actions with no social links, redirect to post-event-auth
+    // Track interaction count — after 3 actions with no social links, show profile incomplete modal
     const interactionCountRef = useRef(0);
     
     // State management
@@ -318,6 +319,7 @@ const PairedPlayerHistory = () => {
     const [nextOffset, setNextOffset] = useState(0);
     const [error, setError] = useState(null);
     const [newInfoIndicator, setNewInfoIndicator] = useState(false);
+    const [showProfileIncompleteModal, setShowProfileIncompleteModal] = useState(false);
     
     // State Maps for user interactions (ratings and share contact preferences)
     const [interactionRatings, setInteractionRatings] = useState(new Map());
@@ -642,11 +644,11 @@ const PairedPlayerHistory = () => {
             return;
         }
         
-        // Nudge users with no social links to set up their profile after 2 actions
+        // Nudge users with no social links to set up their profile after 3 actions
         if (!hasSocialLinks) {
             interactionCountRef.current += 1;
-            if (interactionCountRef.current >= 2) {
-                navigate('/post-event-auth');
+            if (interactionCountRef.current >= 3) {
+                setShowProfileIncompleteModal(true);
                 return;
             }
         }
@@ -822,11 +824,11 @@ const PairedPlayerHistory = () => {
             return;
         }
         
-        // Nudge users with no social links to set up their profile after 2 actions
+        // Nudge users with no social links to set up their profile after 3 actions
         if (!hasSocialLinks) {
             interactionCountRef.current += 1;
-            if (interactionCountRef.current >= 2) {
-                navigate('/post-event-auth');
+            if (interactionCountRef.current >= 3) {
+                setShowProfileIncompleteModal(true);
                 return;
             }
         }
@@ -1220,6 +1222,50 @@ const PairedPlayerHistory = () => {
                     </div>
                 )}
             </div>
+            
+            {/* Profile Incomplete Modal — nudges users with no social links to complete their profile */}
+            <AnimatePresence>
+                {showProfileIncompleteModal && (
+                    <motion.div
+                        className="profile-incomplete-modal-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        <motion.div
+                            className="profile-incomplete-modal-content"
+                            initial={{ opacity: 0, scale: 0.85 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.85 }}
+                            transition={{ 
+                                type: "spring",
+                                stiffness: 400,
+                                damping: 25
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <h2 className="profile-incomplete-modal-header">
+                                Your profile is not complete
+                            </h2>
+                            <p className="profile-incomplete-modal-subtext">
+                                Update it with your email / social links so people you liked can reach out to you
+                            </p>
+                            
+                            <button
+                                type="button"
+                                className="profile-incomplete-modal-button"
+                                onClick={() => {
+                                    setShowProfileIncompleteModal(false);
+                                    navigate('/post-event-auth');
+                                }}
+                            >
+                                Got it
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
