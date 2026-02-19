@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AuthContext } from '../Auth/AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
@@ -296,12 +296,7 @@ const ShareContactToggle = ({ value, onChange, interactionKey }) => {
 
 const PairedPlayerHistory = () => {
     const navigate = useNavigate();
-    const location = useLocation();
-    const { checkAuth, user, isAuthLoading, emailVerified, userProfile } = useContext(AuthContext);
-    
-    // If user just came from a lobby ending AND hasn't verified their email,
-    // let them view the page but redirect to post-event-auth on any interaction
-    const requiresEmailSetup = location.state?.fromLobby === true && emailVerified !== true;
+    const { user, isAuthLoading, userProfile } = useContext(AuthContext);
     
     // Check if user has zero social links saved
     const hasSocialLinks = userProfile?.social_links && 
@@ -638,12 +633,6 @@ const PairedPlayerHistory = () => {
     
     // Handlers for rating and share contact changes
     const handleRatingChange = useCallback((interactionKey, rating) => {
-        // Redirect to post-event-auth if user came from lobby and hasn't verified email
-        if (requiresEmailSetup) {
-            navigate('/post-event-auth');
-            return;
-        }
-        
         // Nudge users with no social links to set up their profile after 3 actions
         if (!hasSocialLinks) {
             interactionCountRef.current += 1;
@@ -815,15 +804,9 @@ const PairedPlayerHistory = () => {
         }, 500);
         
         debounceTimersRef.current.set(interactionKey, timerId);
-    }, [clearPendingUpdates, requiresEmailSetup, hasSocialLinks, navigate]);
+    }, [clearPendingUpdates, hasSocialLinks, navigate]);
     
     const handleShareContactChange = useCallback((interactionKey, value) => {
-        // Redirect to post-event-auth if user came from lobby and hasn't verified email
-        if (requiresEmailSetup) {
-            navigate('/post-event-auth');
-            return;
-        }
-        
         // Nudge users with no social links to set up their profile after 3 actions
         if (!hasSocialLinks) {
             interactionCountRef.current += 1;
@@ -995,7 +978,7 @@ const PairedPlayerHistory = () => {
         }, 300);
         
         debounceTimersRef.current.set(interactionKey, timerId);
-    }, [clearPendingUpdates, requiresEmailSetup, hasSocialLinks, navigate]);
+    }, [clearPendingUpdates, hasSocialLinks, navigate]);
     
     // Cleanup on unmount
     useEffect(() => {
