@@ -647,7 +647,7 @@ const CreateLobbyView = () => {
             <div className="step-container">
                 <h1 className="step-title">How long should people talk in each conversation</h1>
                 <p className="step-subtitle">
-                    Based on your inputs, we recommend {recommended} minutes. This includes
+                    Based on your inputs, we recommend <strong style={{ color: '#0f1729' }}>{recommended} minutes</strong>. This includes
                     buffer time for people to end prior conversations and move onto their next match.
                 </p>
                 <div className="duration-edit-wrapper">
@@ -693,7 +693,7 @@ const CreateLobbyView = () => {
                     </div>
                     <PencilHint />
                 </div>
-                <div className="input-hint">Maximum total duration is {MaxMinutes} minutes</div>
+                <div className="input-hint">*Maximum total duration is {MaxMinutes} minutes</div>
                 <button className="step-cta" onClick={handleStep3Submit}>
                     Looks Good! <ArrowRight />
                 </button>
@@ -822,7 +822,7 @@ const CreateLobbyView = () => {
                     ) : (
                         <div className="review-section-content">
                             <span className="review-value-primary">
-                                {minutes} minutes - {seconds} seconds conversation durations
+                                {minutes} minute{minutes !== '1' ? 's' : ''}{parseInt(seconds) > 0 ? ` ${seconds} second${seconds !== '1' ? 's' : ''}` : ''} conversations
                             </span>
                         </div>
                     )}
@@ -848,7 +848,7 @@ const CreateLobbyView = () => {
                     ) : (
                         <div className="review-section-content">
                             <span className="review-value-primary">{attendees} attendees</span>
-                            <span className="review-value-secondary">
+                            <span className={showTableNumbers ? 'review-value-primary' : 'review-value-secondary'}>
                                 {showTableNumbers ? 'Table Numbers are displayed' : 'Table Numbers are not displayed'}
                             </span>
                         </div>
@@ -952,11 +952,11 @@ const CreateLobbyView = () => {
                 <div className="modal-overlay table-modal-overlay">
                     <div className="modal-content">
                         <h3>It is highly advised you provide physical table numbers throughout the space, to help people find each other in a timely manner.</h3>
-                        <p>They will be displayed on your attendees screens</p>
+                        <p>The table numbers will be displayed on your attendee's screens</p>
                         <div className="modal-buttons">
                             <button type="button" onClick={handleTableModalDismiss}
                                 className="modal-button modal-confirm" style={{ width: '100%' }}>
-                                Got it! I will provide table numbers at event
+                                Got it! I will provide table numbers
                             </button>
                         </div>
                     </div>
