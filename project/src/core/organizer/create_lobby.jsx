@@ -219,20 +219,6 @@ const CreateLobbyView = () => {
         const description = aiDescription.trim();
         if (!description) return;
 
-        if (description.includes(',')) {
-            const newTags = description.split(',')
-                .map(tag => tag.trim())
-                .filter((tag, idx, arr) => tag && arr.indexOf(tag) === idx);
-            if (newTags.length > 0) {
-                setCustomTags(newTags);
-                setTagsFromAI(false);
-                setError('');
-                setNavDirection('forward');
-                setStep1View('tags');
-            }
-            return;
-        }
-
         setIsGeneratingTags(true);
         setError('');
 
