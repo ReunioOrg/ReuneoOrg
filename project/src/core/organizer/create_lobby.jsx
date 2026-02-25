@@ -543,7 +543,9 @@ const CreateLobbyView = () => {
                         <div className="char-counter">{aiDescription.length}/500</div>
                     )}
                     {error && <div className="error-message">{error}</div>}
-                    <button className="step-cta step-cta-secondary" onClick={handleStep1Continue} disabled={isGeneratingTags}>
+                    <button className="step-cta step-cta-secondary"
+                        onClick={aiDescription.trim().length >= 2 ? handleGenerateTags : handleStep1Continue}
+                        disabled={isGeneratingTags}>
                         Continue <ArrowRight />
                     </button>
                 </div>

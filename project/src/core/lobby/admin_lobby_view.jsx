@@ -354,59 +354,66 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                     <div className="progress-modal">
                         {modal === 'checkin' ? (
                             <>
-                                <div className="progress-modal-title">
-                                    Check-in: Print or Display this QR code to your attendees
+                                <div className="checkin-modal-header">
+                                    <h2 className="checkin-modal-title">Share this QR Code</h2>
+                                    <p className="checkin-modal-subtitle">
+                                        Print or display it for your attendees to scan and join when they arrive at the event.
+                                    </p>
                                 </div>
-                                <div className="progress-modal-message">
-                                    They scan to join. Once you have 6-10 people ready, click 'Start Rounds' - New arrivals will get paired up in the next rounds. 
+                                <div className="checkin-modal-qr-wrapper" onClick={handleModalCopyQrPng}>
+                                    <div className="checkin-modal-qr-card">
+                                        <QRCodeSVG
+                                            value={`${window.location.origin}/lobby?code=${lobbyCode}`}
+                                            size={180}
+                                            level="H"
+                                            includeMargin={false}
+                                            bgColor="#ffffff"
+                                            fgColor="#1a1a2e"
+                                            id="modal-qr-svg"
+                                        />
+                                        <div className="checkin-modal-qr-download-hint">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                <polyline points="7 10 12 15 17 10" />
+                                                <line x1="12" y1="15" x2="12" y2="3" />
+                                            </svg>
+                                            <span>{modalCopied.qr ? 'Saved!' : 'Tap to save'}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="progress-modal-qr" onClick={handleModalCopyQrPng} style={{ cursor: 'pointer', position: 'relative' }}>
-                                    <QRCodeSVG
-                                        value={`${window.location.origin}/lobby?code=${lobbyCode}`}
-                                        size={200}
-                                        level="H"
-                                        includeMargin={false}
-                                        bgColor="#ffffff"
-                                        fgColor="#000000"
-                                        id="modal-qr-svg"
-                                    />
-                                    <span className="copy-icon modal-copy-icon" aria-label="Copy" style={{ position: 'absolute', right: 8, bottom: 8, background: '#fff', borderRadius: '50%', padding: '2px' }}>
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
-                                            <rect x="9" y="9" width="13" height="13" rx="2.5" />
-                                            <rect x="2" y="2" width="13" height="13" rx="2.5" />
-                                        </svg>
-                                    </span>
-                                    {modalCopied.qr && <span className="modal-copied-feedback" style={{ position: 'absolute', left: '50%', bottom: '-1.5rem', transform: 'translateX(-50%)', color: '#28a745', fontWeight: 600, fontSize: '0.95rem' }}>Copied!</span>}
+                                <div className="checkin-modal-code-badge">
+                                    <span className="checkin-modal-code-label">Code</span>
+                                    <span className="checkin-modal-code-value">{lobbyCode}</span>
                                 </div>
-                                <div style={{ 
-                                    textAlign: 'center', 
-                                    marginTop: '1rem', 
-                                    marginBottom: '0.5rem',
-                                    fontSize: '1rem',
-                                    color: '#3b3b3b',
-                                    fontFamily: 'Helvetica, Arial, sans-serif'
-                                }}>
-                                    code (optional): {lobbyCode}
-                                </div>
+                                <p className="checkin-modal-hint">
+                                    Click Start whenever you want - new arrivals will get paired up immediately.
+                                </p>
                                 <div className="progress-modal-actions">
-                                    <button className="progress-modal-btn confirm" onClick={handleCancel}>Got it</button>
+                                    <button className="checkin-modal-got-it" onClick={handleCancel}>Got it</button>
                                 </div>
                             </>
                         ) : (
                             <>
-                                <div className="progress-modal-title">
-                                    {modal === 'start' ? 'Are you sure you want to start rounds? - Dont worry new people can join in the next rounds.' : 'Are you sure you want to end the rounds?'}
+                                <div className="confirm-modal-header">
+                                    <h2 className="confirm-modal-title">
+                                        {modal === 'start' ? 'Start Rounds' : 'End Rounds'}
+                                    </h2>
+                                    <p className="confirm-modal-subtitle">
+                                        {modal === 'start' 
+                                            ? 'Start pairing up your attendees! Don\'t worry - new arrivals will be paired up immediately.' 
+                                            : 'Are you sure you want to end the rounds?'}
+                                    </p>
                                 </div>
-                                <div className="progress-modal-actions">
+                                <div className="confirm-modal-actions">
                                     {modal === 'start' ? (
                                         <>
-                                            <button className="progress-modal-btn cancel" onClick={handleCancel}>Not Yet</button>
-                                            <button className="progress-modal-btn confirm" onClick={handleConfirm}>Start</button>
+                                            <button className="confirm-modal-btn secondary" onClick={handleCancel}>Not Yet</button>
+                                            <button className="confirm-modal-btn primary" onClick={handleConfirm}>Start</button>
                                         </>
                                     ) : (
                                         <>
-                                            <button className="progress-modal-btn cancel" onClick={handleCancel}>Keep Going</button>
-                                            <button className="progress-modal-btn confirm danger" onClick={handleConfirm}>End</button>
+                                            <button className="confirm-modal-btn secondary" onClick={handleCancel}>Keep Going</button>
+                                            <button className="confirm-modal-btn danger" onClick={handleConfirm}>End</button>
                                         </>
                                     )}
                                 </div>
@@ -415,6 +422,46 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                     </div>
                 </div>
             )}
+        </div>
+    );
+};
+
+// Compact scrollable tag list for admin "More Controls" section
+const AdminTagsScrollList = ({ tags }) => {
+    const listRef = useRef(null);
+    const [topOpacity, setTopOpacity] = useState(0);
+    const [bottomOpacity, setBottomOpacity] = useState(1);
+
+    useEffect(() => {
+        const el = listRef.current;
+        if (!el) return;
+        if (el.scrollHeight <= el.clientHeight) {
+            setBottomOpacity(0);
+        }
+    }, [tags]);
+
+    const handleScroll = (e) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        setTopOpacity(Math.min(scrollTop / 30, 1));
+        const bottomDist = scrollHeight - (scrollTop + clientHeight);
+        setBottomOpacity(scrollHeight <= clientHeight ? 0 : Math.min(bottomDist / 30, 1));
+    };
+
+    return (
+        <div className="admin-tags-scroll-container">
+            <div
+                ref={listRef}
+                className="admin-tags-scroll-list"
+                onScroll={handleScroll}
+            >
+                {tags.map((tag, index) => (
+                    <div key={index} className="admin-tag-item">
+                        <span className="admin-tag-text">{tag}</span>
+                    </div>
+                ))}
+            </div>
+            <div className="admin-tags-gradient-top" style={{ opacity: topOpacity }}></div>
+            <div className="admin-tags-gradient-bottom" style={{ opacity: bottomOpacity }}></div>
         </div>
     );
 };
@@ -704,7 +751,7 @@ const AdminLobbyView = () => {
                         setPairedPlayers(pairsWithPfp);
                         setLobbyTimer(data.round_time_left);
                         setLobbyState(data.lobby_state);
-                        setRoundDuration(data.lobby_duration || 300); // Set lobby duration from server
+                        setRoundDuration(data.round_duration || 300);
                         setCustomTags(data.custom_tags || []); // Set custom tags from server
                     } else {
                         console.error("Invalid lobby data structure:", data);
@@ -933,7 +980,7 @@ const AdminLobbyView = () => {
                     style={{ cursor: 'pointer' }}
                 >
                     <img 
-                        src="/assets/reuneo_test_9.png"
+                        src="/assets/reuneo_test_11.png"
                         alt="Reuneo Logo"
                         style={{
                             maxWidth: '85px',
@@ -1059,19 +1106,10 @@ const AdminLobbyView = () => {
                         </button>
                         <div className="setting-item" style={{ padding: '1rem' }}>
                             <span className="setting-label">Round Duration: <span className="setting-value">{Math.floor(roundDuration / 60)} min</span></span>
-                            <span className="setting-label" style={{ }}>Tags:</span>
+                            <span className="setting-label">Tags: <span className="setting-value">{customTags?.length || 0}</span></span>
 
                             {customTags && customTags.length > 0 && (
-                                <div className="setting-item">
-                                    <div className="tags-container">
-                                        {customTags.slice(0, 3).map((tag, index) => (
-                                            <span key={index} className="tag-pill">{tag}</span>
-                                        ))}
-                                        {customTags.length > 3 && (
-                                            <span className="tag-pill more-tags">+{customTags.length - 3} more</span>
-                                        )}
-                                    </div>
-                                </div>
+                                <AdminTagsScrollList tags={customTags} />
                             )}
                         </div>
                         
@@ -1171,36 +1209,30 @@ const AdminLobbyView = () => {
                                 isPlaying={lobbyState === "active"}
                                 duration={roundDuration}
                                 initialRemainingTime={lobbyTimer}
-                                colors={["#144dff"]}
+                                colors={["#64B5F6", "#2196F3", "#1976D2"]}
+                                colorsTime={[roundDuration, roundDuration / 2, 0]}
                                 size={90}
-                                strokeWidth={12}
-                                trailColor="url(#trailGradient)"
+                                strokeWidth={8}
+                                trailColor="#f0f1f4"
                                 onComplete={() => {
                                     return { shouldRepeat: false };
                                 }}
                                 strokeLinecap="round"
                             >
                                 {({ remainingTime }) => {
-                                    const mins = Math.floor(remainingTime / 60);
-                                    const secs = Math.floor(remainingTime % 60);
+                                    const validTime = typeof remainingTime === 'number' && !isNaN(remainingTime) ? remainingTime : 0;
+                                    const mins = Math.floor(validTime / 60);
+                                    const secs = Math.floor(validTime % 60);
                                     return (
-                                        <span className={`timer-text ${remainingTime <= 10 ? 'timer-text-fadescale' : ''}`}>
-                                            {mins}:{String(secs).padStart(2, "0")}
-                                        </span>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '1.35rem', color: '#1a1a2e', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+                                                {mins}:{String(secs).padStart(2, '0')}
+                                            </span>
+                                            <span style={{ fontSize: '0.6rem', color: '#6b7280', fontWeight: 500, marginTop: '2px' }}>time left</span>
+                                        </div>
                                     );
                                 }}
                             </CountdownCircleTimer>
-                            <span className="timer-subtext">round time left</span>
-                            
-                            {/* Gradient defs (for radial trail effect) */}
-                            <svg width="0" height="0">
-                                <defs>
-                                    <linearGradient id="trailGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" stopColor="#e0e7ff" />
-                                        <stop offset="100%" stopColor="#f5f7ff" />
-                                    </linearGradient>
-                                </defs>
-                            </svg>
                         </div>
                     </div>
                 )}
