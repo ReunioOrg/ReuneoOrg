@@ -28,6 +28,11 @@ const CreateLobbyView = () => {
     const [seconds, setSeconds] = useState('0');
     const [showTableNumbers, setShowTableNumbers] = useState(false);
 
+    // ── AI Tag Generation ──
+    const [aiDescription, setAiDescription] = useState('');
+    const [isGeneratingTags, setIsGeneratingTags] = useState(false);
+    const [tagsFromAI, setTagsFromAI] = useState(false);
+
     // ── Logo Upload ──
     const [logoName, setLogoName] = useState('');
     const [logoUrl, setLogoUrl] = useState('');
@@ -77,7 +82,7 @@ const CreateLobbyView = () => {
 
     const handleBack = () => {
         if (currentStep === 1) {
-            if (step1View === 'tags') {
+            if (step1View === 'tags' || step1View === 'description') {
                 setNavDirection('back');
                 setStep1View('selection');
             } else {
@@ -86,7 +91,11 @@ const CreateLobbyView = () => {
         } else {
             const prevStep = currentStep - 1;
             if (prevStep === 1) {
-                setStep1View(selectedTab === 'custom' ? 'tags' : 'selection');
+                if (selectedTab === 'custom') {
+                    setStep1View(customTags.length > 0 ? 'tags' : 'description');
+                } else {
+                    setStep1View('selection');
+                }
             }
             goToStep(prevStep, 'back');
         }
@@ -117,7 +126,7 @@ const CreateLobbyView = () => {
         } else if (type === 'custom') {
             setSelectedTab('custom');
             setNavDirection('forward');
-            setStep1View('tags');
+            setStep1View(customTags.length > 0 ? 'tags' : 'description');
         }
     };
 
@@ -203,6 +212,60 @@ const CreateLobbyView = () => {
             e.preventDefault();
             handleAddTag();
         }
+    };
+
+    // ── AI Tag Generation ──
+    const handleGenerateTags = async () => {
+        const description = aiDescription.trim();
+        if (!description) return;
+
+        if (description.includes(',')) {
+            const newTags = description.split(',')
+                .map(tag => tag.trim())
+                .filter((tag, idx, arr) => tag && arr.indexOf(tag) === idx);
+            if (newTags.length > 0) {
+                setCustomTags(newTags);
+                setTagsFromAI(false);
+                setError('');
+                setNavDirection('forward');
+                setStep1View('tags');
+            }
+            return;
+        }
+
+        setIsGeneratingTags(true);
+        setError('');
+
+        try {
+            const response = await apiFetch('/generate_tags', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description })
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'success' && data.tags) {
+                setCustomTags(data.tags);
+                setTagsFromAI(true);
+                setNavDirection('forward');
+                setStep1View('tags');
+            } else {
+                setError(data.message || 'Failed to generate categories.');
+            }
+        } catch (err) {
+            console.error('Error generating tags:', err);
+            setError('Failed to generate categories. Try again or enter tags manually separated by commas.');
+        } finally {
+            setIsGeneratingTags(false);
+        }
+    };
+
+    const handleRegenerate = () => {
+        setNavDirection('back');
+        setStep1View('description');
+        setCustomTags([]);
+        setTagsFromAI(false);
     };
 
     // ── Lobby Code ──
@@ -460,6 +523,47 @@ const CreateLobbyView = () => {
 
     // ── Render: Step 1 — Event Type ──
     const renderStep1 = () => {
+        if (step1View === 'description') {
+            return (
+                <div className="step-container">
+                    <h1 className="step-title">Describe the people and event purpose</h1>
+                    <div className="description-input-container">
+                        <textarea
+                            value={aiDescription}
+                            onChange={(e) => {
+                                if (e.target.value.length <= 500) setAiDescription(e.target.value);
+                            }}
+                            placeholder="ex: A networking mixer for content creators and local construction companies"
+                            className="form-input description-textarea"
+                            rows={3}
+                            maxLength={500}
+                            autoComplete="off"
+                            disabled={isGeneratingTags}
+                        />
+                        <button
+                            type="button"
+                            onClick={handleGenerateTags}
+                            className="sparkle-submit-button"
+                            disabled={isGeneratingTags || !aiDescription.trim()}
+                        >
+                            {isGeneratingTags ? (
+                                <div className="button-spinner" />
+                            ) : (
+                                <SparkleIcon />
+                            )}
+                        </button>
+                    </div>
+                    {aiDescription.length > 0 && (
+                        <div className="char-counter">{aiDescription.length}/500</div>
+                    )}
+                    {error && <div className="error-message">{error}</div>}
+                    <button className="step-cta step-cta-secondary" onClick={handleStep1Continue} disabled={isGeneratingTags}>
+                        Continue <ArrowRight />
+                    </button>
+                </div>
+            );
+        }
+
         if (step1View === 'tags') {
             return (
                 <div className="step-container">
@@ -489,7 +593,12 @@ const CreateLobbyView = () => {
                             </div>
                         )}
                     </div>
-                    <button className="step-cta" onClick={handleStep1Continue}>
+                    {tagsFromAI && (
+                        <button type="button" className="regenerate-button" onClick={handleRegenerate}>
+                            <SparkleIcon /> Regenerate
+                        </button>
+                    )}
+                    <button className={`step-cta ${customTags.length < 2 ? 'step-cta-secondary' : ''}`} onClick={handleStep1Continue}>
                         Continue <ArrowRight />
                     </button>
                 </div>
