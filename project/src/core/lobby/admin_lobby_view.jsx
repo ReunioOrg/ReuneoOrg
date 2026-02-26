@@ -499,6 +499,36 @@ const OverlappingProfileList = ({ players }) => {
     );
 };
 
+const SoundPrompt = ({ onEnable, onDismiss }) => {
+    return (
+        <div className="sound-prompt-overlay">
+            <div className="sound-prompt-modal">
+                <div className="sound-prompt-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2196F3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                    </svg>
+                </div>
+                <h2 className="sound-prompt-title">Stay in the loop on what's happening!</h2>
+                <p className="sound-prompt-subtitle">Turn up your volume to hear the event updates.</p>
+                <button 
+                    className="sound-prompt-enable"
+                    onClick={onEnable}
+                >
+                    Enable Sound
+                </button>
+                <button 
+                    className="sound-prompt-skip"
+                    onClick={onDismiss}
+                >
+                    Skip
+                </button>
+            </div>
+        </div>
+    );
+};
+
 const AdminLobbyView = () => {
     const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -875,72 +905,6 @@ const AdminLobbyView = () => {
             });
     }
 
-    // SoundPrompt component - same as lobby.jsx but with bigger X button
-    const SoundPrompt = () => {
-        return (
-            <div style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                backgroundColor: 'rgba(0, 0, 0, 0.125)',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                zIndex: 1100
-            }}>
-                <div style={{
-                    backgroundColor: 'white',
-                    padding: '20px',
-                    borderRadius: '8px',
-                    position: 'relative',
-                    minWidth: '300px'
-                }}>
-                    <button 
-                        onClick={() => setShowSoundPrompt(false)}
-                        style={{
-                            color: '#144fff',
-                            position: 'absolute',
-                            right: '10px',
-                            top: '10px',
-                            border: 'none',
-                            background: 'none',
-                            fontSize: '16px', // Bigger than lobby.jsx (was 2px)
-                            cursor: 'pointer',
-                            fontWeight: 'bold',
-                            padding: '4px 8px'
-                        }}
-                    >
-                    X   
-                    </button>
-                    <h2 style={{ marginTop: '5px' }}>The Sound is Important</h2>
-                    <h3 style={{ marginTop: '5px' }}>Raise your volume also</h3>
-                    <p style={{
-                            color: '#144dff',
-                        }}>You'll need this for the best experience.</p>
-                    <button 
-                        onClick={() => {
-                            loadSound();
-                            setShowSoundPrompt(false);
-                        }}
-                        style={{
-                            padding: '10px 20px',
-                            marginTop: '20px',
-                            backgroundColor: '#144dff',
-                            color: '#ffffff',
-                            border: 'none',
-                            borderRadius: '14px',
-                            fontWeight: 'bold',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        Enable Sound
-                    </button>
-                </div>
-            </div>
-        );
-    };
 
     // Handlers for progress bar actions
     const handleStartRounds = async () => {
@@ -1361,7 +1325,7 @@ const AdminLobbyView = () => {
             </div>
 
             {/* Sound Prompt - same conditional rendering as lobby.jsx */}
-            {(soundEnabled || !showSoundPrompt) || (lobbyState == "checkin") || (lobbyState == null) || isPlaying ? null : <SoundPrompt />}
+            {(soundEnabled || !showSoundPrompt) || (lobbyState == "checkin") || (lobbyState == null) || isPlaying ? null : <SoundPrompt onEnable={() => { loadSound(); setShowSoundPrompt(false); }} onDismiss={() => setShowSoundPrompt(false)} />}
         </>
     );
 }
