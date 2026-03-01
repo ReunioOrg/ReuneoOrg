@@ -27,6 +27,7 @@ const CreateLobbyView = () => {
     const [minutes, setMinutes] = useState('5');
     const [seconds, setSeconds] = useState('0');
     const [showTableNumbers, setShowTableNumbers] = useState(false);
+    const [enableMatchHistory, setEnableMatchHistory] = useState(true);
 
     // ── AI Tag Generation ──
     const [aiDescription, setAiDescription] = useState('');
@@ -102,7 +103,7 @@ const CreateLobbyView = () => {
     };
 
     const handleNext = () => {
-        if (currentStep >= 5 || !visitedSteps.has(currentStep + 1)) return;
+        if (currentStep >= 6 || !visitedSteps.has(currentStep + 1)) return;
         if (currentStep === 2) {
             handleStep2Submit();
             return;
@@ -178,6 +179,13 @@ const CreateLobbyView = () => {
     const handleStep4Advance = () => {
         setVisitedSteps(prev => new Set([...prev, 5]));
         goToStep(5, 'forward');
+    };
+
+    // ── Step 5: Match History ──
+    const handleStep5Advance = (enable) => {
+        setEnableMatchHistory(enable);
+        setVisitedSteps(prev => new Set([...prev, 6]));
+        goToStep(6, 'forward');
     };
 
     // ── Tags (preserved logic) ──
@@ -727,8 +735,25 @@ const CreateLobbyView = () => {
         );
     };
 
-    // ── Render: Step 5 — Review ──
+    // ── Render: Step 5 — Match History ──
     const renderStep5 = () => (
+        <div className="step-container">
+            <h1 className="step-title">Match History for Attendees</h1>
+            <p className="step-subtitle">
+                Once the session is over, people will be taken to a match history page, where
+                they can share each other's preferred contact information.
+            </p>
+            <button className="step-cta" onClick={() => handleStep5Advance(true)}>
+                Enable <ArrowRight />
+            </button>
+            <button className="step-cta step-cta-secondary" onClick={() => handleStep5Advance(false)}>
+                Skip
+            </button>
+        </div>
+    );
+
+    // ── Render: Step 6 — Review ──
+    const renderStep6 = () => (
         <div className="step-container review-step">
             <h1 className="step-title">Everything Look Good?</h1>
 
@@ -880,6 +905,26 @@ const CreateLobbyView = () => {
                     )}
                 </div>
 
+                {/* Match History */}
+                <div className="review-section">
+                    {isEditingReview ? (
+                        <div className="review-edit-group">
+                            <div className="review-edit-row">
+                                <label className="review-edit-label">Match History</label>
+                                <input type="checkbox" checked={enableMatchHistory}
+                                    onChange={(e) => setEnableMatchHistory(e.target.checked)}
+                                    className="form-input checkbox-input" />
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="review-section-content">
+                            <span className={enableMatchHistory ? 'review-value-primary' : 'review-value-secondary'}>
+                                {enableMatchHistory ? 'Match History enabled' : 'Match History not enabled'}
+                            </span>
+                        </div>
+                    )}
+                </div>
+
                 {/* Sponsor Logo */}
                 <div className="review-section">
                     {isEditingReview ? (
@@ -926,7 +971,7 @@ const CreateLobbyView = () => {
                     </svg>
                 </button>
                 <img src="/assets/reuneo_test_11.png" alt="Reuneo Logo" className="logo-image-nav" />
-                {currentStep < 5 && visitedSteps.has(currentStep + 1) ? (
+                {currentStep < 6 && visitedSteps.has(currentStep + 1) ? (
                     <button className="nav-arrow" onClick={handleNext} aria-label="Next">
                         <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
                             <circle cx="18" cy="18" r="17" stroke="#374151" strokeWidth="1.5" fill="rgba(255,255,255,0.8)"/>
@@ -946,6 +991,7 @@ const CreateLobbyView = () => {
                     {currentStep === 3 && renderStep3()}
                     {currentStep === 4 && renderStep4()}
                     {currentStep === 5 && renderStep5()}
+                    {currentStep === 6 && renderStep6()}
                 </div>
             </div>
 
