@@ -1,0 +1,223 @@
+/* ── Tutorial Match History ─────────────────────── */
+
+.tutorial-mh-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tutorial-mh-card {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.6);
+}
+
+/* ── Staggered fade-in for each element ── */
+
+.tutorial-mh-fade {
+    opacity: 0;
+    animation: tutorialFadeIn 0.4s ease forwards;
+}
+
+@keyframes tutorialFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tutorial-mh-delay-0 { animation-delay: 0s; }
+.tutorial-mh-delay-1 { animation-delay: 0.7s; }
+.tutorial-mh-delay-2 { animation-delay: 1.3s; }
+.tutorial-mh-delay-3 { animation-delay: 2.0s; }
+.tutorial-mh-delay-4 { animation-delay: 2.7s; }
+.tutorial-mh-delay-5 { animation-delay: 3.4s; }
+.tutorial-mh-delay-6 { animation-delay: 4.0s; }
+.tutorial-mh-delay-7 { animation-delay: 4.5s; }
+.tutorial-mh-delay-8 { animation-delay: 5.0s; }
+
+/* ── Profile Image ── */
+
+.tutorial-mh-image {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #4b7ef0;
+    flex-shrink: 0;
+}
+
+.tutorial-mh-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ── Example Label ── */
+
+.tutorial-mh-example-label {
+    font-size: 0.8rem;
+    font-style: italic;
+    color: #6b7280;
+    text-align: center;
+    padding-bottom: 0.25rem;
+}
+
+/* ── Name ── */
+
+.tutorial-mh-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #4b7ef0;
+    text-align: center;
+}
+
+/* ── Star Rating ── */
+
+.tutorial-mh-stars-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+}
+
+.tutorial-mh-stars-question {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4b7ef0;
+}
+
+.tutorial-mh-stars-row {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.tutorial-mh-star {
+    font-size: 1.6rem;
+    color: #d1d5db;
+    transition: color 0.3s ease, transform 0.3s ease;
+    line-height: 1;
+}
+
+.tutorial-mh-star.tutorial-mh-star-filled {
+    color: #facc15;
+    transform: scale(1.1);
+}
+
+.tutorial-mh-stars-disclaimer {
+    font-size: 0.75rem;
+    font-style: italic;
+    color: rgba(15, 23, 42, 0.6);
+}
+
+/* ── Share Contact Toggle ── */
+
+.tutorial-mh-share-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.tutorial-mh-share-question {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4b7ef0;
+}
+
+.tutorial-mh-share-buttons {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 240px;
+}
+
+.tutorial-mh-share-btn {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border: 2px solid #4b7ef0;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #4b7ef0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: default;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.tutorial-mh-share-btn.tutorial-mh-share-selected {
+    background: #4b7ef0;
+    color: white;
+}
+
+/* ── Social Links ── */
+
+.tutorial-mh-contact-section {
+    width: 100%;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(75, 126, 240, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.tutorial-mh-contact-header {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4b7ef0;
+    margin-bottom: 0.25rem;
+}
+
+.tutorial-mh-social-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(75, 126, 240, 0.05);
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.tutorial-mh-social-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.tutorial-mh-social-value {
+    color: #4b7ef0;
+    font-size: 0.85rem;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 480px) {
+    .tutorial-mh-card {
+        padding: 1rem;
+    }
+
+    .tutorial-mh-image {
+        width: 90px;
+        height: 90px;
+    }
+
+    .tutorial-mh-star {
+        font-size: 1.3rem;
+    }
+
+    .tutorial-mh-stars-question,
+    .tutorial-mh-share-question {
+        font-size: 0.9rem;
+    }
+}

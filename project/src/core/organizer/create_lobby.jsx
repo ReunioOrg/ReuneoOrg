@@ -7,6 +7,7 @@ import getCroppedImg from '../cropImage';
 import './create_lobby.css';
 import { apiFetch } from '../utils/api';
 import FloatingLinesBackground from './FloatingLinesBackground';
+import TutorialMatchHistory from '../Tutorials/tutorial-match-history';
 
 const CreateLobbyView = () => {
     const { user } = useContext(AuthContext);
@@ -739,16 +740,23 @@ const CreateLobbyView = () => {
     const renderStep5 = () => (
         <div className="step-container">
             <h1 className="step-title">Match History for Attendees</h1>
-            <p className="step-subtitle">
-                Once the session is over, people will be taken to a match history page, where
-                they can share each other's preferred contact information.
-            </p>
-            <button className="step-cta" onClick={() => handleStep5Advance(true)}>
-                Enable <ArrowRight />
-            </button>
-            <button className="step-cta step-cta-secondary" onClick={() => handleStep5Advance(false)}>
-                Skip
-            </button>
+            <div className="step5-reveal step5-reveal-sub">
+                <p className="step-subtitle">
+                    Once the session is over, people will be taken to a match history page, where
+                    they can share each other's preferred contact information.
+                </p>
+            </div>
+            <div className="step5-reveal step5-reveal-ctas">
+                <button className="step-cta" onClick={() => handleStep5Advance(true)}>
+                    Enable <ArrowRight />
+                </button>
+                <button className="step-cta step-cta-secondary" onClick={() => handleStep5Advance(false)}>
+                    Skip
+                </button>
+            </div>
+            <div className="step5-reveal step5-reveal-tutorial">
+                <TutorialMatchHistory />
+            </div>
         </div>
     );
 
