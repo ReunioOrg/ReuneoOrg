@@ -396,12 +396,12 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                             <>
                                 <div className="confirm-modal-header">
                                     <h2 className="confirm-modal-title">
-                                        {modal === 'start' ? 'Start Rounds' : 'End Rounds'}
+                                        {modal === 'start' ? 'Start Rounds' : 'End Session to Start Match History'}
                                     </h2>
                                     <p className="confirm-modal-subtitle">
                                         {modal === 'start' 
                                             ? 'Start pairing up your attendees! Don\'t worry - new arrivals will be paired up immediately.' 
-                                            : 'Are you sure you want to end the rounds?'}
+                                            : 'This will trigger the Matches History for everyone!'}
                                     </p>
                                 </div>
                                 <div className="confirm-modal-actions">
@@ -413,7 +413,7 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                                     ) : (
                                         <>
                                             <button className="confirm-modal-btn secondary" onClick={handleCancel}>Keep Going</button>
-                                            <button className="confirm-modal-btn danger" onClick={handleConfirm}>End</button>
+                                            <button className="confirm-modal-btn primary" onClick={handleConfirm}>End Session</button>
                                         </>
                                     )}
                                 </div>

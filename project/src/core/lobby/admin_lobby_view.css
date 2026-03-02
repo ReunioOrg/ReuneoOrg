@@ -18,7 +18,7 @@
     max-width: 1200px;
     margin: 0 auto;
     min-height: var(--viewport-height);
-    background: #fff;
+    background: #f8f9fb;
 }
 
 .admin-view-logo {
@@ -209,7 +209,7 @@
 }
 
 .stat-card {
-    background: white;
+    background: #f8f9fb;
     padding: .5rem;
     text-align: center;
     width: 65px;
@@ -257,7 +257,7 @@
 }
 
 .admin-lobby-qr {
-    background: white;
+    background: #f8f9fb;
     padding: 0.3rem 0.5rem 0.2rem 0.5rem;
     display: inline-flex;
     flex-direction: column;
@@ -292,7 +292,7 @@
 }
 
 .player-section {
-    background: white;
+    background: #f8f9fb;
     border-radius: var(--border-radius);
     box-shadow: 0 4px 8px rgba(20, 77, 255, 0.1);
     overflow: hidden;
@@ -581,7 +581,7 @@
 }
 
 .admin-lobby-body {
-    background: white;
+    background: #f8f9fb;
     padding: 0.3rem 0.5rem 0.2rem 0.5rem;
     box-shadow: var(--shadow-soft);
     margin-top: 0;
@@ -644,7 +644,7 @@
 }
 
 .admin-lobby-event-settings {
-    background: white;
+    background: #f8f9fb;
     padding: 0.3rem 0.5rem 0.2rem 0.5rem;
     display: inline-flex;
     flex-direction: column;
@@ -775,7 +775,7 @@
     margin: 0 0 0.5rem 0;
     width: 100%;
     z-index: 10;
-    background: #fff;
+    background: #f8f9fb;
     padding: 0.2rem 0 0.5rem 0;
 }
 
