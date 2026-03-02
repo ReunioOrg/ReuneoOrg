@@ -14,26 +14,25 @@ import { apiFetch } from '../utils/api';
 import { returnBase64TestImg } from '../misc/misc';
 
 // Modal component for kick confirmation
-const KickConfirmationModal = ({ isOpen, onClose, onConfirm, userName }) => {
+const KickConfirmationModal = ({ isOpen, onClose, onConfirm, userName, userImage }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="kick-modal">
-            <div className="kick-modal-content">
-                <h2 className="kick-modal-title">Kick User</h2>
-                <p className="kick-modal-message">Are you sure you want to kick {userName} from the lobby?</p>
-                <div className="kick-modal-actions">
-                    <button 
-                        onClick={onConfirm}
-                        className="admin-button admin-button-danger"
-                    >
-                        Yes, Kick User
-                    </button>
-                    <button 
-                        onClick={onClose}
-                        className="admin-button admin-button-primary"
-                    >
+        <div className="kick-modal-overlay" onClick={onClose}>
+            <div className="kick-modal-card" onClick={(e) => e.stopPropagation()}>
+                <img
+                    src={userImage || "/assets/avatar_3.png"}
+                    alt={userName}
+                    className="kick-modal-avatar"
+                />
+                <h2 className="kick-modal-heading">Remove {userName}?</h2>
+                <p className="kick-modal-subtext">They will be removed from this lobby session immediately.</p>
+                <div className="kick-modal-btn-row">
+                    <button className="kick-modal-btn cancel" onClick={onClose}>
                         Cancel
+                    </button>
+                    <button className="kick-modal-btn danger" onClick={onConfirm}>
+                        Remove
                     </button>
                 </div>
             </div>
@@ -42,28 +41,29 @@ const KickConfirmationModal = ({ isOpen, onClose, onConfirm, userName }) => {
 };
 
 // Modal component for join confirmation
-const JoinConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
+const JoinConfirmationModal = ({ isOpen, onClose, onConfirm, userProfile }) => {
     if (!isOpen) return null;
 
+    const profileSrc = userProfile?.image_data
+        ? `data:image/jpeg;base64,${userProfile.image_data}`
+        : "/assets/avatar_3.png";
+
     return (
-        <div className="join-modal">
-            <div className="join-modal-content">
-                <h2 className="join-modal-title">Join Lobby</h2>
-                <p className="join-modal-message">Are you sure you want to join? You will be paired up with your attendees.</p>
-                <div className="join-modal-actions">
-                    <button 
-                        onClick={onConfirm}
-                        className="admin-button admin-button-join"
-                    >
-                        Yes, Join Lobby
-                    </button>
-                    <button 
-                        onClick={onClose}
-                        className="admin-button admin-button-primary"
-                    >
-                        Cancel
-                    </button>
-                </div>
+        <div className="join-modal-overlay" onClick={onClose}>
+            <div className="join-modal-card" onClick={(e) => e.stopPropagation()}>
+                <img
+                    src={profileSrc}
+                    alt="Your Profile"
+                    className="join-modal-avatar"
+                />
+                <h2 className="join-modal-heading">Join as a participant?</h2>
+                <p className="join-modal-subtext">You'll enter the rounds and get paired with your attendees just like everyone else.</p>
+                <button className="join-modal-btn-primary" onClick={onConfirm}>
+                    Join Pairing
+                </button>
+                <button className="join-modal-btn-secondary" onClick={onClose}>
+                    Not now
+                </button>
             </div>
         </div>
     );
@@ -163,7 +163,7 @@ const generateStyledQRCodeImage = (svgElement, code) => {
 };
 
 // Progress bar component for lobby phases
-const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, currentRound }) => {
+const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, currentRound, checkinTriggerRef }) => {
     // Determine states for each arrow
     // Check-in
     const checkinActive = lobbyState === 'checkin';
@@ -195,6 +195,13 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
         setHasOpenedCheckinModal(true);
         setModal('checkin');
     };
+
+    useEffect(() => {
+        if (checkinTriggerRef) {
+            checkinTriggerRef.current = handleCheckin;
+        }
+    }, [checkinTriggerRef]);
+
     const handleConfirm = () => {
         if (modal === 'start') {
             onStart();
@@ -323,7 +330,7 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                         boxShadow: '0 7px 4px rgba(0, 0, 0, 0.1)'
                     }}
                 >
-                    Start Rounds
+                    Start Pairing
                 </div>
                 <ArrowHint direction="down" show={showStartArrow} />
             </div>
@@ -343,7 +350,7 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                         boxShadow: '0 7px 4px rgba(0, 0, 0, 0.1)'
                     }}
                 >
-                    End Rounds
+                    End Pairing
                 </div>
                 <ArrowHint direction="down" show={showEndArrow} />
             </div>
@@ -494,7 +501,7 @@ const OverlappingProfileList = ({ players }) => {
                     <span className="overlapping-profile-overflow">+ {overflowCount}</span>
                 )}
             </div>
-            <div className="overlapping-profile-list-label" style={{ marginTop: '0.5rem',textShadow: '1px 1px 2px rgba(0, 0, 0, 0.1)' }}>People joined: {totalCount}</div>
+            <div className="overlapping-profile-list-label" style={{ marginTop: '0.5rem' }}>People joined: {totalCount}</div>
         </div>
     );
 };
@@ -541,6 +548,7 @@ const AdminLobbyView = () => {
     const [showSoundPrompt, setShowSoundPrompt] = useState(true);
     const [isPageVisible, setIsPageVisible] = useState(!document.hidden);
     const roundPosition = useRef(null);
+    const checkinTriggerRef = useRef(null);
     
     // Extract lobby code from URL parameters
     const params = new URLSearchParams(location.search);
@@ -857,55 +865,6 @@ const AdminLobbyView = () => {
         handleCloseJoinModal();
     };
 
-    // Helper function to download QR code
-    function downloadQRCode(blob, options = {}) {
-        const { silent = false } = options;
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `reuneo-lobby-${lobbyCode}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        if (!silent) {
-            toast.success("QR code downloaded!");
-        }
-    }
-
-    async function handleCopyQrPng() {
-        const svg = document.getElementById('admin-qr-svg');
-        if (!svg) return;
-
-        generateStyledQRCodeImage(svg, lobbyCode)
-            .then((blob) => {
-                // Always download first (silent - no feedback yet)
-                downloadQRCode(blob, { silent: true });
-
-                // Try clipboard (bonus feature)
-                if (navigator.clipboard && navigator.clipboard.write) {
-                    navigator.clipboard.write([
-                        new window.ClipboardItem({ "image/png": blob })
-                    ]).then(() => {
-                        // Clipboard succeeded - show unified feedback
-                        toast.success("Downloaded and copied to clipboard!");
-                    }).catch(() => {
-                        // Clipboard failed, but download already happened - show feedback
-                        toast.success("QR code downloaded!");
-                    });
-                } else {
-                    // No clipboard API - download already happened, show feedback
-                    toast.success("QR code downloaded!");
-                }
-            })
-            .catch((error) => {
-                console.error('Error generating QR code image:', error);
-                toast.error("Failed to generate QR code image.");
-            });
-    }
-
-
     // Handlers for progress bar actions
     const handleStartRounds = async () => {
         const response = await apiFetch('/start_rounds', {
@@ -962,35 +921,18 @@ const AdminLobbyView = () => {
                     onEnd={handleEndRounds}
                     lobbyCode={lobbyCode}
                     currentRound={maxActiveRound}
+                    checkinTriggerRef={checkinTriggerRef}
                 />
                 {/* Overlapping user profile list below progress bar */}
                 <OverlappingProfileList players={{ pairedPlayers, lobbyData }} />
                 
                 {/* Dropdown Toggle Bar/Header */}
                 <div
-                    className="admin-lobby-dropdown-toggle"
+                    className={`admin-lobby-dropdown-toggle ${showLobbyDetails ? 'expanded' : ''}`}
                     onClick={() => setShowLobbyDetails((prev) => !prev)}
-                    style={{
-                        cursor: 'pointer',
-                        background: 'var(--primary-color)',
-                        color: '#f5f7ff',
-                        fontWeight: 700,
-                        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)',
-                        fontSize: '.75rem',
-                        borderRadius: showLobbyDetails ? '14px 14px 0 0' : '14px',
-                        padding: '0.5rem 1rem',
-                        margin: '0 auto',
-                        maxWidth: 420,
-                        boxShadow: '0 2px 8px rgba(20,77,255,0.08)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'background 0.2s',
-                        letterSpacing: '0.5px',
-                    }}
                 >
                     {showLobbyDetails ? 'Hide Controls' : 'More Controls'}
-                    <span style={{ marginLeft: 12, fontSize: '1.2em', transition: 'transform 0.3s', display: 'inline-block', transform: showLobbyDetails ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                    <span className={`dropdown-chevron ${showLobbyDetails ? 'rotated' : ''}`}>
                         ▼
                     </span>
                 </div>
@@ -1008,47 +950,6 @@ const AdminLobbyView = () => {
                         
                     }}
                 >
-                    <div className="admin-lobby-qr" onClick={handleCopyQrPng} style={{ cursor: 'pointer' }}>
-                        <span className="qr-label" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
-                            People scan to join
-                            <span className="copy-icon" aria-label="Copy">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display: 'block'}}>
-                                    <rect x="9" y="9" width="13" height="13" rx="2.5"/>
-                                    <rect x="2" y="2" width="13" height="13" rx="2.5"/>
-                                </svg>
-                            </span>
-                        </span>
-                        <div style={{ position: "relative", display: "inline-block" }}>
-                            <QRCodeSVG
-                                value={`${window.location.origin}/lobby?code=${lobbyCode}`}
-                                size={140}
-                                level="H"
-                                includeMargin={false}
-                                bgColor="#ffffff"
-                                fgColor="#000000"
-                                id="admin-qr-svg"
-                            />
-                        </div>
-                        <div 
-                            className="lobby-code-display"
-                            onClick={() => {
-                                navigator.clipboard.writeText(lobbyCode);
-                                // Show copy feedback
-                                const element = document.querySelector('.lobby-code-display');
-                                element.classList.add('copied');
-                                setTimeout(() => element.classList.remove('copied'), 250);
-                            }}
-                        >
-                            <span className="lobby-code-label">lobby code:</span>
-                            <span className="lobby-code-value">{lobbyCode}</span>
-                            <span className="copy-icon" aria-label="Copy">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display: 'block'}}>
-                                    <rect x="9" y="9" width="13" height="13" rx="2.5"/>
-                                    <rect x="2" y="2" width="13" height="13" rx="2.5"/>
-                                </svg>
-                            </span>
-                        </div>
-                    </div>
                     <div className="admin-lobby-event-settings">
                         
                         <div className="admin-profile">
@@ -1062,13 +963,18 @@ const AdminLobbyView = () => {
                             </span>
                         </div>
                         <button
+                            onClick={() => checkinTriggerRef.current?.()}
+                            className="page-control-button page-control-join"
+                        >
+                            Checkin Attendees
+                        </button>
+                        <button
                             onClick={handleOpenJoinModal}
                             className="page-control-button page-control-join"
-                            style={{ marginTop: '.5rem' }}
                         >
-                            Join Rounds
+                            Join Pairing
                         </button>
-                        <div className="setting-item" style={{ padding: '1rem' }}>
+                        <div className="setting-item">
                             <span className="setting-label">Round Duration: <span className="setting-value">{Math.floor(roundDuration / 60)} min</span></span>
                             <span className="setting-label">Tags: <span className="setting-value">{customTags?.length || 0}</span></span>
 
@@ -1204,15 +1110,15 @@ const AdminLobbyView = () => {
                 {lobbyState !== 'checkin' && (
                     <div className="admin-lobby-stats">
                         <div className="stat-card">
-                            <div className="stat-title">Total Players</div>
+                            <div className="stat-title">Total<br/>Players</div>
                             <div className="stat-value">{(lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0)}</div>
                         </div>
                         <div className="stat-card">
-                            <div className="stat-title">Paired Players</div>
+                            <div className="stat-title">Paired<br/>Players</div>
                             <div className="stat-value">{pairedPlayers?.length * 2 || 0}</div>
                         </div>
                         <div className="stat-card">
-                            <div className="stat-title">Unpaired Players</div>
+                            <div className="stat-title">Unpaired<br/>Players</div>
                             <div className="stat-value">{lobbyData?.length || 0}</div>
                         </div>
                     </div>
@@ -1221,7 +1127,7 @@ const AdminLobbyView = () => {
                 {pairedPlayers && lobbyState !== 'checkin' && (
                     <div className="admin-lobby-players">
                         <div className="player-section">
-                            <div className="section-header">Paired Players: <span className="stat-value" style={{ fontSize: '1.3rem' }}>{pairedPlayers?.length * 2 || 0}</span></div>
+                            <div className="section-header">Paired Players: <span className="section-header-count">{pairedPlayers?.length * 2 || 0}</span></div>
                             <div className="player-grid">
                                 {pairedPlayers.map((pair, index) => {
                                     const hasMatchDetails = (pair[0].match_details && pair[0].match_details.opponent_matched_tags && pair[0].match_details.opponent_matched_tags.length > 0) || 
@@ -1287,7 +1193,7 @@ const AdminLobbyView = () => {
                 {lobbyData && (
                     <div className="admin-lobby-players">
                         <div className="player-section">
-                            <div className="section-header">{lobbyState === 'checkin' ? 'People Joined' : 'Unpaired Players'}: <span className="stat-value" style={{ fontSize: '1.3rem' }}>{lobbyData?.length || 0}</span></div>
+                            <div className="section-header">{lobbyState === 'checkin' ? 'People Joined' : 'Unpaired Players'}: <span className="section-header-count">{lobbyData?.length || 0}</span></div>
                             <div className="player-grid">
                                 {lobbyData.map((player, index) => (
                                     <div 
@@ -1313,6 +1219,7 @@ const AdminLobbyView = () => {
                     isOpen={isJoinModalOpen}
                     onClose={handleCloseJoinModal}
                     onConfirm={handleJoinLobby}
+                    userProfile={userProfile}
                 />
 
                 {/* Kick Confirmation Modal */}
@@ -1321,6 +1228,7 @@ const AdminLobbyView = () => {
                     onClose={handleCloseKickModal}
                     onConfirm={handleKickUser}
                     userName={selectedUser?.name || "this user"}
+                    userImage={selectedUser?.pfp_data}
                 />
             </div>
 
