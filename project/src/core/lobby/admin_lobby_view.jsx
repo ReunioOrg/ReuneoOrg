@@ -9,6 +9,9 @@ import { QRCodeSVG } from 'qrcode.react';
 import toast, { Toaster } from 'react-hot-toast';
 import ArrowHint from './lobby_progress_arrows';
 import { apiFetch } from '../utils/api';
+import Cropper from 'react-easy-crop';
+import getCroppedImg from '../cropImage';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 //load asset image earthart.jpg
 import { returnBase64TestImg } from '../misc/misc';
@@ -536,6 +539,422 @@ const SoundPrompt = ({ onEnable, onDismiss }) => {
     );
 };
 
+const EditLobbyModal = ({ isOpen, onClose, lobbyCode, currentTags, currentShowTableNumbers, currentRoundDuration, lobbyState }) => {
+    const [editTags, setEditTags] = useState([]);
+    const [editTagInput, setEditTagInput] = useState('');
+    const [editShowTableNumbers, setEditShowTableNumbers] = useState(false);
+    const [editMinutes, setEditMinutes] = useState('5');
+    const [editSeconds, setEditSeconds] = useState('0');
+    const MaxMinutes = 8;
+
+    // Logo state
+    const [existingLogo, setExistingLogo] = useState(null);
+    const [logoPreview, setLogoPreview] = useState(null);
+    const [logoCroppedImage, setLogoCroppedImage] = useState(null);
+    const [logoRemoved, setLogoRemoved] = useState(false);
+    const [isLogoCropping, setIsLogoCropping] = useState(false);
+    const [isLogoProcessing, setIsLogoProcessing] = useState(false);
+    const [logoCrop, setLogoCrop] = useState({ x: 0, y: 0 });
+    const [logoZoom, setLogoZoom] = useState(1);
+    const [logoCropArea, setLogoCropArea] = useState(null);
+    const [logoError, setLogoError] = useState('');
+
+    const [isSaving, setIsSaving] = useState(false);
+    const [error, setError] = useState('');
+    const [logoLoading, setLogoLoading] = useState(false);
+    const wasOpenRef = useRef(false);
+
+    const hasTags = currentTags && currentTags.length > 0;
+
+    useEffect(() => {
+        if (isOpen && !wasOpenRef.current) {
+            wasOpenRef.current = true;
+            setEditTags([...(currentTags || [])]);
+            setEditShowTableNumbers(currentShowTableNumbers ?? false);
+            const durSecs = currentRoundDuration || 300;
+            setEditMinutes(String(Math.floor(durSecs / 60)));
+            setEditSeconds(String(Math.floor(durSecs % 60)));
+            setError('');
+            setEditTagInput('');
+            setLogoCroppedImage(null);
+            setLogoPreview(null);
+            setLogoRemoved(false);
+            setIsLogoCropping(false);
+            setLogoError('');
+            setLogoCrop({ x: 0, y: 0 });
+            setLogoZoom(1);
+            setLogoCropArea(null);
+
+            setLogoLoading(true);
+            apiFetch('/lobby_setup_data', {
+                headers: { 'lobby_code': lobbyCode }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.logo_icon) {
+                        setExistingLogo(`data:image/jpeg;base64,${data.logo_icon}`);
+                    } else {
+                        setExistingLogo(null);
+                    }
+                })
+                .catch(() => setExistingLogo(null))
+                .finally(() => setLogoLoading(false));
+        }
+        if (!isOpen) {
+            wasOpenRef.current = false;
+        }
+    }, [isOpen, currentTags, currentShowTableNumbers, lobbyCode]);
+
+    if (!isOpen) return null;
+
+    const handleAddTag = () => {
+        if (editTagInput.includes(',')) {
+            const potentialTags = editTagInput.split(',').map(t => t.trim()).filter(Boolean);
+            const newTags = [];
+            potentialTags.forEach(tag => {
+                if (tag && !editTags.includes(tag) && !newTags.includes(tag) && tag.length <= 50) {
+                    newTags.push(tag);
+                }
+            });
+            if (newTags.length > 0) setEditTags(prev => [...prev, ...newTags].slice(0, 50));
+            setEditTagInput('');
+        } else {
+            const trimmed = editTagInput.trim();
+            if (trimmed && !editTags.includes(trimmed) && trimmed.length <= 50 && editTags.length < 50) {
+                setEditTags(prev => [...prev, trimmed]);
+                setEditTagInput('');
+            }
+        }
+    };
+
+    const handleRemoveTag = (tagToRemove) => {
+        setEditTags(prev => prev.filter(t => t !== tagToRemove));
+    };
+
+    const handleTagKeyDown = (e) => {
+        if (e.key === 'Enter' && editTagInput.trim()) {
+            e.preventDefault();
+            handleAddTag();
+        }
+    };
+
+    const resizeImage = (file, maxWidth, maxHeight) => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                let { width, height } = img;
+                if (width > height) {
+                    if (width > maxWidth) { height = (height * maxWidth) / width; width = maxWidth; }
+                } else {
+                    if (height > maxHeight) { width = (width * maxHeight) / height; height = maxHeight; }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', 0.7));
+            };
+            img.src = URL.createObjectURL(file);
+        });
+    };
+
+    const handleLogoUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setLogoError('');
+        setIsLogoProcessing(true);
+        if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
+            setLogoError('Invalid format. Please upload a JPG or PNG image.');
+            setIsLogoProcessing(false);
+            return;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            setLogoError('File too large. Please choose an image under 2MB.');
+            setIsLogoProcessing(false);
+            return;
+        }
+        try {
+            const resizedImage = await resizeImage(file, 400, 400);
+            setLogoPreview(resizedImage);
+            setIsLogoCropping(true);
+            setIsLogoProcessing(false);
+        } catch (err) {
+            console.error('Error processing image:', err);
+            setLogoError('Error processing image. Please try again.');
+            setIsLogoProcessing(false);
+        }
+    };
+
+    const handleLogoCropComplete = (croppedArea, croppedAreaPixels) => {
+        setLogoCropArea(croppedAreaPixels);
+    };
+
+    const handleSaveLogoCrop = async () => {
+        try {
+            setIsLogoProcessing(true);
+            const croppedImage = await getCroppedImg(logoPreview, logoCropArea);
+            setLogoCroppedImage(croppedImage);
+            setIsLogoCropping(false);
+            setIsLogoProcessing(false);
+            setLogoRemoved(false);
+        } catch (err) {
+            console.error('Error cropping logo:', err);
+            setLogoError('Error processing image. Please try again.');
+            setIsLogoCropping(false);
+            setIsLogoProcessing(false);
+        }
+    };
+
+    const handleRemoveLogo = () => {
+        setLogoPreview(null);
+        setLogoCroppedImage(null);
+        setIsLogoCropping(false);
+        setIsLogoProcessing(false);
+        setLogoCrop({ x: 0, y: 0 });
+        setLogoZoom(1);
+        setLogoCropArea(null);
+        setLogoError('');
+        setLogoRemoved(true);
+        const fileInput = document.getElementById('editLogoUpload');
+        if (fileInput) fileInput.value = '';
+    };
+
+    const handleSave = async () => {
+        setError('');
+        const body = { lobby_code: lobbyCode };
+        let hasChanges = false;
+
+        if (hasTags) {
+            const tagsChanged = JSON.stringify(editTags) !== JSON.stringify(currentTags);
+            if (tagsChanged) {
+                if (editTags.length < 2) {
+                    setError('Minimum 2 tags required.');
+                    return;
+                }
+                body.custom_tags = editTags;
+                hasChanges = true;
+            }
+        }
+
+        if (editShowTableNumbers !== currentShowTableNumbers) {
+            body.show_table_numbers = editShowTableNumbers;
+            hasChanges = true;
+        }
+
+        if (lobbyState === 'checkin') {
+            const newDuration = (parseInt(editMinutes) || 0) * 60 + (parseInt(editSeconds) || 0);
+            if (newDuration !== (currentRoundDuration || 300)) {
+                body.round_duration = newDuration;
+                hasChanges = true;
+            }
+        }
+
+        if (logoCroppedImage) {
+            body.logo_icon = logoCroppedImage.split(',')[1];
+            hasChanges = true;
+        } else if (logoRemoved) {
+            body.logo_icon = null;
+            hasChanges = true;
+        }
+
+        if (!hasChanges) {
+            onClose();
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            const response = await apiFetch('/edit_lobby', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await response.json();
+            if (data.status === 'success') {
+                toast.success('Lobby updated!', { position: 'top-center' });
+                onClose();
+            } else {
+                setError(data.message || 'Failed to update lobby.');
+            }
+        } catch (err) {
+            console.error('Error updating lobby:', err);
+            setError('An error occurred while updating the lobby.');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const currentLogoDisplay = logoCroppedImage || (!logoRemoved ? existingLogo : null);
+
+    return (
+        <div className="edit-lobby-modal-overlay" onClick={onClose}>
+            <div className="edit-lobby-modal-card" onClick={(e) => e.stopPropagation()}>
+                <h2 className="edit-lobby-modal-title">Edit Lobby Settings</h2>
+
+                {/* Tags Section */}
+                <div className="edit-lobby-section">
+                    <span className="edit-lobby-section-label">Matching Categories</span>
+                    {hasTags ? (
+                        <>
+                            <div className="edit-lobby-tag-input-row">
+                                <input
+                                    type="text"
+                                    value={editTagInput}
+                                    onChange={(e) => setEditTagInput(e.target.value)}
+                                    onKeyDown={handleTagKeyDown}
+                                    placeholder="Add categories (press + to add)"
+                                    className="edit-lobby-tag-input"
+                                    autoComplete="off"
+                                />
+                                <button type="button" onClick={handleAddTag} className="edit-lobby-tag-add-btn">+</button>
+                            </div>
+                            {editTags.length > 0 && (
+                                <div className="edit-lobby-tag-list">
+                                    {editTags.map((tag, index) => (
+                                        <div key={index} className="edit-lobby-tag-item">
+                                            {tag}
+                                            <button type="button" onClick={() => handleRemoveTag(tag)} className="edit-lobby-tag-remove">×</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            {editTags.length < 2 && (
+                                <div className="edit-lobby-tag-warning">Minimum 2 tags required</div>
+                            )}
+                        </>
+                    ) : (
+                        <span className="edit-lobby-section-note">Community Ice Breaker — no matching categories</span>
+                    )}
+                </div>
+
+                {/* Table Numbers Section */}
+                <div className="edit-lobby-section">
+                    <label className="edit-lobby-checkbox-row">
+                        <span className="edit-lobby-section-label" style={{ marginBottom: 0 }}>Table Numbers</span>
+                        <input
+                            type="checkbox"
+                            checked={editShowTableNumbers}
+                            onChange={(e) => setEditShowTableNumbers(e.target.checked)}
+                            className="edit-lobby-checkbox"
+                        />
+                    </label>
+                </div>
+
+                {/* Round Duration Section */}
+                <div className={`edit-lobby-section ${lobbyState !== 'checkin' ? 'edit-lobby-section-disabled' : ''}`}>
+                    <span className="edit-lobby-section-label">Round Duration</span>
+                    {lobbyState === 'checkin' ? (
+                        <div className="edit-lobby-duration-row">
+                            <div className="edit-lobby-duration-group">
+                                <input
+                                    type="number"
+                                    value={editMinutes}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value === '' || (parseInt(value) > 0 && parseInt(value) <= MaxMinutes)) {
+                                            setEditMinutes(value);
+                                            if (parseInt(value) === MaxMinutes) setEditSeconds('0');
+                                        }
+                                    }}
+                                    min="1"
+                                    max={MaxMinutes}
+                                    className="edit-lobby-duration-input"
+                                    autoComplete="off"
+                                />
+                                <label className="edit-lobby-duration-label">Minutes</label>
+                            </div>
+                            <div className="edit-lobby-duration-group">
+                                <input
+                                    type="number"
+                                    value={editSeconds}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value === '' || (parseInt(value) >= 0 && parseInt(value) <= 59)) {
+                                            setEditSeconds(value);
+                                        }
+                                    }}
+                                    min="0"
+                                    max="59"
+                                    className="edit-lobby-duration-input"
+                                    autoComplete="off"
+                                    disabled={parseInt(editMinutes) === MaxMinutes}
+                                />
+                                <label className="edit-lobby-duration-label">Seconds</label>
+                            </div>
+                        </div>
+                    ) : (
+                        <span className="edit-lobby-section-note">
+                            {Math.floor((currentRoundDuration || 300) / 60)}m {Math.floor((currentRoundDuration || 300) % 60)}s — can only be changed before rounds start
+                        </span>
+                    )}
+                </div>
+
+                {/* Logo Section */}
+                <div className="edit-lobby-section">
+                    <span className="edit-lobby-section-label">Sponsor Logo</span>
+                    {logoLoading ? (
+                        <div className="edit-lobby-logo-loading">Loading...</div>
+                    ) : (
+                        <>
+                            {currentLogoDisplay && !isLogoCropping && (
+                                <div className="edit-lobby-logo-preview">
+                                    <img src={currentLogoDisplay} alt="Logo preview" className="edit-lobby-logo-img" />
+                                    <button type="button" onClick={handleRemoveLogo} className="edit-lobby-logo-remove">×</button>
+                                </div>
+                            )}
+                            {!currentLogoDisplay && !isLogoCropping && (
+                                <>
+                                    {isLogoProcessing ? (
+                                        <div className="edit-lobby-logo-loading">Processing...</div>
+                                    ) : (
+                                        <>
+                                            <input type="file" id="editLogoUpload" accept="image/jpeg,image/jpg,image/png"
+                                                onChange={handleLogoUpload} style={{ display: 'none' }} />
+                                            <button type="button"
+                                                onClick={() => document.getElementById('editLogoUpload').click()}
+                                                className="edit-lobby-logo-upload-btn">
+                                                Upload Logo
+                                            </button>
+                                        </>
+                                    )}
+                                </>
+                            )}
+                            {isLogoCropping && logoPreview && (
+                                <div className="edit-lobby-crop-container">
+                                    <div className="edit-lobby-crop-area">
+                                        <Cropper image={logoPreview} crop={logoCrop} zoom={logoZoom} aspect={1}
+                                            onCropChange={setLogoCrop} onZoomChange={setLogoZoom}
+                                            onCropComplete={handleLogoCropComplete} />
+                                    </div>
+                                    <div className="edit-lobby-crop-controls">
+                                        <button type="button" onClick={handleSaveLogoCrop}
+                                            className="edit-lobby-crop-save" disabled={isLogoProcessing}>
+                                            {isLogoProcessing ? 'Processing...' : 'Save Crop'}
+                                        </button>
+                                        <button type="button" onClick={handleRemoveLogo}
+                                            className="edit-lobby-crop-cancel">Cancel</button>
+                                    </div>
+                                </div>
+                            )}
+                            {logoError && <div className="edit-lobby-logo-error">{logoError}</div>}
+                        </>
+                    )}
+                </div>
+
+                {error && <div className="edit-lobby-error">{error}</div>}
+
+                <div className="edit-lobby-actions">
+                    <button className="edit-lobby-btn-cancel" onClick={onClose} disabled={isSaving}>Cancel</button>
+                    <button className="edit-lobby-btn-save" onClick={handleSave} disabled={isSaving || (hasTags && editTags.length < 2)}>
+                        {isSaving ? 'Saving...' : 'Save'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const AdminLobbyView = () => {
     const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -614,7 +1033,9 @@ const AdminLobbyView = () => {
     const [roundDuration, setRoundDuration] = useState(null);
     const [profilePictures, setProfilePictures] = useState({}); // Cache for profile pictures
     const [customTags, setCustomTags] = useState([]); // Add state for custom tags
+    const [showTableNumbers, setShowTableNumbers] = useState(false);
     const [maxActiveRound, setMaxActiveRound] = useState(0);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     // Add playerCount and lobbyState for progress bar
     const playerCount = (lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0);
@@ -790,7 +1211,8 @@ const AdminLobbyView = () => {
                         setLobbyTimer(data.round_time_left);
                         setLobbyState(data.lobby_state);
                         setRoundDuration(data.round_duration || 300);
-                        setCustomTags(data.custom_tags || []); // Set custom tags from server
+                        setCustomTags(data.custom_tags || []);
+                        setShowTableNumbers(data.show_table_numbers ?? false);
                     } else {
                         console.error("Invalid lobby data structure:", data);
                         setLobbyData([]);
@@ -929,7 +1351,7 @@ const AdminLobbyView = () => {
                     className={`admin-lobby-dropdown-toggle ${showLobbyDetails ? 'expanded' : ''}`}
                     onClick={() => setShowLobbyDetails((prev) => !prev)}
                 >
-                    {showLobbyDetails ? 'Hide Controls' : 'More Controls'}
+                    {showLobbyDetails ? 'Hide Controls' : 'Edit'}
                     <span className={`dropdown-chevron ${showLobbyDetails ? 'rotated' : ''}`}>
                         ▼
                     </span>
@@ -980,6 +1402,17 @@ const AdminLobbyView = () => {
                                 <AdminTagsScrollList tags={customTags} />
                             )}
                         </div>
+                        <button
+                            onClick={() => setIsEditModalOpen(true)}
+                            className="page-control-button page-control-join"
+                        >
+                            Edit Lobby
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '6px', flexShrink: 0 }}>
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </button>
                         
                     </div>
                     
@@ -1125,6 +1558,12 @@ const AdminLobbyView = () => {
                 {pairedPlayers && lobbyState !== 'checkin' && (
                     <div className="admin-lobby-players">
                         <div className="player-section">
+                            {lobbyState === 'interrim' ? (
+                                <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem 0' }}>
+                                    <LoadingSpinner size={36} message="Pairing up..." />
+                                </div>
+                            ) : (
+                            <>
                             <div className="section-header">Paired Players: <span className="section-header-count">{pairedPlayers?.length * 2 || 0}</span></div>
                             <div className="player-grid">
                                 {pairedPlayers.map((pair, index) => {
@@ -1190,6 +1629,8 @@ const AdminLobbyView = () => {
                                     );
                                 })}
                             </div>
+                            </>
+                            )}
                         </div>
                     </div>
                 )}
@@ -1197,7 +1638,13 @@ const AdminLobbyView = () => {
                 {lobbyData && (
                     <div className="admin-lobby-players">
                         <div className="player-section">
-                            <div className="section-header">{lobbyState === 'checkin' ? 'People Joined' : 'Unpaired Players'}: <span className="section-header-count">{lobbyData?.length || 0}</span></div>
+                            {lobbyState === 'interrim' ? (
+                                <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem 0' }}>
+                                    <LoadingSpinner size={36} message="Assigning..." />
+                                </div>
+                            ) : (
+                            <>
+                            <div className="section-header">{lobbyState === 'checkin' ? 'People Checked In' : 'Unpaired Players'}: <span className="section-header-count">{lobbyData?.length || 0}</span></div>
                             <div className="player-grid">
                                 {[...lobbyData].sort((a, b) => (a.eligible_for_pairing === false ? 0 : 1) - (b.eligible_for_pairing === false ? 0 : 1)).map((player, index) => (
                                     <div 
@@ -1217,6 +1664,8 @@ const AdminLobbyView = () => {
                                     </div>
                                 ))}
                             </div>
+                            </>
+                            )}
                         </div>
                     </div>
                 )}
@@ -1236,6 +1685,17 @@ const AdminLobbyView = () => {
                     onConfirm={handleKickUser}
                     userName={selectedUser?.name || "this user"}
                     userImage={selectedUser?.pfp_data}
+                />
+
+                {/* Edit Lobby Modal */}
+                <EditLobbyModal
+                    isOpen={isEditModalOpen}
+                    onClose={() => setIsEditModalOpen(false)}
+                    lobbyCode={lobbyCode}
+                    currentTags={customTags}
+                    currentShowTableNumbers={showTableNumbers}
+                    currentRoundDuration={roundDuration}
+                    lobbyState={lobbyState}
                 />
             </div>
 
