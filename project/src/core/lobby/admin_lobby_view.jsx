@@ -26,7 +26,7 @@ const KickConfirmationModal = ({ isOpen, onClose, onConfirm, userName, userImage
                     className="kick-modal-avatar"
                 />
                 <h2 className="kick-modal-heading">Remove {userName}?</h2>
-                <p className="kick-modal-subtext">They will be removed from this lobby session immediately.</p>
+                <p className="kick-modal-subtext">They will be removed from this session. Don't worry they can rejoin at any time</p>
                 <div className="kick-modal-btn-row">
                     <button className="kick-modal-btn cancel" onClick={onClose}>
                         Cancel
@@ -898,21 +898,19 @@ const AdminLobbyView = () => {
                         Reset Lobby Timer
                     </button>
                 )}
-                <div 
-                    className="admin-view-logo"
-                    style={{ cursor: 'pointer' }}
-                >
+                <div className="admin-view-nav-bar">
+                    <button className="admin-nav-back" onClick={() => navigate('/')} aria-label="Back">
+                        <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+                            <circle cx="18" cy="18" r="17" stroke="#374151" strokeWidth="1.5" fill="rgba(255,255,255,0.8)"/>
+                            <path d="M21 12L15 18L21 24" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                    </button>
                     <img 
                         src="/assets/reuneo_test_11.png"
                         alt="Reuneo Logo"
-                        style={{
-                            maxWidth: '85px',
-                            height: 'auto',
-                            objectFit: 'contain',
-                            transition: 'transform 0.3s ease'
-                        }}
-                        onClick={() => navigate('/')}
+                        className="admin-view-logo-img"
                     />
+                    <div className="admin-nav-placeholder" />
                 </div>
                 <LobbyProgressBar 
                     lobbyState={lobbyState}
@@ -1148,6 +1146,9 @@ const AdminLobbyView = () => {
                                                     className="paired-player-avatar"
                                                 />
                                                 <h3 className="paired-player-name">{pair[0].name}</h3>
+                                                {pair[0].eligible_for_pairing === false && (
+                                                    <span className="eligibility-badge not-eligible">Not ready</span>
+                                                )}
                                                 {pair[0].match_details && pair[0].match_details.opponent_matched_tags && pair[0].match_details.opponent_matched_tags.length > 0 && (
                                                     <div className="matching-tag-container">
                                                         <div className="matched-player-tag">
@@ -1170,6 +1171,9 @@ const AdminLobbyView = () => {
                                                     className="paired-player-avatar"
                                                 />
                                                 <h3 className="paired-player-name">{pair[1].name}</h3>
+                                                {pair[1].eligible_for_pairing === false && (
+                                                    <span className="eligibility-badge not-eligible">Not ready</span>
+                                                )}
                                                 {pair[1].match_details && pair[1].match_details.opponent_matched_tags && pair[1].match_details.opponent_matched_tags.length > 0 && (
                                                     <div className="matching-tag-container">
                                                         <div className="matched-player-tag">
@@ -1195,7 +1199,7 @@ const AdminLobbyView = () => {
                         <div className="player-section">
                             <div className="section-header">{lobbyState === 'checkin' ? 'People Joined' : 'Unpaired Players'}: <span className="section-header-count">{lobbyData?.length || 0}</span></div>
                             <div className="player-grid">
-                                {lobbyData.map((player, index) => (
+                                {[...lobbyData].sort((a, b) => (a.eligible_for_pairing === false ? 0 : 1) - (b.eligible_for_pairing === false ? 0 : 1)).map((player, index) => (
                                     <div 
                                         key={index} 
                                         className="player-card"
@@ -1207,6 +1211,9 @@ const AdminLobbyView = () => {
                                             className="player-avatar"
                                         />
                                         <h3 className="player-name">{player.name}</h3>
+                                        {player.eligible_for_pairing === false && (
+                                            <span className="eligibility-badge not-eligible">Not ready</span>
+                                        )}
                                     </div>
                                 ))}
                             </div>
