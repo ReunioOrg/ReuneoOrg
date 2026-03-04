@@ -9,27 +9,23 @@ const POLL_INTERVAL = 5000;
 const MasterLobbyView = () => {
     const { checkAuth, permissions, user } = useContext(AuthContext);
     const navigate = useNavigate();
-    const [lobbies, setLobbies] = useState([]); // [{id, code, player_count, lobby_state}]
+    const [lobbies, setLobbies] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isInitialized, setIsInitialized] = useState(false);
 
-    // 1. Only call checkAuth on mount
     useEffect(() => {
         checkAuth();
     }, [checkAuth]);
 
-    // 2. Only set isInitialized when user is 'topaz' and has admin permissions
     useEffect(() => {
-        if (user === 'topaz' && permissions === "admin") {
+        if (permissions === "admin") {
             setIsInitialized(true);
         } else if (permissions !== null && user !== null) {
-            // User is authenticated but not authorized
             navigate('/');
         }
     }, [permissions, user, navigate]);
 
-    // 3. Poll for lobbies
     useEffect(() => {
         if (!isInitialized) return;
         let isMounted = true;
@@ -54,12 +50,10 @@ const MasterLobbyView = () => {
                 
                 if (!isMounted) return;
                 setLobbies(data.lobbies);
-                console.log('Received lobbies data:', data.lobbies); // Debug log
                 
             } catch (err) {
                 if (isMounted) {
                     setError(err.message || 'Error fetching lobbies');
-                    // Keep previous lobby data on error - don't clear lobbies
                 }
             } finally {
                 if (isMounted && isFirstLoad) {
@@ -110,34 +104,56 @@ const MasterLobbyView = () => {
 
     return (
         <div className="master-lobby-container">
-            <button className="back-button" onClick={() => navigate(-1)}>Back</button>
+            <div className="master-lobby-nav">
+                <button className="back-button" onClick={() => navigate(-1)}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                    Back
+                </button>
+            </div>
+            <h1 className="master-lobby-title">All Lobbies</h1>
+            <p className="master-lobby-subtitle">{lobbies.length} active {lobbies.length === 1 ? 'session' : 'sessions'}</p>
             {error && (
-                <div className="error-banner" style={{ 
-                    backgroundColor: '#f8d7da', 
-                    color: '#721c24', 
-                    padding: '0.75rem', 
-                    marginBottom: '1rem', 
-                    borderRadius: '0.25rem',
-                    border: '1px solid #f5c6cb'
-                }}>
+                <div className="error-banner">
                     {error} (showing last known data)
                 </div>
             )}
             <div className="master-lobby-grid">
-                {lobbies.map((lobby) => (
-                    <div key={lobby.code} className="lobby-tile">
-                        <div className="lobby-tile-content">
-                            <h3 className="lobby-code">{lobby.code}</h3>
-                            <div className="lobby-stats">
-                                <span className="player-count">{lobby.player_count} players</span>
-                                <span className="lobby-state">{lobby.lobby_state}</span>
-                            </div>
-                            <div style={{ fontSize: '0.7rem', color: '#666', marginTop: '0.5rem' }}>
-                                Debug: player_count={lobby.player_count}, lobby_state={lobby.lobby_state}
+                {lobbies.map((lobby) => {
+                    const mins = Math.floor((lobby.round_time_left || 0) / 60);
+                    const secs = Math.floor((lobby.round_time_left || 0) % 60);
+                    return (
+                        <div key={lobby.code} className="lobby-tile" onClick={() => navigate(`/admin_lobby_view?code=${lobby.code}`)}>
+                            <div className="lobby-tile-content">
+                                <div className="lobby-tile-header">
+                                    <h3 className="lobby-code">{lobby.code}</h3>
+                                    <span className={`lobby-type-badge ${lobby.lobby_type}`}>
+                                        {lobby.lobby_type}
+                                    </span>
+                                </div>
+                                <div className="lobby-tile-organizer">{lobby.organizer_username}</div>
+                                <div className="lobby-tile-stats">
+                                    <div className="lobby-stat">
+                                        <span className="lobby-stat-value">{lobby.player_count}</span>
+                                        <span className="lobby-stat-label">players</span>
+                                    </div>
+                                    <div className="lobby-stat">
+                                        <span className="lobby-stat-value">{lobby.unpaired_count}</span>
+                                        <span className="lobby-stat-label">unpaired</span>
+                                    </div>
+                                    <div className="lobby-stat">
+                                        <span className="lobby-stat-value">{mins}:{String(secs).padStart(2, '0')}</span>
+                                        <span className="lobby-stat-label">time left</span>
+                                    </div>
+                                </div>
+                                <div className="lobby-tile-footer">
+                                    <span className={`lobby-state-badge ${lobby.lobby_state}`}>{lobby.lobby_state}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );

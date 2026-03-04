@@ -1,63 +1,225 @@
 .master-lobby-container {
-    padding: 2rem;
+    padding: 1.5rem;
     max-width: 1200px;
     margin: 0 auto;
     min-height: var(--viewport-height);
-    background: #fff;
+    background: #f8f9fb;
 }
 
+/* Navigation */
+.master-lobby-nav {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.back-button:hover {
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+}
+
+.back-button:active {
+    transform: scale(0.97);
+}
+
+/* Page Header */
+.master-lobby-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 0.25rem 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.master-lobby-subtitle {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #6b7280;
+    margin: 0 0 1.5rem 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Lobby Grid */
 .master-lobby-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-    padding: 1rem;
+    gap: 1rem;
 }
 
+/* Lobby Tile */
 .lobby-tile {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(20, 77, 255, 0.1);
-    height: 120px;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.lobby-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(75, 115, 239, 0.15);
+}
+
+.lobby-tile:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(75, 115, 239, 0.1);
 }
 
 .lobby-tile-content {
-    padding: 1.5rem;
-    height: 100%;
+    padding: 1rem 1.1rem;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    gap: 0.6rem;
 }
 
-.lobby-code {
-    color: #144dff;
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin: 0;
-    font-family: Helvetica, sans-serif;
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
-}
-
-.lobby-stats {
+/* Tile Header */
+.lobby-tile-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 1rem;
 }
 
-.player-count {
-    color: #144dff;
-    font-size: 0.9rem;
-    font-weight: 600;
-    font-family: Helvetica, sans-serif;
+.lobby-code {
+    color: #1a1a2e;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: 0.02em;
 }
 
-.lobby-state {
-    color: #144dff;
-    font-size: 0.9rem;
+/* Type Badge */
+.lobby-type-badge {
+    font-size: 0.6rem;
     font-weight: 600;
-    font-family: Helvetica, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.lobby-type-badge.matchmaker {
+    background: rgba(75, 115, 239, 0.1);
+    color: #4b73ef;
+}
+
+.lobby-type-badge.ice-breaker {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+/* Organizer */
+.lobby-tile-organizer {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #6b7280;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin-top: -0.2rem;
+}
+
+/* Stat Row */
+.lobby-tile-stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.lobby-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.lobby-stat-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.lobby-stat-label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: #4b73ef;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-top: 2px;
+}
+
+/* Tile Footer */
+.lobby-tile-footer {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.lobby-state-badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    padding: 3px 10px;
+    border-radius: 20px;
     text-transform: capitalize;
+}
+
+.lobby-state-badge.checkin {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.lobby-state-badge.active {
+    background: rgba(75, 115, 239, 0.1);
+    color: #4b73ef;
+}
+
+.lobby-state-badge.interrim {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+}
+
+.lobby-state-badge.terminated {
+    background: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+}
+
+/* Error Banner */
+.error-banner {
+    background-color: rgba(220, 53, 69, 0.08);
+    color: #dc3545;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(220, 53, 69, 0.15);
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Loading State */
@@ -66,16 +228,19 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 200px;
+    min-height: 300px;
+    color: #6b7280;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 500;
 }
 
 .loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #144dff;
+    width: 36px;
+    height: 36px;
+    border: 3px solid #e5e7eb;
+    border-top: 3px solid #4b73ef;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: spin 0.8s linear infinite;
     margin-bottom: 1rem;
 }
 
@@ -89,11 +254,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 200px;
+    min-height: 300px;
     color: #dc3545;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
-    font-family: Helvetica, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Empty State */
@@ -101,67 +266,32 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 200px;
-    color: #424242;
-    font-size: 1.1rem;
+    min-height: 300px;
+    color: #6b7280;
+    font-size: 1rem;
     font-weight: 600;
-    font-family: Helvetica, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Back Button */
-.back-button {
-    position: fixed;
-    width: 100px;
-    height: 35px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    top: 20px;
-    left: 20px;
-    background: #144dff;
-    border: none;
-    border-radius: 17.5px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    font-family: Helvetica, sans-serif;
-    cursor: pointer;
-    z-index: 1000;
-    transition: all 0.3s ease;
-    color: #f5f7ff;
-    box-shadow: 0 7px 4px rgba(0, 0, 0, 0.1);
-}
-
-.back-button:hover {
-    background: #e5e9ff;
-    transform: translateY(-3px);
-}
-
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 768px) {
-    .master-lobby-grid {
-        grid-template-columns: 1fr;
-    }
-
     .master-lobby-container {
         padding: 1rem;
     }
 
-    .lobby-tile {
-        height: 100px;
+    .master-lobby-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .master-lobby-title {
+        font-size: 1.4rem;
     }
 
     .lobby-code {
-        font-size: 1.2rem;
+        font-size: 1rem;
     }
 
-    .player-count,
-    .lobby-state {
-        font-size: 0.8rem;
-    }
-    
-    .back-button {
-        top: 15px;
-        left: 15px;
-        padding: 0.8rem 1rem;
+    .lobby-stat-value {
+        font-size: 1rem;
     }
 }
