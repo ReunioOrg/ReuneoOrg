@@ -96,57 +96,101 @@ const generateStyledQRCodeImage = (svgElement, code) => {
         logoImg.crossOrigin = 'anonymous';
         
         logoImg.onload = () => {
-            // Load QR code SVG as image
             const qrImg = new window.Image();
             qrImg.onload = () => {
-                // Padding and spacing
-                const topPadding = 2; // Further reduced to raise logo up more
-                const bottomPadding = 32; // Further increased to bring footer code text up more from bottom
-                const logoHeight = 180; // Tripled from 60
+                const font = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                const monoFont = '"SF Mono", "Fira Code", "Courier New", monospace';
+                const margin = 48;
+
+                // Logo
+                const logoHeight = 140;
                 const logoWidth = (logoImg.width / logoImg.height) * logoHeight;
-                const subheaderFontSize = 36; // Doubled from 18
-                const footerFontSize = 28; // Doubled from 14
-                const qrSize = 550; // Largest element
-                const spacing = 22; // Further reduced to tighten spacing
-
-                // Calculate heights for centering
-                const logoSectionHeight = topPadding + logoHeight + spacing;
-                const subheaderSectionHeight = subheaderFontSize + spacing * 1.2; // Slightly reduced spacing
-                const footerSectionHeight = footerFontSize + bottomPadding;
-                const topSectionHeight = logoSectionHeight + subheaderSectionHeight;
-                const bottomSectionHeight = footerSectionHeight;
-                const availableHeight = canvasHeight - topSectionHeight - bottomSectionHeight;
-                
-                // Center QR code vertically in available space (shifted up more)
-                const qrY = topSectionHeight + (availableHeight - qrSize) / 2 - 35; // Shifted up by 35px (was 20px)
-                const qrX = (canvasWidth - qrSize) / 2;
-
-                let currentY = topPadding;
-
-                // Draw logo (centered)
                 const logoX = (canvasWidth - logoWidth) / 2;
-                ctx.drawImage(logoImg, logoX, currentY, logoWidth, logoHeight);
-                currentY += logoHeight + spacing;
+                const logoY = margin;
+                ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
 
-                // Draw subheader text
-                ctx.fillStyle = '#000000';
-                ctx.font = `600 ${subheaderFontSize}px Helvetica, Arial, sans-serif`;
+                // Divider tight under logo
+                const divider1Y = logoY + logoHeight + 12;
+                ctx.strokeStyle = '#d1d5db';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(margin + 40, divider1Y);
+                ctx.lineTo(canvasWidth - margin - 40, divider1Y);
+                ctx.stroke();
+
+                // Calculate content block (header + QR) to center vertically
+                const headerFontSize = 34;
+                const subFontSize = 28;
+                const qrSize = 500;
+                const headerBlockHeight = headerFontSize + 10 + subFontSize;
+                const gapHeaderToQR = 32;
+                const qrPadding = 20;
+                const contentHeight = headerBlockHeight + gapHeaderToQR + qrSize + qrPadding * 2;
+                const contentAreaTop = divider1Y + 16;
+                const footerReserve = 70;
+                const contentAreaBottom = canvasHeight - footerReserve;
+                const contentStart = contentAreaTop + (contentAreaBottom - contentAreaTop - contentHeight) / 2;
+
+                // Header line 1
+                ctx.fillStyle = '#1a1a2e';
+                ctx.font = `700 ${headerFontSize}px ${font}`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'top';
-                const subheaderText = 'Scan to join the ice-breaking session!';
-                ctx.fillText(subheaderText, canvasWidth / 2, currentY);
-                currentY += subheaderFontSize + spacing * 1.2;
+                ctx.letterSpacing = '2px';
+                ctx.fillText('SCAN TO JOIN EXPERIENCE', canvasWidth / 2, contentStart);
 
-                // Draw QR code (centered horizontally and vertically, shifted up)
-                ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+                // Header line 2
+                const subY = contentStart + headerFontSize + 10;
+                ctx.font = `500 ${subFontSize}px ${font}`;
+                ctx.fillStyle = '#4b5563';
+                ctx.letterSpacing = '0.5px';
+                ctx.fillText('Listen to the tutorial!', canvasWidth / 2, subY);
+                ctx.letterSpacing = '0px';
 
-                // Draw footer text - brought up from bottom
-                const footerY = canvasHeight - bottomPadding - footerFontSize;
-                ctx.font = `${footerFontSize}px Helvetica, Arial, sans-serif`;
-                ctx.fillStyle = '#000000';
-                ctx.textBaseline = 'top';
-                const footerText = `code (optional): ${code}`;
-                ctx.fillText(footerText, canvasWidth / 2, footerY);
+                // QR code with light grey rounded border
+                const qrContainerSize = qrSize + qrPadding * 2;
+                const qrContainerX = (canvasWidth - qrContainerSize) / 2;
+                const qrY = subY + subFontSize + gapHeaderToQR;
+
+                ctx.beginPath();
+                const r = 20;
+                const bx = qrContainerX, by = qrY, bw = qrContainerSize, bh = qrContainerSize;
+                ctx.moveTo(bx + r, by);
+                ctx.lineTo(bx + bw - r, by);
+                ctx.arcTo(bx + bw, by, bx + bw, by + r, r);
+                ctx.lineTo(bx + bw, by + bh - r);
+                ctx.arcTo(bx + bw, by + bh, bx + bw - r, by + bh, r);
+                ctx.lineTo(bx + r, by + bh);
+                ctx.arcTo(bx, by + bh, bx, by + bh - r, r);
+                ctx.lineTo(bx, by + r);
+                ctx.arcTo(bx, by, bx + r, by, r);
+                ctx.closePath();
+                ctx.strokeStyle = '#e5e7eb';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.drawImage(qrImg, qrContainerX + qrPadding, qrY + qrPadding, qrSize, qrSize);
+
+                // Footer — single line: "BACKUP CODE: <code>"
+                const footerY = canvasHeight - margin - 10;
+                ctx.textBaseline = 'bottom';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#6b7280';
+                ctx.font = `600 20px ${font}`;
+                ctx.letterSpacing = '1px';
+                const labelText = 'BACKUP CODE: ';
+                const labelWidth = ctx.measureText(labelText).width;
+                ctx.font = `700 20px ${monoFont}`;
+                const codeWidth = ctx.measureText(code).width;
+                const totalWidth = labelWidth + codeWidth;
+                const startX = (canvasWidth - totalWidth) / 2;
+                ctx.font = `600 20px ${font}`;
+                ctx.textAlign = 'left';
+                ctx.fillText(labelText, startX, footerY);
+                ctx.font = `700 20px ${monoFont}`;
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillText(code, startX + labelWidth, footerY);
+                ctx.letterSpacing = '0px';
 
                 // Convert canvas to blob
                 canvas.toBlob((blob) => {
@@ -161,7 +205,7 @@ const generateStyledQRCodeImage = (svgElement, code) => {
             qrImg.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgString)));
         };
         logoImg.onerror = () => reject(new Error('Failed to load logo image'));
-        logoImg.src = '/assets/reuneo_test_9.png';
+        logoImg.src = '/assets/reuneo_test_11.png';
     });
 };
 
@@ -365,9 +409,9 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                         {modal === 'checkin' ? (
                             <>
                                 <div className="checkin-modal-header">
-                                    <h2 className="checkin-modal-title">Share this QR Code</h2>
+                                    <h2 className="checkin-modal-title">Display or Print QR Code</h2>
                                     <p className="checkin-modal-subtitle">
-                                        Print or display it for your attendees to scan and join when they arrive at the event.
+                                        When attendees arrive at the event, tell them to scan and to follow the app's instructions. Thats it!
                                     </p>
                                 </div>
                                 <div className="checkin-modal-qr-wrapper" onClick={handleModalCopyQrPng}>
@@ -392,7 +436,7 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                                     </div>
                                 </div>
                                 <div className="checkin-modal-code-badge">
-                                    <span className="checkin-modal-code-label">Code</span>
+                                    <span className="checkin-modal-code-label">BACKUP CODE</span>
                                     <span className="checkin-modal-code-value">{lobbyCode}</span>
                                 </div>
                                 <p className="checkin-modal-hint">
