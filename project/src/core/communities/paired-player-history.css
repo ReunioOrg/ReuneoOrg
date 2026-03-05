@@ -551,6 +551,44 @@
 }
 
 /* ============================================================
+   Social Icons Row (icon-only, inline)
+   ============================================================ */
+.social-icons-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.social-icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f0f1f4;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.social-icon-link:hover {
+    background: #e5e7eb;
+    transform: scale(1.1);
+}
+
+/* ============================================================
+   Share Contact Reveal Animation
+   ============================================================ */
+.share-contact-reveal {
+    overflow: hidden;
+    width: 100%;
+}
+
+/* ============================================================
    Infinite Scroll & End-of-List
    ============================================================ */
 .infinite-scroll-sentinel {

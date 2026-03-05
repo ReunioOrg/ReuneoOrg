@@ -49,14 +49,14 @@ const SOCIAL_PLATFORM_ORDER = ['phone', 'email', 'website', 'instagram', 'facebo
 // Helper function: Get display info for each social platform
 const getSocialPlatformInfo = (platform) => {
     const platforms = {
-        instagram: { label: 'Instagram', Icon: FaInstagram, color: '#E4405F', displayPrefix: '@' },
-        facebook: { label: 'Facebook', Icon: FaFacebookF, color: '#1877F2', displayPrefix: '@' },
+        instagram: { label: 'Instagram', Icon: FaInstagram, color: '#4b7ef0', displayPrefix: '@' },
+        facebook: { label: 'Facebook', Icon: FaFacebookF, color: '#4b7ef0', displayPrefix: '@' },
         email: { label: 'Email', Icon: FaEnvelope, color: '#4b7ef0', displayPrefix: '' },
-        phone: { label: 'Phone', Icon: FaPhone, color: '#25D366', displayPrefix: '' },
+        phone: { label: 'Phone', Icon: FaPhone, color: '#4b7ef0', displayPrefix: '' },
         website: { label: 'Website', Icon: FaGlobe, color: '#4b7ef0', displayPrefix: '' },
-        linkedin: { label: 'LinkedIn', Icon: FaLinkedinIn, color: '#0A66C2', displayPrefix: '' },
-        tiktok: { label: 'TikTok', Icon: FaTiktok, color: '#000000', displayPrefix: '@' },
-        snapchat: { label: 'Snapchat', Icon: FaSnapchatGhost, color: '#FFFC00', displayPrefix: '@' }
+        linkedin: { label: 'LinkedIn', Icon: FaLinkedinIn, color: '#4b7ef0', displayPrefix: '' },
+        tiktok: { label: 'TikTok', Icon: FaTiktok, color: '#4b7ef0', displayPrefix: '@' },
+        snapchat: { label: 'Snapchat', Icon: FaSnapchatGhost, color: '#4b7ef0', displayPrefix: '@' }
     };
     return platforms[platform] || { label: platform, Icon: FaGlobe, color: '#4b7ef0', displayPrefix: '' };
 };
@@ -1089,8 +1089,8 @@ const PairedPlayerHistory = () => {
                             
                             // Check if contact info should be shown
                             const shouldShowContact = interaction.partner_show_contact === true;
-                            const hasSocialLinks = shouldShowContact && hasAnySocialLinks(partner.social_links);
-                            const hasLegacyContactUrl = shouldShowContact && partner.contact_url && !hasSocialLinks;
+                            const partnerHasSocialLinks = shouldShowContact && hasAnySocialLinks(partner.social_links);
+                            const hasLegacyContactUrl = shouldShowContact && partner.contact_url && !partnerHasSocialLinks;
                             
                             return (
                                 <div key={interactionKey} className="interaction-card">
@@ -1114,6 +1114,42 @@ const PairedPlayerHistory = () => {
                                                     {formatDate(interaction.lobby_date)}
                                                 </div>
                                             )}
+                                            
+                                            {(partnerHasSocialLinks || hasLegacyContactUrl) && (
+                                                <div className="social-icons-row">
+                                                    {partnerHasSocialLinks && SOCIAL_PLATFORM_ORDER.map((platform) => {
+                                                        const value = partner.social_links?.[platform];
+                                                        if (!value || !value.trim()) return null;
+                                                        
+                                                        const { label, Icon, color } = getSocialPlatformInfo(platform);
+                                                        const url = buildSocialLinkUrl(platform, value);
+                                                        
+                                                        return (
+                                                            <a 
+                                                                key={platform}
+                                                                href={url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="social-icon-link"
+                                                                title={label}
+                                                            >
+                                                                <Icon size={18} color={color} />
+                                                            </a>
+                                                        );
+                                                    })}
+                                                    {hasLegacyContactUrl && (
+                                                        <a 
+                                                            href={partner.contact_url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="social-icon-link"
+                                                            title="Contact"
+                                                        >
+                                                            <FaGlobe size={18} color="#4b7ef0" />
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                         
                                         {/* Right Column: Star Rating and Share Contact */}
@@ -1123,72 +1159,26 @@ const PairedPlayerHistory = () => {
                                                 onRatingChange={(rating) => handleRatingChange(interactionKey, rating)}
                                                 interactionKey={interactionKey}
                                             />
-                                            <ShareContactToggle
-                                                value={currentShareContact}
-                                                onChange={(value) => handleShareContactChange(interactionKey, value)}
-                                                interactionKey={interactionKey}
-                                            />
+                                            <AnimatePresence>
+                                                {currentRating !== null && currentRating >= 1 && (
+                                                    <motion.div
+                                                        key="share-contact"
+                                                        className="share-contact-reveal"
+                                                        initial={{ opacity: 0, height: 0 }}
+                                                        animate={{ opacity: 1, height: 'auto' }}
+                                                        exit={{ opacity: 0, height: 0 }}
+                                                        transition={{ duration: 0.25, ease: 'easeOut' }}
+                                                    >
+                                                        <ShareContactToggle
+                                                            value={currentShareContact}
+                                                            onChange={(value) => handleShareContactChange(interactionKey, value)}
+                                                            interactionKey={interactionKey}
+                                                        />
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
                                     </div>
-                                    
-                                    {/* Contact Info Section - Shows for both social links and legacy contact_url */}
-                                    {(hasSocialLinks || hasLegacyContactUrl) && (
-                                        <div className="contact-info-section">
-                                            <div className="social-links-header">
-                                                {partner.name ? `${partner.name}'s contact info` : 'Contact info'}
-                                            </div>
-                                            
-                                            {/* Social Links */}
-                                            {hasSocialLinks && (
-                                                <div className="social-links-display">
-                                                    {SOCIAL_PLATFORM_ORDER.map((platform) => {
-                                                        const value = partner.social_links?.[platform];
-                                                        if (!value || !value.trim()) return null;
-                                                        
-                                                        const { label, Icon, color, displayPrefix } = getSocialPlatformInfo(platform);
-                                                        const url = buildSocialLinkUrl(platform, value);
-                                                        const displayValue = displayPrefix + value;
-                                                        
-                                                        return (
-                                                            <a 
-                                                                key={platform}
-                                                                href={url}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="social-link-item"
-                                                                title={label}
-                                                            >
-                                                                <span className="social-link-icon">
-                                                                    <Icon size={16} color={color} />
-                                                                </span>
-                                                                <span className="social-link-value">{displayValue}</span>
-                                                            </a>
-                                                        );
-                                                    })}
-                                                </div>
-                                            )}
-                                            
-                                            {/* Legacy Contact URL - Fallback for old users without social_links */}
-                                            {hasLegacyContactUrl && (
-                                                <div className="interaction-card-contact-row">
-                                                    <img 
-                                                        src="/assets/contact_url_asset.png" 
-                                                        alt="Contact" 
-                                                        className="contact-url-icon"
-                                                    />
-                                                    <a 
-                                                        href={partner.contact_url} 
-                                                        target="_blank" 
-                                                        rel="noopener noreferrer"
-                                                        className="contact-url-link"
-                                                        title={partner.contact_url}
-                                                    >
-                                                        {partner.contact_url}
-                                                    </a>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
                                 </div>
                             );
                         })}
