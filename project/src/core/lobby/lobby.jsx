@@ -20,6 +20,7 @@ import AnimatedTagList from './animated_tag_list';
 import ProfileDropdown from './ProfileDropdown';
 import LobbyProfileModal from './LobbyProfileModal';
 import TagsPhaseIntroOverlay from './tags_phase_intro_overlay';
+import TutorialMatchHistory from '../Tutorials/tutorial-match-history';
 
 const AVAILABLE_TAGS = []; // Remove hardcoded tags
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
@@ -403,9 +404,11 @@ const LobbyScreen = () => {
                                 navigate('/paired-player-history', { state: { fromLobby: true } });
                             }, 7000);
                         }).catch(() => {
-                            // Audio switchover failed — navigate immediately
-                            cancelSound();
-                            navigate('/paired-player-history', { state: { fromLobby: true } });
+                            // Audio failed — still wait so the tutorial preview plays
+                            setTimeout(() => {
+                                cancelSound();
+                                navigate('/paired-player-history', { state: { fromLobby: true } });
+                            }, 5000);
                         });
                     }
                     return;  // Exit early, don't continue processing
@@ -1057,12 +1060,32 @@ const LobbyScreen = () => {
                 alignItems: 'center',
                 background: 'rgba(255, 255, 255, 0.95)',
                 zIndex: 1000,
-                gap: '1.5rem'
+                gap: '0.5rem',
+                overflowY: 'auto',
+                padding: '2rem 1rem'
             }}>
-                <LoadingSpinner size={60} />
-                <h2 className="lobby-header">
-                    Session ended. Generating your matches...
+                <h2 style={{
+                    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                    color: '#1a1a2e',
+                    fontSize: '1.4rem',
+                    fontWeight: 700,
+                    textAlign: 'center',
+                    margin: 0
+                }}>
+                    Let's find you a good connection
                 </h2>
+                <p style={{
+                    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                    color: '#6b7280',
+                    fontSize: '0.95rem',
+                    textAlign: 'center',
+                    margin: '0 0 0.5rem 0'
+                }}>
+                    Review your interactions from today's event
+                </p>
+                <div style={{ width: '100%', maxWidth: '400px' }}>
+                    <TutorialMatchHistory hideLabel />
+                </div>
             </div>
         );
     }

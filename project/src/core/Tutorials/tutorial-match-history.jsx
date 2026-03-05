@@ -13,7 +13,7 @@ const SAMPLE_DATA = {
     ],
 };
 
-const TutorialMatchHistory = () => {
+const TutorialMatchHistory = ({ hideLabel = false }) => {
     const [starsVisible, setStarsVisible] = useState(false);
     const [yesSelected, setYesSelected] = useState(false);
 
@@ -30,9 +30,11 @@ const TutorialMatchHistory = () => {
     return (
         <div className="tutorial-mh-wrapper">
             <div className="tutorial-mh-card">
-                <div className="tutorial-mh-example-label">
-                    Here's what your attendees will see after the event
-                </div>
+                {!hideLabel && (
+                    <div className="tutorial-mh-example-label">
+                        Here's what your attendees will see after the event
+                    </div>
+                )}
                 {/* 1. Profile Image — 0.0s */}
                 <div className="tutorial-mh-fade tutorial-mh-delay-0 tutorial-mh-image">
                     <img src={SAMPLE_DATA.image} alt={SAMPLE_DATA.name} />
