@@ -246,7 +246,7 @@ const StarRating = ({ rating, onRatingChange, interactionKey }) => {
     
     return (
         <div className="star-rating-container">
-            <div className="star-rating-question">How was the chat?</div>
+            <div className="star-rating-question">Would you talk to this person again?</div>
             <div className="star-rating-stars">
                 {[1, 2, 3, 4, 5].map((starNumber) => (
                     <button
@@ -1045,7 +1045,10 @@ const PairedPlayerHistory = () => {
             )}
             
             <div className="paired-player-history-content">
-                <h1 className="paired-player-history-title">View Your Matches</h1>
+                <div className="history-logo">
+                    <img src="/assets/reuneo_test_11.png" alt="Reuneo" />
+                </div>
+                <h1 className="paired-player-history-title">Your Connections</h1>
                 
                 {/* Loading state - initial load */}
                 {isLoading && (
@@ -1106,6 +1109,11 @@ const PairedPlayerHistory = () => {
                                             <div className="interaction-card-name">
                                                 {partner.name || partner.username || 'Unknown'}
                                             </div>
+                                            {interaction.lobby_date && (
+                                                <div className="interaction-card-date">
+                                                    {formatDate(interaction.lobby_date)}
+                                                </div>
+                                            )}
                                         </div>
                                         
                                         {/* Right Column: Star Rating and Share Contact */}
