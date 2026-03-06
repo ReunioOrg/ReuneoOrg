@@ -25,65 +25,14 @@
     }
 }
 
-.primary-button {
-    width: 100%;
-    padding: 12px;
-    border-radius: 25px;
-    border: none;
-    background: linear-gradient(45deg, #144dff, #2979ff);
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(20,77,255,0.2);
-    margin-top: 0;
-}
-
 .bounce-animation {
     animation: bounce 1s infinite, textGlow 2s infinite;
 }
 
-.signup-header {
-    text-align: center;
-    width: 100%;
-    color: #144dff;
-    font-size: 2rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    text-shadow: 2px 2px 4px rgb(255, 255, 255);
-    margin: 0.5rem 0;
-    font-weight: bold;
-    font-family: Helvetica, Arial, sans-serif;
-    position: relative;
-}
-
-.homescreen-button {
-    position: absolute;
-    top: 17px;
-    left: 15px;
-    right: auto;
-    width: auto;
-    padding: 8px 16px;
-    background-color: #144dff;
-    border: 2px solid #e9ecef;
-    border-radius: 14px;
-    color: #ffffff;
-    font-family: Helvetica, Arial, sans-serif;
-    font-weight: 800;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.9rem;
-}
-
-.homescreen-button:hover {
-    background-color: #e9ecef;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.signup-container {
-    padding: 10px;
+/* Container - uses compound selector to beat organizer CSS specificity */
+.signup-container.pure-signup {
+    padding: 1rem 1.5rem 2rem;
+    padding-top: 55px;
     width: 100%;
     max-width: 100%;
     margin: 0 auto;
@@ -91,25 +40,105 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-start;
     box-sizing: border-box;
-    background: linear-gradient(135deg, rgba(20,77,255,0.1) 0%, rgba(36, 86, 235, 0.05) 100%);
+    background: #f8f9fb;
     position: relative;
 }
 
-.form-label {
+/* All shared classes scoped under .pure-signup for specificity */
+
+.pure-signup .primary-button {
+    width: 100%;
+    padding: 14px 24px;
+    border-radius: 16px;
+    border: none;
+    background: #4b73ef;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(75, 115, 239, 0.25);
+    margin-top: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.pure-signup .primary-button:hover {
+    background: #5d85f5;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(75, 115, 239, 0.3);
+}
+
+.pure-signup .primary-button:active {
+    transform: translateY(0);
+    background: #4b73ef;
+}
+
+.pure-signup .signup-header {
+    text-align: center;
+    width: 100%;
+    color: #1a1a2e;
+    font-size: 1.5rem;
+    margin: 0.5rem 0;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    position: relative;
+    z-index: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    text-shadow: none;
+}
+
+.pure-signup .homescreen-button {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: auto;
+    min-width: 80px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+    background: #4b73ef;
+    border: none;
+    border-radius: 20px;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(75, 115, 239, 0.25);
+}
+
+.pure-signup .homescreen-button:hover {
+    background: #5d85f5;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(75, 115, 239, 0.3);
+}
+
+.pure-signup .homescreen-button:active {
+    transform: translateY(0);
+    background: #4b73ef;
+}
+
+.pure-signup .form-label {
     display: block;
     margin-bottom: 8px;
-    font-family: Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 500;
     color: #495057;
     font-size: 1rem;
 }
 
-/* Step form styles */
-.signup-container .step-form-container {
+.pure-signup .step-form-container {
     position: relative;
     width: 100%;
-    max-width: 400px;
+    max-width: 340px;
     margin: 0 auto;
     overflow: hidden;
     padding: 0 15px;
@@ -120,12 +149,12 @@
     border: none;
 }
 
-.step-form {
+.pure-signup .step-form {
     display: flex;
     transition: transform 0.5s ease;
 }
 
-.step {
+.pure-signup .step {
     min-width: 100%;
     padding: 15px 0;
     opacity: 0;
@@ -137,129 +166,141 @@
     flex-direction: column;
 }
 
-.step.active {
+.pure-signup .step.active {
     opacity: 1;
     transform: translateX(0);
 }
 
-.step-input {
+.pure-signup .step-input {
     width: 100%;
-    padding: 12px;
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    background: transparent;
+    padding: 14px 16px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 14px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: #f9fafb;
     box-sizing: border-box;
-    margin-bottom: 0;
+    color: #1a1a2e;
     min-height: 44px;
+    font-weight: 500;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin-bottom: 0;
 }
 
-.step-input:focus {
-    border-color: #144dff;
+.pure-signup .step-input:focus {
+    border-color: #2196F3;
     outline: none;
-    box-shadow: 0 0 0 3px rgba(20, 77, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.12);
+    background: #ffffff;
 }
 
-.step-label {
+.pure-signup .step-input::placeholder {
+    color: #9ca3af;
+}
+
+.pure-signup .step-label {
     display: block;
     margin-bottom: 8px;
-    color: #144dff;
+    color: #4b73ef;
     font-weight: 600;
     font-size: 0.9rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.step-progress {
+.pure-signup .step-progress {
     display: flex;
     justify-content: center;
     margin: 10px 0 20px;
     gap: 8px;
 }
 
-.progress-dot {
+.pure-signup .progress-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background-color: #e0e0e0;
+    background-color: #e5e7eb;
     transition: all 0.3s ease;
 }
 
-.progress-dot.active {
-    background-color: #144dff;
+.pure-signup .progress-dot.active {
+    background-color: #4b73ef;
     transform: scale(1.2);
 }
 
-.progress-dot.completed {
-    background-color: #144dff;
+.pure-signup .progress-dot.completed {
+    background-color: #4b73ef;
 }
 
-.step-error {
-    color: #dc3545;
+.pure-signup .step-error {
+    color: #b91c1c;
     font-size: 0.8rem;
     margin-top: 4px;
     min-height: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.step-success {
-    color: #28a745;
+.pure-signup .step-success {
+    color: #22c55e;
     font-size: 0.8rem;
     margin-top: 4px;
     min-height: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Combined credentials step styles */
-.credentials-step {
+.pure-signup .credentials-step {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-.name-field-container {
+.pure-signup .name-field-container {
     margin-bottom: 0.5rem;
 }
 
-.credentials-fields {
+.pure-signup .credentials-fields {
     display: flex;
     flex-direction: column;
     gap: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid #e5e7eb;
 }
 
 /* Collapsible credentials section for lobby redirect users */
-.credentials-collapsible {
+.pure-signup .credentials-collapsible {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     padding-top: 1rem;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid #e5e7eb;
     margin-top: 0.5rem;
     opacity: 0.6;
 }
 
-.credentials-collapsible:hover,
-.credentials-collapsible:focus-within {
+.pure-signup .credentials-collapsible:hover,
+.pure-signup .credentials-collapsible:focus-within {
     opacity: 1;
     transition: opacity 0.2s ease;
 }
 
-.see-more-toggle {
+.pure-signup .see-more-toggle {
     background: none;
     border: none;
-    color: #144dff;
+    color: #4b73ef;
     font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
     padding: 8px 0;
     text-align: center;
     transition: color 0.2s ease;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.see-more-toggle:hover {
-    color: #2979ff;
+.pure-signup .see-more-toggle:hover {
+    color: #5d85f5;
 }
 
-.credentials-fields-expanded {
+.pure-signup .credentials-fields-expanded {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -267,181 +308,200 @@
     overflow: hidden;
 }
 
-.credentials-hint {
+.pure-signup .credentials-hint {
     font-size: 0.75rem;
-    color: #888;
+    color: #9ca3af;
     margin: 0 0 0.5rem 0;
     text-align: center;
     font-style: italic;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.field-row {
+.pure-signup .field-row {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
 
-.step-label.small-label {
+.pure-signup .step-label.small-label {
     font-size: 0.8rem;
     margin-bottom: 4px;
 }
 
-.step-error.small-feedback,
-.step-success.small-feedback {
+.pure-signup .step-error.small-feedback,
+.pure-signup .step-success.small-feedback {
     font-size: 0.7rem;
     margin-top: 2px;
     min-height: 16px;
 }
 
-.button-container.combined-step-buttons {
+.pure-signup .button-container.combined-step-buttons {
     position: relative;
     top: auto;
     margin-top: 1.5rem;
 }
 
 /* Inline Next button for combined step */
-.inline-next-button-container {
+.pure-signup .inline-next-button-container {
     display: flex;
     justify-content: center;
     margin: 1rem 0 0.5rem 0;
 }
 
-.inline-next-button {
-    background: linear-gradient(45deg, #144dff, #2979ff);
+.pure-signup .inline-next-button {
+    background: #4b73ef;
     color: white;
     border: none;
-    padding: 12px 32px;
-    border-radius: 25px;
+    padding: 14px 32px;
+    border-radius: 16px;
     cursor: pointer;
     font-size: 1rem;
     font-weight: 600;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 15px rgba(20, 77, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(75, 115, 239, 0.25);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.inline-next-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(20, 77, 255, 0.4);
+.pure-signup .inline-next-button:hover {
+    background: #5d85f5;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(75, 115, 239, 0.3);
 }
 
-.inline-next-button:active {
+.pure-signup .inline-next-button:active {
     transform: translateY(0);
-    box-shadow: 0 2px 10px rgba(20, 77, 255, 0.3);
+    background: #4b73ef;
 }
 
 /* Inline Back button for image step */
-.inline-back-button-container {
+.pure-signup .inline-back-button-container {
     display: flex;
     justify-content: flex-start;
     margin-bottom: 1rem;
 }
 
-.inline-back-button {
-    background: #144dff;
+.pure-signup .inline-back-button {
+    background: #4b73ef;
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 0 20px;
+    height: 36px;
+    display: flex;
+    align-items: center;
     border-radius: 20px;
     cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.15s ease;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(75, 115, 239, 0.25);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.inline-back-button:hover {
-    background: #2979ff;
+.pure-signup .inline-back-button:hover {
+    background: #5d85f5;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(75, 115, 239, 0.3);
 }
 
-.inline-back-button:active {
-    transform: scale(0.97);
-    background: #0d3cc5;
+.pure-signup .inline-back-button:active {
+    transform: translateY(0);
+    background: #4b73ef;
 }
 
 /* Logo styles */
-.logo-image {
-    width: 100px;
-    height: 100px;
-    margin: 1rem 0;
-    margin-top: -.5rem;
+.pure-signup .logo-image {
+    width: 90px;
+    height: auto;
+    margin-bottom: 0.5rem;
     object-fit: contain;
+    z-index: 1;
+    position: relative;
 }
 
 /* Login link styles */
-.login-link-text {
+.pure-signup .login-link-text {
     font-size: 0.9rem;
-    color: #555;
+    color: #6b7280;
     margin: 0.5rem 0 0.5rem;
     text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.login-link {
-    color: #144dff;
+.pure-signup .login-link {
+    color: #4b73ef;
     text-decoration: none;
     font-weight: 600;
 }
 
-/* Login CTA Button - styled like Continue button */
-.login-cta-button {
-    background: linear-gradient(45deg, #144dff, #2979ff);
+/* Login CTA Button */
+.pure-signup .login-cta-button {
+    background: #4b73ef;
     color: white;
     border: none;
-    padding: 12px 28px;
-    border-radius: 25px;
+    padding: 14px 28px;
+    border-radius: 16px;
     cursor: pointer;
     font-size: 0.95rem;
     font-weight: 600;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 15px rgba(20, 77, 255, 0.25);
+    box-shadow: 0 4px 12px rgba(75, 115, 239, 0.25);
     margin-bottom: 0.75rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.login-cta-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(20, 77, 255, 0.35);
+.pure-signup .login-cta-button:hover {
+    background: #5d85f5;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(75, 115, 239, 0.3);
 }
 
-.login-cta-button:active {
+.pure-signup .login-cta-button:active {
     transform: translateY(0);
-    box-shadow: 0 2px 10px rgba(20, 77, 255, 0.25);
+    background: #4b73ef;
 }
 
-/* Media queries for better mobile responsiveness */
+/* Media queries */
 @media screen and (max-width: 480px) {
-    .signup-container {
-        padding: 5px;
+    .signup-container.pure-signup {
+        padding: 1rem;
+        padding-top: 40px;
     }
 
-    .signup-container .step-form-container {
+    .pure-signup .step-form-container {
         padding: 0 10px;
     }
 
-    .signup-header {
-        font-size: 1.5rem;
+    .pure-signup .signup-header {
+        font-size: 1.25rem;
         margin: 0.3rem 0;
     }
 
-    .homescreen-button {
-        padding: 6px 12px;
-        font-size: .9rem;
+    .pure-signup .homescreen-button {
+        top: 12px;
+        left: 12px;
+        min-width: 70px;
+        height: 32px;
+        font-size: 0.8rem;
+        padding: 0 16px;
     }
 
-    .step-input {
-        padding: 10px;
+    .pure-signup .step-input {
+        padding: 12px 14px;
         font-size: 16px;
     }
 
-    .step {
+    .pure-signup .step {
         padding: 10px 0;
     }
 }
 
-.step-content {
+.pure-signup .step-content {
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-.button-container {
+.pure-signup .button-container {
     width: 100%;
     display: flex;
     justify-content: flex-start;
@@ -454,16 +514,16 @@
     box-sizing: border-box;
 }
 
-.backz-button {
-    background: #144dff;
+.pure-signup .backz-button {
+    background: #4b73ef;
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 0 20px;
     border-radius: 20px;
     cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.15s ease;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
     height: 36px;
     display: flex;
     align-items: center;
@@ -471,75 +531,67 @@
     align-self: flex-start;
     margin-right: auto;
     margin-left: 10px;
+    box-shadow: 0 2px 8px rgba(75, 115, 239, 0.25);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.nextz-button {
-    background: #144dff;
+.pure-signup .nextz-button {
+    background: #4b73ef;
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 0 20px;
     border-radius: 20px;
     cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.15s ease;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
     height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     align-self: flex-end;
     margin-right: 10px;
+    box-shadow: 0 2px 8px rgba(75, 115, 239, 0.25);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.nextz-button:hover, .backz-button:hover {
-    background: #2979ff;
+.pure-signup .nextz-button:hover,
+.pure-signup .backz-button:hover {
+    background: #5d85f5;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(75, 115, 239, 0.3);
 }
 
-.nextz-button:active, .backz-button:active {
-    transform: scale(0.97);
-    background: #0d3cc5;
+.pure-signup .nextz-button:active,
+.pure-signup .backz-button:active {
+    transform: translateY(0);
+    background: #4b73ef;
 }
 
-.nextz-button:focus, .backz-button:focus {
+.pure-signup .nextz-button:focus,
+.pure-signup .backz-button:focus {
     outline: none;
 }
 
-.nextz-button::before, .backz-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.1);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.nextz-button:active::before, .backz-button:active::before {
-    opacity: 1;
-}
-
-.image-upload-container {
+.pure-signup .image-upload-container {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 16px;
-    
 }
 
-.profile-preview-image {
+.pure-signup .profile-preview-image {
     width: 200px;
     height: 250px;
     object-fit: cover;
     border-radius: 12px;
     margin-top: 16px;
     margin-bottom: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.cropper-container {
+.pure-signup .cropper-container {
     width: 100%;
     max-width: 400px;
     margin: 0 auto;
@@ -548,7 +600,7 @@
     gap: 16px;
 }
 
-.cropper-wrapper {
+.pure-signup .cropper-wrapper {
     position: relative;
     width: 100%;
     height: 375px;
@@ -557,58 +609,56 @@
     overflow: hidden;
 }
 
-.cropper-controls {
+.pure-signup .cropper-controls {
     display: flex;
     justify-content: center;
     gap: 12px;
     margin-top: 16px;
 }
 
-.save-crop-button, .cancel-crop-button {
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 500;
+.pure-signup .cancel-crop-button {
+    width: 100%;
+    padding: 14px 24px;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: transparent;
+    color: #6b7280;
+    border: 1.5px solid #e5e7eb;
 }
 
-.save-crop-button {
-    background: #144dff;
-    color: white;
-    border: none;
+.pure-signup .cancel-crop-button:hover {
+    border-color: #4b73ef;
+    color: #4b73ef;
+    transform: translateY(-1px);
 }
 
-.save-crop-button:hover {
-    background: #2979ff;
+.pure-signup .cancel-crop-button:active {
+    transform: translateY(0);
 }
 
-.cancel-crop-button {
-    background: white;
-    color: #144dff;
-    border: 2px solid #144dff;
-}
-
-.cancel-crop-button:hover {
-    background: rgba(20, 77, 255, 0.1);
-}
-
-.error-message {
-    background-color: #ffebee;
-    color: #d32f2f;
-    padding: 10px;
+/* Error message */
+.pure-signup .error-message {
+    background: rgba(185, 28, 28, 0.08);
+    color: #b91c1c;
+    padding: 10px 14px;
     border-radius: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
     text-align: center;
-    border: 1px solid #ef9a9a;
-    animation: shake 0.5s ease-in-out;
-    font-size: 0.9rem;
+    animation: signup-shake 0.5s ease-in-out;
+    border: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-@keyframes shake {
+@keyframes signup-shake {
     0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
 }
 
 /* React Easy Crop styles */
@@ -643,40 +693,17 @@
     border-radius: 12px;
 }
 
-.step-input[type="file"]::-webkit-file-upload-button {
-    visibility: visible;
-    font-size: 16px;
-    min-height: 44px;
-}
-
-.step-input[type="file"]::file-selector-button {
-    visibility: visible;
-    font-size: 16px;
-    min-height: 44px;
-}
-
-.step-input[type="file"]::-webkit-file-upload-button,
-.step-input[type="file"]::file-selector-button {
-    visibility: visible;
-    font-size: 16px;
-    min-height: 44px;
-}
-
-/* Hide the "No file chosen" text */
-.step-input[type="file"] {
+/* File input overrides */
+.pure-signup .step-input[type="file"] {
     color: transparent;
     font-size: 16px;
     min-height: 44px;
+    background: #f8f9fb;
+    border-color: #f8f9fb;
 }
 
-.step-input[type="file"]::-webkit-file-upload-button {
-    visibility: visible;
-    color: initial;
-    font-size: 16px;
-    min-height: 44px;
-}
-
-.step-input[type="file"]::file-selector-button {
+.pure-signup .step-input[type="file"]::-webkit-file-upload-button,
+.pure-signup .step-input[type="file"]::file-selector-button {
     visibility: visible;
     color: initial;
     font-size: 16px;
@@ -716,38 +743,43 @@
     font-weight: 700;
     margin: 0 0 16px 0;
     line-height: 1.3;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .selfie-modal-subtext {
-    color: #555;
+    color: #6b7280;
     font-size: 0.95rem;
     line-height: 1.6;
     margin: 0 0 24px 0;
     font-weight: 400;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .selfie-modal-button {
-    background: linear-gradient(135deg, #4b73ef 0%, #3a5fcf 100%);
+    background: #4b73ef;
     color: white;
     border: none;
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 14px 32px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 15px rgba(75, 115, 239, 0.35);
+    box-shadow: 0 4px 12px rgba(75, 115, 239, 0.25);
     width: 100%;
     max-width: 200px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .selfie-modal-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(75, 115, 239, 0.45);
+    background: #5d85f5;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(75, 115, 239, 0.3);
 }
 
 .selfie-modal-button:active {
     transform: translateY(0);
+    background: #4b73ef;
 }
 
 /* Mobile adjustments for selfie modal */

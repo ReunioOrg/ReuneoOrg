@@ -302,6 +302,20 @@ const PureSignupPage = () => {
             setIsLoading(false);
             return;
         }
+
+        let finalImagePreview = imagePreview;
+        if (isCropping && cropArea) {
+            try {
+                finalImagePreview = await getCroppedImg(imagePreview, cropArea);
+                setImagePreview(finalImagePreview);
+                setIsCropping(false);
+            } catch (err) {
+                console.error('Error cropping the image:', err);
+                setError('Failed to crop image. Please try again.');
+                setIsLoading(false);
+                return;
+            }
+        }
     
         try {
             const endpoint = '/signup';
@@ -379,8 +393,7 @@ const PureSignupPage = () => {
     
             let base64Image = null;
             if (profileImage) {
-                base64Image = imagePreview;
-                base64Image = base64Image.split(',')[1];
+                base64Image = finalImagePreview.split(',')[1];
             } else {
                 const response = await fetch('/assets/fakeprofile.png');
                 const blob = await response.blob();
@@ -451,7 +464,7 @@ const PureSignupPage = () => {
     }
 
     return (
-        <div className="signup-container">
+        <div className="signup-container pure-signup">
             <button 
                 onClick={() => navigate('/')} 
                 className="homescreen-button"
@@ -467,27 +480,31 @@ const PureSignupPage = () => {
             />
 
             <h3 className="signup-header">
-                {lobbyCode === 'demolobby' ? 'Join the demo' : 'Sign Up to Join'}
+                {lobbyCode === 'demolobby' ? 'Join the demo' : 'Signup to join'}
             </h3>
 
             {lobbyCode && lobbyCode !== 'demolobby' && (
-                <h2 className="signup-header">{lobbyCode} lobby</h2>
+                <h2 className="signup-header">{lobbyCode} Lobby</h2>
             )}
             
             {lobbyCode === 'demolobby' && (
                 <h2 className="signup-header" style={{ fontSize: '0.9rem' }}>Try Reuneo for Free!</h2>
             )}
 
-            <p className="login-link-text">
-                Already have an account?
-            </p>
-            <button
-                type="button"
-                onClick={() => navigate('/login')}
-                className="login-cta-button"
-            >
-                Yes, I saved my email before
-            </button>
+            {currentStep === 0 && (
+                <>
+                    <p className="login-link-text">
+                        Already have an account?
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => navigate('/login')}
+                        className="login-cta-button"
+                    >
+                        I'm a returning user
+                    </button>
+                </>
+            )}
 
             <div className="step-form-container">
                 <div className="step-progress">
@@ -754,13 +771,6 @@ const PureSignupPage = () => {
                                                             className="cancel-crop-button"
                                                         >
                                                             Cancel
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={handleSaveCroppedImage}
-                                                            className="save-crop-button"
-                                                        >
-                                                            Good
                                                         </button>
                                                     </div>
                                                 </div>
