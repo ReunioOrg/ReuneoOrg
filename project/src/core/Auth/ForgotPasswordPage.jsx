@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { apiFetch } from '../utils/api';
 import './ForgotPasswordPage.css';
@@ -16,7 +16,21 @@ import './ForgotPasswordPage.css';
  */
 const ForgotPasswordPage = () => {
     const navigate = useNavigate();
-    
+    const location = useLocation();
+    const fromSignup = location.state?.fromSignup;
+    const signupRedirect = location.state?.redirect;
+    const signupLobbyCode = location.state?.lobbyCode;
+
+    const handleBackToSignup = () => {
+        let url = '/signup';
+        const params = new URLSearchParams();
+        if (signupRedirect) params.set('redirect', signupRedirect);
+        if (signupLobbyCode) params.set('code', signupLobbyCode);
+        const qs = params.toString();
+        if (qs) url += `?${qs}`;
+        navigate(url);
+    };
+
     const [email, setEmail] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -90,12 +104,25 @@ const ForgotPasswordPage = () => {
 
     return (
         <div className="forgot-password-container">
-            <button 
-                onClick={() => navigate('/')} 
-                className="homescreen-button"
-            >
-                Home
-            </button>
+            {fromSignup ? (
+                <button
+                    onClick={handleBackToSignup}
+                    className="back-arrow-button"
+                    aria-label="Back to signup"
+                >
+                    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                        <circle cx="18" cy="18" r="17" stroke="#374151" strokeWidth="1.5" fill="rgba(255,255,255,0.8)"/>
+                        <path d="M21 12L15 18L21 24" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                </button>
+            ) : (
+                <button 
+                    onClick={() => navigate('/')} 
+                    className="homescreen-button"
+                >
+                    Home
+                </button>
+            )}
 
             <img 
                 src="/assets/reuneo_test_11.png"

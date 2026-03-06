@@ -498,7 +498,7 @@ const PureSignupPage = () => {
                     </p>
                     <button
                         type="button"
-                        onClick={() => navigate('/login')}
+                        onClick={() => navigate('/forgot-password', { state: { fromSignup: true, redirect: redirectTo, lobbyCode } })}
                         className="login-cta-button"
                     >
                         I'm a returning user
