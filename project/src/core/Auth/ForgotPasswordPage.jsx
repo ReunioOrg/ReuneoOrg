@@ -97,6 +97,12 @@ const ForgotPasswordPage = () => {
                 Home
             </button>
 
+            <img 
+                src="/assets/reuneo_test_11.png"
+                alt="Reuneo Logo"
+                className="auth-logo"
+            />
+
             <h3 className="forgot-password-header">
                 Reset Your Password
             </h3>

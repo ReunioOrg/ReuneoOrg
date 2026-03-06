@@ -103,7 +103,7 @@ const LoginSignupPage = () => {
         <div className="login-container">
             <button 
                 onClick={() => navigate('/')} 
-                className="homescreen-button"
+                className="login-home-button"
             >
                 Home
             </button>
@@ -118,17 +118,24 @@ const LoginSignupPage = () => {
             
             <div className="login-signup-form">
                 {linkError && (
-                    <div className="error-message" style={{ 
-                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                        border: '1px solid rgba(255, 107, 107, 0.3)',
-                        padding: '12px 16px',
-                        borderRadius: '8px',
-                        marginBottom: '16px'
-                    }}>
+                    <div className="link-error-message">
                         {linkError}
                     </div>
                 )}
                 {error && <div className="error-message">{error}</div>}
+
+                {linkError && (
+                    <>
+                        <button 
+                            type="button"
+                            onClick={() => navigate('/forgot-password')}
+                            className="login-primary-button"
+                        >
+                            Reset Password
+                        </button>
+                        <div className="divider"><span>or sign in</span></div>
+                    </>
+                )}
                 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
@@ -159,18 +166,20 @@ const LoginSignupPage = () => {
                         />
                     </div>
 
-                    <button type="submit" className="login-primary-button">
+                    <button type="submit" className={linkError ? "login-outline-button" : "login-primary-button"}>
                         Login
                     </button>
                 </form>
 
-                <button 
-                    type="button"
-                    onClick={() => navigate('/forgot-password')}
-                    className="forgot-password-link"
-                >
-                    Forgot password?
-                </button>
+                {!linkError && (
+                    <button 
+                        type="button"
+                        onClick={() => navigate('/forgot-password')}
+                        className="forgot-password-link"
+                    >
+                        Forgot password?
+                    </button>
+                )}
             </div>
         </div>
     );
