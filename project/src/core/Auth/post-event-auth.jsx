@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from './AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -113,10 +113,15 @@ const SocialPlatformSelector = ({ platforms, selectedPlatforms, onToggle }) => {
 
 const PostEventAuth = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { checkAuth, user, isAuthLoading } = useContext(AuthContext);
     
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    
+    // Simplified flow: activated when redirected from paired-player-history with no social links AND no email saved
+    const [simplifiedFlow, setSimplifiedFlow] = useState(false);
+    const [socialLinksRevealed, setSocialLinksRevealed] = useState(false);
     
     // Social links state
     const [instagram, setInstagram] = useState('');
@@ -226,6 +231,11 @@ const PostEventAuth = () => {
                 
                 // Check if email is already verified
                 setIsEmailVerified(userData.email_verified === true);
+                
+                // Activate simplified flow if redirected from profile incomplete nudge and no email saved
+                if (location.state?.fromProfileIncomplete === true && !userData.email) {
+                    setSimplifiedFlow(true);
+                }
 
             } catch (err) {
                 console.error('Error fetching user data:', err);
@@ -237,6 +247,20 @@ const PostEventAuth = () => {
 
         fetchUserData();
     }, [isAuthLoading, user, navigate]);
+
+    // Simplified flow: reveal social links once email is valid (one-way, debounced)
+    useEffect(() => {
+        if (!simplifiedFlow || socialLinksRevealed) return;
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email.trim())) return;
+        
+        const timer = setTimeout(() => {
+            setSocialLinksRevealed(true);
+        }, 800);
+        
+        return () => clearTimeout(timer);
+    }, [email, simplifiedFlow, socialLinksRevealed]);
 
     // Auto-dismiss email warning toast after 4 seconds
     useEffect(() => {
@@ -495,6 +519,10 @@ const PostEventAuth = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // In simplified flow, ignore submit until social links are revealed
+        if (simplifiedFlow && !socialLinksRevealed) return;
+        
         setError('');
 
         // Validate email is required
@@ -712,7 +740,7 @@ const PostEventAuth = () => {
             </div>
 
             <h3 className="post-event-auth-header" style={{ marginTop: '12px' }}>
-                Dont Loose Your Matches!
+                Help Us Find You a Good Connection!
             </h3>
 
             <div className="step-form-container">
@@ -723,20 +751,22 @@ const PostEventAuth = () => {
                         </div>
                     )}
 
-                    <div style={{ marginTop: '0' }}>
-                        <label className="step-label">
-                            Name
-                        </label>
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="Enter your name"
-                            className="step-input"
-                        />
-                    </div>
+                    {!simplifiedFlow && (
+                        <div style={{ marginTop: '0' }}>
+                            <label className="step-label">
+                                Name
+                            </label>
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Enter your name"
+                                className="step-input"
+                            />
+                        </div>
+                    )}
 
-                    <div style={{ marginTop: '20px', position: 'relative' }}>
+                    <div style={{ marginTop: simplifiedFlow ? '0' : '20px', position: 'relative' }}>
                         <label className="step-label">
                             Email <span style={{ color: '#ef4444' }}>*</span>
                             {isEmailVerified && (
@@ -781,58 +811,70 @@ const PostEventAuth = () => {
                         />
                     </div>
 
-                    {/* Social Links Section */}
-                    <div className="social-links-section">
-                        <div className="social-links-header">
-                            <span className="social-links-title">Choose your preferred info to share</span>
-                            <span className="social-links-subtitle">Don't worry, only people who you choose to share with can see it</span>
-                        </div>
-                        
-                        {/* Platform Selector — Infinite Scroll */}
-                        <SocialPlatformSelector
-                            platforms={SOCIAL_PLATFORMS}
-                            selectedPlatforms={selectedPlatforms}
-                            onToggle={handlePlatformToggle}
-                        />
-                        
-                        {/* Conditional Fields — only show selected platforms */}
-                        <AnimatePresence initial={false}>
-                            {SOCIAL_PLATFORMS.filter(p => selectedPlatforms.has(p.key)).map(platform => (
-                                <motion.div
-                                    key={platform.key}
-                                    className="social-link-field"
-                                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                                    animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
-                                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                                    transition={{ duration: 0.25, ease: 'easeInOut' }}
-                                    style={{ overflow: 'hidden' }}
-                                >
-                                    <label className="step-label">{platform.label}</label>
-                                    <input
-                                        type={platform.type}
-                                        value={socialFieldValues[platform.key]}
-                                        onChange={(e) => handleSocialFieldChange(platform.key, e.target.value)}
-                                        placeholder={platform.placeholder}
-                                        className="step-input"
+                    {/* Social Links Section — hidden in simplified flow until email is valid */}
+                    <AnimatePresence>
+                        {(!simplifiedFlow || socialLinksRevealed) && (
+                            <motion.div
+                                key="social-links-reveal"
+                                initial={simplifiedFlow ? { opacity: 0, height: 0 } : false}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                transition={{ duration: 0.3, ease: 'easeOut' }}
+                                style={{ overflow: 'hidden' }}
+                            >
+                                <div className="social-links-section">
+                                    <div className="social-links-header">
+                                        <span className="social-links-title">Choose your preferred info to share</span>
+                                        <span className="social-links-subtitle">Don't worry, only people who you choose to share with can see it</span>
+                                    </div>
+                                    
+                                    {/* Platform Selector — Infinite Scroll */}
+                                    <SocialPlatformSelector
+                                        platforms={SOCIAL_PLATFORMS}
+                                        selectedPlatforms={selectedPlatforms}
+                                        onToggle={handlePlatformToggle}
                                     />
-                                    {platform.key === 'email' && (
-                                        <span className="social-link-helper">Separate email for people to reach you</span>
-                                    )}
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </div>
+                                    
+                                    {/* Conditional Fields — only show selected platforms */}
+                                    <AnimatePresence initial={false}>
+                                        {SOCIAL_PLATFORMS.filter(p => selectedPlatforms.has(p.key)).map(platform => (
+                                            <motion.div
+                                                key={platform.key}
+                                                className="social-link-field"
+                                                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                                                animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+                                                exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                                                transition={{ duration: 0.25, ease: 'easeInOut' }}
+                                                style={{ overflow: 'hidden' }}
+                                            >
+                                                <label className="step-label">{platform.label}</label>
+                                                <input
+                                                    type={platform.type}
+                                                    value={socialFieldValues[platform.key]}
+                                                    onChange={(e) => handleSocialFieldChange(platform.key, e.target.value)}
+                                                    placeholder={platform.placeholder}
+                                                    className="step-input"
+                                                />
+                                                {platform.key === 'email' && (
+                                                    <span className="social-link-helper">Separate email for people to reach you</span>
+                                                )}
+                                            </motion.div>
+                                        ))}
+                                    </AnimatePresence>
+                                </div>
 
-                    <button 
-                        type="submit" 
-                        className="primary-button"
-                        disabled={isSubmitting}
-                        style={{ marginTop: '30px' }}
-                    >
-                        {isSubmitting 
-                            ? (isEmailVerified ? 'Updating...' : 'Submitting...') 
-                            : (isEmailVerified ? 'Update' : 'Submit')}
-                    </button>
+                                <button 
+                                    type="submit" 
+                                    className="primary-button"
+                                    disabled={isSubmitting}
+                                    style={{ marginTop: '30px' }}
+                                >
+                                    {isSubmitting 
+                                        ? (isEmailVerified ? 'Updating...' : 'Submitting...') 
+                                        : (isEmailVerified ? 'Update' : 'Submit')}
+                                </button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </form>
             </div>
 

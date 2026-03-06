@@ -638,7 +638,6 @@ const PairedPlayerHistory = () => {
             interactionCountRef.current += 1;
             if (interactionCountRef.current >= 3) {
                 setShowProfileIncompleteModal(true);
-                return;
             }
         }
         
@@ -812,7 +811,6 @@ const PairedPlayerHistory = () => {
             interactionCountRef.current += 1;
             if (interactionCountRef.current >= 3) {
                 setShowProfileIncompleteModal(true);
-                return;
             }
         }
         
@@ -1227,10 +1225,10 @@ const PairedPlayerHistory = () => {
                             onClick={(e) => e.stopPropagation()}
                         >
                             <h2 className="profile-incomplete-modal-header">
-                                Your profile is not complete
+                                You have no contact info saved
                             </h2>
                             <p className="profile-incomplete-modal-subtext">
-                                Update it with your email / social links so people you liked can reach out to you
+                                Authenticate your account so people you liked can reach out to you!
                             </p>
                             
                             <button
@@ -1238,7 +1236,7 @@ const PairedPlayerHistory = () => {
                                 className="profile-incomplete-modal-button"
                                 onClick={() => {
                                     setShowProfileIncompleteModal(false);
-                                    navigate('/post-event-auth');
+                                    navigate('/post-event-auth', { state: { fromProfileIncomplete: true } });
                                 }}
                             >
                                 Got it
