@@ -1,104 +1,86 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../Auth/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './organizer_account_details.css';
 import { apiFetch } from '../utils/api';
 
+const PLAN_TYPE_LABELS = {
+    single_use: 'Single Use',
+    monthly: 'Monthly',
+    free_trial: 'Free Trial',
+};
+
 const OrganizerAccountDetails = () => {
-    const { user, checkAuth, permissions } = useContext(AuthContext);
+    const { user, permissions } = useContext(AuthContext);
     const navigate = useNavigate();
-    const [accountDetails, setAccountDetails] = useState(null);
+    const location = useLocation();
+    const [planDetails, setPlanDetails] = useState(null);
     const [isLoadingDetails, setIsLoadingDetails] = useState(true);
     const [isCanceling, setIsCanceling] = useState(false);
     const [error, setError] = useState('');
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [showToast, setShowToast] = useState(false);
+    const [limitMessage, setLimitMessage] = useState(null);
 
-    // Check permissions on mount
     useEffect(() => {
         if (permissions !== null) {
             if (permissions !== 'admin' && permissions !== 'organizer') {
-                // User doesn't have organizer access - redirect to signup
-                navigate('/organizer-signup');
+                navigate('/new_organizer');
             }
         }
     }, [permissions, navigate]);
 
-    // Fetch account details on mount
     useEffect(() => {
-        const fetchAccountDetails = async () => {
-            try {
-                const response = await apiFetch('/organizer-account-details');
+        if (location.state?.limitMessage) {
+            setLimitMessage(location.state.limitMessage);
+            window.history.replaceState({}, '');
+        }
+    }, [location.state]);
 
+    useEffect(() => {
+        const fetchDetails = async () => {
+            try {
+                const response = await apiFetch('/organizer-plan-details');
                 const data = await response.json();
 
-                // Handle errors gracefully
                 if (!response.ok || data.error) {
-                    // If user is admin/organizer and has subscription, show partial data
-                    if ((permissions === 'admin' || permissions === 'organizer') && 
-                        data.has_subscription !== false) {
-                        // Show error as warning but continue with partial data
-                        setError(data.error || 'Some subscription details may be incomplete');
-                        setAccountDetails(data); // Show what we have
-                        setIsLoadingDetails(false);
-                        return;
-                    }
-                    // Only redirect if explicitly no subscription
-                    if (data.has_subscription === false) {
-                        navigate('/organizer-signup');
-                        return;
-                    }
-                    // For other errors, show error but try to show data if available
-                    setError(data.error || 'Failed to load account details');
-                    if (data.has_subscription !== false) {
-                        setAccountDetails(data); // Show partial data even with error
-                    }
+                    setError(data.error || 'Failed to load plan details');
                     setIsLoadingDetails(false);
                     return;
                 }
 
-                // Explicitly check for no subscription
-                if (data.has_subscription === false) {
-                    navigate('/organizer-signup');
+                if (data.has_plan === false) {
+                    navigate('/new_organizer');
                     return;
                 }
 
-                setAccountDetails(data);
-            } catch (error) {
-                console.error('Error fetching account details:', error);
+                setPlanDetails(data);
+            } catch (err) {
+                console.error('Error fetching plan details:', err);
                 setError('Failed to load account details. Please try again.');
-                // If user is admin/organizer, don't redirect on network errors
-                if (permissions !== 'admin' && permissions !== 'organizer') {
-                    // Only redirect non-admin users on network errors
-                }
             } finally {
                 setIsLoadingDetails(false);
             }
         };
 
-        if (user) {
-            fetchAccountDetails();
-        }
-    }, [user, permissions, navigate]);
+        if (user) fetchDetails();
+    }, [user, navigate]);
 
-    // Prevent body scroll when modal is open
     useEffect(() => {
         if (showCancelModal) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = 'unset';
         }
-        return () => {
-            document.body.style.overflow = 'unset';
-        };
+        return () => { document.body.style.overflow = 'unset'; };
     }, [showCancelModal]);
 
     const formatDate = (timestamp) => {
         if (!timestamp) return null;
-        return new Date(timestamp * 1000).toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+        return new Date(timestamp * 1000).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
         });
     };
 
@@ -109,11 +91,8 @@ const OrganizerAccountDetails = () => {
         try {
             const response = await apiFetch('/cancel-subscription', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
             });
-
             const data = await response.json();
 
             if (!response.ok || data.error) {
@@ -123,16 +102,11 @@ const OrganizerAccountDetails = () => {
                 return;
             }
 
-            // Show toast notification
             setShowToast(true);
             setShowCancelModal(false);
-
-            // Redirect to home after 1.5 seconds
-            setTimeout(() => {
-                navigate('/');
-            }, 1500);
-        } catch (error) {
-            console.error('Error canceling subscription:', error);
+            setTimeout(() => navigate('/'), 1500);
+        } catch (err) {
+            console.error('Error canceling subscription:', err);
             setError('An error occurred. Please try again.');
             setIsCanceling(false);
             setShowCancelModal(false);
@@ -147,117 +121,174 @@ const OrganizerAccountDetails = () => {
         );
     }
 
-    if (!accountDetails && !isLoadingDetails) {
+    if (!planDetails) {
         return (
             <div className="signup-container">
-                <button 
-                    onClick={() => navigate('/')} 
-                    className="homescreen-button"
-                >
-                    Home
-                </button>
+                <button onClick={() => navigate('/')} className="homescreen-button">Home</button>
                 <div className="error-message">{error || 'No account details found'}</div>
             </div>
         );
     }
 
-    // If no account details but we're not loading, show error
-    if (!accountDetails) {
-        return null; // Still loading or will show error above
-    }
+    const planType = planDetails.plan_type;
+    const isMonthly = planType === 'monthly';
 
     return (
         <div className="signup-container">
-            <button 
-                onClick={() => navigate('/')} 
-                className="homescreen-button"
-            >
-                Home
-            </button>
+            <button onClick={() => navigate('/')} className="homescreen-button">Home</button>
 
-            <img 
+            <img
                 src="/assets/reuneo_test_8.png"
-                alt="Reunio Logo"
+                alt="Reuneo Logo"
                 className="logo-image"
             />
 
-            <h3 className="signup-header">
-                Organizer Account Details
-            </h3>
+            <h3 className="signup-header">Account Details</h3>
+
+            {limitMessage && (
+                <div className="oad-limit-banner">
+                    <span>{limitMessage}</span>
+                    <button onClick={() => setLimitMessage(null)} className="oad-limit-banner-close" aria-label="Dismiss">&times;</button>
+                </div>
+            )}
 
             <div className="step-form-container">
                 <div className="account-details-content">
-                    {/* Show error message at top if present */}
                     {error && (
                         <div className="error-message" style={{ marginBottom: '20px' }}>
                             {error}
                         </div>
                     )}
 
-                    {accountDetails.subscription_status && (
+                    {/* Plan type */}
+                    <div className="detail-row">
+                        <span className="detail-label">Plan:</span>
+                        <span className={`detail-value plan-badge plan-badge-${planType}`}>
+                            {PLAN_TYPE_LABELS[planType] || planType}
+                        </span>
+                    </div>
+
+                    {/* Status */}
+                    {planDetails.subscription_status && (
                         <div className="detail-row">
-                            <span className="detail-label">Subscription Status:</span>
-                            <span className={`detail-value status-${accountDetails.subscription_status}`}>
-                                {accountDetails.subscription_status}
+                            <span className="detail-label">Status:</span>
+                            <span className={`detail-value status-${planDetails.subscription_status}`}>
+                                {planDetails.subscription_status}
                             </span>
                         </div>
                     )}
 
-                    {accountDetails.email && (
+                    {/* Email */}
+                    {planDetails.email && (
                         <div className="detail-row">
                             <span className="detail-label">Email:</span>
-                            <span className="detail-value">{accountDetails.email}</span>
+                            <span className="detail-value">{planDetails.email}</span>
                         </div>
                     )}
 
-                    {accountDetails.billing_period && (
+                    {/* Attendee limit */}
+                    {planDetails.attendee_limit != null && (
                         <div className="detail-row">
-                            <span className="detail-label">Billing Period:</span>
-                            <span className="detail-value">{accountDetails.billing_period}</span>
+                            <span className="detail-label">Attendee Limit:</span>
+                            <span className="detail-value">{planDetails.attendee_limit}</span>
                         </div>
                     )}
 
-                    {(accountDetails.amount !== null && accountDetails.amount !== undefined) && (
+                    {/* Single use: activations */}
+                    {planType === 'single_use' && (
+                        <>
+                            <div className="detail-row">
+                                <span className="detail-label">Activations Purchased:</span>
+                                <span className="detail-value">{planDetails.activations_purchased}</span>
+                            </div>
+                            <div className="detail-row">
+                                <span className="detail-label">Activations Remaining:</span>
+                                <span className="detail-value">{planDetails.activations_remaining}</span>
+                            </div>
+                        </>
+                    )}
+
+                    {/* Free trial: activations */}
+                    {planType === 'free_trial' && (
                         <div className="detail-row">
-                            <span className="detail-label">Amount:</span>
-                            <span className="detail-value">
-                                ${accountDetails.amount} {accountDetails.currency || ''}
-                            </span>
+                            <span className="detail-label">Activations Remaining:</span>
+                            <span className="detail-value">{planDetails.activations_remaining}</span>
                         </div>
                     )}
 
-                    {accountDetails.current_period_start && formatDate(accountDetails.current_period_start) && (
-                        <div className="detail-row">
-                            <span className="detail-label">Current Period Start:</span>
-                            <span className="detail-value">
-                                {formatDate(accountDetails.current_period_start)}
-                            </span>
-                        </div>
+                    {/* Monthly: usage + billing */}
+                    {isMonthly && (
+                        <>
+                            <div className="detail-row">
+                                <span className="detail-label">Uses This Month:</span>
+                                <span className="detail-value">
+                                    {planDetails.uses_this_month} / {planDetails.uses_per_month}
+                                </span>
+                            </div>
+
+                            {planDetails.billing_period && (
+                                <div className="detail-row">
+                                    <span className="detail-label">Billing Period:</span>
+                                    <span className="detail-value">{planDetails.billing_period}</span>
+                                </div>
+                            )}
+
+                            {planDetails.amount != null && (
+                                <div className="detail-row">
+                                    <span className="detail-label">Amount:</span>
+                                    <span className="detail-value">
+                                        ${planDetails.amount} {planDetails.currency || ''}
+                                    </span>
+                                </div>
+                            )}
+
+                            {planDetails.current_period_end && formatDate(planDetails.current_period_end) && (
+                                <div className="detail-row">
+                                    <span className="detail-label">Next Billing Date:</span>
+                                    <span className="detail-value">
+                                        {formatDate(planDetails.current_period_end)}
+                                    </span>
+                                </div>
+                            )}
+
+                            {planDetails.cancel_at_period_end && (
+                                <div className="detail-row">
+                                    <span className="detail-label">Cancellation:</span>
+                                    <span className="detail-value">Will cancel at period end</span>
+                                </div>
+                            )}
+                        </>
                     )}
 
-                    {accountDetails.current_period_end && formatDate(accountDetails.current_period_end) && (
-                        <div className="detail-row">
-                            <span className="detail-label">Current Period End:</span>
-                            <span className="detail-value">
-                                {formatDate(accountDetails.current_period_end)}
-                            </span>
-                        </div>
-                    )}
+                    {/* Action buttons */}
+                    <div style={{ marginTop: '30px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {planDetails.subscription_status === 'active' || planDetails.subscription_status === 'trialing' ? (
+                            <button
+                                onClick={() => navigate('/plan-selection', {
+                                    state: { isUpgrade: true, currentPlan: planDetails },
+                                })}
+                                className="primary-button"
+                            >
+                                Change Plan
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => navigate('/new_organizer')}
+                                className="primary-button"
+                            >
+                                Purchase a New Plan
+                            </button>
+                        )}
 
-                    {accountDetails.cancel_at_period_end && (
-                        <div className="detail-row">
-                            <span className="detail-label">Cancellation:</span>
-                            <span className="detail-value">Will cancel at period end</span>
-                        </div>
-                    )}
-
-                    <button 
-                        onClick={() => setShowCancelModal(true)}
-                        className="primary-button cancel-button"
-                        style={{ marginTop: '30px' }}
-                    >
-                        Cancel Subscription
-                    </button>
+                        {isMonthly && planDetails.subscription_status === 'active' && (
+                            <button
+                                onClick={() => setShowCancelModal(true)}
+                                className="primary-button cancel-button"
+                            >
+                                Cancel Subscription
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -273,7 +304,7 @@ const OrganizerAccountDetails = () => {
                                 onClick={() => setShowCancelModal(false)}
                                 disabled={isCanceling}
                             >
-                                Cancel
+                                Keep Plan
                             </button>
                             <button
                                 className="modal-button modal-confirm"
@@ -287,7 +318,6 @@ const OrganizerAccountDetails = () => {
                 </div>
             )}
 
-            {/* Toast Notification */}
             {showToast && (
                 <div className="toast-container">
                     <div className="toast-message">

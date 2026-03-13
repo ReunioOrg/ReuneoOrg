@@ -26,6 +26,7 @@ const SetPasswordPage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [tokenError, setTokenError] = useState('');
+    const [permissions, setPermissions] = useState(null);
     
     const token = searchParams.get('token');
 
@@ -48,6 +49,7 @@ const SetPasswordPage = () => {
                 
                 if (data.valid && data.email) {
                     setEmail(data.email);
+                    setPermissions(data.permissions || null);
                 } else {
                     setTokenError(data.error || 'Invalid or expired token. Please request a new magic link.');
                 }
@@ -94,12 +96,13 @@ const SetPasswordPage = () => {
             const data = await response.json();
 
             if (data.success) {
-                // Password set successfully
-                // Refresh auth state to pick up the new session
                 await checkAuth();
-                
-                // Redirect to matches page
-                navigate('/paired-player-history');
+
+                if (permissions === 'organizer') {
+                    navigate('/create_lobby');
+                } else {
+                    navigate('/paired-player-history');
+                }
             } else {
                 setError(data.error || 'Failed to set password. Please try again.');
             }
@@ -159,11 +162,11 @@ const SetPasswordPage = () => {
             />
 
             <h3 className="set-password-header">
-                Set Your Password
+                {permissions === 'organizer' ? "You're almost done!" : 'Set Your Password'}
             </h3>
             
             <p className="set-password-subtitle">
-                You'll use this to log in later
+                {permissions === 'organizer' ? 'make it memorable' : "You'll use this to log in later"}
             </p>
 
             <div className="step-form-container">
@@ -233,9 +236,14 @@ const SetPasswordPage = () => {
                         type="submit" 
                         className="primary-button"
                         disabled={isSubmitting || !password}
-                        style={{ marginTop: '30px' }}
+                        style={{
+                            marginTop: '30px',
+                            ...(permissions === 'organizer' ? { backgroundColor: '#4b73ef', color: '#fff', fontWeight: 700 } : {}),
+                        }}
                     >
-                        {isSubmitting ? 'Setting Password...' : 'Set Password'}
+                        {isSubmitting
+                            ? (permissions === 'organizer' ? 'Activating...' : 'Setting Password...')
+                            : (permissions === 'organizer' ? 'Activate' : 'Set Password')}
                     </button>
                 </form>
             </div>

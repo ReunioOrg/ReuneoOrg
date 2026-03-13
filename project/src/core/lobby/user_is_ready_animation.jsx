@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './user_is_ready_animation.css';
 
-const UserIsReadyAnimation = ({ isVisible, onAnimationEnd }) => {
+const UserIsReadyAnimation = ({ isVisible, onAnimationEnd, mainText = "You're ready!", subText = "You will be paired up soon." }) => {
     const [active, setActive] = useState(false);
     const timerRef = useRef(null);
     const callbackRef = useRef(onAnimationEnd);
@@ -115,7 +115,7 @@ const UserIsReadyAnimation = ({ isVisible, onAnimationEnd }) => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.8, duration: 0.3 }}
                         >
-                            You're ready!
+                            {mainText}
                         </motion.div>
                         
                         <motion.div 
@@ -124,7 +124,7 @@ const UserIsReadyAnimation = ({ isVisible, onAnimationEnd }) => {
                             animate={{ opacity: 1 }}
                             transition={{ delay: 1, duration: 0.3 }}
                         >
-                            You will be paired up soon.
+                            {subText}
                         </motion.div>
                     </motion.div>
                 </motion.div>

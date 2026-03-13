@@ -90,8 +90,6 @@ const PureSignupPage = () => {
                 } else {
                     navigate('/?showLobbyModal=true');
                 }
-            } else if (redirectTo === 'product-selection') {
-                navigate('/product-selection');
             } else {
                 navigate('/');
             }
@@ -429,8 +427,6 @@ const PureSignupPage = () => {
                 } else {
                     navigate('/?showLobbyModal=true');
                 }
-            } else if (redirectTo === 'product-selection') {
-                navigate('/product-selection');
             } else {
                 navigate('/');
             }

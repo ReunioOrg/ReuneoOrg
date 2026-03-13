@@ -175,7 +175,7 @@ const CommunityAttendeesCarousel = ({ attendees = [], navigate }) => {
 
                 if (response.status === 401) {
                     localStorage.removeItem('access_token');
-                    navigate('/organizer-signup');
+                    navigate('/new_organizer');
                     return;
                 }
 
@@ -296,7 +296,7 @@ const CommunityAttendeesCarousel = ({ attendees = [], navigate }) => {
     const canNavigateLeft = useMemo(() => attendees.length > 1, [attendees.length]);
     const canNavigateRight = useMemo(() => attendees.length > 1, [attendees.length]);
 
-    // Consistent 401 handling: redirect to organizer-signup
+    // Consistent 401 handling: redirect to new_organizer
     const fetchAttendeeDetails = useCallback(async (username, isInitial = true) => {
         if (detailsCacheRef.current[username]) {
             setSelectedUsername(username);
@@ -319,7 +319,7 @@ const CommunityAttendeesCarousel = ({ attendees = [], navigate }) => {
 
             if (response.status === 401) {
                 localStorage.removeItem('access_token');
-                navigate('/organizer-signup');
+                navigate('/new_organizer');
                 return;
             }
             if (response.status === 403) throw new Error('Access denied. Organizer permissions required.');
@@ -679,7 +679,7 @@ const OrganizerDashboard = () => {
     useEffect(() => {
         if (permissions !== null) {
             if (permissions !== 'admin' && permissions !== 'organizer') {
-                navigate('/organizer-signup');
+                navigate('/new_organizer');
             }
         }
     }, [permissions, navigate]);
@@ -696,7 +696,7 @@ const OrganizerDashboard = () => {
             const response = await apiFetch('/organizer_attendees');
             if (response.status === 401) {
                 localStorage.removeItem('access_token');
-                navigate('/organizer-signup');
+                navigate('/new_organizer');
                 return;
             }
             if (response.status === 403) {

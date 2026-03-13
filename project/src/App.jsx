@@ -15,7 +15,7 @@ import { CommunityPageButton } from './core/community/mycf';
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
 import { getStoredLobbyCode, shouldValidateLobby, markLobbyValidated, clearLobbyStorage } from './core/utils/lobbyStorage';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 // import CreateLobbyButton from './core/lobby/CreateLobbyButton';
 // import CreateLobby from './core/lobby/create_lobby';
@@ -144,6 +144,8 @@ const App = () => {
   const [profileData, handleProfileSubmit] = useState(null);
   const { audioRef, error, playSound, loadSound, cancelSound } = usePlaySound();
   const { user, userProfile, checkAuth, permissions, emailVerified } = useContext(AuthContext);
+  const location = useLocation();
+  const [showLobbyFullModal, setShowLobbyFullModal] = useState(false);
 
   const [player_count, setPlayerCount] = useState(null);
   const [lobby_state, setLobbyState] = useState(null);
@@ -283,6 +285,13 @@ const App = () => {
   useEffect(() => {
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (location.state?.lobbyFull) {
+      setShowLobbyFullModal(true);
+      window.history.replaceState({}, '');
+    }
+  }, [location.state]);
 
   // Check for showLobbyModal query parameter and open the modal if present
   useEffect(() => {
@@ -561,6 +570,41 @@ const App = () => {
     );
   };
 
+  const LobbyFullModal = () => {
+    if (!showLobbyFullModal) return null;
+    return (
+      <div
+        className="qr-instruction-overlay"
+        onClick={() => setShowLobbyFullModal(false)}
+      >
+        <div
+          className="qr-instruction-container"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={() => setShowLobbyFullModal(false)}
+            className="qr-modal-close"
+            aria-label="Close"
+          >
+            &times;
+          </button>
+          <h2 className="qr-instruction-title">This lobby is full</h2>
+          <p className="qr-instruction-text">
+            This lobby has reached its maximum number of attendees. You can try joining again shortly.
+          </p>
+          <div className="qr-instruction-buttons">
+            <button
+              className="qr-instruction-primary"
+              onClick={() => setShowLobbyFullModal(false)}
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Close profile expand when clicking outside the dock area
   useEffect(() => {
     if (!profileExpanded) return;
@@ -697,8 +741,8 @@ const App = () => {
           }}>
             <div
               className="app-dock-item-standalone"
-              onClick={() => window.location.href = 'https://reuneo.app/become-an-organizer'}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.location.href = 'https://reuneo.app/become-an-organizer'; } }}
+              onClick={() => window.open('https://reuneo.app/become-an-organizer', '_blank')}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open('https://reuneo.app/become-an-organizer', '_blank'); } }}
               tabIndex={0}
               role="button"
               aria-label="Organizer"
@@ -1198,6 +1242,7 @@ const App = () => {
       
       <LobbyCodeModal />
       <QRInstructionModal />
+      <LobbyFullModal />
     </div>
   );
 

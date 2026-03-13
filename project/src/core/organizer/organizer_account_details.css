@@ -1,4 +1,4 @@
-/* Copy base styles from organizer_signup.css */
+/* Organizer Account Details styles */
 .signup-container {
     padding: 10px;
     width: 100%;
@@ -92,6 +92,30 @@
     color: #333;
     font-size: 0.9rem;
     text-align: right;
+}
+
+.plan-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+}
+
+.plan-badge-single_use {
+    background: rgba(20, 77, 255, 0.1);
+    color: #144dff;
+}
+
+.plan-badge-monthly {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.plan-badge-free_trial {
+    background: rgba(23, 162, 184, 0.1);
+    color: #17a2b8;
 }
 
 .status-active {
@@ -347,4 +371,39 @@
         min-width: auto;
         width: 100%;
     }
+}
+
+.oad-limit-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 16px;
+    padding: 12px 16px;
+    background: rgba(234, 179, 8, 0.15);
+    border: 1px solid rgba(234, 179, 8, 0.4);
+    border-radius: 12px;
+    color: #fbbf24;
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.oad-limit-banner-close {
+    background: none;
+    border: none;
+    color: #fbbf24;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    flex-shrink: 0;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.oad-limit-banner-close:hover {
+    opacity: 1;
 }

@@ -1,36 +1,39 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { AuthContext } from '../Auth/AuthContext';
-import { useContext } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../cropImage';
-import './create_lobby.css';
+import './new_organizer.css';
 import { apiFetch } from '../utils/api';
+import { AuthContext } from '../Auth/AuthContext';
 import FloatingLinesBackground from './FloatingLinesBackground';
 import TutorialMatchHistory from '../Tutorials/tutorial-match-history';
-import LoadingSpinner from '../components/LoadingSpinner';
 
-const CreateLobbyView = () => {
-    const { user } = useContext(AuthContext);
+const NewOrganizerView = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { permissions, isLegacyOrganizer } = useContext(AuthContext);
+    const returnData = location.state?.returnData;
 
     // ── Step Navigation ──
-    const [currentStep, setCurrentStep] = useState(1);
-    const [visitedSteps, setVisitedSteps] = useState(new Set([1]));
+    const [currentStep, setCurrentStep] = useState(returnData ? 6 : 1);
+    const [visitedSteps, setVisitedSteps] = useState(returnData ? new Set([1,2,3,4,5,6]) : new Set([1]));
     const [navDirection, setNavDirection] = useState('forward');
-    const [step1View, setStep1View] = useState('selection');
+    const [step1View, setStep1View] = useState(
+        returnData?.selected_tab === 'custom' ? 'tags' : 'selection'
+    );
 
     // ── Form Data ──
-    const [lobbyCode, setLobbyCode] = useState('');
-    const [selectedTab, setSelectedTab] = useState(null);
-    const [customTags, setCustomTags] = useState([]);
+    const [lobbyCode, setLobbyCode] = useState(returnData?.lobby_code || '');
+    const [selectedTab, setSelectedTab] = useState(returnData?.selected_tab || null);
+    const [customTags, setCustomTags] = useState(returnData?.custom_tags || []);
     const [tagInput, setTagInput] = useState('');
-    const [attendees, setAttendees] = useState('');
-    const [minutes, setMinutes] = useState('5');
-    const [seconds, setSeconds] = useState('0');
-    const [showTableNumbers, setShowTableNumbers] = useState(false);
-    const [enableMatchHistory, setEnableMatchHistory] = useState(true);
+    const [attendees, setAttendees] = useState(returnData?.attendees != null ? String(returnData.attendees) : '');
+    const [minutes, setMinutes] = useState(returnData?.minutes || '5');
+    const [seconds, setSeconds] = useState(returnData?.seconds || '0');
+    const [showTableNumbers, setShowTableNumbers] = useState(returnData?.show_table_numbers ?? false);
+    const [enableMatchHistory, setEnableMatchHistory] = useState(returnData?.enable_match_history ?? true);
+    const [email, setEmail] = useState(returnData?.email || '');
+    const [showEmailToast, setShowEmailToast] = useState(false);
 
     // ── AI Tag Generation ──
     const [aiDescription, setAiDescription] = useState('');
@@ -38,10 +41,10 @@ const CreateLobbyView = () => {
     const [tagsFromAI, setTagsFromAI] = useState(false);
 
     // ── Logo Upload ──
-    const [logoName, setLogoName] = useState('');
-    const [logoUrl, setLogoUrl] = useState('');
+    const [logoName, setLogoName] = useState(returnData?.logo_name || '');
+    const [logoUrl, setLogoUrl] = useState(returnData?.logo_url || '');
     const [logoPreview, setLogoPreview] = useState(null);
-    const [logoCroppedImage, setLogoCroppedImage] = useState(null);
+    const [logoCroppedImage, setLogoCroppedImage] = useState(returnData?.logo_cropped_image || null);
     const [logoError, setLogoError] = useState('');
     const [isLogoCropping, setIsLogoCropping] = useState(false);
     const [isLogoProcessing, setIsLogoProcessing] = useState(false);
@@ -58,75 +61,49 @@ const CreateLobbyView = () => {
     const [isEditingReview, setIsEditingReview] = useState(false);
 
     const MaxMinutes = 8;
+    const toastTimerRef = useRef(null);
 
-    // ── Hydration state ──
-    const hydratedRef = useRef(false);
-    const [isHydrating, setIsHydrating] = useState(false);
+    useEffect(() => {
+        if (permissions === 'organizer' && !isLegacyOrganizer) {
+            navigate('/organizer-account-details');
+        }
+    }, [permissions, isLegacyOrganizer]);
 
-    // ── Initialization + hydration from lobbyData ──
+    // ── Initialization ──
     useEffect(() => {
         window.scrollTo(0, 0);
-        if (user) setLobbyCode(user);
-
-        if (hydratedRef.current) return;
-
-        const hydrate = (data) => {
-            if (data.selected_tab) setSelectedTab(data.selected_tab);
-            if (Array.isArray(data.custom_tags)) setCustomTags(data.custom_tags);
-            if (data.attendees != null) setAttendees(String(data.attendees));
-            if (data.minutes != null) setMinutes(String(data.minutes));
-            if (data.seconds != null) setSeconds(String(data.seconds));
-            if (data.show_table_numbers != null) setShowTableNumbers(data.show_table_numbers);
-            if (data.enable_match_history != null) setEnableMatchHistory(data.enable_match_history);
-            if (data.logo_name) setLogoName(data.logo_name);
-            if (data.logo_url) setLogoUrl(data.logo_url);
-
-            const savedLogo = localStorage.getItem('reuneo_plan_logo');
-            if (savedLogo) setLogoCroppedImage(savedLogo);
-
-            if (data.selected_tab === 'custom') {
-                setStep1View('tags');
-            }
-
-            setCurrentStep(6);
-            setVisitedSteps(new Set([1, 2, 3, 4, 5, 6]));
-            hydratedRef.current = true;
-        };
-
-        const routerData = location.state?.lobbyData;
-        if (routerData) {
-            hydrate(routerData);
-            return;
+        if (!returnData) {
+            const randomCode = Array.from({ length: 8 }, () =>
+                'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]
+            ).join('');
+            setLobbyCode(randomCode);
         }
+    }, []);
 
-        if (!user) return;
-
-        // Fallback: fetch lobby_data from OrganizerPlans via API
-        const fetchLobbyData = async () => {
-            setIsHydrating(true);
-            try {
-                const res = await apiFetch('/organizer-lobby-data');
-                if (!res.ok) return;
-                const json = await res.json();
-                if (json.lobby_data) hydrate(json.lobby_data);
-            } catch {} finally {
-                setIsHydrating(false);
-                hydratedRef.current = true;
-            }
+    useEffect(() => {
+        return () => {
+            if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
         };
-        fetchLobbyData();
-    }, [user, location.state]);
+    }, []);
 
     // ── Helpers ──
-    const validateLobbyCode = (code) => {
-        return code.length >= 2 && /^[a-z0-9]+$/.test(code);
-    };
-
     const getRecommendedMinutes = () => {
         const num = parseInt(attendees) || 0;
         if (num <= 30) return 5;
         if (num <= 65) return 6;
         return 7;
+    };
+
+    const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+
+    const handleEmailChange = (e) => {
+        const value = e.target.value;
+        setEmail(value);
+        if (value.length > 0 && !showEmailToast) {
+            setShowEmailToast(true);
+            if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+            toastTimerRef.current = setTimeout(() => setShowEmailToast(false), 2000);
+        }
     };
 
     // ── Navigation ──
@@ -317,11 +294,6 @@ const CreateLobbyView = () => {
         setTagsFromAI(false);
     };
 
-    // ── Lobby Code ──
-    const handleLobbyCodeChange = (e) => {
-        setLobbyCode(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''));
-    };
-
     // ── Logo Upload (preserved logic) ──
     const resizeImage = (file, maxWidth, maxHeight) => {
         return new Promise((resolve) => {
@@ -438,57 +410,50 @@ const CreateLobbyView = () => {
         setPendingTabSwitch(null);
     };
 
-    // ── Submit ──
+    // ── Submit — save lead, persist to localStorage, navigate to plan selection ──
     const handleSubmit = async () => {
-        if (!validateLobbyCode(lobbyCode)) {
-            setError("Lobby code must be at least 2 characters long and contain only lowercase letters and numbers");
-            return;
-        }
         setIsLoading(true);
-        setError('');
         const lobbyDuration = (parseInt(minutes) * 60) + parseInt(seconds);
-        let logoIconData = null;
+
+        const lobbyData = {
+            lobby_code: lobbyCode,
+            selected_tab: selectedTab,
+            custom_tags: selectedTab === 'custom' ? customTags : [],
+            lobby_duration: lobbyDuration,
+            attendees: parseInt(attendees),
+            minutes,
+            seconds,
+            show_table_numbers: showTableNumbers,
+            enable_match_history: enableMatchHistory,
+            logo_cropped_image: logoCroppedImage,
+            logo_name: logoName.trim(),
+            logo_url: logoUrl.trim(),
+            email,
+        };
+
+        // Persist email + logo to localStorage for post-checkout recovery
+        localStorage.setItem('reuneo_plan_email', email);
         if (logoCroppedImage) {
-            logoIconData = logoCroppedImage.split(',')[1];
+            localStorage.setItem('reuneo_plan_logo', logoCroppedImage);
+        } else {
+            localStorage.removeItem('reuneo_plan_logo');
         }
 
+        // Save lead to backend (non-blocking, errors swallowed)
+        const { logo_cropped_image: _logo, ...lobbyDataWithoutLogo } = lobbyData;
         try {
-            const requestBody = {
-                lobby_code: lobbyCode,
-                custom_tags: selectedTab === 'custom' ? customTags : [],
-                lobby_duration: lobbyDuration,
-                show_table_numbers: showTableNumbers
-            };
-            if (logoIconData) requestBody.logo_icon = logoIconData;
-            if (logoName.trim()) requestBody.logo_name = logoName.trim();
-            if (logoUrl.trim()) requestBody.logo_hyperlink = logoUrl.trim();
-
-            const response = await apiFetch('/create_lobby', {
+            await apiFetch('/save-organizer-lead', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody)
+                body: JSON.stringify({
+                    email,
+                    lobby_data: lobbyDataWithoutLogo,
+                    attendees: parseInt(attendees),
+                }),
             });
+        } catch {}
 
-            const data = await response.json();
-
-            if (response.ok && data.status === 'success') {
-                localStorage.removeItem('reuneo_plan_logo');
-                localStorage.removeItem('reuneo_plan_email');
-                sessionStorage.removeItem('reuneo_plan_lobbyData');
-                navigate(`/admin_lobby_view?code=${lobbyCode}`);
-            } else {
-                if (data.reason === 'activations_exhausted' || data.reason === 'monthly_limit_reached' || data.reason === 'no_active_plan') {
-                    navigate('/organizer-account-details', { state: { limitMessage: data.message } });
-                    return;
-                }
-                setError(data.message || "Failed to create lobby");
-            }
-        } catch (err) {
-            setError("An error occurred while creating the lobby");
-            console.error("Error creating lobby:", err);
-        } finally {
-            setIsLoading(false);
-        }
+        navigate('/plan-selection', { state: { lobbyData } });
     };
 
     // ── Shared: Logo Upload UI (used in step 4 + review edit) ──
@@ -666,17 +631,24 @@ const CreateLobbyView = () => {
 
         return (
             <div className="step-container">
-                <h1 className="step-title">What type of event do you want?</h1>
+                <h1 className="step-title">Effortlessly fuse your community into 1-on-1 connections, so people actually get to know each other</h1>
+                <button
+                    type="button"
+                    onClick={() => navigate('/forgot-password')}
+                    className="existing-organizer-button"
+                >
+                    I'm an existing organizer
+                </button>
                 <div className="event-type-container">
                     <button
-                        className={`event-type-button ${selectedTab === 'custom' ? 'selected' : ''}`}
+                        className={`event-type-button event-type-primary ${selectedTab === 'custom' ? 'selected' : ''}`}
                         onClick={() => handleEventTypeSelect('custom')}
                     >
                         Custom Matchmaking
                     </button>
                     <div className="event-type-divider" />
                     <button
-                        className={`event-type-button ${selectedTab === 'icebreaker' ? 'selected' : ''}`}
+                        className={`event-type-button event-type-primary ${selectedTab === 'icebreaker' ? 'selected' : ''}`}
                         onClick={() => handleEventTypeSelect('icebreaker')}
                     >
                         Community Ice-Breaker
@@ -822,7 +794,7 @@ const CreateLobbyView = () => {
         </div>
     );
 
-    // ── Render: Step 6 — Review ──
+    // ── Render: Step 6 — Review (lobby code hidden) ──
     const renderStep6 = () => (
         <div className="step-container review-step">
             <h1 className="step-title">Everything Look Good?</h1>
@@ -952,29 +924,6 @@ const CreateLobbyView = () => {
                     )}
                 </div>
 
-                {/* Lobby Code */}
-                <div className="review-section">
-                    {isEditingReview ? (
-                        <div className="review-edit-group">
-                            <label className="review-edit-label" style={{ textAlign: 'center', minWidth: 'auto' }}>Lobby Code</label>
-                            <input type="text" value={lobbyCode}
-                                onChange={handleLobbyCodeChange}
-                                className="form-input review-inline-input" autoComplete="off"
-                                placeholder="Enter lobby code" />
-                            {lobbyCode && !validateLobbyCode(lobbyCode) && (
-                                <div className="input-hint" style={{ color: '#dc2626' }}>
-                                    Min 2 chars, lowercase letters and numbers only
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="review-section-content">
-                            <span className="review-value-secondary">lobby code</span>
-                            <span className="review-value-primary">{lobbyCode}</span>
-                        </div>
-                    )}
-                </div>
-
                 {/* Match History */}
                 <div className="review-section">
                     {isEditingReview ? (
@@ -1015,33 +964,37 @@ const CreateLobbyView = () => {
                 </div>
             </div>
 
+            {showEmailToast && (
+                <div className="email-toast">
+                    Make sure this email is valid, this will be used to authenticate your organizer access
+                </div>
+            )}
+
             {error && <div className="error-message">{error}</div>}
 
-            <button className="step-cta create-cta" onClick={handleSubmit}
-                disabled={isLoading || !validateLobbyCode(lobbyCode)}>
-                {isLoading ? 'Creating...' : 'Create'}
-                {!isLoading && <SparkleIcon />}
-            </button>
+            <div className="create-row">
+                <input
+                    type="email"
+                    value={email}
+                    onChange={handleEmailChange}
+                    placeholder="input your email"
+                    className="form-input email-input"
+                    autoComplete="email"
+                />
+                <button className="step-cta create-cta" onClick={handleSubmit}
+                    disabled={isLoading || !isValidEmail(email)}>
+                    {isLoading ? 'Creating...' : 'Create'}
+                    {!isLoading && <SparkleIcon />}
+                </button>
+            </div>
         </div>
     );
-
-    // ── Hydrating: show spinner while fetching lobby data from API ──
-    if (isHydrating) {
-        return (
-            <div className="create-lobby-background">
-                <FloatingLinesBackground />
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-                    <LoadingSpinner size={50} message="Loading your lobby setup..." />
-                </div>
-            </div>
-        );
-    }
 
     // ── Main Render ──
     const stepKey = currentStep === 1 ? `1-${step1View}` : String(currentStep);
 
     return (
-        <div className="create-lobby-background">
+        <div className="new-organizer-background">
             <FloatingLinesBackground />
 
             {/* Navigation Bar */}
@@ -1112,4 +1065,4 @@ const CreateLobbyView = () => {
     );
 };
 
-export default CreateLobbyView;
+export default NewOrganizerView;

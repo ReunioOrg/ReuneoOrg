@@ -1,122 +1,157 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import './organizer_signup_success.css';
 import { apiFetch } from '../utils/api';
+import UserIsReadyAnimation from '../lobby/user_is_ready_animation';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const OrganizerSignupSuccess = () => {
-    const [active, setActive] = useState(false);
-    const [error, setError] = useState('');
-    const timerRef = useRef(null);
     const navigate = useNavigate();
     const location = useLocation();
 
+    // "verifying" -> "animation" -> "check-email" (or "done" for upgrades)
+    const [phase, setPhase] = useState('verifying');
+    const [email, setEmail] = useState('');
+    const [lobbyData, setLobbyData] = useState(null);
+    const [error, setError] = useState('');
+    const [isUpgradeResult, setIsUpgradeResult] = useState(false);
+    const [addedActivations, setAddedActivations] = useState(null);
+
+    const timerRef = useRef(null);
+
+    // Phase 1: verify payment on mount
     useEffect(() => {
-        // Extract session_id from query parameters
         const searchParams = new URLSearchParams(location.search);
         const sessionId = searchParams.get('session_id');
 
-        // Verify payment with backend
-        const verifyPayment = async () => {
-            // Default behavior: go home unless verification succeeds
-            let redirectPath = '/';
+        if (!sessionId) {
+            setError('Missing session ID. Please try your purchase again.');
+            return;
+        }
 
-            if (!sessionId) {
-                setError('Missing session ID');
-                // Still show animation and redirect
-                setActive(true);
-                timerRef.current = setTimeout(() => {
-                    setActive(false);
-                    navigate(redirectPath);
-                }, 2000);
-                return;
-            }
-
+        const verify = async () => {
             try {
-                const token = localStorage.getItem('access_token');
-                if (!token) {
-                    setError('Authentication required');
-                    setActive(true);
-                    timerRef.current = setTimeout(() => {
-                        setActive(false);
-                        navigate(redirectPath);
-                    }, 2000);
+                const res = await apiFetch(`/plan-checkout-success?session_id=${encodeURIComponent(sessionId)}`);
+                const data = await res.json();
+
+                if (!res.ok || data.error) {
+                    setError(data.error || 'Payment verification failed.');
                     return;
                 }
 
-                const response = await apiFetch(`/organizer-signup-success?session_id=${sessionId}`);
+                setEmail(data.email || '');
+                setLobbyData(data.lobby_data || null);
 
-                const data = await response.json();
-
-                if (!response.ok || data.error) {
-                    console.error('Payment verification failed:', data.error);
-                    setError(data.error || 'Payment verification failed');
-                    // Still show animation and redirect - graceful degradation
-                } else {
-                    // Happy path: payment verified
-                    // Only redirect to create lobby if user has no active lobbies.
-                    try {
-                        const activeLobbiesResponse = await apiFetch('/view_my_active_lobbies');
-
-                        if (activeLobbiesResponse.ok) {
-                            const activeLobbiesData = await activeLobbiesResponse.json();
-                            const hasActiveLobbies = Boolean(
-                                activeLobbiesData &&
-                                Array.isArray(activeLobbiesData.lobbies) &&
-                                activeLobbiesData.lobbies.length > 0
-                            );
-
-                            redirectPath = hasActiveLobbies ? '/' : '/create_lobby';
-                        } else {
-                            // If we can't confirm, default to home (safer than sending to create)
-                            redirectPath = '/';
-                        }
-                    } catch (e) {
-                        console.error('Error checking active lobbies:', e);
-                        redirectPath = '/';
+                if (data.upgrade) {
+                    setIsUpgradeResult(true);
+                    if (data.added_activations) {
+                        setAddedActivations(data.added_activations);
                     }
                 }
-            } catch (error) {
-                console.error('Error verifying payment:', error);
-                setError('Failed to verify payment');
-                // Still show animation and redirect - graceful degradation
+
+                setPhase('animation');
+            } catch (err) {
+                console.error('Payment verification error:', err);
+                setError('Failed to verify payment. Please try again.');
             }
-
-            // Start animation
-            setActive(true);
-
-            // Redirect after 2 seconds
-            timerRef.current = setTimeout(() => {
-                setActive(false);
-                navigate(redirectPath);
-            }, 2000);
         };
 
-        verifyPayment();
+        verify();
+    }, [location.search]);
+
+    // Phase 3: 30-second timer during "check-email"
+    useEffect(() => {
+        if (phase !== 'check-email') return;
+
+        timerRef.current = setTimeout(() => {
+            navigate('/create_lobby', { state: { lobbyData } });
+        }, 30000);
 
         return () => {
-            if (timerRef.current) {
-                clearTimeout(timerRef.current);
-                timerRef.current = null;
-            }
+            if (timerRef.current) clearTimeout(timerRef.current);
         };
-    }, [location.search, navigate]);
+    }, [phase, navigate, lobbyData]);
 
-    if (!active) {
+    const handleAnimationEnd = () => {
+        if (isUpgradeResult) {
+            navigate('/organizer-account-details');
+            return;
+        }
+        setPhase('check-email');
+    };
+
+    // Error state
+    if (error) {
         return (
-            <div className="signup-container">
-                <div className="loading-message">Processing...</div>
+            <div className="oss-container">
+                <div className="oss-error-card">
+                    <div className="oss-error-icon">!</div>
+                    <h2 className="oss-error-title">Something went wrong</h2>
+                    <p className="oss-error-message">{error}</p>
+                    <button
+                        className="oss-error-button"
+                        onClick={() => navigate('/plan-selection')}
+                    >
+                        Try Again
+                    </button>
+                </div>
             </div>
         );
     }
 
+    // Phase 1: verifying
+    if (phase === 'verifying') {
+        return (
+            <div className="oss-container">
+                <LoadingSpinner size={50} message="Verifying your payment..." />
+            </div>
+        );
+    }
+
+    // Phase 2: success animation
+    if (phase === 'animation') {
+        const mainText = isUpgradeResult ? 'Plan updated!' : 'Payment successful!';
+        const subText = addedActivations
+            ? `Added ${addedActivations} activation${addedActivations === 1 ? '' : 's'} to your plan!`
+            : isUpgradeResult
+                ? 'Redirecting to your account...'
+                : 'Welcome to Reuneo!';
+
+        return (
+            <UserIsReadyAnimation
+                isVisible={true}
+                mainText={mainText}
+                subText={subText}
+                onAnimationEnd={handleAnimationEnd}
+            />
+        );
+    }
+
+    // Phase 3: check email
     return (
-        <div className="success-overlay">
-            <div className="success-text">Success! You're now an organizer!</div>
-            {error && (
-                <div className="success-error" style={{ marginTop: '20px' }}>
-                    {error}
-                </div>
-            )}
+        <div className="oss-container">
+            <AnimatePresence>
+                <motion.div
+                    className="oss-check-email"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <h1 className="oss-header">
+                        Check all your inboxes:
+                    </h1>
+                    <p className="oss-email">{email}</p>
+                    <p className="oss-subheader">You're almost done!</p>
+
+                    <div className="oss-spinner-area">
+                        <LoadingSpinner size={50} />
+                        <p className="oss-spinner-text">
+                            We sent a verification email to set your password
+                        </p>
+                    </div>
+                </motion.div>
+            </AnimatePresence>
         </div>
     );
 };

@@ -392,6 +392,11 @@ const LobbyScreen = () => {
             if (response.ok) {                    
                 const data = await response.json();
                 console.log("LOBBY PAIR DATA:",currentLobbyCode, data);
+                if (data.status === "lobby_full") {
+                    navigate('/', { state: { lobbyFull: true } });
+                    return;
+                }
+
                 if (data.status=="inactive"){
                     if (!isTerminatingRef.current) {
                         isTerminatingRef.current = true;
