@@ -87,6 +87,8 @@ const PlanSelection = () => {
     );
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [pendingUpgradePlan, setPendingUpgradePlan] = useState(null);
+    const [showEmailConfirmModal, setShowEmailConfirmModal] = useState(false);
+    const [pendingEmailPlan, setPendingEmailPlan] = useState(null);
 
     const debounceRef = useRef(null);
 
@@ -225,7 +227,8 @@ const PlanSelection = () => {
             return;
         }
 
-        await executeCheckout(planKey);
+        setPendingEmailPlan(planKey);
+        setShowEmailConfirmModal(true);
     };
 
     const executeCheckout = async (planKey) => {
@@ -555,6 +558,44 @@ const PlanSelection = () => {
                                 onClick={handleConfirmUpgrade}
                             >
                                 Continue to Payment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Email Confirmation Modal (new purchases only) */}
+            {showEmailConfirmModal && pendingEmailPlan && (
+                <div className="ps-confirm-overlay" onClick={() => { setShowEmailConfirmModal(false); setPendingEmailPlan(null); }}>
+                    <div className="ps-confirm-modal" onClick={(e) => e.stopPropagation()}>
+                        <h3 className="ps-confirm-title">Confirm Your Email</h3>
+                        <p className="ps-confirm-message">
+                            Your organizer account will be created with this email:
+                        </p>
+                        <p className="ps-confirm-email">{activeLobbyData?.email}</p>
+                        <p className="ps-confirm-message ps-confirm-message-sub">
+                            Make sure it's correct — you won't be able to change it during checkout.
+                        </p>
+                        <div className="ps-confirm-buttons">
+                            <button
+                                className="ps-confirm-cancel"
+                                onClick={() => {
+                                    setShowEmailConfirmModal(false);
+                                    setPendingEmailPlan(null);
+                                    navigate('/new_organizer', { state: { returnData: activeLobbyData } });
+                                }}
+                            >
+                                Edit Email
+                            </button>
+                            <button
+                                className="ps-confirm-proceed"
+                                onClick={() => {
+                                    setShowEmailConfirmModal(false);
+                                    executeCheckout(pendingEmailPlan);
+                                    setPendingEmailPlan(null);
+                                }}
+                            >
+                                Confirm & Continue
                             </button>
                         </div>
                     </div>

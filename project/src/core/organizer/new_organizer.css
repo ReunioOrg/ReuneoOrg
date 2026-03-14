@@ -1354,13 +1354,14 @@
     max-width: 260px;
     text-align: center;
     line-height: 1.4;
-    animation: toastFadeInOut 2s ease forwards;
+    margin-bottom: 8px;
+    animation: toastFadeInOut 3s ease forwards;
 }
 
 @keyframes toastFadeInOut {
     0% { opacity: 0; transform: translateY(6px); }
-    15% { opacity: 1; transform: translateY(0); }
-    75% { opacity: 1; transform: translateY(0); }
+    10% { opacity: 1; transform: translateY(0); }
+    80% { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-4px); }
 }
 

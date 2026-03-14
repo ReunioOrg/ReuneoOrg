@@ -11,7 +11,7 @@ import TutorialMatchHistory from '../Tutorials/tutorial-match-history';
 const NewOrganizerView = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { permissions, isLegacyOrganizer } = useContext(AuthContext);
+    const { user, permissions, isLegacyOrganizer } = useContext(AuthContext);
     const returnData = location.state?.returnData;
 
     // ── Step Navigation ──
@@ -62,6 +62,7 @@ const NewOrganizerView = () => {
 
     const MaxMinutes = 8;
     const toastTimerRef = useRef(null);
+    const hasShownEmailToast = useRef(false);
 
     useEffect(() => {
         if (permissions === 'organizer' && !isLegacyOrganizer) {
@@ -99,15 +100,17 @@ const NewOrganizerView = () => {
     const handleEmailChange = (e) => {
         const value = e.target.value;
         setEmail(value);
-        if (value.length > 0 && !showEmailToast) {
+        if (value.length > 0 && !hasShownEmailToast.current) {
+            hasShownEmailToast.current = true;
             setShowEmailToast(true);
             if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-            toastTimerRef.current = setTimeout(() => setShowEmailToast(false), 2000);
+            toastTimerRef.current = setTimeout(() => setShowEmailToast(false), 3000);
         }
     };
 
     // ── Navigation ──
     const goToStep = (step, direction) => {
+        if (currentStep === 6 && step !== 6) hasShownEmailToast.current = false;
         setNavDirection(direction);
         setCurrentStep(step);
         window.scrollTo(0, 0);
@@ -263,7 +266,8 @@ const NewOrganizerView = () => {
         setError('');
 
         try {
-            const response = await apiFetch('/generate_tags', {
+            const endpoint = (permissions === 'admin' || permissions === 'organizer') ? '/generate_tags' : '/generate_tags_public';
+            const response = await apiFetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ description })
@@ -987,6 +991,11 @@ const NewOrganizerView = () => {
                     {!isLoading && <SparkleIcon />}
                 </button>
             </div>
+            {!isLoading && !isValidEmail(email) && email.length > 0 && (
+                <p className="input-hint" style={{ color: '#dc2626', textAlign: 'center', marginTop: '4px', fontSize: '13px' }}>
+                    Enter a valid email address
+                </p>
+            )}
         </div>
     );
 

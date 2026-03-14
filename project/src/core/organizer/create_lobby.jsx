@@ -66,7 +66,7 @@ const CreateLobbyView = () => {
     // ── Initialization + hydration from lobbyData ──
     useEffect(() => {
         window.scrollTo(0, 0);
-        if (user) setLobbyCode(user);
+        if (user) setLobbyCode(generateLobbyCode());
 
         if (hydratedRef.current) return;
 
@@ -118,6 +118,9 @@ const CreateLobbyView = () => {
     }, [user, location.state]);
 
     // ── Helpers ──
+    const generateLobbyCode = () =>
+        Array.from({ length: 6 }, () => 'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]).join('');
+
     const validateLobbyCode = (code) => {
         return code.length >= 2 && /^[a-z0-9]+$/.test(code);
     };
@@ -1022,6 +1025,11 @@ const CreateLobbyView = () => {
                 {isLoading ? 'Creating...' : 'Create'}
                 {!isLoading && <SparkleIcon />}
             </button>
+            {!isLoading && !validateLobbyCode(lobbyCode) && (
+                <p className="input-hint" style={{ color: '#dc2626', textAlign: 'center', marginTop: '8px', fontSize: '13px' }}>
+                    Lobby code must be at least 2 characters, lowercase letters and numbers only
+                </p>
+            )}
         </div>
     );
 

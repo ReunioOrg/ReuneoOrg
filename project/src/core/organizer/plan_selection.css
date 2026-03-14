@@ -734,6 +734,25 @@
     background: #0f3dd4;
 }
 
+.ps-confirm-email {
+    font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f1729;
+    background: #f3f4f6;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 8px 0 12px;
+    text-align: center;
+    word-break: break-all;
+}
+
+.ps-confirm-message-sub {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0 0 20px;
+}
+
 @keyframes psModalFadeIn {
     from { opacity: 0; }
     to   { opacity: 1; }
