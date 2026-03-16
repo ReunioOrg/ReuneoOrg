@@ -672,14 +672,14 @@ const CreateLobbyView = () => {
                 <h1 className="step-title">What type of event do you want?</h1>
                 <div className="event-type-container">
                     <button
-                        className={`event-type-button ${selectedTab === 'custom' ? 'selected' : ''}`}
+                        className={`event-type-button event-type-primary ${selectedTab === 'custom' ? 'selected' : ''}`}
                         onClick={() => handleEventTypeSelect('custom')}
                     >
                         Custom Matchmaking
                     </button>
                     <div className="event-type-divider" />
                     <button
-                        className={`event-type-button ${selectedTab === 'icebreaker' ? 'selected' : ''}`}
+                        className={`event-type-button event-type-primary ${selectedTab === 'icebreaker' ? 'selected' : ''}`}
                         onClick={() => handleEventTypeSelect('icebreaker')}
                     >
                         Community Ice-Breaker

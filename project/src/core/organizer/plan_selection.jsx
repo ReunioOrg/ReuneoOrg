@@ -50,7 +50,17 @@ const PLANS = [
         title: 'Custom',
         priceField: null,
         priceLabel: 'Book a Call',
-        subheader: () => 'Google Meet',
+        subheader: () => (
+            <span className="ps-contact-icons">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M15.5 9.5V7.5C15.5 6.95 15.05 6.5 14.5 6.5H4.5C3.95 6.5 3.5 6.95 3.5 7.5V16.5C3.5 17.05 3.95 17.5 4.5 17.5H14.5C15.05 17.5 15.5 17.05 15.5 16.5V14.5L20.5 18V6L15.5 9.5Z" fill="#9ca3af"/>
+                </svg>
+                <span className="ps-contact-divider" />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M6.62 10.79C8.06 13.62 10.38 15.93 13.21 17.38L15.41 15.18C15.68 14.91 16.08 14.82 16.43 14.94C17.55 15.31 18.76 15.51 20 15.51C20.55 15.51 21 15.96 21 16.51V20C21 20.55 20.55 21 20 21C10.61 21 3 13.39 3 4C3 3.45 3.45 3 4 3H7.5C8.05 3 8.5 3.45 8.5 4C8.5 5.25 8.7 6.45 9.07 7.57C9.18 7.92 9.1 8.31 8.82 8.59L6.62 10.79Z" fill="#9ca3af"/>
+                </svg>
+            </span>
+        ),
         hasQuantity: false,
         details: [
             'Tailored plan for your organization',
@@ -316,6 +326,7 @@ const PlanSelection = () => {
     };
 
     const requiresCustom = prices?.requires_custom || (activeAttendees > 250);
+    const isFreeTrialOnly = activeAttendees <= 15;
 
     const getDisplayPrice = (plan) => {
         if (!prices || !plan.priceField) return '—';
@@ -372,9 +383,11 @@ const PlanSelection = () => {
                         <path d="M19 12H5" /><polyline points="12 19 5 12 12 5" />
                     </svg>
                 </button>
-                <h1 className="ps-page-title">{isUpgrade ? 'Change Plan' : 'Choose Your Plan'}</h1>
+                <img src="/assets/reuneo_test_11.png" alt="Reuneo Logo" className="ps-logo-image" />
                 <div className="ps-nav-placeholder" />
             </nav>
+
+            <h1 className="ps-page-title">{isUpgrade ? 'Change Plan' : 'Choose Your Plan'}</h1>
 
             {isUpgrade && currentPlan && (
                 <div className="ps-current-plan-banner">
@@ -405,9 +418,9 @@ const PlanSelection = () => {
                 )
             )}
 
-            {!isUpgrade && (
+            {(!isUpgrade || isFreeTrialOnly) && (
                 <button
-                    className={`ps-free-trial ${checkoutLoadingPlan === 'free_trial' ? 'ps-cta-loading' : ''} ${requiresCustom ? 'ps-free-trial-disabled' : ''}`}
+                    className={`ps-free-trial ${checkoutLoadingPlan === 'free_trial' ? 'ps-cta-loading' : ''} ${requiresCustom ? 'ps-free-trial-disabled' : ''} ${isFreeTrialOnly ? 'ps-free-trial-highlighted' : ''}`}
                     onClick={() => !requiresCustom && handleCheckout('free_trial')}
                     disabled={requiresCustom || !!checkoutLoadingPlan}
                 >
@@ -434,9 +447,12 @@ const PlanSelection = () => {
                 {isLoading ? (
                     <div className="ps-loading">Loading plans...</div>
                 ) : (
-                    PLANS.map((plan) => {
+                    (isFreeTrialOnly || requiresCustom
+                        ? [PLANS.find(p => p.key === 'custom'), ...PLANS.filter(p => p.key !== 'custom')]
+                        : PLANS
+                    ).map((plan) => {
                         const isPurchasable = plan.key !== 'custom';
-                        const isDisabled = isPurchasable && requiresCustom;
+                        const isDisabled = (isPurchasable && requiresCustom) || (isPurchasable && isFreeTrialOnly);
                         const isHighlighted = plan.key === 'custom' && requiresCustom;
                         const isCurrent = isCurrentPlanMatch(plan.key);
                         const qty = getQuantity(plan.key);

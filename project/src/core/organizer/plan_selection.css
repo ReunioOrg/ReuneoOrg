@@ -87,6 +87,13 @@
     transform: scale(0.95);
 }
 
+.ps-logo-image {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 8px rgba(20, 77, 255, 0.12));
+}
+
 .ps-page-title {
     color: #0f1729;
     font-size: 1.45rem;
@@ -98,6 +105,8 @@
     border-radius: 10px;
     margin: 0;
     text-align: center;
+    position: relative;
+    z-index: 1;
 }
 
 .ps-nav-placeholder {
@@ -327,6 +336,18 @@
     font-weight: 500;
 }
 
+.ps-contact-icons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ps-contact-divider {
+    width: 1px;
+    height: 14px;
+    background: #d1d5db;
+}
+
 /* ── Quantity incrementer (single-use only) ────── */
 
 .ps-quantity-incrementer {
@@ -470,6 +491,17 @@
 }
 
 /* ── Free trial disabled ─────────────────────────── */
+
+.ps-free-trial-highlighted {
+    border-color: #144dff;
+    box-shadow: 0 0 0 3px rgba(20, 77, 255, 0.12), 0 4px 16px rgba(20, 77, 255, 0.15);
+    animation: freeTrialPulse 2s ease-in-out infinite;
+}
+
+@keyframes freeTrialPulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(20, 77, 255, 0.12), 0 4px 16px rgba(20, 77, 255, 0.15); }
+    50% { box-shadow: 0 0 0 5px rgba(20, 77, 255, 0.08), 0 4px 20px rgba(20, 77, 255, 0.22); }
+}
 
 .ps-free-trial-disabled {
     opacity: 0.45;
@@ -769,6 +801,11 @@
         padding: 12px 8px;
     }
 
+    .ps-logo-image {
+        width: 48px;
+        height: 48px;
+    }
+
     .ps-page-title {
         font-size: 1.2rem;
     }
@@ -791,6 +828,11 @@
 }
 
 @media (min-width: 769px) {
+    .ps-logo-image {
+        width: 72px;
+        height: 72px;
+    }
+
     .ps-columns-container {
         flex-wrap: nowrap;
     }
