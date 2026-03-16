@@ -99,6 +99,8 @@ const PlanSelection = () => {
     const [pendingUpgradePlan, setPendingUpgradePlan] = useState(null);
     const [showEmailConfirmModal, setShowEmailConfirmModal] = useState(false);
     const [pendingEmailPlan, setPendingEmailPlan] = useState(null);
+    const [isEditingEmail, setIsEditingEmail] = useState(false);
+    const [editedEmail, setEditedEmail] = useState('');
 
     const debounceRef = useRef(null);
 
@@ -238,12 +240,15 @@ const PlanSelection = () => {
         }
 
         setPendingEmailPlan(planKey);
+        setEditedEmail(activeLobbyData?.email || '');
+        setIsEditingEmail(false);
         setShowEmailConfirmModal(true);
     };
 
-    const executeCheckout = async (planKey) => {
+    const executeCheckout = async (planKey, lobbyDataOverride) => {
         setCheckoutLoadingPlan(planKey);
         setCheckoutError(null);
+        const data$ = lobbyDataOverride || activeLobbyData;
 
         try {
             if (isUpgrade) {
@@ -267,7 +272,7 @@ const PlanSelection = () => {
                 return;
             }
 
-            const { logo_cropped_image, ...lobbyDataWithoutLogo } = activeLobbyData;
+            const { logo_cropped_image, ...lobbyDataWithoutLogo } = data$;
 
             if (logo_cropped_image) {
                 localStorage.setItem('reuneo_plan_logo', logo_cropped_image);
@@ -284,9 +289,9 @@ const PlanSelection = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     plan_type: PLAN_KEY_MAP[planKey],
-                    attendees: activeLobbyData.attendees,
+                    attendees: data$.attendees,
                     quantity,
-                    email: activeLobbyData.email,
+                    email: data$.email,
                     lobby_data: lobbyDataWithoutLogo,
                 }),
             });
@@ -582,36 +587,56 @@ const PlanSelection = () => {
 
             {/* Email Confirmation Modal (new purchases only) */}
             {showEmailConfirmModal && pendingEmailPlan && (
-                <div className="ps-confirm-overlay" onClick={() => { setShowEmailConfirmModal(false); setPendingEmailPlan(null); }}>
+                <div className="ps-confirm-overlay" onClick={() => { setShowEmailConfirmModal(false); setPendingEmailPlan(null); setIsEditingEmail(false); }}>
                     <div className="ps-confirm-modal" onClick={(e) => e.stopPropagation()}>
                         <h3 className="ps-confirm-title">Confirm Your Email</h3>
                         <p className="ps-confirm-message">
                             Your organizer account will be created with this email:
                         </p>
-                        <p className="ps-confirm-email">{activeLobbyData?.email}</p>
+                        {isEditingEmail ? (
+                            <input
+                                type="email"
+                                className="ps-confirm-email-input"
+                                value={editedEmail}
+                                onChange={(e) => setEditedEmail(e.target.value)}
+                                autoFocus
+                            />
+                        ) : (
+                            <p className="ps-confirm-email">{activeLobbyData?.email}</p>
+                        )}
                         <p className="ps-confirm-message ps-confirm-message-sub">
                             Make sure it's correct — you won't be able to change it during checkout.
                         </p>
                         <div className="ps-confirm-buttons">
                             <button
-                                className="ps-confirm-cancel"
-                                onClick={() => {
-                                    setShowEmailConfirmModal(false);
-                                    setPendingEmailPlan(null);
-                                    navigate('/new_organizer', { state: { returnData: activeLobbyData } });
-                                }}
-                            >
-                                Edit Email
-                            </button>
-                            <button
                                 className="ps-confirm-proceed"
                                 onClick={() => {
+                                    let dataOverride = null;
+                                    if (isEditingEmail && editedEmail && editedEmail !== activeLobbyData?.email) {
+                                        const updated = { ...activeLobbyData, email: editedEmail };
+                                        setActiveLobbyData(updated);
+                                        dataOverride = updated;
+                                    }
                                     setShowEmailConfirmModal(false);
-                                    executeCheckout(pendingEmailPlan);
+                                    setIsEditingEmail(false);
+                                    executeCheckout(pendingEmailPlan, dataOverride);
                                     setPendingEmailPlan(null);
                                 }}
                             >
-                                Confirm & Continue
+                                Continue
+                            </button>
+                            <button
+                                className="ps-confirm-cancel"
+                                onClick={() => {
+                                    if (isEditingEmail) {
+                                        setIsEditingEmail(false);
+                                    } else {
+                                        setEditedEmail(activeLobbyData?.email || '');
+                                        setIsEditingEmail(true);
+                                    }
+                                }}
+                            >
+                                {isEditingEmail ? 'Cancel Edit' : 'Edit Email'}
                             </button>
                         </div>
                     </div>

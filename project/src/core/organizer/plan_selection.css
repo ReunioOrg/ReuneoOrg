@@ -711,6 +711,7 @@
     max-width: 400px;
     width: calc(100% - 40px);
     box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+    text-align: center;
 }
 
 .ps-confirm-title {
@@ -729,8 +730,8 @@
 
 .ps-confirm-buttons {
     display: flex;
+    flex-direction: column;
     gap: 10px;
-    justify-content: flex-end;
 }
 
 .ps-confirm-cancel {
@@ -743,6 +744,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: background 0.15s;
+    width: 100%;
 }
 
 .ps-confirm-cancel:hover {
@@ -760,6 +762,7 @@
     cursor: pointer;
     transition: background 0.15s;
     box-shadow: 0 2px 8px rgba(20, 77, 255, 0.3);
+    width: 100%;
 }
 
 .ps-confirm-proceed:hover {
@@ -767,7 +770,7 @@
 }
 
 .ps-confirm-email {
-    font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 15px;
     font-weight: 600;
     color: #0f1729;
@@ -777,6 +780,24 @@
     margin: 8px 0 12px;
     text-align: center;
     word-break: break-all;
+}
+
+.ps-confirm-email-input {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f1729;
+    background: #fff;
+    border: 1.5px solid #144dff;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 8px 0 12px;
+    text-align: center;
+    word-break: break-all;
+    width: 100%;
+    box-sizing: border-box;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(20, 77, 255, 0.1);
 }
 
 .ps-confirm-message-sub {
