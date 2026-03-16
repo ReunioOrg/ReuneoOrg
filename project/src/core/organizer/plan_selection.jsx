@@ -101,6 +101,8 @@ const PlanSelection = () => {
     const [pendingEmailPlan, setPendingEmailPlan] = useState(null);
     const [isEditingEmail, setIsEditingEmail] = useState(false);
     const [editedEmail, setEditedEmail] = useState('');
+    const [isEditingAttendees, setIsEditingAttendees] = useState(false);
+    const [draftAttendees, setDraftAttendees] = useState(null);
 
     const debounceRef = useRef(null);
 
@@ -122,7 +124,11 @@ const PlanSelection = () => {
         }
         const routerData = location.state?.lobbyData;
         if (routerData) {
+            const { logo_cropped_image, ...withoutLogo } = routerData;
+            sessionStorage.setItem('reuneo_plan_lobbyData', JSON.stringify(withoutLogo));
+            if (logo_cropped_image) localStorage.setItem('reuneo_plan_logo', logo_cropped_image);
             setActiveLobbyData(routerData);
+            navigate(location.pathname, { replace: true, state: null });
             return;
         }
         try {
@@ -137,6 +143,15 @@ const PlanSelection = () => {
         } catch {}
         navigate('/new_organizer', { replace: true });
     }, []);
+
+    useEffect(() => {
+        if (!activeLobbyData || isUpgrade) return;
+        const { logo_cropped_image, ...withoutLogo } = activeLobbyData;
+        sessionStorage.setItem('reuneo_plan_lobbyData', JSON.stringify(withoutLogo));
+        if (logo_cropped_image) {
+            localStorage.setItem('reuneo_plan_logo', logo_cropped_image);
+        }
+    }, [activeLobbyData, isUpgrade]);
 
     // Pricing fetch — uses upgradeAttendees in upgrade mode
     const fetchPrices = useCallback(async (attendeeCount) => {
@@ -400,27 +415,63 @@ const PlanSelection = () => {
                 </div>
             )}
 
-            {isUpgrade ? (
-                <div className="ps-attendee-picker">
-                    <label className="ps-attendee-picker-label">Attendees:</label>
-                    <input
-                        type="number"
-                        className="ps-attendee-picker-input"
-                        value={upgradeAttendees}
-                        min={1}
-                        max={250}
-                        onChange={(e) => {
-                            const val = parseInt(e.target.value, 10);
-                            if (!isNaN(val) && val >= 1) setUpgradeAttendees(Math.min(val, 250));
-                        }}
-                    />
+            {activeAttendees && (
+                <div className="ps-attendee-context">
+                    Pricing for{' '}
+                    <span className="ps-attendee-inline-editor">
+                        <button
+                            className="ps-attendee-arrow"
+                            onClick={() => {
+                                const current = isEditingAttendees ? draftAttendees : activeAttendees;
+                                if (current < 250) {
+                                    if (!isEditingAttendees) setIsEditingAttendees(true);
+                                    setDraftAttendees(current + 1);
+                                }
+                            }}
+                            aria-label="Increase attendees"
+                        >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                        </button>
+                        <strong className="ps-attendee-count">{isEditingAttendees ? draftAttendees : activeAttendees}</strong>
+                        <button
+                            className="ps-attendee-arrow"
+                            onClick={() => {
+                                const current = isEditingAttendees ? draftAttendees : activeAttendees;
+                                if (current > 1) {
+                                    if (!isEditingAttendees) setIsEditingAttendees(true);
+                                    setDraftAttendees(current - 1);
+                                }
+                            }}
+                            aria-label="Decrease attendees"
+                        >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                    </span>
+                    {' '}attendee{(isEditingAttendees ? draftAttendees : activeAttendees) === 1 ? '' : 's'}
+                    {isEditingAttendees && (
+                        <span className="ps-attendee-apply-wrapper">
+                            <button
+                                className="ps-attendee-apply"
+                                onClick={() => {
+                                    if (isUpgrade) {
+                                        setUpgradeAttendees(draftAttendees);
+                                    } else {
+                                        const updated = { ...activeLobbyData, attendees: draftAttendees };
+                                        setActiveLobbyData(updated);
+                                        const { logo_cropped_image, ...withoutLogo } = updated;
+                                        sessionStorage.setItem('reuneo_plan_lobbyData', JSON.stringify(withoutLogo));
+                                    }
+                                    setIsEditingAttendees(false);
+                                    setDraftAttendees(null);
+                                    setIsRefreshing(true);
+                                    fetchPrices(draftAttendees);
+                                }}
+                            >
+                                Apply
+                            </button>
+                        </span>
+                    )}
                 </div>
-            ) : (
-                activeAttendees && (
-                    <p className="ps-attendee-context">
-                        Pricing for <strong>{activeAttendees}</strong> attendee{activeAttendees === 1 ? '' : 's'}
-                    </p>
-                )
             )}
 
             {(!isUpgrade || isFreeTrialOnly) && (
@@ -609,6 +660,19 @@ const PlanSelection = () => {
                         </p>
                         <div className="ps-confirm-buttons">
                             <button
+                                className="ps-confirm-cancel"
+                                onClick={() => {
+                                    if (isEditingEmail) {
+                                        setIsEditingEmail(false);
+                                    } else {
+                                        setEditedEmail(activeLobbyData?.email || '');
+                                        setIsEditingEmail(true);
+                                    }
+                                }}
+                            >
+                                Edit
+                            </button>
+                            <button
                                 className="ps-confirm-proceed"
                                 onClick={() => {
                                     let dataOverride = null;
@@ -624,19 +688,6 @@ const PlanSelection = () => {
                                 }}
                             >
                                 Continue
-                            </button>
-                            <button
-                                className="ps-confirm-cancel"
-                                onClick={() => {
-                                    if (isEditingEmail) {
-                                        setIsEditingEmail(false);
-                                    } else {
-                                        setEditedEmail(activeLobbyData?.email || '');
-                                        setIsEditingEmail(true);
-                                    }
-                                }}
-                            >
-                                {isEditingEmail ? 'Cancel Edit' : 'Edit Email'}
                             </button>
                         </div>
                     </div>
