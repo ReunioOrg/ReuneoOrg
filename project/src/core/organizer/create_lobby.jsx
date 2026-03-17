@@ -697,6 +697,9 @@ const CreateLobbyView = () => {
         return (
             <div className="step-container">
                 <h1 className="step-title">How many people are attending?</h1>
+                <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
+                    Estimate the max, to avoid hitting your limit during the live event
+                </p>
                 <div className="attendees-input-wrapper">
                     <input
                         type="number"
@@ -793,9 +796,16 @@ const CreateLobbyView = () => {
                     {renderLogoUpload()}
                 </div>
                 {!isLogoCropping && (
-                    <button className="step-cta" onClick={handleStep4Advance}>
-                        {hasLogo ? 'Continue' : 'Skip'} <ArrowRight />
-                    </button>
+                    <>
+                        {!hasLogo && (
+                            <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
+                                You can always add this later
+                            </p>
+                        )}
+                        <button className="step-cta" onClick={handleStep4Advance}>
+                            {hasLogo ? 'Continue' : 'Skip'} <ArrowRight />
+                        </button>
+                    </>
                 )}
             </div>
         );
@@ -947,7 +957,7 @@ const CreateLobbyView = () => {
                         </div>
                     ) : (
                         <div className="review-section-content">
-                            <span className="review-value-primary">{attendees} attendees</span>
+                            <span className="review-value-primary">{attendees} attendees <span className="review-value-secondary" style={{ fontWeight: 500 }}>(max estimate)</span></span>
                             <span className={showTableNumbers ? 'review-value-primary' : 'review-value-secondary'}>
                                 {showTableNumbers ? 'Table Numbers are displayed' : 'Table Numbers are not displayed'}
                             </span>
