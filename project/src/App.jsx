@@ -143,7 +143,7 @@ const App = () => {
   const [nameInput, setNameInput] = useState('');
   const [profileData, handleProfileSubmit] = useState(null);
   const { audioRef, error, playSound, loadSound, cancelSound } = usePlaySound();
-  const { user, userProfile, checkAuth, permissions, emailVerified } = useContext(AuthContext);
+  const { user, userProfile, checkAuth, permissions, emailVerified, isLegacyOrganizer } = useContext(AuthContext);
   const location = useLocation();
   const [showLobbyFullModal, setShowLobbyFullModal] = useState(false);
 
@@ -157,6 +157,52 @@ const App = () => {
 
   const navigate = useNavigate();
   useGetLobbyMetadata(setPlayerCount, setLobbyState);
+
+  const [organizerPlanInfo, setOrganizerPlanInfo] = useState(null);
+
+  useEffect(() => {
+    if (permissions !== 'organizer' || isLegacyOrganizer) return;
+    const fetchPlan = async () => {
+      try {
+        const res = await apiFetch('/organizer-plan-details');
+        const data = await res.json();
+        if (data.has_plan) setOrganizerPlanInfo(data);
+      } catch (err) {
+        console.error('Failed to fetch organizer plan info:', err);
+      }
+    };
+    fetchPlan();
+  }, [permissions, isLegacyOrganizer]);
+
+  const handleCreateClick = () => {
+    if (permissions === 'admin' || isLegacyOrganizer) {
+      navigate('/create_lobby');
+      return;
+    }
+    if (!organizerPlanInfo || !organizerPlanInfo.has_plan) {
+      navigate('/create_lobby');
+      return;
+    }
+    const { plan_type, trial_uses_remaining, activations_remaining,
+            uses_this_month, uses_per_month } = organizerPlanInfo;
+
+    let blocked = false;
+    if (plan_type === 'free_trial') {
+      blocked = (trial_uses_remaining || 0) <= 0;
+    } else if (plan_type === 'single_use') {
+      blocked = (activations_remaining || 0) <= 0;
+    } else if (plan_type === 'monthly') {
+      blocked = (uses_this_month || 0) >= (uses_per_month || 0);
+    }
+
+    if (blocked) {
+      navigate('/organizer-account-details', {
+        state: { limitMessage: "You've used all your plan activations." }
+      });
+    } else {
+      navigate('/create_lobby');
+    }
+  };
 
   const [isScanning, setIsScanning] = useState(false);
   const videoRef = useRef(null);
@@ -764,8 +810,8 @@ const App = () => {
           }}>
             <div
               className="app-dock-item-standalone"
-              onClick={() => navigate('/create_lobby')}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/create_lobby'); } }}
+              onClick={handleCreateClick}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCreateClick(); } }}
               tabIndex={0}
               role="button"
               aria-label="Create Lobby"

@@ -16,6 +16,34 @@ import LoadingSpinner from '../components/LoadingSpinner';
 //load asset image earthart.jpg
 import { returnBase64TestImg } from '../misc/misc';
 
+const PlanLimitsModal = ({ isOpen, onClose, planInfo }) => {
+    if (!isOpen || !planInfo) return null;
+
+    const { trial_uses_remaining, plan_type, attendee_limit } = planInfo;
+    const isFreeTrialOnly = plan_type === 'free_trial';
+    const perLabel = plan_type === 'monthly' ? 'per month' : 'per event';
+
+    return (
+        <div className="progress-modal-overlay">
+            <div className="progress-modal">
+                <div className="confirm-modal-header">
+                    <h2 className="confirm-modal-title">
+                        Get comfortable with Reuneo! You can create up to {trial_uses_remaining} demo activation{trial_uses_remaining !== 1 ? 's' : ''}
+                    </h2>
+                    {!isFreeTrialOnly && (
+                        <p className="confirm-modal-subtitle" style={{ fontWeight: 600 }}>
+                            Once more than 15 people join, your real - <em style={{ fontWeight: 900, color: '#1565C0' }}>{attendee_limit} attendees {perLabel} plan</em> - will be used
+                        </p>
+                    )}
+                </div>
+                <div className="confirm-modal-actions">
+                    <button className="confirm-modal-btn primary" onClick={onClose}>Got it!</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // Modal component for kick confirmation
 const KickConfirmationModal = ({ isOpen, onClose, onConfirm, userName, userImage }) => {
     if (!isOpen) return null;
@@ -210,7 +238,7 @@ const generateStyledQRCodeImage = (svgElement, code) => {
 };
 
 // Progress bar component for lobby phases
-const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, currentRound, checkinTriggerRef }) => {
+const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, currentRound, checkinTriggerRef, suppressCheckinAutoOpen }) => {
     // Determine states for each arrow
     // Check-in
     const checkinActive = lobbyState === 'checkin';
@@ -252,7 +280,6 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
     const handleConfirm = () => {
         if (modal === 'start') {
             onStart();
-            toast.success('Rounds started!', { position: 'top-center' });
         } else if (modal === 'end') {
             onEnd();
         }
@@ -263,12 +290,13 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
     // Auto-open check-in modal on page load if nobody has joined yet
     useEffect(() => {
         if (didAutoOpenCheckinModalRef.current) return;
+        if (suppressCheckinAutoOpen) return;
         if (lobbyState === 'checkin' && playerCount === 0) {
             didAutoOpenCheckinModalRef.current = true;
             setHasOpenedCheckinModal(true);
             setModal('checkin');
         }
-    }, [lobbyState, playerCount]);
+    }, [lobbyState, playerCount, suppressCheckinAutoOpen]);
 
     // Helper for shimmer classes
     const shimmerClass = (active, available) => {
@@ -1000,10 +1028,38 @@ const EditLobbyModal = ({ isOpen, onClose, lobbyCode, currentTags, currentShowTa
 };
 
 const AdminLobbyView = () => {
-    const { user, userProfile, checkAuth, permissions } = useContext(AuthContext);
+    const { user, userProfile, checkAuth, permissions, isLegacyOrganizer, isAuthLoading } = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
     const DEVMODE = false;
+
+    // Plan Limits Modal state
+    const [showPlanLimitsModal, setShowPlanLimitsModal] = useState(false);
+    const [planInfo, setPlanInfo] = useState(null);
+    const didFetchPlanInfoRef = useRef(false);
+
+    useEffect(() => {
+        if (didFetchPlanInfoRef.current) return;
+        if (isAuthLoading) return;
+        const isNewlyCreated = location.state?.newlyCreated === true;
+        if (!isNewlyCreated) return;
+        if (permissions === 'admin' || isLegacyOrganizer) return;
+        didFetchPlanInfoRef.current = true;
+
+        const fetchPlanInfo = async () => {
+            try {
+                const res = await apiFetch('/organizer-plan-details');
+                const data = await res.json();
+                if (data.has_plan && data.trial_uses_remaining != null && data.trial_uses_remaining > 0) {
+                    setPlanInfo(data);
+                    setShowPlanLimitsModal(true);
+                }
+            } catch (err) {
+                console.error('Failed to fetch plan info for modal:', err);
+            }
+        };
+        fetchPlanInfo();
+    }, [location.state, permissions, isLegacyOrganizer, isAuthLoading]);
     
     // Audio sound feature - same as lobby.jsx
     const playat = Math.floor(9*60); // 540 seconds (9 minutes)
@@ -1333,13 +1389,27 @@ const AdminLobbyView = () => {
 
     // Handlers for progress bar actions
     const handleStartRounds = async () => {
-        const response = await apiFetch('/start_rounds', {
-            method: 'GET',
-            headers: {
-                'lobby_code': lobbyCode
+        try {
+            const response = await apiFetch('/start_rounds', {
+                method: 'GET',
+                headers: {
+                    'lobby_code': lobbyCode
+                }
+            });
+            const data = await response.json();
+            if (data.status === 'success') {
+                toast.success('Rounds started!', { position: 'top-center' });
+            } else {
+                if (data.reason === 'activations_exhausted' || data.reason === 'monthly_limit_reached') {
+                    navigate('/organizer-account-details', { state: { limitMessage: data.message } });
+                } else {
+                    toast.error(data.message || 'Failed to start rounds', { position: 'top-center' });
+                }
             }
-        });
-        // Optionally handle response
+        } catch (err) {
+            console.error('Error starting rounds:', err);
+            toast.error('Failed to start rounds', { position: 'top-center' });
+        }
     };
     const handleEndRounds = async () => {
         cancelSound(); // Cleanup audio when terminating lobby
@@ -1358,6 +1428,11 @@ const AdminLobbyView = () => {
         <>
             {/* Toast container for react-hot-toast */}
             <Toaster position="top-center" />
+            <PlanLimitsModal
+                isOpen={showPlanLimitsModal}
+                onClose={() => setShowPlanLimitsModal(false)}
+                planInfo={planInfo}
+            />
             <div className="admin-lobby-container">
                 {DEVMODE && (
                     <button onClick={resetLobbyTimer}>
@@ -1386,6 +1461,7 @@ const AdminLobbyView = () => {
                     lobbyCode={lobbyCode}
                     currentRound={maxActiveRound}
                     checkinTriggerRef={checkinTriggerRef}
+                    suppressCheckinAutoOpen={showPlanLimitsModal}
                 />
                 {/* Overlapping user profile list below progress bar */}
                 <OverlappingProfileList players={{ pairedPlayers, lobbyData }} />

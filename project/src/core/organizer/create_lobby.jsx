@@ -478,9 +478,9 @@ const CreateLobbyView = () => {
                 localStorage.removeItem('reuneo_plan_logo');
                 localStorage.removeItem('reuneo_plan_email');
                 sessionStorage.removeItem('reuneo_plan_lobbyData');
-                navigate(`/admin_lobby_view?code=${lobbyCode}`);
+                navigate(`/admin_lobby_view?code=${lobbyCode}`, { state: { newlyCreated: true } });
             } else {
-                if (data.reason === 'activations_exhausted' || data.reason === 'monthly_limit_reached' || data.reason === 'no_active_plan') {
+                if (data.reason === 'activations_exhausted' || data.reason === 'monthly_limit_reached' || data.reason === 'no_active_plan' || data.reason === 'no_uses_remaining') {
                     navigate('/organizer-account-details', { state: { limitMessage: data.message } });
                     return;
                 }
