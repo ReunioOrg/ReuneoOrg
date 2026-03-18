@@ -1,6 +1,7 @@
-/* Organizer Account Details styles */
-.signup-container {
-    padding: 10px;
+/* Organizer Account Details - Modern Styles with Visual Pop */
+.account-container {
+    padding: 1rem 1.5rem 2rem;
+    padding-top: 56px;
     width: 100%;
     max-width: 100%;
     margin: 0 auto;
@@ -8,195 +9,447 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-start;
     box-sizing: border-box;
-    background: linear-gradient(135deg, rgba(20,77,255,0.1) 0%, rgba(36, 86, 235, 0.05) 100%);
+    background: linear-gradient(180deg, #eef2ff 0%, #f8f9fb 40%);
+    position: relative;
 }
 
-.homescreen-button {
-    position: absolute;
-    top: 17px;
-    left: 15px;
-    padding: 8px 16px;
-    background-color: #144dff;
-    border: 2px solid #e9ecef;
-    border-radius: 14px;
-    color: #ffffff;
-    font-family: Helvetica, Arial, sans-serif;
-    font-weight: 800;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.9rem;
-}
-
-.homescreen-button:hover {
-    background-color: #e9ecef;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.logo-image {
-    width: 100px;
-    height: 100px;
-    margin: 1rem 0;
-    margin-top: -.5rem;
-    object-fit: contain;
-}
-
-.signup-header {
+.account-header {
     text-align: center;
     width: 100%;
-    color: #144dff;
-    font-size: 2rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    text-shadow: 2px 2px 4px rgb(255, 255, 255);
-    margin: 0.5rem 0;
-    font-weight: bold;
-    font-family: Helvetica, Arial, sans-serif;
+    color: #1a1a2e;
+    font-size: 1.6rem;
+    margin: 0 0 1rem 0;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    position: relative;
+    z-index: 1;
+}
+
+.account-home-button {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: auto;
+    min-width: 80px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+    background: linear-gradient(135deg, #4b73ef 0%, #6366f1 100%);
+    border: none;
+    border-radius: 20px;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(75, 115, 239, 0.35);
+}
+
+.account-home-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(75, 115, 239, 0.45);
+}
+
+.account-home-button:active {
+    transform: translateY(0);
+}
+
+.account-logo {
+    width: 80px;
+    height: auto;
+    margin-bottom: 0.25rem;
+    object-fit: contain;
+    z-index: 1;
     position: relative;
 }
 
-.step-form-container {
-    position: relative;
+.account-form-container {
     width: 100%;
     max-width: 400px;
-    margin: 0 auto;
+    margin: 0 24px;
+    padding: 0;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+    position: relative;
+    z-index: 1;
     overflow: hidden;
-    padding: 0 15px;
-    box-sizing: border-box;
 }
 
 .account-details-content {
     width: 100%;
 }
 
+/* Plan Header Section - Hero style */
+.account-plan-header {
+    background: linear-gradient(135deg, #4b73ef 0%, #6366f1 100%);
+    padding: 24px 24px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.account-plan-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.account-plan-type {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 6px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.account-plan-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.account-plan-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    backdrop-filter: blur(4px);
+}
+
+.account-plan-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.account-plan-status-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Details Section */
+.account-details-section {
+    padding: 20px 24px;
+}
+
 .detail-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 0;
-    border-bottom: 1px solid rgba(20, 77, 255, 0.1);
+    padding: 14px 16px;
+    margin: 0 -16px;
+    border-radius: 12px;
+    transition: background 0.2s ease;
 }
 
-.detail-row:last-child {
-    border-bottom: none;
+.detail-row:hover {
+    background: #f8f9fb;
 }
 
 .detail-label {
-    font-weight: 600;
-    color: #144dff;
+    font-weight: 500;
+    color: #6b7280;
     font-size: 0.9rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .detail-value {
-    color: #333;
-    font-size: 0.9rem;
+    color: #1a1a2e;
+    font-size: 0.95rem;
     text-align: right;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.plan-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 8px;
-    font-weight: 700;
+/* Usage Progress */
+.account-usage-section {
+    padding: 0 24px 20px;
+}
+
+.account-usage-card {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-radius: 16px;
+    padding: 18px 20px;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.account-usage-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #166534;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.account-usage-bar-container {
+    height: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.account-usage-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e 0%, #4ade80 100%);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.account-usage-text {
     font-size: 0.85rem;
-    letter-spacing: 0.03em;
-}
-
-.plan-badge-single_use {
-    background: rgba(20, 77, 255, 0.1);
-    color: #144dff;
-}
-
-.plan-badge-monthly {
-    background: rgba(40, 167, 69, 0.1);
-    color: #28a745;
-}
-
-.plan-badge-free_trial {
-    background: rgba(23, 162, 184, 0.1);
-    color: #17a2b8;
-}
-
-.status-active {
-    color: #28a745;
+    color: #166534;
     font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.status-trialing {
-    color: #17a2b8;
+.account-usage-reset {
+    font-size: 0.75rem;
+    color: #15803d;
+    font-weight: 500;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(34, 197, 94, 0.2);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Billing Info Card */
+.account-billing-card {
+    margin: 0 24px 20px;
+    background: #fafafa;
+    border-radius: 16px;
+    padding: 18px 20px;
+    border: 1px solid #e5e7eb;
+}
+
+.account-billing-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.account-billing-row:not(:last-child) {
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 12px;
+    margin-bottom: 4px;
+}
+
+.account-billing-label {
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 500;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.account-billing-value {
+    font-size: 0.9rem;
+    color: #1a1a2e;
     font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.status-past_due {
-    color: #ffc107;
+.account-billing-amount {
+    font-size: 1.1rem;
+    color: #1a1a2e;
+    font-weight: 700;
+}
+
+/* Activations Card (for single use / free trial) */
+.account-activations-card {
+    margin: 0 24px 20px;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-radius: 16px;
+    padding: 18px 20px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    text-align: center;
+}
+
+.account-activations-label {
+    font-size: 0.8rem;
     font-weight: 600;
+    color: #1e40af;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.status-canceled {
-    color: #dc3545;
-    font-weight: 600;
+.account-activations-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #3b82f6;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1;
 }
 
-.primary-button {
+.account-activations-subtext {
+    font-size: 0.85rem;
+    color: #1e40af;
+    margin-top: 6px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Button Section */
+.account-button-group {
+    padding: 20px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #fafafa;
+    border-top: 1px solid #e5e7eb;
+}
+
+.account-primary-button {
     width: 100%;
-    padding: 12px;
-    border-radius: 25px;
+    padding: 16px 24px;
+    border-radius: 14px;
     border: none;
-    background: linear-gradient(45deg, #144dff, #2979ff);
+    background: linear-gradient(135deg, #4b73ef 0%, #6366f1 100%);
     color: white;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(20,77,255,0.2);
-    margin-top: 0;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(75, 115, 239, 0.35);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.primary-button:disabled {
+.account-primary-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(75, 115, 239, 0.45);
+}
+
+.account-primary-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.account-primary-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
-.cancel-button {
-    background: linear-gradient(45deg, #dc3545, #c82333);
+.account-cancel-button {
+    background: #ffffff;
+    color: #6b7280;
+    border: 1.5px solid #e5e7eb;
+    box-shadow: none;
 }
 
-.cancel-button:hover:not(:disabled) {
-    background: linear-gradient(45deg, #c82333, #bd2130);
+.account-cancel-button:hover:not(:disabled) {
+    border-color: #ef4444;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.04);
     transform: translateY(-2px);
+    box-shadow: none;
 }
 
-.error-message {
-    background-color: #ffebee;
-    color: #d32f2f;
-    padding: 10px;
-    border-radius: 10px;
-    margin-bottom: 15px;
+.account-cancel-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* Error Message */
+.account-error-message {
+    background: rgba(185, 28, 28, 0.08);
+    color: #b91c1c;
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin: 0 24px 16px;
+    font-size: 0.85rem;
+    font-weight: 500;
     text-align: center;
-    border: 1px solid #ef9a9a;
     animation: shake 0.5s ease-in-out;
-    font-size: 0.9rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
 }
 
-.loading-message {
+.account-loading {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    color: #144dff;
-    font-size: 1.2rem;
-    font-weight: 600;
+    min-height: 200px;
+    color: #6b7280;
+    font-size: 1rem;
+    font-weight: 500;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Limit Banner */
+.account-limit-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 16px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(251, 191, 36, 0.12) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 16px;
+    color: #92400e;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.4;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.account-limit-banner-close {
+    background: none;
+    border: none;
+    color: #92400e;
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    flex-shrink: 0;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.account-limit-banner-close:hover {
+    opacity: 1;
 }
 
 /* Modal Styles */
-.modal-overlay {
+.account-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -207,27 +460,23 @@
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(4px);
     animation: fadeIn 200ms ease-out;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-.modal-content {
+.account-modal-content {
     background: white;
-    border-radius: 16px;
-    padding: 24px;
-    max-width: 320px;
+    border-radius: 24px;
+    padding: 32px;
+    max-width: 360px;
     width: 90%;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
     animation: slideUp 250ms ease-out;
 }
 
@@ -242,168 +491,226 @@
     }
 }
 
-.modal-content h3 {
-    color: #144dff;
+.account-modal-content h3 {
+    color: #1a1a2e;
     margin: 0 0 12px 0;
-    font-size: 1.2rem;
-    font-weight: 600;
+    font-size: 1.3rem;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.modal-content p {
-    color: #666;
-    margin: 0 0 20px 0;
-    font-size: 14px;
-    line-height: 1.4;
+.account-modal-content p {
+    color: #6b7280;
+    margin: 0 0 28px 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.modal-buttons {
+.account-modal-buttons {
     display: flex;
     gap: 12px;
     justify-content: center;
 }
 
-.modal-button {
-    padding: 10px 20px;
-    border-radius: 12px;
-    font-size: 14px;
+.account-modal-button {
+    padding: 14px 28px;
+    border-radius: 14px;
+    font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     border: none;
-    min-width: 80px;
+    min-width: 110px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.modal-button:disabled {
+.account-modal-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
-.modal-cancel {
-    background: rgba(200, 200, 200, 0.3);
-    color: #666;
-    border: 2px solid rgba(200, 200, 200, 0.5);
-}
-
-.modal-cancel:hover:not(:disabled) {
-    background: rgba(200, 200, 200, 0.5);
-    transform: translateY(-2px);
-}
-
-.modal-confirm {
-    background: linear-gradient(45deg, #144dff, #2979ff);
+.account-modal-keep {
+    background: linear-gradient(135deg, #4b73ef 0%, #6366f1 100%);
     color: white;
-    box-shadow: 0 4px 12px rgba(20, 77, 255, 0.2);
+    box-shadow: 0 4px 14px rgba(75, 115, 239, 0.35);
 }
 
-.modal-confirm:hover:not(:disabled) {
+.account-modal-keep:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(20, 77, 255, 0.3);
+    box-shadow: 0 6px 20px rgba(75, 115, 239, 0.45);
+}
+
+.account-modal-confirm {
+    background: #ffffff;
+    color: #6b7280;
+    border: 1.5px solid #e5e7eb;
+}
+
+.account-modal-confirm:hover:not(:disabled) {
+    border-color: #ef4444;
+    color: #ef4444;
+    transform: translateY(-1px);
 }
 
 /* Toast Styles */
-.toast-container {
+.account-toast-container {
     position: fixed;
     top: 20px;
-    right: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 10000;
     animation: toastSlideIn 0.3s ease-out;
 }
 
 @keyframes toastSlideIn {
     from {
-        transform: translateX(100%);
+        transform: translateX(-50%) translateY(-20px);
         opacity: 0;
     }
     to {
-        transform: translateX(0);
+        transform: translateX(-50%) translateY(0);
         opacity: 1;
     }
 }
 
-.toast-message {
-    background: linear-gradient(45deg, #28a745, #20c997);
+.account-toast-message {
+    background: linear-gradient(135deg, #22c55e 0%, #4ade80 100%);
     color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    padding: 16px 28px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(34, 197, 94, 0.35);
     font-weight: 600;
-    font-size: 0.9rem;
-    min-width: 250px;
+    font-size: 0.95rem;
     text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Media queries for better mobile responsiveness */
+/* Legacy badge styles - keeping for compatibility */
+.plan-badge {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.plan-badge-single_use {
+    background: rgba(75, 115, 239, 0.1);
+    color: #4b73ef;
+}
+
+.plan-badge-monthly {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+.plan-badge-free_trial {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.status-active {
+    color: #22c55e;
+    font-weight: 600;
+}
+
+.status-trialing {
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+.status-past_due {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.status-canceled {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* Media queries */
 @media screen and (max-width: 480px) {
-    .signup-container {
-        padding: 5px;
+    .account-container {
+        padding: 1rem;
+        padding-top: 50px;
     }
 
-    .step-form-container {
-        padding: 0 10px;
+    .account-header {
+        font-size: 1.4rem;
+        margin-bottom: 0.75rem;
     }
 
-    .signup-header {
-        font-size: 1.5rem;
-        margin: 0.3rem 0;
+    .account-home-button {
+        top: 10px;
+        left: 10px;
+        min-width: 70px;
+        height: 32px;
+        font-size: 0.8rem;
+        padding: 0 16px;
     }
 
-    .homescreen-button {
-        padding: 6px 12px;
-        font-size: .9rem;
+    .account-logo {
+        width: 70px;
+    }
+
+    .account-form-container {
+        margin: 0 16px;
+        border-radius: 20px;
+    }
+
+    .account-plan-header {
+        padding: 20px 20px 18px;
+    }
+
+    .account-plan-name {
+        font-size: 1.3rem;
+    }
+
+    .account-details-section {
+        padding: 16px 20px;
     }
 
     .detail-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
+        padding: 12px 12px;
+        margin: 0 -12px;
     }
 
-    .detail-value {
-        text-align: left;
+    .account-usage-section,
+    .account-billing-card,
+    .account-activations-card {
+        margin-left: 20px;
+        margin-right: 20px;
     }
 
-    .toast-container {
-        right: 10px;
-        left: 10px;
+    .account-button-group {
+        padding: 16px 20px 20px;
     }
 
-    .toast-message {
-        min-width: auto;
+    .account-primary-button {
+        padding: 14px 20px;
+        font-size: 0.95rem;
+    }
+
+    .account-toast-container {
+        left: 16px;
+        right: 16px;
+        transform: none;
+    }
+
+    .account-toast-message {
         width: 100%;
     }
-}
 
-.oad-limit-banner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto 16px;
-    padding: 12px 16px;
-    background: rgba(234, 179, 8, 0.15);
-    border: 1px solid rgba(234, 179, 8, 0.4);
-    border-radius: 12px;
-    color: #fbbf24;
-    font-size: 0.9rem;
-    font-weight: 500;
-    line-height: 1.4;
-}
+    .account-limit-banner {
+        margin: 0 16px 16px;
+        max-width: calc(100% - 32px);
+    }
 
-.oad-limit-banner-close {
-    background: none;
-    border: none;
-    color: #fbbf24;
-    font-size: 1.4rem;
-    cursor: pointer;
-    padding: 0 4px;
-    line-height: 1;
-    flex-shrink: 0;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-
-.oad-limit-banner-close:hover {
-    opacity: 1;
+    .account-activations-value {
+        font-size: 2rem;
+    }
 }

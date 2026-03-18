@@ -54,6 +54,7 @@ const OrganizerAccountDetails = () => {
                     return;
                 }
 
+                console.log('Plan details from API:', data);
                 setPlanDetails(data);
             } catch (err) {
                 console.error('Error fetching plan details:', err);
@@ -115,175 +116,180 @@ const OrganizerAccountDetails = () => {
 
     if (isLoadingDetails) {
         return (
-            <div className="signup-container">
-                <div className="loading-message">Loading account details...</div>
+            <div className="account-container">
+                <div className="account-loading">Loading account details...</div>
             </div>
         );
     }
 
     if (!planDetails) {
         return (
-            <div className="signup-container">
-                <button onClick={() => navigate('/')} className="homescreen-button">Home</button>
-                <div className="error-message">{error || 'No account details found'}</div>
+            <div className="account-container">
+                <button onClick={() => navigate('/')} className="account-home-button">Home</button>
+                <div className="account-error-message">{error || 'No account details found'}</div>
             </div>
         );
     }
 
     const planType = planDetails.plan_type;
     const isMonthly = planType === 'monthly';
+    const usagePercent = isMonthly && planDetails.uses_per_month 
+        ? Math.min((planDetails.uses_this_month / planDetails.uses_per_month) * 100, 100) 
+        : 0;
 
     return (
-        <div className="signup-container">
-            <button onClick={() => navigate('/')} className="homescreen-button">Home</button>
+        <div className="account-container">
+            <button onClick={() => navigate('/')} className="account-home-button">Home</button>
 
             <img
-                src="/assets/reuneo_test_8.png"
+                src="/assets/reuneo_test_11.png"
                 alt="Reuneo Logo"
-                className="logo-image"
+                className="account-logo"
             />
 
-            <h3 className="signup-header">Account Details</h3>
+            <h1 className="account-header">Account Details</h1>
 
             {limitMessage && (
-                <div className="oad-limit-banner">
+                <div className="account-limit-banner">
                     <span>{limitMessage}</span>
-                    <button onClick={() => setLimitMessage(null)} className="oad-limit-banner-close" aria-label="Dismiss">&times;</button>
+                    <button onClick={() => setLimitMessage(null)} className="account-limit-banner-close" aria-label="Dismiss">&times;</button>
                 </div>
             )}
 
-            <div className="step-form-container">
+            <div className="account-form-container">
                 <div className="account-details-content">
+                    
+                    {/* Plan Header with Status */}
+                    <div className="account-plan-header">
+                        <div className="account-plan-type">Your Plan</div>
+                        <div className="account-plan-name">
+                            {PLAN_TYPE_LABELS[planType] || planType}
+                        </div>
+                        {planDetails.subscription_status && (
+                            <div className="account-plan-status">
+                                <div className={`account-plan-status-dot ${planDetails.subscription_status !== 'active' ? 'status-' + planDetails.subscription_status : ''}`} 
+                                     style={planDetails.subscription_status !== 'active' ? { background: planDetails.subscription_status === 'trialing' ? '#3b82f6' : planDetails.subscription_status === 'past_due' ? '#f59e0b' : '#ef4444', boxShadow: 'none' } : {}}
+                                />
+                                <span className="account-plan-status-text">
+                                    {planDetails.subscription_status.charAt(0).toUpperCase() + planDetails.subscription_status.slice(1)}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+
                     {error && (
-                        <div className="error-message" style={{ marginBottom: '20px' }}>
+                        <div className="account-error-message">
                             {error}
                         </div>
                     )}
 
-                    {/* Plan type */}
-                    <div className="detail-row">
-                        <span className="detail-label">Plan:</span>
-                        <span className={`detail-value plan-badge plan-badge-${planType}`}>
-                            {PLAN_TYPE_LABELS[planType] || planType}
-                        </span>
+                    {/* Basic Details */}
+                    <div className="account-details-section">
+                        {planDetails.email && (
+                            <div className="detail-row">
+                                <span className="detail-label">Email</span>
+                                <span className="detail-value">{planDetails.email}</span>
+                            </div>
+                        )}
+
+                        {planDetails.attendee_limit != null && (
+                            <div className="detail-row">
+                                <span className="detail-label">Attendee Limit</span>
+                                <span className="detail-value">{planDetails.attendee_limit} per event</span>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Status */}
-                    {planDetails.subscription_status && (
-                        <div className="detail-row">
-                            <span className="detail-label">Status:</span>
-                            <span className={`detail-value status-${planDetails.subscription_status}`}>
-                                {planDetails.subscription_status}
-                            </span>
-                        </div>
-                    )}
-
-                    {/* Email */}
-                    {planDetails.email && (
-                        <div className="detail-row">
-                            <span className="detail-label">Email:</span>
-                            <span className="detail-value">{planDetails.email}</span>
-                        </div>
-                    )}
-
-                    {/* Attendee limit */}
-                    {planDetails.attendee_limit != null && (
-                        <div className="detail-row">
-                            <span className="detail-label">Attendee Limit:</span>
-                            <span className="detail-value">{planDetails.attendee_limit}</span>
-                        </div>
-                    )}
-
-                    {/* Single use: activations */}
-                    {planType === 'single_use' && (
-                        <>
-                            <div className="detail-row">
-                                <span className="detail-label">Activations Purchased:</span>
-                                <span className="detail-value">{planDetails.activations_purchased}</span>
-                            </div>
-                            <div className="detail-row">
-                                <span className="detail-label">Activations Remaining:</span>
-                                <span className="detail-value">{planDetails.activations_remaining}</span>
-                            </div>
-                        </>
-                    )}
-
-                    {/* Free trial: activations */}
-                    {planType === 'free_trial' && (
-                        <div className="detail-row">
-                            <span className="detail-label">Activations Remaining:</span>
-                            <span className="detail-value">{planDetails.activations_remaining}</span>
-                        </div>
-                    )}
-
-                    {/* Monthly: usage + billing */}
+                    {/* Monthly: Usage Card */}
                     {isMonthly && (
-                        <>
-                            <div className="detail-row">
-                                <span className="detail-label">Uses This Month:</span>
-                                <span className="detail-value">
-                                    {planDetails.uses_this_month} / {planDetails.uses_per_month}
-                                </span>
+                        <div className="account-usage-section">
+                            <div className="account-usage-card">
+                                <div className="account-usage-label">Monthly Usage</div>
+                                <div className="account-usage-bar-container">
+                                    <div 
+                                        className="account-usage-bar" 
+                                        style={{ width: `${usagePercent}%` }}
+                                    />
+                                </div>
+                                <div className="account-usage-text">
+                                    {planDetails.uses_this_month} of {planDetails.uses_per_month} events used
+                                </div>
+                                {planDetails.current_period_end && formatDate(planDetails.current_period_end) && (
+                                    <div className="account-usage-reset">
+                                        Resets {formatDate(planDetails.current_period_end)}
+                                    </div>
+                                )}
                             </div>
+                        </div>
+                    )}
 
-                            {planDetails.billing_period && (
-                                <div className="detail-row">
-                                    <span className="detail-label">Billing Period:</span>
-                                    <span className="detail-value">{planDetails.billing_period}</span>
+                    {/* Single Use / Free Trial: Activations Card */}
+                    {(planType === 'single_use' || planType === 'free_trial') && (
+                        <div className="account-activations-card">
+                            <div className="account-activations-label">Activations Remaining</div>
+                            <div className="account-activations-value">{planDetails.activations_remaining}</div>
+                            {planType === 'single_use' && planDetails.activations_purchased && (
+                                <div className="account-activations-subtext">
+                                    of {planDetails.activations_purchased} purchased
                                 </div>
                             )}
+                        </div>
+                    )}
 
-                            {planDetails.amount != null && (
-                                <div className="detail-row">
-                                    <span className="detail-label">Amount:</span>
-                                    <span className="detail-value">
-                                        ${planDetails.amount} {planDetails.currency || ''}
-                                    </span>
-                                </div>
-                            )}
-
+                    {/* Monthly: Billing Info */}
+                    {isMonthly && (planDetails.amount != null || planDetails.current_period_end) && (
+                        <div className="account-billing-card">
                             {planDetails.current_period_end && formatDate(planDetails.current_period_end) && (
-                                <div className="detail-row">
-                                    <span className="detail-label">Next Billing Date:</span>
-                                    <span className="detail-value">
+                                <div className="account-billing-row">
+                                    <span className="account-billing-label">Next billing & reset</span>
+                                    <span className="account-billing-value">
                                         {formatDate(planDetails.current_period_end)}
                                     </span>
                                 </div>
                             )}
-
-                            {planDetails.cancel_at_period_end && (
-                                <div className="detail-row">
-                                    <span className="detail-label">Cancellation:</span>
-                                    <span className="detail-value">Will cancel at period end</span>
+                            {planDetails.amount != null && (
+                                <div className="account-billing-row">
+                                    <span className="account-billing-label">Amount</span>
+                                    <span className="account-billing-value account-billing-amount">
+                                        ${planDetails.amount}/{planDetails.billing_period || 'month'}
+                                    </span>
                                 </div>
                             )}
-                        </>
+                            {planDetails.cancel_at_period_end && (
+                                <div className="account-billing-row">
+                                    <span className="account-billing-label">Status</span>
+                                    <span className="account-billing-value" style={{ color: '#f59e0b' }}>
+                                        Cancels at period end
+                                    </span>
+                                </div>
+                            )}
+                        </div>
                     )}
 
-                    {/* Action buttons */}
-                    <div style={{ marginTop: '30px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {/* Action Buttons */}
+                    <div className="account-button-group">
                         {planDetails.subscription_status === 'active' || planDetails.subscription_status === 'trialing' ? (
                             <button
                                 onClick={() => navigate('/plan-selection', {
                                     state: { isUpgrade: true, currentPlan: planDetails },
                                 })}
-                                className="primary-button"
+                                className="account-primary-button"
                             >
                                 Change Plan
                             </button>
                         ) : (
                             <button
                                 onClick={() => navigate('/new_organizer')}
-                                className="primary-button"
+                                className="account-primary-button"
                             >
                                 Purchase a New Plan
                             </button>
                         )}
 
-                        {isMonthly && planDetails.subscription_status === 'active' && (
+                        {isMonthly && planDetails.subscription_status === 'active' && !planDetails.cancel_at_period_end && (
                             <button
                                 onClick={() => setShowCancelModal(true)}
-                                className="primary-button cancel-button"
+                                className="account-primary-button account-cancel-button"
                             >
                                 Cancel Subscription
                             </button>
@@ -292,26 +298,25 @@ const OrganizerAccountDetails = () => {
                 </div>
             </div>
 
-            {/* Cancel Confirmation Modal */}
             {showCancelModal && (
-                <div className="modal-overlay" onClick={(e) => e.stopPropagation()}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="account-modal-overlay" onClick={(e) => e.stopPropagation()}>
+                    <div className="account-modal-content" onClick={(e) => e.stopPropagation()}>
                         <h3>Cancel Subscription</h3>
-                        <p>Are you sure you want to cancel your subscription?</p>
-                        <div className="modal-buttons">
+                        <p>Are you sure you want to cancel? You'll still have access until the end of your current billing period.</p>
+                        <div className="account-modal-buttons">
                             <button
-                                className="modal-button modal-cancel"
+                                className="account-modal-button account-modal-confirm"
+                                onClick={handleCancelSubscription}
+                                disabled={isCanceling}
+                            >
+                                {isCanceling ? 'Processing...' : 'Yes, Cancel'}
+                            </button>
+                            <button
+                                className="account-modal-button account-modal-keep"
                                 onClick={() => setShowCancelModal(false)}
                                 disabled={isCanceling}
                             >
                                 Keep Plan
-                            </button>
-                            <button
-                                className="modal-button modal-confirm"
-                                onClick={handleCancelSubscription}
-                                disabled={isCanceling}
-                            >
-                                {isCanceling ? 'Processing...' : 'Confirm'}
                             </button>
                         </div>
                     </div>
@@ -319,8 +324,8 @@ const OrganizerAccountDetails = () => {
             )}
 
             {showToast && (
-                <div className="toast-container">
-                    <div className="toast-message">
+                <div className="account-toast-container">
+                    <div className="account-toast-message">
                         Subscription canceled successfully
                     </div>
                 </div>
