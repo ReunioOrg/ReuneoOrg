@@ -229,18 +229,18 @@ const PlanSelection = () => {
         if (targetType !== currentType) {
             msg += ' Your current plan will be replaced after payment.';
             if (currentType === 'monthly') {
-                msg += ' Your current subscription will be canceled immediately.';
+                msg += ' Your current subscription will be canceled immediately. Any remaining time will be credited towards your new plan.';
             }
             if (currentType === 'single_use' && (currentPlan.activations_remaining || 0) > 0) {
-                msg += ` You have ${currentPlan.activations_remaining} unused activation${currentPlan.activations_remaining === 1 ? '' : 's'} that will be forfeited.`;
+                msg += ` Your ${currentPlan.activations_remaining} unused activation${currentPlan.activations_remaining === 1 ? '' : 's'} will be replaced. Any unused value will be credited towards your new plan.`;
             }
         } else if (targetType === 'single_use') {
             msg = `Your attendee limit will change from ${currentPlan.attendee_limit} to ${upgradeAttendees}, and you'll receive ${qty} new activation${qty === 1 ? '' : 's'}.`;
             if ((currentPlan.activations_remaining || 0) > 0) {
-                msg += ` Your ${currentPlan.activations_remaining} remaining activation${currentPlan.activations_remaining === 1 ? '' : 's'} will be forfeited.`;
+                msg += ` Your ${currentPlan.activations_remaining} remaining activation${currentPlan.activations_remaining === 1 ? '' : 's'} will be replaced. Any unused value will be credited towards your new plan.`;
             }
         } else if (targetType === 'monthly') {
-            msg = 'Your current subscription will be canceled and replaced with a new one.';
+            msg = 'Your current subscription will be canceled and replaced with a new one. Any remaining time on your current billing period will be credited towards your new plan.';
         }
         return msg;
     };
