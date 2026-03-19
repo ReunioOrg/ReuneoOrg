@@ -32,7 +32,7 @@ const PlanLimitsModal = ({ isOpen, onClose, planInfo }) => {
                     </h2>
                     {!isFreeTrialOnly && (
                         <p className="confirm-modal-subtitle" style={{ fontWeight: 600 }}>
-                            Once more than 15 people join, your real - <em style={{ fontWeight: 900, color: '#1565C0' }}>{attendee_limit} attendees {perLabel} plan</em> - will be used
+                            Once more than 15 people join, your plan of - <em style={{ fontWeight: 900, color: '#1565C0' }}>{attendee_limit} attendees {perLabel} </em> - will begin
                         </p>
                     )}
                 </div>
@@ -238,7 +238,7 @@ const generateStyledQRCodeImage = (svgElement, code) => {
 };
 
 // Progress bar component for lobby phases
-const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, currentRound, checkinTriggerRef, suppressCheckinAutoOpen }) => {
+const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, currentRound, checkinTriggerRef, suppressCheckinAutoOpen, planInfo }) => {
     // Determine states for each arrow
     // Check-in
     const checkinActive = lobbyState === 'checkin';
@@ -258,6 +258,20 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
     const checkinModalOpen = modal === 'checkin';
     // Ensure we only auto-open once per page load
     const didAutoOpenCheckinModalRef = useRef(false);
+
+    // Activation warning for paid plans with >15 attendees
+    const isPaidPlanActivation = planInfo && (planInfo.plan_type === 'single_use' || planInfo.plan_type === 'monthly') && playerCount > 15;
+    const [activationPhase, setActivationPhase] = useState('idle');
+
+    useEffect(() => {
+        if (modal === 'start' && isPaidPlanActivation) {
+            setActivationPhase('warning');
+            const timer = setTimeout(() => setActivationPhase('ready'), 3000);
+            return () => clearTimeout(timer);
+        } else if (modal !== 'start') {
+            setActivationPhase('idle');
+        }
+    }, [modal, isPaidPlanActivation]);
 
     // Handlers
     const handleStart = () => {
@@ -472,6 +486,27 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                                 </p>
                                 <div className="progress-modal-actions">
                                     <button className="checkin-modal-got-it" onClick={handleCancel}>Got it</button>
+                                </div>
+                            </>
+                        ) : modal === 'start' && isPaidPlanActivation ? (
+                            <>
+                                <div className="confirm-modal-header">
+                                    {activationPhase === 'warning' ? (
+                                        <h2 className="confirm-modal-title" style={{ animation: 'activationFadeIn 1s ease-out forwards' }}>
+                                            You are about to activate your plan
+                                        </h2>
+                                    ) : (
+                                        <h2 className="confirm-modal-title" style={{ animation: 'activationFadeIn 0.5s ease-out forwards' }}>
+                                            Start Rounds
+                                        </h2>
+                                    )}
+                                    <p className="confirm-modal-subtitle">
+                                        Start pairing up your attendees! Don't worry - new arrivals will be paired up immediately.
+                                    </p>
+                                </div>
+                                <div className="confirm-modal-actions">
+                                    <button className="confirm-modal-btn secondary" onClick={handleCancel}>Not Yet</button>
+                                    <button className="confirm-modal-btn primary" onClick={handleConfirm}>Start Activation</button>
                                 </div>
                             </>
                         ) : (
@@ -1041,8 +1076,6 @@ const AdminLobbyView = () => {
     useEffect(() => {
         if (didFetchPlanInfoRef.current) return;
         if (isAuthLoading) return;
-        const isNewlyCreated = location.state?.newlyCreated === true;
-        if (!isNewlyCreated) return;
         if (permissions === 'admin' || isLegacyOrganizer) return;
         didFetchPlanInfoRef.current = true;
 
@@ -1050,16 +1083,19 @@ const AdminLobbyView = () => {
             try {
                 const res = await apiFetch('/organizer-plan-details');
                 const data = await res.json();
-                if (data.has_plan && data.trial_uses_remaining != null && data.trial_uses_remaining > 0) {
+                if (data.has_plan) {
                     setPlanInfo(data);
-                    setShowPlanLimitsModal(true);
+                    const isNewlyCreated = location.state?.newlyCreated === true;
+                    if (isNewlyCreated && data.trial_uses_remaining != null && data.trial_uses_remaining > 0) {
+                        setShowPlanLimitsModal(true);
+                    }
                 }
             } catch (err) {
-                console.error('Failed to fetch plan info for modal:', err);
+                console.error('Failed to fetch plan info:', err);
             }
         };
         fetchPlanInfo();
-    }, [location.state, permissions, isLegacyOrganizer, isAuthLoading]);
+    }, [permissions, isLegacyOrganizer, isAuthLoading]);
     
     // Audio sound feature - same as lobby.jsx
     const playat = Math.floor(9*60); // 540 seconds (9 minutes)
@@ -1462,6 +1498,7 @@ const AdminLobbyView = () => {
                     currentRound={maxActiveRound}
                     checkinTriggerRef={checkinTriggerRef}
                     suppressCheckinAutoOpen={showPlanLimitsModal}
+                    planInfo={planInfo}
                 />
                 {/* Overlapping user profile list below progress bar */}
                 <OverlappingProfileList players={{ pairedPlayers, lobbyData }} />
