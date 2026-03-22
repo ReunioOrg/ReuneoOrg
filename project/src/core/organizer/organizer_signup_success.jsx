@@ -17,6 +17,7 @@ const OrganizerSignupSuccess = () => {
     const [error, setError] = useState('');
     const [isUpgradeResult, setIsUpgradeResult] = useState(false);
     const [addedActivations, setAddedActivations] = useState(null);
+    const [upgradeLobbyCode, setUpgradeLobbyCode] = useState(null);
 
     const timerRef = useRef(null);
 
@@ -48,6 +49,9 @@ const OrganizerSignupSuccess = () => {
                     if (data.added_activations) {
                         setAddedActivations(data.added_activations);
                     }
+                    if (data.lobby_code) {
+                        setUpgradeLobbyCode(data.lobby_code);
+                    }
                 }
 
                 setPhase('animation');
@@ -75,7 +79,11 @@ const OrganizerSignupSuccess = () => {
 
     const handleAnimationEnd = () => {
         if (isUpgradeResult) {
-            navigate('/organizer-account-details');
+            if (upgradeLobbyCode) {
+                navigate(`/admin_lobby_view?code=${upgradeLobbyCode}`);
+            } else {
+                navigate('/organizer-account-details');
+            }
             return;
         }
         setPhase('check-email');
@@ -115,7 +123,7 @@ const OrganizerSignupSuccess = () => {
         const subText = addedActivations
             ? `Added ${addedActivations} activation${addedActivations === 1 ? '' : 's'} to your plan!`
             : isUpgradeResult
-                ? 'Redirecting to your account...'
+                ? (upgradeLobbyCode ? 'Redirecting to your lobby...' : 'Redirecting to your account...')
                 : 'Welcome to Reuneo!';
 
         return (

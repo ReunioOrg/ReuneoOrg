@@ -44,6 +44,32 @@ const PlanLimitsModal = ({ isOpen, onClose, planInfo }) => {
     );
 };
 
+const AttendeeLimitWarningModal = ({ isOpen, onClose, playerCount, attendeeLimit, onUpgrade }) => {
+    if (!isOpen) return null;
+    const remaining = attendeeLimit - playerCount;
+
+    return (
+        <div className="progress-modal-overlay">
+            <div className="progress-modal attendee-limit-warning">
+                <div className="confirm-modal-header">
+                    <h2 className="confirm-modal-title">
+                        You're approaching your attendee limit!
+                    </h2>
+                    <p className="confirm-modal-subtitle">
+                        <strong>{playerCount}</strong> of <strong>{attendeeLimit}</strong> spots filled
+                        &mdash; only <strong>{remaining}</strong> spot{remaining !== 1 ? 's' : ''} left.
+                        Upgrade your plan to welcome more attendees.
+                    </p>
+                </div>
+                <div className="confirm-modal-actions">
+                    <button className="confirm-modal-btn secondary" onClick={onClose}>Not Now</button>
+                    <button className="confirm-modal-btn primary" onClick={onUpgrade}>Upgrade Now</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // Modal component for kick confirmation
 const KickConfirmationModal = ({ isOpen, onClose, onConfirm, userName, userImage }) => {
     if (!isOpen) return null;
@@ -1073,6 +1099,10 @@ const AdminLobbyView = () => {
     const [planInfo, setPlanInfo] = useState(null);
     const didFetchPlanInfoRef = useRef(false);
 
+    // Attendee Limit Warning Modal state
+    const [showLimitWarningModal, setShowLimitWarningModal] = useState(false);
+    const [inactivePlayerCount, setInactivePlayerCount] = useState(0);
+
     useEffect(() => {
         if (didFetchPlanInfoRef.current) return;
         if (isAuthLoading) return;
@@ -1175,6 +1205,20 @@ const AdminLobbyView = () => {
 
     // Add playerCount and lobbyState for progress bar
     const playerCount = (lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0);
+    const totalAttendeeCount = playerCount + inactivePlayerCount;
+
+    // 90% attendee limit warning -- show once per lobby via sessionStorage
+    useEffect(() => {
+        if (showLimitWarningModal) return;
+        if (!planInfo?.attendee_limit || !lobbyCode || lobbyCode === 'test') return;
+        const storageKey = `limitWarning_${lobbyCode}`;
+        if (sessionStorage.getItem(storageKey)) return;
+        const threshold = Math.floor(planInfo.attendee_limit * 0.9);
+        if (totalAttendeeCount >= threshold) {
+            setShowLimitWarningModal(true);
+            sessionStorage.setItem(storageKey, 'true');
+        }
+    }, [totalAttendeeCount, planInfo, lobbyCode, showLimitWarningModal]);
 
     const [showLobbyDetails, setShowLobbyDetails] = useState(false);
 
@@ -1225,12 +1269,15 @@ const AdminLobbyView = () => {
         };
     }, [isPageVisible]);
 
-    // Cleanup audio when lobby becomes inactive or terminated
+    // Cleanup audio and reset limit warning flag when lobby becomes inactive or terminated
     useEffect(() => {
         if (lobbyState === "terminated" || lobbyState === "inactive") {
             cancelSound();
+            if (lobbyCode && lobbyCode !== 'test') {
+                sessionStorage.removeItem(`limitWarning_${lobbyCode}`);
+            }
         }
-    }, [lobbyState]);
+    }, [lobbyState, lobbyCode]);
 
     useEffect(() => {
         checkAuth();
@@ -1349,6 +1396,7 @@ const AdminLobbyView = () => {
                         setRoundDuration(data.round_duration || 300);
                         setCustomTags(data.custom_tags || []);
                         setShowTableNumbers(data.show_table_numbers ?? false);
+                        setInactivePlayerCount(data.inactive_player_count || 0);
                     } else {
                         console.error("Invalid lobby data structure:", data);
                         setLobbyData([]);
@@ -1469,6 +1517,24 @@ const AdminLobbyView = () => {
                 onClose={() => setShowPlanLimitsModal(false)}
                 planInfo={planInfo}
             />
+            <AttendeeLimitWarningModal
+                isOpen={showLimitWarningModal}
+                onClose={() => setShowLimitWarningModal(false)}
+                playerCount={totalAttendeeCount}
+                attendeeLimit={planInfo?.attendee_limit || 0}
+                onUpgrade={() => {
+                    setShowLimitWarningModal(false);
+                    navigate('/plan-selection', {
+                        state: {
+                            isUpgrade: true,
+                            currentPlan: planInfo,
+                            fromActiveLobby: true,
+                            lobbyCode,
+                            lobbyState,
+                        },
+                    });
+                }}
+            />
             <div className="admin-lobby-container">
                 {DEVMODE && (
                     <button onClick={resetLobbyTimer}>
@@ -1570,6 +1636,27 @@ const AdminLobbyView = () => {
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                             </svg>
                         </button>
+                        {planInfo && (
+                            <button
+                                onClick={() => navigate('/plan-selection', {
+                                    state: {
+                                        isUpgrade: true,
+                                        currentPlan: planInfo,
+                                        fromActiveLobby: true,
+                                        lobbyCode,
+                                        lobbyState,
+                                    },
+                                })}
+                                className="page-control-button page-control-join"
+                            >
+                                Upgrade Plan
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '6px', flexShrink: 0 }}>
+                                    <path d="M12 19V5"/>
+                                    <path d="M5 12l7-7 7 7"/>
+                                </svg>
+                            </button>
+                        )}
                         
                     </div>
                     

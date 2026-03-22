@@ -1453,6 +1453,14 @@
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 }
 
+/* Attendee Limit Warning Modal */
+.progress-modal.attendee-limit-warning {
+    max-width: 400px;
+}
+.progress-modal.attendee-limit-warning .confirm-modal-title {
+    color: #e65100;
+}
+
 /* Sound Prompt Modal */
 .sound-prompt-overlay {
     position: fixed;

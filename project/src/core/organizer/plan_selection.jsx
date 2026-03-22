@@ -82,6 +82,9 @@ const PlanSelection = () => {
 
     const isUpgrade = !!location.state?.isUpgrade;
     const currentPlan = location.state?.currentPlan || null;
+    const fromActiveLobby = !!location.state?.fromActiveLobby;
+    const lobbyCode = location.state?.lobbyCode || '';
+    const lobbyState = location.state?.lobbyState || null;
 
     const [activeLobbyData, setActiveLobbyData] = useState(null);
     const [prices, setPrices] = useState(null);
@@ -98,6 +101,10 @@ const PlanSelection = () => {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [pendingUpgradePlan, setPendingUpgradePlan] = useState(null);
     const [showEmailConfirmModal, setShowEmailConfirmModal] = useState(false);
+
+    // Quick-upgrade state (active lobby flow)
+    const [suggestionPrices, setSuggestionPrices] = useState([]);
+    const [showAllPlans, setShowAllPlans] = useState(!fromActiveLobby);
     const [pendingEmailPlan, setPendingEmailPlan] = useState(null);
     const [isEditingEmail, setIsEditingEmail] = useState(false);
     const [editedEmail, setEditedEmail] = useState('');
@@ -268,14 +275,18 @@ const PlanSelection = () => {
         try {
             if (isUpgrade) {
                 const quantity = getQuantity(planKey);
+                const checkoutBody = {
+                    plan_type: PLAN_KEY_MAP[planKey],
+                    attendees: upgradeAttendees,
+                    quantity,
+                };
+                if (fromActiveLobby && lobbyCode) {
+                    checkoutBody.lobby_code = lobbyCode;
+                }
                 const res = await apiFetch('/upgrade-plan-checkout', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        plan_type: PLAN_KEY_MAP[planKey],
-                        attendees: upgradeAttendees,
-                        quantity,
-                    }),
+                    body: JSON.stringify(checkoutBody),
                 });
                 const data = await res.json();
                 if (data.checkout_url) {
@@ -334,6 +345,36 @@ const PlanSelection = () => {
         }
     };
 
+    const handleQuickUpgrade = async (attendees) => {
+        if (checkoutLoadingPlan) return;
+        setCheckoutLoadingPlan(`quick_${attendees}`);
+        setCheckoutError(null);
+        try {
+            const checkoutBody = {
+                plan_type: suggestionPlanType,
+                attendees,
+                quantity: 1,
+            };
+            if (lobbyCode) checkoutBody.lobby_code = lobbyCode;
+            const res = await apiFetch('/upgrade-plan-checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(checkoutBody),
+            });
+            const data = await res.json();
+            if (data.checkout_url) {
+                window.location.href = data.checkout_url;
+                return;
+            }
+            setCheckoutError(data.message || data.error || 'Checkout failed. Please try again.');
+            setCheckoutLoadingPlan(null);
+        } catch (err) {
+            console.error('Quick upgrade checkout error:', err);
+            setCheckoutError('Something went wrong. Please check your connection and try again.');
+            setCheckoutLoadingPlan(null);
+        }
+    };
+
     const adjustQuantity = (planKey, delta) => {
         const setter = planKey === 'single' ? setSingleQuantity : setMonthlyQuantity;
         setter((prev) => Math.min(100, Math.max(1, prev + delta)));
@@ -371,6 +412,59 @@ const PlanSelection = () => {
         return PLAN_KEY_MAP[planKey] === currentPlan.plan_type;
     };
 
+    // Quick-upgrade suggestions for active lobby flow
+    const currentLimit = currentPlan?.attendee_limit || 15;
+    const suggestions = fromActiveLobby
+        ? [currentLimit + 10, currentLimit + 20, currentLimit + 30].filter(n => n <= 250)
+        : [];
+    const suggestionPlanType = (!currentPlan || currentPlan.plan_type === 'free_trial')
+        ? 'single_use'
+        : currentPlan.plan_type;
+    const suggestionPlanKey = suggestionPlanType === 'monthly' ? 'monthly' : 'single';
+
+    const estimateCredit = () => {
+        if (!currentPlan) return 0;
+        const planType = currentPlan.plan_type;
+        if (planType === 'free_trial') return 0;
+        if (planType === 'single_use') {
+            const amountPaid = (currentPlan.amount_paid_cents || 0) / 100;
+            const rem = currentPlan.activations_remaining || 0;
+            const pur = currentPlan.activations_purchased || 1;
+            if (lobbyState && lobbyState !== 'checkin') {
+                return (pur > 0) ? ((rem + 1) / pur) * amountPaid : 0;
+            }
+            return (pur > 0 && rem > 0) ? (rem / pur) * amountPaid : 0;
+        }
+        if (planType === 'monthly') {
+            const start = currentPlan.current_period_start || 0;
+            const end = currentPlan.current_period_end || 0;
+            const amt = currentPlan.amount || 0;
+            const now = Math.floor(Date.now() / 1000);
+            const len = end - start;
+            return (len > 0 && amt > 0)
+                ? (Math.max(0, end - now) / len) * amt : 0;
+        }
+        return 0;
+    };
+
+    const credit = fromActiveLobby ? estimateCredit() : 0;
+
+    useEffect(() => {
+        if (!fromActiveLobby || suggestions.length === 0) return;
+        const priceField = suggestionPlanType === 'monthly' ? 'monthly_price' : 'single_use_price';
+        Promise.all(
+            suggestions.map(async (att) => {
+                try {
+                    const res = await apiFetch(`/pricing?attendees=${att}`);
+                    const data = await res.json();
+                    return { attendees: att, listPrice: data[priceField] || 0, requires_custom: data.requires_custom };
+                } catch {
+                    return { attendees: att, listPrice: 0, requires_custom: false };
+                }
+            })
+        ).then(setSuggestionPrices);
+    }, [fromActiveLobby]);
+
     // Lock body scroll when modal is open
     useEffect(() => {
         if (showConfirmModal) {
@@ -391,7 +485,9 @@ const PlanSelection = () => {
                 <button
                     className="ps-nav-arrow"
                     onClick={() => {
-                        if (isUpgrade) {
+                        if (fromActiveLobby && lobbyCode) {
+                            navigate(`/admin_lobby_view?code=${lobbyCode}`);
+                        } else if (isUpgrade) {
                             navigate('/organizer-account-details');
                         } else {
                             navigate('/new_organizer', { state: { returnData: activeLobbyData } });
@@ -415,7 +511,62 @@ const PlanSelection = () => {
                 </div>
             )}
 
-            {activeAttendees && (
+            {fromActiveLobby && suggestions.length > 0 && suggestionPrices.length > 0 && (
+                <div className="ps-quick-upgrade-section">
+                    <h2 className="ps-quick-upgrade-title">Quick Upgrade</h2>
+                    <div className="ps-quick-upgrade-cards">
+                        {suggestionPrices.filter(s => !s.requires_custom && s.listPrice > 0).map((s) => {
+                            const creditCapped = Math.min(credit, s.listPrice - 1);
+                            const youPay = Math.max(Math.ceil(s.listPrice - creditCapped), 1);
+                            const hasDiscount = youPay < s.listPrice;
+                            const isCardLoading = checkoutLoadingPlan === `quick_${s.attendees}`;
+
+                            return (
+                                <div key={s.attendees} className="ps-quick-card">
+                                    <div className="ps-quick-card-attendees">{s.attendees} attendees</div>
+                                    <div className="ps-quick-card-price">
+                                        {hasDiscount && (
+                                            <span className="ps-quick-card-original">${s.listPrice}</span>
+                                        )}
+                                        <span className="ps-quick-card-amount">${youPay}</span>
+                                    </div>
+                                    <div className="ps-quick-card-type">
+                                        {PLAN_TYPE_LABELS[suggestionPlanType]}
+                                    </div>
+                                    <button
+                                        className={`ps-quick-card-cta ${isCardLoading ? 'ps-cta-loading' : ''}`}
+                                        disabled={!!checkoutLoadingPlan}
+                                        onClick={() => handleQuickUpgrade(s.attendees)}
+                                    >
+                                        {isCardLoading ? 'Processing...' : 'Upgrade'}
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    {credit > 0 && (
+                        <p className="ps-quick-upgrade-disclaimer">
+                            Estimated after plan credit. Final amount confirmed at checkout.
+                        </p>
+                    )}
+                    <button
+                        className="ps-quick-upgrade-viewall"
+                        onClick={() => setShowAllPlans((v) => !v)}
+                    >
+                        {showAllPlans ? 'Hide all plans' : 'View all plans'}
+                    </button>
+                </div>
+            )}
+
+            {fromActiveLobby && suggestions.length === 0 && (
+                <div className="ps-quick-upgrade-section">
+                    <p className="ps-quick-upgrade-disclaimer" style={{ textAlign: 'center' }}>
+                        You're at the maximum plan size. <a href="https://calendly.com/julian-reuneo/30min" target="_blank" rel="noopener noreferrer">Contact us</a> for a custom plan.
+                    </p>
+                </div>
+            )}
+
+            {showAllPlans && activeAttendees && (
                 <div className="ps-attendee-context">
                     Pricing for{' '}
                     <span className="ps-attendee-inline-editor">
@@ -474,7 +625,7 @@ const PlanSelection = () => {
                 </div>
             )}
 
-            {(!isUpgrade || isFreeTrialOnly) && (
+            {showAllPlans && (!isUpgrade || isFreeTrialOnly) && (
                 <button
                     className={`ps-free-trial ${checkoutLoadingPlan === 'free_trial' ? 'ps-cta-loading' : ''} ${requiresCustom ? 'ps-free-trial-disabled' : ''} ${isFreeTrialOnly ? 'ps-free-trial-highlighted' : ''}`}
                     onClick={() => !requiresCustom && handleCheckout('free_trial')}
@@ -499,6 +650,7 @@ const PlanSelection = () => {
                 </div>
             )}
 
+            {showAllPlans && (
             <div className={`ps-columns-container${isRefreshing ? ' ps-columns-refreshing' : ''}`}>
                 {isLoading ? (
                     <div className="ps-loading">Loading plans...</div>
@@ -611,6 +763,7 @@ const PlanSelection = () => {
                     })
                 )}
             </div>
+            )}
 
             {/* Upgrade Confirmation Modal */}
             {showConfirmModal && pendingUpgradePlan && (
