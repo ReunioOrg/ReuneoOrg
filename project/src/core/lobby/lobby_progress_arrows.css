@@ -23,6 +23,7 @@
     font-size: 13px;
     font-weight: 900;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    white-space: nowrap;
     background: linear-gradient(90deg, #144dff 60%, #2e8bff 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;

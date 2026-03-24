@@ -610,8 +610,7 @@ const AdminTagsScrollList = ({ tags }) => {
 };
 
 // OverlappingProfileList component for compact, overlapping user profile images
-const OverlappingProfileList = ({ players }) => {
-    // Flatten paired players and combine with unpaired
+const OverlappingProfileList = ({ players, totalAttendeeCount, attendeeLimit, onUpgrade }) => {
     const allPlayers = [
         ...(players.pairedPlayers ? players.pairedPlayers.flat() : []),
         ...(players.lobbyData ? players.lobbyData : [])
@@ -619,7 +618,14 @@ const OverlappingProfileList = ({ players }) => {
     const maxVisible = 10;
     const visiblePlayers = allPlayers.slice(0, maxVisible);
     const overflowCount = allPlayers.length - maxVisible;
-    const totalCount = allPlayers.length;
+
+    const displayCount = attendeeLimit
+        ? Math.min(totalAttendeeCount, attendeeLimit)
+        : totalAttendeeCount;
+
+    const isFull = attendeeLimit && totalAttendeeCount >= attendeeLimit;
+    const isAlmostFull = attendeeLimit && !isFull
+        && totalAttendeeCount >= Math.floor(attendeeLimit * 0.9);
 
     return (
         <div className="overlapping-profile-list-wrapper" style={{ marginTop: '3rem' }}>
@@ -637,7 +643,26 @@ const OverlappingProfileList = ({ players }) => {
                     <span className="overlapping-profile-overflow">+ {overflowCount}</span>
                 )}
             </div>
-            <div className="overlapping-profile-list-label" style={{ marginTop: '0.5rem' }}>People joined: {totalCount}</div>
+            <div className="overlapping-profile-list-label" style={{ marginTop: '0.5rem' }}>
+                People Joined: {attendeeLimit
+                    ? <><span className="overlapping-profile-count">{displayCount}</span> / {attendeeLimit}</>
+                    : <span className="overlapping-profile-count">{displayCount}</span>
+                }
+            </div>
+            {(isAlmostFull || isFull) && onUpgrade && (
+                <button
+                    className={`capacity-badge ${isFull ? 'capacity-badge-full' : 'capacity-badge-info'}`}
+                    onClick={onUpgrade}
+                >
+                    {isFull ? 'LOBBY FULL' : 'ALMOST FULL'}
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                </button>
+            )}
         </div>
     );
 };
@@ -1214,11 +1239,11 @@ const AdminLobbyView = () => {
         const storageKey = `limitWarning_${lobbyCode}`;
         if (sessionStorage.getItem(storageKey)) return;
         const threshold = Math.floor(planInfo.attendee_limit * 0.9);
-        if (totalAttendeeCount >= threshold) {
+        if (playerCount >= threshold) {
             setShowLimitWarningModal(true);
             sessionStorage.setItem(storageKey, 'true');
         }
-    }, [totalAttendeeCount, planInfo, lobbyCode, showLimitWarningModal]);
+    }, [playerCount, planInfo, lobbyCode, showLimitWarningModal]);
 
     const [showLobbyDetails, setShowLobbyDetails] = useState(false);
 
@@ -1520,7 +1545,7 @@ const AdminLobbyView = () => {
             <AttendeeLimitWarningModal
                 isOpen={showLimitWarningModal}
                 onClose={() => setShowLimitWarningModal(false)}
-                playerCount={totalAttendeeCount}
+                playerCount={playerCount}
                 attendeeLimit={planInfo?.attendee_limit || 0}
                 onUpgrade={() => {
                     setShowLimitWarningModal(false);
@@ -1567,7 +1592,20 @@ const AdminLobbyView = () => {
                     planInfo={planInfo}
                 />
                 {/* Overlapping user profile list below progress bar */}
-                <OverlappingProfileList players={{ pairedPlayers, lobbyData }} />
+                <OverlappingProfileList
+                    players={{ pairedPlayers, lobbyData }}
+                    totalAttendeeCount={playerCount}
+                    attendeeLimit={planInfo?.attendee_limit || null}
+                    onUpgrade={planInfo ? () => navigate('/plan-selection', {
+                        state: {
+                            isUpgrade: true,
+                            currentPlan: planInfo,
+                            fromActiveLobby: true,
+                            lobbyCode,
+                            lobbyState,
+                        },
+                    }) : null}
+                />
                 
                 {/* Dropdown Toggle Bar/Header */}
                 <div
