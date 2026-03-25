@@ -74,7 +74,7 @@ const NewOrganizerView = () => {
     useEffect(() => {
         window.scrollTo(0, 0);
         if (!returnData) {
-            const randomCode = Array.from({ length: 8 }, () =>
+            const randomCode = Array.from({ length: 6 }, () =>
                 'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]
             ).join('');
             setLobbyCode(randomCode);

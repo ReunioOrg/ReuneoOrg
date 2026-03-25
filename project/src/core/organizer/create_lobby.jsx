@@ -69,7 +69,7 @@ const CreateLobbyView = () => {
     // ── Initialization + hydration from lobbyData ──
     useEffect(() => {
         window.scrollTo(0, 0);
-        if (user) setLobbyCode(generateLobbyCode());
+        setLobbyCode(generateLobbyCode());
 
         if (hydratedRef.current) return;
 

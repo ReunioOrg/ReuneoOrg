@@ -1,14 +1,16 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import './organizer_signup_success.css';
 import { apiFetch } from '../utils/api';
+import { AuthContext } from '../Auth/AuthContext';
 import UserIsReadyAnimation from '../lobby/user_is_ready_animation';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const OrganizerSignupSuccess = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { checkAuth } = useContext(AuthContext);
 
     // "verifying" -> "animation" -> "check-email" (or "done" for upgrades)
     const [phase, setPhase] = useState('verifying');
@@ -54,6 +56,7 @@ const OrganizerSignupSuccess = () => {
                     }
                 }
 
+                await checkAuth();
                 setPhase('animation');
             } catch (err) {
                 console.error('Payment verification error:', err);
