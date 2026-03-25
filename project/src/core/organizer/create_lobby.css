@@ -494,6 +494,27 @@
     padding: 14px 16px !important;
 }
 
+.attendee-limit-warning {
+    color: #92600a;
+    background-color: rgba(251, 191, 36, 0.28);
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 12.5px;
+    font-weight: 500;
+    border-left: 3px solid #f59e0b;
+    text-align: center;
+    max-width: 300px;
+    line-height: 1.45;
+    position: relative;
+    z-index: 2;
+    animation: limitWarnFadeIn 0.3s ease;
+}
+
+@keyframes limitWarnFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 /* ══════════════════════════════════════════════════
    STEP 3 — Duration (edit hint)
    ══════════════════════════════════════════════════ */

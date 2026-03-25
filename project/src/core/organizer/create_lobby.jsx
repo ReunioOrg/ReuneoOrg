@@ -11,7 +11,7 @@ import TutorialMatchHistory from '../Tutorials/tutorial-match-history';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const CreateLobbyView = () => {
-    const { user } = useContext(AuthContext);
+    const { user, permissions, isLegacyOrganizer } = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -56,6 +56,9 @@ const CreateLobbyView = () => {
     const [pendingTabSwitch, setPendingTabSwitch] = useState(null);
     const [showTableModal, setShowTableModal] = useState(false);
     const [isEditingReview, setIsEditingReview] = useState(false);
+
+    // ── Plan Limit ──
+    const [planLimit, setPlanLimit] = useState(null);
 
     const MaxMinutes = 8;
 
@@ -116,6 +119,30 @@ const CreateLobbyView = () => {
         };
         fetchLobbyData();
     }, [user, location.state]);
+
+    // ── Fetch plan limit for regular organizers ──
+    useEffect(() => {
+        if (!user || permissions !== 'organizer' || isLegacyOrganizer) return;
+        const fetchPlanLimit = async () => {
+            try {
+                const res = await apiFetch('/organizer-plan-details');
+                const data = await res.json();
+                if (data.has_plan && data.attendee_limit) {
+                    setPlanLimit(data.attendee_limit);
+                }
+            } catch (err) {
+                console.error('Failed to fetch plan limit:', err);
+            }
+        };
+        fetchPlanLimit();
+    }, [user, permissions, isLegacyOrganizer]);
+
+    // ── Clamp hydrated attendees if they exceed plan limit ──
+    useEffect(() => {
+        if (!planLimit || !attendees) return;
+        const num = parseInt(attendees);
+        if (num > planLimit) setAttendees(String(planLimit));
+    }, [planLimit]);
 
     // ── Helpers ──
     const generateLobbyCode = () =>
@@ -198,7 +225,11 @@ const CreateLobbyView = () => {
     const handleAttendeesChange = (e) => {
         const value = e.target.value;
         if (value === '' || (Number(value) >= 0 && Number.isInteger(Number(value)))) {
-            setAttendees(value);
+            if (planLimit && value !== '' && Number(value) > planLimit) {
+                setAttendees(String(planLimit));
+            } else {
+                setAttendees(value);
+            }
         }
     };
 
@@ -693,6 +724,7 @@ const CreateLobbyView = () => {
     const renderStep2 = () => {
         const num = parseInt(attendees);
         const isValid = num >= 1;
+        const showLimitWarning = planLimit && num >= Math.floor(planLimit * 0.5);
 
         return (
             <div className="step-container">
@@ -700,12 +732,18 @@ const CreateLobbyView = () => {
                 <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
                     Estimate the max, to avoid hitting your limit during the live event
                 </p>
+                {showLimitWarning && (
+                    <div className="attendee-limit-warning">
+                        Your plan's max attendee limit per use is <strong>{planLimit}</strong>
+                    </div>
+                )}
                 <div className="attendees-input-wrapper">
                     <input
                         type="number"
                         value={attendees}
                         onChange={handleAttendeesChange}
                         min="1"
+                        max={planLimit || undefined}
                         placeholder="0"
                         className="form-input attendees-input"
                         autoComplete="off"
@@ -946,8 +984,14 @@ const CreateLobbyView = () => {
                                 <label className="review-edit-label">Attendees</label>
                                 <input type="number" value={attendees}
                                     onChange={handleAttendeesChange}
-                                    min="1" className="form-input review-inline-input" autoComplete="off" />
+                                    min="1" max={planLimit || undefined}
+                                    className="form-input review-inline-input" autoComplete="off" />
                             </div>
+                            {planLimit && parseInt(attendees) >= Math.floor(planLimit * 0.5) && (
+                                <div className="attendee-limit-warning" style={{ marginTop: '4px' }}>
+                                    Your plan's max attendee limit per use is <strong>{planLimit}</strong>
+                                </div>
+                            )}
                             <div className="review-edit-row">
                                 <label className="review-edit-label">Table Numbers</label>
                                 <input type="checkbox" checked={showTableNumbers}
