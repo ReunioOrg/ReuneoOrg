@@ -141,7 +141,10 @@ const CreateLobbyView = () => {
     useEffect(() => {
         if (!planLimit || !attendees) return;
         const num = parseInt(attendees);
-        if (num > planLimit) setAttendees(String(planLimit));
+        if (num > planLimit) {
+            setAttendees(String(planLimit));
+            if (planLimit < 50) setShowTableNumbers(false);
+        }
     }, [planLimit]);
 
     // ── Helpers ──
