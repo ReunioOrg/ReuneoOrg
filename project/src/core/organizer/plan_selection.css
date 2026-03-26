@@ -499,7 +499,7 @@
     opacity: 0.5;
 }
 
-/* ── Disabled column (attendees > 250) ────────── */
+/* ── Disabled column (attendees > 200) ────────── */
 
 .ps-column-disabled {
     opacity: 0.5;
@@ -511,7 +511,7 @@
     background: #94a3b8;
 }
 
-/* ── Highlighted custom column (attendees > 250) ── */
+/* ── Highlighted custom column (attendees > 200) ── */
 
 .ps-column-highlighted {
     border-color: rgba(20, 77, 255, 0.35);

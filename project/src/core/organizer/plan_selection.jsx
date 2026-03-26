@@ -26,7 +26,7 @@ const PLANS = [
             'Custom matchmaking or ice-breaker mode',
             'Sponsor logo placement',
             'Match history tracking',
-            'Up to 250 attendees per session',
+            'Up to 200 attendees per session',
             'No recurring commitment',
         ],
     },
@@ -41,7 +41,7 @@ const PLANS = [
             'Custom matchmaking or ice-breaker mode',
             'Sponsor logo placement',
             'Match history tracking',
-            'Up to 250 attendees per session',
+            'Up to 200 attendees per session',
             'Cancel anytime',
         ],
     },
@@ -386,7 +386,7 @@ const PlanSelection = () => {
         return 1;
     };
 
-    const requiresCustom = prices?.requires_custom || (activeAttendees > 250);
+    const requiresCustom = prices?.requires_custom || (activeAttendees > 200);
     const isFreeTrialOnly = activeAttendees <= 15;
 
     const getDisplayPrice = (plan) => {
@@ -415,7 +415,7 @@ const PlanSelection = () => {
     // Quick-upgrade suggestions for active lobby flow
     const currentLimit = currentPlan?.attendee_limit || 15;
     const suggestions = fromActiveLobby
-        ? [currentLimit + 10, currentLimit + 20, currentLimit + 30].filter(n => n <= 250)
+        ? [currentLimit + 10, currentLimit + 20, currentLimit + 30].filter(n => n <= 200)
         : [];
     const suggestionPlanType = (!currentPlan || currentPlan.plan_type === 'free_trial')
         ? 'single_use'
@@ -574,7 +574,7 @@ const PlanSelection = () => {
                             className="ps-attendee-arrow"
                             onClick={() => {
                                 const current = isEditingAttendees ? draftAttendees : activeAttendees;
-                                if (current < 250) {
+                                if (current < 200) {
                                     if (!isEditingAttendees) setIsEditingAttendees(true);
                                     setDraftAttendees(current + 1);
                                 }
@@ -627,9 +627,9 @@ const PlanSelection = () => {
 
             {showAllPlans && (!isUpgrade || isFreeTrialOnly) && (
                 <button
-                    className={`ps-free-trial ${checkoutLoadingPlan === 'free_trial' ? 'ps-cta-loading' : ''} ${requiresCustom ? 'ps-free-trial-disabled' : ''} ${isFreeTrialOnly ? 'ps-free-trial-highlighted' : ''}`}
-                    onClick={() => !requiresCustom && handleCheckout('free_trial')}
-                    disabled={requiresCustom || !!checkoutLoadingPlan}
+                    className={`ps-free-trial ${checkoutLoadingPlan === 'free_trial' ? 'ps-cta-loading' : ''} ${isFreeTrialOnly ? 'ps-free-trial-highlighted' : ''}`}
+                    onClick={() => handleCheckout('free_trial')}
+                    disabled={!!checkoutLoadingPlan}
                 >
                     <span className="ps-free-trial-dot" />
                     <span className="ps-free-trial-label">
@@ -735,7 +735,7 @@ const PlanSelection = () => {
                                 )}
 
                                 {isDisabled && (
-                                    <div className="ps-attendee-cap">250 attendee max</div>
+                                    <div className="ps-attendee-cap">200 attendee max</div>
                                 )}
 
                                 <ul className="ps-plan-details">

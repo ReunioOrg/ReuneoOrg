@@ -104,6 +104,30 @@
     color: #9ca3af;
 }
 
+.login-input-password {
+    padding-right: 48px;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+    color: #4b73ef;
+}
+
 .login-primary-button {
     width: 100%;
     padding: 14px 24px;
