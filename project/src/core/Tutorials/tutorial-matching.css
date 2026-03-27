@@ -56,6 +56,10 @@
     left: 25%;
     transform: translateX(-50%) translateY(-50%);
     animation: slideFromLeft 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transition: left 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s ease;
 }
 
 /* ── Right person — positioned at 75%, slides in from off-screen ── */
@@ -64,6 +68,20 @@
     right: 25%;
     transform: translateX(50%) translateY(-50%);
     animation: slideFromRight 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transition: right 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s ease;
+}
+
+/* ── Close together — slide persons toward center ── */
+
+.tutorial-person-left.tutorial-person-close {
+    left: 36%;
+}
+
+.tutorial-person-right.tutorial-person-close {
+    right: 36%;
 }
 
 /* ── Horizontal slide (GPU-composited, smooth ease-out) ── */
@@ -164,6 +182,199 @@
         opacity: 1;
         transform: translateY(0) scale(1);
     }
+}
+
+/* ── Tag Highlight (cyan fill) ────────────────────── */
+
+.tutorial-tag-highlight {
+    background: #14b8a6;
+    border-color: #14b8a6;
+    color: #ffffff;
+    transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+}
+
+.tutorial-tag-highlight-alt {
+    background: #f87171;
+    border-color: #f87171;
+    color: #ffffff;
+    transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+}
+
+.tutorial-tag-highlight-gold {
+    background: #f59e0b;
+    border-color: #f59e0b;
+    color: #ffffff;
+    transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+}
+
+.tutorial-tag-highlight-purple {
+    background: #7c3aed;
+    border-color: #7c3aed;
+    color: #ffffff;
+    transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+}
+
+/* ── Connection Arrow ────────────────────────────── */
+
+.tutorial-arrow {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.tutorial-arrow-fade-in {
+    animation: arrowFadeIn 0.5s ease forwards;
+}
+
+.tutorial-arrow-hide {
+    animation: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+@keyframes arrowFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ── Labels Fade Out ────────────────────────────── */
+
+.tutorial-labels.tutorial-labels-fade {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+}
+
+/* ── Move to Corner (bottom-right of stage) ─────── */
+
+.tutorial-person-left.tutorial-person-corner {
+    animation: none;
+    left: 90%;
+    top: 82%;
+    transform: translateX(-50%) translateY(-50%) scale(0.6);
+}
+
+.tutorial-person-right.tutorial-person-corner {
+    animation: none;
+    right: 5%;
+    top: 82%;
+    transform: translateX(50%) translateY(-50%) scale(0.6);
+}
+
+.tutorial-person-behind {
+    opacity: 0.9;
+    z-index: 0;
+}
+
+.tutorial-person-corner:not(.tutorial-person-behind) {
+    z-index: 1;
+}
+
+/* ══════════════════════════════════════════════════
+   Round 2 — Faster replay with new tags
+   ══════════════════════════════════════════════════ */
+
+.tutorial-person-left-r2 {
+    left: 25%;
+    transform: translateX(-50%) translateY(-50%);
+    animation: slideFromLeft 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transition: left 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s ease;
+}
+
+.tutorial-person-right-r2 {
+    right: 25%;
+    transform: translateX(50%) translateY(-50%);
+    animation: slideFromRight 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transition: right 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s ease;
+}
+
+.tutorial-person-left-r2 .tutorial-person-hop,
+.tutorial-person-right-r2 .tutorial-person-hop {
+    animation: hopBounce 1s ease-in-out forwards;
+}
+
+.tutorial-label-slide-r2 {
+    animation: labelSlideUp 0.35s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.tutorial-person-left-r2.tutorial-person-close {
+    left: 36%;
+}
+
+.tutorial-person-right-r2.tutorial-person-close {
+    right: 36%;
+}
+
+.tutorial-person-left-r2.tutorial-person-corner-r2 {
+    animation: none;
+    left: 78%;
+    top: 82%;
+    transform: translateX(-50%) translateY(-50%) scale(0.6);
+}
+
+.tutorial-person-right-r2.tutorial-person-corner-r2 {
+    animation: none;
+    right: 15%;
+    top: 82%;
+    transform: translateX(50%) translateY(-50%) scale(0.6);
+}
+
+/* ── "It's a Match!" Toast ──────────────────────── */
+
+.tutorial-match-toast {
+    position: absolute;
+    top: 58%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    pointer-events: none;
+}
+
+.match-text-inner {
+    font-size: 15px;
+    font-weight: 800;
+    color: #60a5fa;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    opacity: 0;
+    animation: matchTextPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes matchTextPop {
+    0%   { opacity: 0; transform: scale(0) rotate(-3deg); }
+    45%  { opacity: 1; transform: scale(1.2) rotate(1deg); }
+    70%  { transform: scale(0.94) rotate(-0.5deg); }
+    85%  { transform: scale(1.04) rotate(0deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+.match-sparkle {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    animation: sparklePopFade 0.8s ease-out forwards;
+}
+
+.ms-1 { top: -16px; left: -8px;   font-size: 14px; color: #93c5fd; animation-delay: 0.06s; }
+.ms-2 { top: -20px; right: -6px;  font-size: 17px; color: #60a5fa; animation-delay: 0.16s; }
+.ms-3 { top: 50%;   left: -16px;  font-size: 10px; color: #bfdbfe; animation-delay: 0.1s; }
+.ms-4 { top: 50%;   right: -14px; font-size: 12px; color: #93c5fd; animation-delay: 0.2s; }
+.ms-5 { top: -10px; left: 42%;    font-size: 9px;  color: #dbeafe; animation-delay: 0.03s; }
+.ms-6 { bottom: -12px; left: 38%; font-size: 11px; color: #60a5fa; animation-delay: 0.26s; }
+
+@keyframes sparklePopFade {
+    0%   { opacity: 0; transform: scale(0) rotate(0deg); }
+    30%  { opacity: 1; transform: scale(1.5) rotate(25deg); }
+    60%  { opacity: 0.7; transform: scale(0.8) rotate(40deg) translateY(-6px); }
+    100% { opacity: 0; transform: scale(0.2) rotate(55deg) translateY(-14px); }
 }
 
 /* ── Responsive ──────────────────────────────────── */

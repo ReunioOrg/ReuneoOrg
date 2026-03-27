@@ -1,10 +1,33 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './tutorial-matching.css';
 
 const SCENES = [
-    { id: 'enter', duration: 2000 },
-    { id: 'labels-ima', duration: 1200 },
-    { id: 'labels-meet', duration: 1800 },
+    { id: 'enter', duration: 2000 },                    // 0
+    { id: 'labels-ima', duration: 1200 },                // 1
+    { id: 'labels-meet', duration: 1200 },               // 2
+    { id: 'highlight-founder-origin', duration: 800 },   // 3
+    { id: 'arrow-founder', duration: 700 },              // 4
+    { id: 'highlight-founder-dest', duration: 1400 },    // 5
+    { id: 'highlight-investor-origin', duration: 800 },  // 6
+    { id: 'arrow-investor', duration: 700 },             // 7
+    { id: 'highlight-investor-dest', duration: 1200 },   // 8
+    { id: 'close-together', duration: 2000 },            // 9
+    { id: 'labels-fade', duration: 800 },                // 10
+    { id: 'match-text', duration: 1800 },                // 11
+    { id: 'move-to-corner', duration: 1500 },            // 12
+    { id: 'enter2', duration: 1400 },                    // 13
+    { id: 'labels-ima2', duration: 800 },                // 14
+    { id: 'labels-meet2', duration: 800 },               // 15
+    { id: 'highlight-capricorn-origin', duration: 600 }, // 16
+    { id: 'arrow-capricorn', duration: 500 },            // 17
+    { id: 'highlight-capricorn-dest', duration: 1000 },  // 18
+    { id: 'highlight-dogmom-origin', duration: 600 },    // 19
+    { id: 'arrow-dogmom', duration: 500 },               // 20
+    { id: 'highlight-dogmom-dest', duration: 800 },      // 21
+    { id: 'close-together2', duration: 1400 },           // 22
+    { id: 'labels-fade2', duration: 600 },               // 23
+    { id: 'match-text2', duration: 1400 },               // 24
+    { id: 'move-to-corner2', duration: 1200 },           // 25
 ];
 
 const PersonIcon = ({ color = '#144dff' }) => (
@@ -18,6 +41,22 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
     const [currentScene, setCurrentScene] = useState(0);
     const [fadingOut, setFadingOut] = useState(false);
 
+    const stageRef = useRef(null);
+    const founderTagLeftRef = useRef(null);
+    const founderTagRightRef = useRef(null);
+    const investorTagLeftRef = useRef(null);
+    const investorTagRightRef = useRef(null);
+    const capricornTagLeftRef = useRef(null);
+    const capricornTagRightRef = useRef(null);
+    const dogmomTagLeftRef = useRef(null);
+    const dogmomTagRightRef = useRef(null);
+
+    const [founderArrow, setFounderArrow] = useState(null);
+    const [investorArrow, setInvestorArrow] = useState(null);
+    const [capricornArrow, setCapricornArrow] = useState(null);
+    const [dogmomArrow, setDogmomArrow] = useState(null);
+    const [stageDims, setStageDims] = useState({ w: 420, h: 380 });
+
     const finishTutorial = useCallback(() => {
         setFadingOut(true);
         setTimeout(() => {
@@ -29,6 +68,10 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
         if (!isVisible) {
             setCurrentScene(0);
             setFadingOut(false);
+            setFounderArrow(null);
+            setInvestorArrow(null);
+            setCapricornArrow(null);
+            setDogmomArrow(null);
             return;
         }
 
@@ -49,26 +92,138 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
         return () => timers.forEach(clearTimeout);
     }, [isVisible, finishTutorial]);
 
+    useEffect(() => {
+        const stage = stageRef.current;
+        if (!stage) return;
+
+        const compute = () => {
+            const sr = stage.getBoundingClientRect();
+            setStageDims({ w: sr.width, h: sr.height });
+
+            const fl = founderTagLeftRef.current;
+            const fr = founderTagRightRef.current;
+            if (fl && fr) {
+                const fromRect = fr.getBoundingClientRect();
+                const toRect = fl.getBoundingClientRect();
+                setFounderArrow({
+                    x1: fromRect.left - sr.left,
+                    y1: fromRect.top - sr.top + fromRect.height / 2,
+                    x2: toRect.right - sr.left,
+                    y2: toRect.top - sr.top + toRect.height / 2,
+                });
+            }
+
+            const il = investorTagLeftRef.current;
+            const ir = investorTagRightRef.current;
+            if (il && ir) {
+                const fromRect = il.getBoundingClientRect();
+                const toRect = ir.getBoundingClientRect();
+                setInvestorArrow({
+                    x1: fromRect.right - sr.left,
+                    y1: fromRect.top - sr.top + fromRect.height / 2,
+                    x2: toRect.left - sr.left,
+                    y2: toRect.top - sr.top + toRect.height / 2,
+                });
+            }
+
+            const cl = capricornTagLeftRef.current;
+            const cr = capricornTagRightRef.current;
+            if (cl && cr) {
+                const fromRect = cr.getBoundingClientRect();
+                const toRect = cl.getBoundingClientRect();
+                setCapricornArrow({
+                    x1: fromRect.left - sr.left,
+                    y1: fromRect.top - sr.top + fromRect.height / 2,
+                    x2: toRect.right - sr.left,
+                    y2: toRect.top - sr.top + toRect.height / 2,
+                });
+            }
+
+            const dl = dogmomTagLeftRef.current;
+            const dr = dogmomTagRightRef.current;
+            if (dl && dr) {
+                const fromRect = dl.getBoundingClientRect();
+                const toRect = dr.getBoundingClientRect();
+                setDogmomArrow({
+                    x1: fromRect.right - sr.left,
+                    y1: fromRect.top - sr.top + fromRect.height / 2,
+                    x2: toRect.left - sr.left,
+                    y2: toRect.top - sr.top + toRect.height / 2,
+                });
+            }
+        };
+
+        const timer = setTimeout(compute, 60);
+        return () => clearTimeout(timer);
+    }, [currentScene]);
+
     if (!isVisible) return null;
 
     const sceneIndex = currentScene;
 
+    const renderArrowPath = (arrow, markerId) => {
+        if (!arrow) return null;
+        const d = `M ${arrow.x1} ${arrow.y1} L ${arrow.x2} ${arrow.y2}`;
+
+        return (
+            <>
+                <defs>
+                    <marker
+                        id={markerId}
+                        markerWidth="8"
+                        markerHeight="8"
+                        refX="7"
+                        refY="4"
+                        orient="auto"
+                    >
+                        <path
+                            d="M 1 1 L 7 4 L 1 7"
+                            fill="none"
+                            stroke="rgba(160, 190, 220, 0.6)"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        />
+                    </marker>
+                </defs>
+                <path
+                    d={d}
+                    fill="none"
+                    stroke="rgba(160, 190, 220, 0.55)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    markerEnd={`url(#${markerId})`}
+                />
+            </>
+        );
+    };
+
     return (
         <div className={`matching-tutorial-overlay ${fadingOut ? 'tutorial-fade-out' : ''}`}>
-            <div className="tutorial-stage">
+            <div className="tutorial-stage" ref={stageRef}>
                 {/* Left person — Founder */}
-                <div className="tutorial-person tutorial-person-left">
-                    <div className="tutorial-labels">
+                <div className={`tutorial-person tutorial-person-left ${sceneIndex >= 9 ? 'tutorial-person-close' : ''} ${sceneIndex >= 12 ? 'tutorial-person-corner tutorial-person-behind' : ''}`}>
+                    <div className={`tutorial-labels ${sceneIndex >= 10 ? 'tutorial-labels-fade' : ''}`}>
                         {sceneIndex >= 1 && (
                             <div className="tutorial-label-group tutorial-label-slide">
                                 <span className="tutorial-label-text">I'm a:</span>
-                                <span className="tutorial-label-tag">FOUNDER</span>
+                                <span
+                                    ref={founderTagLeftRef}
+                                    className={`tutorial-label-tag ${sceneIndex >= 5 ? 'tutorial-tag-highlight' : ''}`}
+                                >
+                                    FOUNDER
+                                </span>
                             </div>
                         )}
                         {sceneIndex >= 2 && (
                             <div className="tutorial-label-group tutorial-label-slide">
                                 <span className="tutorial-label-text">I want to meet:</span>
-                                <span className="tutorial-label-tag">INVESTOR</span>
+                                <span
+                                    ref={investorTagLeftRef}
+                                    className={`tutorial-label-tag ${sceneIndex >= 6 ? 'tutorial-tag-highlight-alt' : ''}`}
+                                >
+                                    INVESTOR
+                                </span>
                             </div>
                         )}
                     </div>
@@ -78,18 +233,28 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                 </div>
 
                 {/* Right person — Investor */}
-                <div className="tutorial-person tutorial-person-right">
-                    <div className="tutorial-labels">
+                <div className={`tutorial-person tutorial-person-right ${sceneIndex >= 9 ? 'tutorial-person-close' : ''} ${sceneIndex >= 12 ? 'tutorial-person-corner' : ''}`}>
+                    <div className={`tutorial-labels ${sceneIndex >= 10 ? 'tutorial-labels-fade' : ''}`}>
                         {sceneIndex >= 1 && (
                             <div className="tutorial-label-group tutorial-label-slide">
                                 <span className="tutorial-label-text">I'm a:</span>
-                                <span className="tutorial-label-tag">INVESTOR</span>
+                                <span
+                                    ref={investorTagRightRef}
+                                    className={`tutorial-label-tag ${sceneIndex >= 8 ? 'tutorial-tag-highlight-alt' : ''}`}
+                                >
+                                    INVESTOR
+                                </span>
                             </div>
                         )}
                         {sceneIndex >= 2 && (
                             <div className="tutorial-label-group tutorial-label-slide">
                                 <span className="tutorial-label-text">I want to meet:</span>
-                                <span className="tutorial-label-tag">FOUNDER</span>
+                                <span
+                                    ref={founderTagRightRef}
+                                    className={`tutorial-label-tag ${sceneIndex >= 3 ? 'tutorial-tag-highlight' : ''}`}
+                                >
+                                    FOUNDER
+                                </span>
                             </div>
                         )}
                     </div>
@@ -97,6 +262,115 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                         <PersonIcon />
                     </div>
                 </div>
+
+                {/* Arrow: right FOUNDER → left FOUNDER */}
+                {sceneIndex >= 4 && founderArrow && (
+                    <svg className={`tutorial-arrow tutorial-arrow-fade-in ${sceneIndex >= 9 ? 'tutorial-arrow-hide' : ''}`} viewBox={`0 0 ${stageDims.w} ${stageDims.h}`}>
+                        {renderArrowPath(founderArrow, 'arrow-founder')}
+                    </svg>
+                )}
+
+                {/* Arrow: left INVESTOR → right INVESTOR */}
+                {sceneIndex >= 7 && investorArrow && (
+                    <svg className={`tutorial-arrow tutorial-arrow-fade-in ${sceneIndex >= 9 ? 'tutorial-arrow-hide' : ''}`} viewBox={`0 0 ${stageDims.w} ${stageDims.h}`}>
+                        {renderArrowPath(investorArrow, 'arrow-investor')}
+                    </svg>
+                )}
+
+                {/* "It's a Match!" pop — between persons during close-together */}
+                {(sceneIndex === 11 || sceneIndex === 24) && (
+                    <div className="tutorial-match-toast" key={sceneIndex}>
+                        <span className="match-sparkle ms-1">✦</span>
+                        <span className="match-sparkle ms-2">✦</span>
+                        <span className="match-sparkle ms-3">✧</span>
+                        <span className="match-sparkle ms-4">✦</span>
+                        <span className="match-sparkle ms-5">✧</span>
+                        <span className="match-sparkle ms-6">✦</span>
+                        <span className="match-text-inner">It's a Match!</span>
+                    </div>
+                )}
+
+                {/* ── Round 2 ── */}
+
+                {/* Left person — Capricorn */}
+                {sceneIndex >= 13 && (
+                    <div className={`tutorial-person tutorial-person-left-r2 ${sceneIndex >= 22 ? 'tutorial-person-close' : ''} ${sceneIndex >= 25 ? 'tutorial-person-corner-r2 tutorial-person-behind' : ''}`}>
+                        <div className={`tutorial-labels ${sceneIndex >= 23 ? 'tutorial-labels-fade' : ''}`}>
+                            {sceneIndex >= 14 && (
+                                <div className="tutorial-label-group tutorial-label-slide-r2">
+                                    <span className="tutorial-label-text">I'm a:</span>
+                                    <span
+                                        ref={capricornTagLeftRef}
+                                        className={`tutorial-label-tag ${sceneIndex >= 18 ? 'tutorial-tag-highlight-gold' : ''}`}
+                                    >
+                                        CAPRICORN
+                                    </span>
+                                </div>
+                            )}
+                            {sceneIndex >= 15 && (
+                                <div className="tutorial-label-group tutorial-label-slide-r2">
+                                    <span className="tutorial-label-text">I want to meet:</span>
+                                    <span
+                                        ref={dogmomTagLeftRef}
+                                        className={`tutorial-label-tag ${sceneIndex >= 19 ? 'tutorial-tag-highlight-purple' : ''}`}
+                                    >
+                                        DOG MOM
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                        <div className="tutorial-person-hop">
+                            <PersonIcon />
+                        </div>
+                    </div>
+                )}
+
+                {/* Right person — Dog Mom */}
+                {sceneIndex >= 13 && (
+                    <div className={`tutorial-person tutorial-person-right-r2 ${sceneIndex >= 22 ? 'tutorial-person-close' : ''} ${sceneIndex >= 25 ? 'tutorial-person-corner-r2' : ''}`}>
+                        <div className={`tutorial-labels ${sceneIndex >= 23 ? 'tutorial-labels-fade' : ''}`}>
+                            {sceneIndex >= 14 && (
+                                <div className="tutorial-label-group tutorial-label-slide-r2">
+                                    <span className="tutorial-label-text">I'm a:</span>
+                                    <span
+                                        ref={dogmomTagRightRef}
+                                        className={`tutorial-label-tag ${sceneIndex >= 21 ? 'tutorial-tag-highlight-purple' : ''}`}
+                                    >
+                                        DOG MOM
+                                    </span>
+                                </div>
+                            )}
+                            {sceneIndex >= 15 && (
+                                <div className="tutorial-label-group tutorial-label-slide-r2">
+                                    <span className="tutorial-label-text">I want to meet:</span>
+                                    <span
+                                        ref={capricornTagRightRef}
+                                        className={`tutorial-label-tag ${sceneIndex >= 16 ? 'tutorial-tag-highlight-gold' : ''}`}
+                                    >
+                                        CAPRICORN
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                        <div className="tutorial-person-hop">
+                            <PersonIcon />
+                        </div>
+                    </div>
+                )}
+
+                {/* Arrow: right CAPRICORN → left CAPRICORN */}
+                {sceneIndex >= 17 && capricornArrow && (
+                    <svg className={`tutorial-arrow tutorial-arrow-fade-in ${sceneIndex >= 22 ? 'tutorial-arrow-hide' : ''}`} viewBox={`0 0 ${stageDims.w} ${stageDims.h}`}>
+                        {renderArrowPath(capricornArrow, 'arrow-capricorn')}
+                    </svg>
+                )}
+
+                {/* Arrow: left DOG MOM → right DOG MOM */}
+                {sceneIndex >= 20 && dogmomArrow && (
+                    <svg className={`tutorial-arrow tutorial-arrow-fade-in ${sceneIndex >= 22 ? 'tutorial-arrow-hide' : ''}`} viewBox={`0 0 ${stageDims.w} ${stageDims.h}`}>
+                        {renderArrowPath(dogmomArrow, 'arrow-dogmom')}
+                    </svg>
+                )}
             </div>
         </div>
     );
