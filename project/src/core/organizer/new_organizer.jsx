@@ -7,6 +7,9 @@ import { apiFetch } from '../utils/api';
 import { AuthContext } from '../Auth/AuthContext';
 import FloatingLinesBackground from './FloatingLinesBackground';
 import TutorialMatchHistory from '../Tutorials/tutorial-match-history';
+import TutorialMatching from '../Tutorials/tutorial-matching';
+
+const TUTORIAL_STORAGE_KEY = 'has_viewed_matching_tutorial';
 
 const NewOrganizerView = () => {
     const navigate = useNavigate();
@@ -60,6 +63,11 @@ const NewOrganizerView = () => {
     const [showTableModal, setShowTableModal] = useState(false);
     const [isEditingReview, setIsEditingReview] = useState(false);
 
+    // ── Matching Tutorial ──
+    const [showTutorial, setShowTutorial] = useState(
+        () => !localStorage.getItem(TUTORIAL_STORAGE_KEY)
+    );
+
     const MaxMinutes = 8;
     const toastTimerRef = useRef(null);
     const hasShownEmailToast = useRef(false);
@@ -86,6 +94,15 @@ const NewOrganizerView = () => {
             if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
         };
     }, []);
+
+    const handleTutorialComplete = () => {
+        localStorage.setItem(TUTORIAL_STORAGE_KEY, 'true');
+        setShowTutorial(false);
+    };
+
+    const handleTutorialReplay = () => {
+        setShowTutorial(true);
+    };
 
     // ── Helpers ──
     const getRecommendedMinutes = () => {
@@ -644,12 +661,26 @@ const NewOrganizerView = () => {
                     I'm an existing organizer
                 </button>
                 <div className="event-type-container">
-                    <button
-                        className={`event-type-button event-type-primary ${selectedTab === 'custom' ? 'selected' : ''}`}
-                        onClick={() => handleEventTypeSelect('custom')}
-                    >
-                        Custom Matchmaking
-                    </button>
+                    <div className="event-type-button-wrapper">
+                        <button
+                            className={`event-type-button event-type-primary ${selectedTab === 'custom' ? 'selected' : ''}`}
+                            onClick={() => handleEventTypeSelect('custom')}
+                        >
+                            Custom Matchmaking
+                        </button>
+                        <button
+                            type="button"
+                            className="tutorial-info-trigger"
+                            onClick={handleTutorialReplay}
+                            aria-label="How does matching work?"
+                        >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                        </button>
+                    </div>
                     <div className="event-type-divider" />
                     <button
                         className={`event-type-button event-type-primary ${selectedTab === 'icebreaker' ? 'selected' : ''}`}
@@ -1080,6 +1111,11 @@ const NewOrganizerView = () => {
                     </div>
                 </div>
             )}
+
+            <TutorialMatching
+                isVisible={showTutorial}
+                onComplete={handleTutorialComplete}
+            />
         </div>
     );
 };

@@ -1,0 +1,210 @@
+/* ──────────────────────────────────────────────────
+   Matching Tutorial — Fullscreen Animated Overlay
+   ────────────────────────────────────────────────── */
+
+/* ── Overlay ─────────────────────────────────────── */
+
+.matching-tutorial-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #f8f9fc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.6s ease;
+}
+
+.matching-tutorial-overlay.tutorial-fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ── Stage — constrained animation area ──────────── */
+
+.tutorial-stage {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    height: 380px;
+}
+
+/* ── Person Icon ─────────────────────────────────── */
+
+.tutorial-person {
+    position: absolute;
+    top: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    will-change: transform;
+}
+
+.tutorial-person svg {
+    width: 48px;
+    height: 64px;
+}
+
+.tutorial-person-hop {
+    will-change: transform;
+}
+
+/* ── Left person — positioned at 25%, slides in from off-screen ── */
+
+.tutorial-person-left {
+    left: 25%;
+    transform: translateX(-50%) translateY(-50%);
+    animation: slideFromLeft 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* ── Right person — positioned at 75%, slides in from off-screen ── */
+
+.tutorial-person-right {
+    right: 25%;
+    transform: translateX(50%) translateY(-50%);
+    animation: slideFromRight 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* ── Horizontal slide (GPU-composited, smooth ease-out) ── */
+
+@keyframes slideFromLeft {
+    0%   { transform: translateX(calc(-50% - 400px)) translateY(-50%); }
+    100% { transform: translateX(-50%) translateY(-50%); }
+}
+
+@keyframes slideFromRight {
+    0%   { transform: translateX(calc(50% + 400px)) translateY(-50%); }
+    100% { transform: translateX(50%) translateY(-50%); }
+}
+
+/* ── Vertical bounce (independent, natural deceleration) ── */
+
+.tutorial-person-left .tutorial-person-hop,
+.tutorial-person-right .tutorial-person-hop {
+    animation: hopBounce 1.5s ease-in-out forwards;
+}
+
+@keyframes hopBounce {
+    0%   { transform: translateY(0); }
+    8%   { transform: translateY(-20px); }
+    16%  { transform: translateY(0); }
+    20%  { transform: translateY(-1px); }
+    28%  { transform: translateY(-24px); }
+    36%  { transform: translateY(0); }
+    40%  { transform: translateY(-1px); }
+    50%  { transform: translateY(-18px); }
+    58%  { transform: translateY(0); }
+    62%  { transform: translateY(-1px); }
+    70%  { transform: translateY(-10px); }
+    78%  { transform: translateY(0); }
+    85%  { transform: translateY(-4px); }
+    92%  { transform: translateY(0); }
+    96%  { transform: translateY(-1px); }
+    100% { transform: translateY(0); }
+}
+
+/* ── Labels Container ────────────────────────────── */
+
+.tutorial-labels {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 40px;
+    padding-bottom: 14px;
+    white-space: nowrap;
+    height: 160px;
+}
+
+/* ── Label Group (text + tag pill) ────────────────── */
+
+.tutorial-label-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.tutorial-label-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    letter-spacing: 0.01em;
+}
+
+.tutorial-label-tag {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f1729;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 5px 16px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+/* ── Slide-up + pop animation for labels ─────────── */
+
+.tutorial-label-slide {
+    animation: labelSlideUp 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes labelSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ── Responsive ──────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .tutorial-stage {
+        height: 340px;
+    }
+
+    .tutorial-person svg {
+        width: 40px;
+        height: 54px;
+    }
+
+    .tutorial-label-text {
+        font-size: 12px;
+    }
+
+    .tutorial-label-tag {
+        font-size: 12px;
+        padding: 4px 12px;
+    }
+}
+
+@media (min-width: 768px) {
+    .tutorial-stage {
+        max-width: 600px;
+        height: 440px;
+    }
+
+    .tutorial-person svg {
+        width: 56px;
+        height: 74px;
+    }
+
+    .tutorial-label-text {
+        font-size: 14px;
+    }
+
+    .tutorial-label-tag {
+        font-size: 14px;
+        padding: 6px 20px;
+    }
+}

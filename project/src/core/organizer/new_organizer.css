@@ -251,6 +251,39 @@
     box-shadow: 0 4px 16px rgba(20, 77, 255, 0.35);
 }
 
+/* ── Tutorial Info Trigger ────────────────────── */
+
+.event-type-button-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.tutorial-info-trigger {
+    position: absolute;
+    bottom: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.tutorial-info-trigger:hover {
+    opacity: 0.85;
+    transform: translateX(-50%) scale(1.1);
+}
+
+.tutorial-info-trigger:active {
+    transform: translateX(-50%) scale(0.95);
+}
+
 /* ── Step 5 Staggered Reveals ── */
 
 .step5-reveal {
