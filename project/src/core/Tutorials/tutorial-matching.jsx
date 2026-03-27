@@ -6,10 +6,10 @@ const SCENES = [
     { id: 'labels-ima', duration: 1200 },                // 1
     { id: 'labels-meet', duration: 1200 },               // 2
     { id: 'highlight-founder-origin', duration: 800 },   // 3
-    { id: 'arrow-founder', duration: 700 },              // 4
+    { id: 'arrow-founder', duration: 300 },              // 4
     { id: 'highlight-founder-dest', duration: 1400 },    // 5
     { id: 'highlight-investor-origin', duration: 800 },  // 6
-    { id: 'arrow-investor', duration: 700 },             // 7
+    { id: 'arrow-investor', duration: 300 },             // 7
     { id: 'highlight-investor-dest', duration: 1200 },   // 8
     { id: 'close-together', duration: 2000 },            // 9
     { id: 'labels-fade', duration: 800 },                // 10
@@ -19,10 +19,10 @@ const SCENES = [
     { id: 'labels-ima2', duration: 800 },                // 14
     { id: 'labels-meet2', duration: 800 },               // 15
     { id: 'highlight-capricorn-origin', duration: 600 }, // 16
-    { id: 'arrow-capricorn', duration: 500 },            // 17
+    { id: 'arrow-capricorn', duration: 300 },            // 17
     { id: 'highlight-capricorn-dest', duration: 1000 },  // 18
     { id: 'highlight-dogmom-origin', duration: 600 },    // 19
-    { id: 'arrow-dogmom', duration: 500 },               // 20
+    { id: 'arrow-dogmom', duration: 300 },               // 20
     { id: 'highlight-dogmom-dest', duration: 800 },      // 21
     { id: 'close-together2', duration: 1400 },           // 22
     { id: 'labels-fade2', duration: 600 },               // 23

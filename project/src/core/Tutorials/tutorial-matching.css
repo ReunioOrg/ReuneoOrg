@@ -190,28 +190,28 @@
     background: #14b8a6;
     border-color: #14b8a6;
     color: #ffffff;
-    transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+    transition: background 0.2s ease-out, border-color 0.2s ease-out, color 0.2s ease-out;
 }
 
 .tutorial-tag-highlight-alt {
     background: #f87171;
     border-color: #f87171;
     color: #ffffff;
-    transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+    transition: background 0.2s ease-out, border-color 0.2s ease-out, color 0.2s ease-out;
 }
 
 .tutorial-tag-highlight-gold {
     background: #f59e0b;
     border-color: #f59e0b;
     color: #ffffff;
-    transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+    transition: background 0.2s ease-out, border-color 0.2s ease-out, color 0.2s ease-out;
 }
 
 .tutorial-tag-highlight-purple {
     background: #7c3aed;
     border-color: #7c3aed;
     color: #ffffff;
-    transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+    transition: background 0.2s ease-out, border-color 0.2s ease-out, color 0.2s ease-out;
 }
 
 /* ── Connection Arrow ────────────────────────────── */
@@ -315,7 +315,7 @@
 
 .tutorial-person-left-r2.tutorial-person-corner-r2 {
     animation: none;
-    left: 78%;
+    left: 80%;
     top: 82%;
     transform: translateX(-50%) translateY(-50%) scale(0.6);
 }
@@ -331,7 +331,7 @@
 
 .tutorial-match-toast {
     position: absolute;
-    top: 58%;
+    top: 48%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 5;
