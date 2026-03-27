@@ -9,8 +9,6 @@ import FloatingLinesBackground from './FloatingLinesBackground';
 import TutorialMatchHistory from '../Tutorials/tutorial-match-history';
 import TutorialMatching from '../Tutorials/tutorial-matching';
 
-const TUTORIAL_STORAGE_KEY = 'has_viewed_matching_tutorial';
-
 const NewOrganizerView = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -63,10 +61,7 @@ const NewOrganizerView = () => {
     const [showTableModal, setShowTableModal] = useState(false);
     const [isEditingReview, setIsEditingReview] = useState(false);
 
-    // ── Matching Tutorial ──
-    const [showTutorial, setShowTutorial] = useState(
-        () => !localStorage.getItem(TUTORIAL_STORAGE_KEY)
-    );
+    const [showTutorial, setShowTutorial] = useState(false);
 
     const MaxMinutes = 8;
     const toastTimerRef = useRef(null);
@@ -96,7 +91,6 @@ const NewOrganizerView = () => {
     }, []);
 
     const handleTutorialComplete = () => {
-        localStorage.setItem(TUTORIAL_STORAGE_KEY, 'true');
         setShowTutorial(false);
     };
 

@@ -28,6 +28,24 @@ const SCENES = [
     { id: 'labels-fade2', duration: 600 },               // 23
     { id: 'match-text2', duration: 1400 },               // 24
     { id: 'move-to-corner2', duration: 1200 },           // 25
+    { id: 'enter3', duration: 800 },                    // 26
+    { id: 'match-text3', duration: 1400 },              // 27
+    { id: 'move-to-corner3', duration: 1000 },          // 28
+    { id: 'enter4', duration: 800 },                    // 29
+    { id: 'match-text4', duration: 1400 },              // 30
+    { id: 'move-to-corner4', duration: 1000 },          // 31
+    { id: 'fill-row', duration: 3200 },                 // 32
+];
+
+const FILL_POSITIONS = [55, 50, 45, 40, 35, 30, 25, 20, 15, 10, 5];
+const FILL_HOPPERS = new Set([55, 45, 35, 25, 15, 5]);
+
+const CHAT_BLURBS = [
+    { text: "Favorite hobby?", left: 88, top: 56, delay: 0.15 },
+    { text: "How's your day?", left: 67, top: 48, delay: 0.4 },
+    { text: "How are you?",    left: 45, top: 60, delay: 0.65 },
+    { text: "Love that!",      left: 25, top: 50, delay: 0.9 },
+    { text: "Same!",           left: 8,  top: 58, delay: 1.15 },
 ];
 
 const PersonIcon = ({ color = '#144dff' }) => (
@@ -278,7 +296,7 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                 )}
 
                 {/* "It's a Match!" pop — between persons during close-together */}
-                {(sceneIndex === 11 || sceneIndex === 24) && (
+                {(sceneIndex === 11 || sceneIndex === 24 || sceneIndex === 27 || sceneIndex === 30) && (
                     <div className="tutorial-match-toast" key={sceneIndex}>
                         <span className="match-sparkle ms-1">✦</span>
                         <span className="match-sparkle ms-2">✦</span>
@@ -286,7 +304,7 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                         <span className="match-sparkle ms-4">✦</span>
                         <span className="match-sparkle ms-5">✧</span>
                         <span className="match-sparkle ms-6">✦</span>
-                        <span className="match-text-inner">It's a Match!</span>
+                        <span className="match-text-inner">Nice to meet you!</span>
                     </div>
                 )}
 
@@ -371,6 +389,91 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                         {renderArrowPath(dogmomArrow, 'arrow-dogmom')}
                     </svg>
                 )}
+
+                {/* ── Round 3 — Quick slide, no labels ── */}
+
+                {/* Left person R3 */}
+                {sceneIndex >= 26 && (
+                    <div className={`tutorial-person tutorial-person-left-r3 ${sceneIndex >= 28 ? 'tutorial-person-corner-r3 tutorial-person-behind' : ''}`}>
+                        <div className="tutorial-person-hop">
+                            <PersonIcon />
+                        </div>
+                    </div>
+                )}
+
+                {/* Right person R3 */}
+                {sceneIndex >= 26 && (
+                    <div className={`tutorial-person tutorial-person-right-r3 ${sceneIndex >= 28 ? 'tutorial-person-corner-r3' : ''}`}>
+                        <div className="tutorial-person-hop">
+                            <PersonIcon />
+                        </div>
+                    </div>
+                )}
+
+                {/* ── Round 4 ── */}
+
+                {sceneIndex >= 29 && (
+                    <div className={`tutorial-person tutorial-person-left-r4 ${sceneIndex >= 31 ? 'tutorial-person-corner-r4 tutorial-person-behind' : ''}`}>
+                        <div className="tutorial-person-hop">
+                            <PersonIcon />
+                        </div>
+                    </div>
+                )}
+
+                {sceneIndex >= 29 && (
+                    <div className={`tutorial-person tutorial-person-right-r4 ${sceneIndex >= 31 ? 'tutorial-person-corner-r4' : ''}`}>
+                        <div className="tutorial-person-hop">
+                            <PersonIcon />
+                        </div>
+                    </div>
+                )}
+
+                {/* ── Round 5 — Rapid fill from left to right ── */}
+
+                {sceneIndex >= 32 && FILL_POSITIONS.map((pos, i) => {
+                    const isHopper = FILL_HOPPERS.has(pos);
+                    return (
+                        <div
+                            key={`fill-${pos}`}
+                            className="tutorial-person tutorial-person-fill"
+                            style={{
+                                left: `${pos}%`,
+                                animationDelay: `${i * 0.12}s`,
+                            }}
+                        >
+                            <div
+                                className={`tutorial-person-hop ${isHopper ? 'tutorial-fill-hopper' : ''}`}
+                                style={isHopper ? { animationDelay: `${i * 0.12 + 0.5}s` } : undefined}
+                            >
+                                <PersonIcon />
+                            </div>
+                        </div>
+                    );
+                })}
+
+                {/* ── Conversation blurbs (pop up during fill) ── */}
+
+                {sceneIndex >= 32 && CHAT_BLURBS.map((blurb, i) => (
+                    <div
+                        key={`blurb-${i}`}
+                        className="tutorial-chat-blurb"
+                        style={{
+                            left: `${blurb.left}%`,
+                            top: `${blurb.top}%`,
+                            animationDelay: `${blurb.delay}s`,
+                        }}
+                    >
+                        <span
+                            className="blurb-sparkle blurb-sp-a"
+                            style={{ animationDelay: `${blurb.delay + 0.1}s` }}
+                        >✦</span>
+                        <span
+                            className="blurb-sparkle blurb-sp-b"
+                            style={{ animationDelay: `${blurb.delay + 0.2}s` }}
+                        >✧</span>
+                        <span className="tutorial-blurb-text">{blurb.text}</span>
+                    </div>
+                ))}
             </div>
         </div>
     );
