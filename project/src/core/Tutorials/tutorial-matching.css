@@ -371,50 +371,7 @@
 }
 
 /* ══════════════════════════════════════════════════
-   Round 4 — Quick slide, no labels, no bounce
-   ══════════════════════════════════════════════════ */
-
-.tutorial-person-left-r4 {
-    left: 36%;
-    transform: translateX(-50%) translateY(-50%);
-    animation: slideFromLeft 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-    transition: left 0.8s cubic-bezier(0.25, 1, 0.5, 1),
-                top 1s cubic-bezier(0.25, 1, 0.5, 1),
-                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
-                opacity 0.8s ease;
-}
-
-.tutorial-person-right-r4 {
-    right: 36%;
-    transform: translateX(50%) translateY(-50%);
-    animation: slideFromRight 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-    transition: right 0.8s cubic-bezier(0.25, 1, 0.5, 1),
-                top 1s cubic-bezier(0.25, 1, 0.5, 1),
-                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
-                opacity 0.8s ease;
-}
-
-.tutorial-person-left-r4 .tutorial-person-hop,
-.tutorial-person-right-r4 .tutorial-person-hop {
-    animation: none;
-}
-
-.tutorial-person-left-r4.tutorial-person-corner-r4 {
-    animation: none;
-    left: 60%;
-    top: 82%;
-    transform: translateX(-50%) translateY(-50%) scale(0.6);
-}
-
-.tutorial-person-right-r4.tutorial-person-corner-r4 {
-    animation: none;
-    right: 35%;
-    top: 82%;
-    transform: translateX(50%) translateY(-50%) scale(0.6);
-}
-
-/* ══════════════════════════════════════════════════
-   Round 5 — Rapid-fire row fill (left → right wave)
+   Round 4 — Rapid-fire row fill (right → left wave)
    ══════════════════════════════════════════════════ */
 
 .tutorial-person.tutorial-person-fill {

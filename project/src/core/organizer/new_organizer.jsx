@@ -8,6 +8,8 @@ import { AuthContext } from '../Auth/AuthContext';
 import FloatingLinesBackground from './FloatingLinesBackground';
 import TutorialMatchHistory from '../Tutorials/tutorial-match-history';
 import TutorialMatching from '../Tutorials/tutorial-matching';
+import TutorialRandomMatching from '../Tutorials/tutorial-random-matching';
+import TutorialGeneralIntroMatching from '../Tutorials/tutorial-general-intro-matching';
 
 const NewOrganizerView = () => {
     const navigate = useNavigate();
@@ -62,6 +64,8 @@ const NewOrganizerView = () => {
     const [isEditingReview, setIsEditingReview] = useState(false);
 
     const [showTutorial, setShowTutorial] = useState(false);
+    const [showRandomTutorial, setShowRandomTutorial] = useState(false);
+    const [showGeneralTutorial, setShowGeneralTutorial] = useState(false);
 
     const MaxMinutes = 8;
     const toastTimerRef = useRef(null);
@@ -96,6 +100,22 @@ const NewOrganizerView = () => {
 
     const handleTutorialReplay = () => {
         setShowTutorial(true);
+    };
+
+    const handleRandomTutorialComplete = () => {
+        setShowRandomTutorial(false);
+    };
+
+    const handleRandomTutorialReplay = () => {
+        setShowRandomTutorial(true);
+    };
+
+    const handleGeneralTutorialComplete = () => {
+        setShowGeneralTutorial(false);
+    };
+
+    const handleGeneralTutorialReplay = () => {
+        setShowGeneralTutorial(true);
     };
 
     // ── Helpers ──
@@ -676,13 +696,40 @@ const NewOrganizerView = () => {
                         </button>
                     </div>
                     <div className="event-type-divider" />
-                    <button
-                        className={`event-type-button event-type-primary ${selectedTab === 'icebreaker' ? 'selected' : ''}`}
-                        onClick={() => handleEventTypeSelect('icebreaker')}
-                    >
-                        Community Ice-Breaker
-                    </button>
+                    <div className="event-type-button-wrapper">
+                        <button
+                            className={`event-type-button event-type-primary ${selectedTab === 'icebreaker' ? 'selected' : ''}`}
+                            onClick={() => handleEventTypeSelect('icebreaker')}
+                        >
+                            Community Ice-Breaker
+                        </button>
+                        <button
+                            type="button"
+                            className="tutorial-info-trigger"
+                            onClick={handleRandomTutorialReplay}
+                            aria-label="How does random matching work?"
+                        >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
+                <button
+                    type="button"
+                    className="tutorial-info-trigger gim-intro-trigger"
+                    onClick={handleGeneralTutorialReplay}
+                    aria-label="See how matching works"
+                >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                    <span style={{ marginLeft: 6, fontSize: 13, color: '#6b7280' }}>See how matching works</span>
+                </button>
             </div>
         );
     };
@@ -1109,6 +1156,14 @@ const NewOrganizerView = () => {
             <TutorialMatching
                 isVisible={showTutorial}
                 onComplete={handleTutorialComplete}
+            />
+            <TutorialRandomMatching
+                isVisible={showRandomTutorial}
+                onComplete={handleRandomTutorialComplete}
+            />
+            <TutorialGeneralIntroMatching
+                isVisible={showGeneralTutorial}
+                onComplete={handleGeneralTutorialComplete}
             />
         </div>
     );

@@ -31,14 +31,11 @@ const SCENES = [
     { id: 'enter3', duration: 800 },                    // 26
     { id: 'match-text3', duration: 1400 },              // 27
     { id: 'move-to-corner3', duration: 1000 },          // 28
-    { id: 'enter4', duration: 800 },                    // 29
-    { id: 'match-text4', duration: 1400 },              // 30
-    { id: 'move-to-corner4', duration: 1000 },          // 31
-    { id: 'fill-row', duration: 3200 },                 // 32
+    { id: 'fill-row', duration: 3200 },                 // 29
 ];
 
-const FILL_POSITIONS = [55, 50, 45, 40, 35, 30, 25, 20, 15, 10, 5];
-const FILL_HOPPERS = new Set([55, 45, 35, 25, 15, 5]);
+const FILL_POSITIONS = [65, 60, 55, 50, 45, 40, 35, 30, 25, 20, 15, 10, 5];
+const FILL_HOPPERS = new Set([65, 55, 45, 35, 25, 15, 5]);
 
 const CHAT_BLURBS = [
     { text: "Favorite hobby?", left: 88, top: 56, delay: 0.15 },
@@ -296,7 +293,7 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                 )}
 
                 {/* "It's a Match!" pop — between persons during close-together */}
-                {(sceneIndex === 11 || sceneIndex === 24 || sceneIndex === 27 || sceneIndex === 30) && (
+                {(sceneIndex === 11 || sceneIndex === 24 || sceneIndex === 27) && (
                     <div className="tutorial-match-toast" key={sceneIndex}>
                         <span className="match-sparkle ms-1">✦</span>
                         <span className="match-sparkle ms-2">✦</span>
@@ -410,27 +407,9 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                     </div>
                 )}
 
-                {/* ── Round 4 ── */}
+                {/* ── Round 4 — Rapid fill from right to left ── */}
 
-                {sceneIndex >= 29 && (
-                    <div className={`tutorial-person tutorial-person-left-r4 ${sceneIndex >= 31 ? 'tutorial-person-corner-r4 tutorial-person-behind' : ''}`}>
-                        <div className="tutorial-person-hop">
-                            <PersonIcon />
-                        </div>
-                    </div>
-                )}
-
-                {sceneIndex >= 29 && (
-                    <div className={`tutorial-person tutorial-person-right-r4 ${sceneIndex >= 31 ? 'tutorial-person-corner-r4' : ''}`}>
-                        <div className="tutorial-person-hop">
-                            <PersonIcon />
-                        </div>
-                    </div>
-                )}
-
-                {/* ── Round 5 — Rapid fill from left to right ── */}
-
-                {sceneIndex >= 32 && FILL_POSITIONS.map((pos, i) => {
+                {sceneIndex >= 29 && FILL_POSITIONS.map((pos, i) => {
                     const isHopper = FILL_HOPPERS.has(pos);
                     return (
                         <div
@@ -453,7 +432,7 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
 
                 {/* ── Conversation blurbs (pop up during fill) ── */}
 
-                {sceneIndex >= 32 && CHAT_BLURBS.map((blurb, i) => (
+                {sceneIndex >= 29 && CHAT_BLURBS.map((blurb, i) => (
                     <div
                         key={`blurb-${i}`}
                         className="tutorial-chat-blurb"

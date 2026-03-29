@@ -1,0 +1,590 @@
+/* ──────────────────────────────────────────────────
+   General Intro Matching Tutorial — Fullscreen Animated Overlay
+   ────────────────────────────────────────────────── */
+
+/* ── Overlay ─────────────────────────────────────── */
+
+.general-intro-tutorial-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #f8f9fc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.6s ease;
+}
+
+.general-intro-tutorial-overlay.gim-tutorial-fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ── Stage ───────────────────────────────────────── */
+
+.gim-stage {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    height: 380px;
+}
+
+/* ── Act 1 wrapper (R1 pair + R2 fill) ──────────── */
+
+.gim-act-one {
+    position: absolute;
+    inset: 0;
+    transition: opacity 1s ease;
+}
+
+.gim-act-one.gim-act-fade {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ── Person Icon ─────────────────────────────────── */
+
+.gim-person {
+    position: absolute;
+    top: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    will-change: transform;
+}
+
+.gim-person svg {
+    width: 48px;
+    height: 64px;
+}
+
+.gim-person-hop {
+    will-change: transform;
+}
+
+/* ══════════════════════════════════════════════════
+   Round 1 — Simple pairing (no labels)
+   ══════════════════════════════════════════════════ */
+
+.gim-person-left {
+    left: 25%;
+    transform: translateX(-50%) translateY(-50%);
+    animation: gimSlideFromLeft 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transition: left 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s ease;
+}
+
+.gim-person-right {
+    right: 25%;
+    transform: translateX(50%) translateY(-50%);
+    animation: gimSlideFromRight 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transition: right 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s ease;
+}
+
+.gim-person-left.gim-person-close {
+    left: 36%;
+}
+
+.gim-person-right.gim-person-close {
+    right: 36%;
+}
+
+@keyframes gimSlideFromLeft {
+    0%   { transform: translateX(calc(-50% - 400px)) translateY(-50%); }
+    100% { transform: translateX(-50%) translateY(-50%); }
+}
+
+@keyframes gimSlideFromRight {
+    0%   { transform: translateX(calc(50% + 400px)) translateY(-50%); }
+    100% { transform: translateX(50%) translateY(-50%); }
+}
+
+.gim-person-left .gim-person-hop,
+.gim-person-right .gim-person-hop {
+    animation: gimHopBounce 1.5s ease-in-out forwards;
+}
+
+@keyframes gimHopBounce {
+    0%   { transform: translateY(0); }
+    8%   { transform: translateY(-20px); }
+    16%  { transform: translateY(0); }
+    20%  { transform: translateY(-1px); }
+    28%  { transform: translateY(-24px); }
+    36%  { transform: translateY(0); }
+    40%  { transform: translateY(-1px); }
+    50%  { transform: translateY(-18px); }
+    58%  { transform: translateY(0); }
+    62%  { transform: translateY(-1px); }
+    70%  { transform: translateY(-10px); }
+    78%  { transform: translateY(0); }
+    85%  { transform: translateY(-4px); }
+    92%  { transform: translateY(0); }
+    96%  { transform: translateY(-1px); }
+    100% { transform: translateY(0); }
+}
+
+/* ── R1 Corner positioning ──────────────────────── */
+
+.gim-person-left.gim-person-corner {
+    animation: none;
+    left: 90%;
+    top: 82%;
+    transform: translateX(-50%) translateY(-50%) scale(0.6);
+}
+
+.gim-person-right.gim-person-corner {
+    animation: none;
+    right: 5%;
+    top: 82%;
+    transform: translateX(50%) translateY(-50%) scale(0.6);
+}
+
+.gim-person-behind {
+    opacity: 0.9;
+    z-index: 0;
+}
+
+.gim-person-corner:not(.gim-person-behind),
+.gim-person-corner-r3:not(.gim-person-behind),
+.gim-person-corner-r4:not(.gim-person-behind) {
+    z-index: 1;
+}
+
+/* ══════════════════════════════════════════════════
+   Round 2 — Rapid-fire row fill (right → left wave)
+   ══════════════════════════════════════════════════ */
+
+.gim-person.gim-person-fill {
+    top: 82%;
+    transform: translateX(-50%) translateY(-50%) scale(0);
+    opacity: 0;
+    animation: gimIconPopIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.gim-person-fill .gim-person-hop {
+    animation: none;
+}
+
+@keyframes gimIconPopIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-50%) scale(0);
+    }
+    55% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-50%) scale(0.7);
+    }
+    78% {
+        transform: translateX(-50%) translateY(-50%) scale(0.55);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-50%) scale(0.6);
+    }
+}
+
+.gim-person-fill .gim-fill-hopper {
+    animation: gimFillHop 0.7s ease-in-out both;
+}
+
+@keyframes gimFillHop {
+    0%   { transform: translateY(0); }
+    18%  { transform: translateY(-30px); }
+    38%  { transform: translateY(0); }
+    42%  { transform: translateY(-2px); }
+    56%  { transform: translateY(-20px); }
+    76%  { transform: translateY(0); }
+    100% { transform: translateY(0); }
+}
+
+/* ── Conversation Blurbs ─────────────────────────── */
+
+.gim-chat-blurb {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    z-index: 6;
+    pointer-events: none;
+    opacity: 0;
+    animation: gimBlurbPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.gim-blurb-text {
+    font-size: 12px;
+    font-weight: 800;
+    color: #2563eb;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+@keyframes gimBlurbPop {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(-3deg); }
+    50%  { opacity: 1; transform: translate(-50%, -50%) scale(1.18) rotate(1deg); }
+    75%  { transform: translate(-50%, -50%) scale(0.94) rotate(-0.5deg); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+}
+
+.gim-blurb-sparkle {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+    font-size: 9px;
+    color: #93c5fd;
+    animation: gimSparkleSettle 0.6s ease-out both;
+}
+
+.gim-bsp-a {
+    top: -10px;
+    right: -8px;
+}
+
+.gim-bsp-b {
+    bottom: -6px;
+    left: -6px;
+    font-size: 7px;
+    color: #bfdbfe;
+}
+
+@keyframes gimSparkleSettle {
+    0%   { opacity: 0; transform: scale(0) rotate(0deg); }
+    40%  { opacity: 0.9; transform: scale(1.4) rotate(20deg); }
+    70%  { opacity: 0.6; transform: scale(0.9) rotate(30deg); }
+    100% { opacity: 0.45; transform: scale(1) rotate(25deg); }
+}
+
+/* ══════════════════════════════════════════════════
+   Round 3 — Mechanic / Tire Sales (detailed match)
+   ══════════════════════════════════════════════════ */
+
+.gim-person-left-r3 {
+    left: 25%;
+    transform: translateX(-50%) translateY(-50%);
+    animation: gimSlideFromLeft 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transition: left 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s ease;
+}
+
+.gim-person-right-r3 {
+    right: 25%;
+    transform: translateX(50%) translateY(-50%);
+    animation: gimSlideFromRight 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transition: right 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s ease;
+}
+
+.gim-person-left-r3 .gim-person-hop,
+.gim-person-right-r3 .gim-person-hop {
+    animation: gimHopBounce 1.5s ease-in-out forwards;
+}
+
+.gim-person-left-r3.gim-person-close {
+    left: 36%;
+}
+
+.gim-person-right-r3.gim-person-close {
+    right: 36%;
+}
+
+.gim-person-left-r3.gim-person-corner-r3 {
+    animation: none;
+    left: 90%;
+    top: 82%;
+    transform: translateX(-50%) translateY(-50%) scale(0.6);
+}
+
+.gim-person-right-r3.gim-person-corner-r3 {
+    animation: none;
+    right: 5%;
+    top: 82%;
+    transform: translateX(50%) translateY(-50%) scale(0.6);
+}
+
+/* ── Labels Container ────────────────────────────── */
+
+.gim-labels {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 40px;
+    padding-bottom: 14px;
+    white-space: nowrap;
+    height: 160px;
+}
+
+.gim-label-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.gim-label-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    letter-spacing: 0.01em;
+}
+
+.gim-label-tag {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f1729;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 5px 16px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.gim-label-slide-r3 {
+    animation: gimLabelSlideUp 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes gimLabelSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ── Tag Highlights ──────────────────────────────── */
+
+.gim-tag-highlight {
+    background: #14b8a6;
+    border-color: #14b8a6;
+    color: #ffffff;
+    transition: background 0.2s ease-out, border-color 0.2s ease-out, color 0.2s ease-out;
+}
+
+.gim-tag-highlight-alt {
+    background: #f87171;
+    border-color: #f87171;
+    color: #ffffff;
+    transition: background 0.2s ease-out, border-color 0.2s ease-out, color 0.2s ease-out;
+}
+
+.gim-tag-highlight-gold {
+    background: #f59e0b;
+    border-color: #f59e0b;
+    color: #ffffff;
+    transition: background 0.2s ease-out, border-color 0.2s ease-out, color 0.2s ease-out;
+}
+
+.gim-tag-highlight-purple {
+    background: #7c3aed;
+    border-color: #7c3aed;
+    color: #ffffff;
+    transition: background 0.2s ease-out, border-color 0.2s ease-out, color 0.2s ease-out;
+}
+
+/* ── Connection Arrow ────────────────────────────── */
+
+.gim-arrow {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.gim-arrow-fade-in {
+    animation: gimArrowFadeIn 0.5s ease forwards;
+}
+
+.gim-arrow-hide {
+    animation: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+@keyframes gimArrowFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ── Labels Fade Out ─────────────────────────────── */
+
+.gim-labels.gim-labels-fade {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+}
+
+/* ══════════════════════════════════════════════════
+   Round 4 — Taurus / Planting (detailed, faster)
+   ══════════════════════════════════════════════════ */
+
+.gim-person-left-r4 {
+    left: 25%;
+    transform: translateX(-50%) translateY(-50%);
+    animation: gimSlideFromLeft 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transition: left 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s ease;
+}
+
+.gim-person-right-r4 {
+    right: 25%;
+    transform: translateX(50%) translateY(-50%);
+    animation: gimSlideFromRight 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transition: right 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s ease;
+}
+
+.gim-person-left-r4 .gim-person-hop,
+.gim-person-right-r4 .gim-person-hop {
+    animation: gimHopBounce 1s ease-in-out forwards;
+}
+
+.gim-label-slide-r4 {
+    animation: gimLabelSlideUp 0.35s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.gim-person-left-r4.gim-person-close {
+    left: 36%;
+}
+
+.gim-person-right-r4.gim-person-close {
+    right: 36%;
+}
+
+.gim-person-left-r4.gim-person-corner-r4 {
+    animation: none;
+    left: 80%;
+    top: 82%;
+    transform: translateX(-50%) translateY(-50%) scale(0.6);
+}
+
+.gim-person-right-r4.gim-person-corner-r4 {
+    animation: none;
+    right: 15%;
+    top: 82%;
+    transform: translateX(50%) translateY(-50%) scale(0.6);
+}
+
+/* ══════════════════════════════════════════════════
+   "Nice to meet you!" Toast
+   ══════════════════════════════════════════════════ */
+
+.gim-match-toast {
+    position: absolute;
+    top: 48%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    pointer-events: none;
+}
+
+.gim-match-text {
+    font-size: 15px;
+    font-weight: 800;
+    color: #60a5fa;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    opacity: 0;
+    animation: gimMatchTextPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes gimMatchTextPop {
+    0%   { opacity: 0; transform: scale(0) rotate(-3deg); }
+    45%  { opacity: 1; transform: scale(1.2) rotate(1deg); }
+    70%  { transform: scale(0.94) rotate(-0.5deg); }
+    85%  { transform: scale(1.04) rotate(0deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+.gim-sparkle {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    animation: gimSparklePopFade 0.8s ease-out forwards;
+}
+
+.gim-sp-1 { top: -16px; left: -8px;   font-size: 14px; color: #93c5fd; animation-delay: 0.06s; }
+.gim-sp-2 { top: -20px; right: -6px;  font-size: 17px; color: #60a5fa; animation-delay: 0.16s; }
+.gim-sp-3 { top: 50%;   left: -16px;  font-size: 10px; color: #bfdbfe; animation-delay: 0.1s; }
+.gim-sp-4 { top: 50%;   right: -14px; font-size: 12px; color: #93c5fd; animation-delay: 0.2s; }
+.gim-sp-5 { top: -10px; left: 42%;    font-size: 9px;  color: #dbeafe; animation-delay: 0.03s; }
+.gim-sp-6 { bottom: -12px; left: 38%; font-size: 11px; color: #60a5fa; animation-delay: 0.26s; }
+
+@keyframes gimSparklePopFade {
+    0%   { opacity: 0; transform: scale(0) rotate(0deg); }
+    30%  { opacity: 1; transform: scale(1.5) rotate(25deg); }
+    60%  { opacity: 0.7; transform: scale(0.8) rotate(40deg) translateY(-6px); }
+    100% { opacity: 0; transform: scale(0.2) rotate(55deg) translateY(-14px); }
+}
+
+/* ══════════════════════════════════════════════════
+   Responsive
+   ══════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+    .gim-stage {
+        height: 340px;
+    }
+
+    .gim-person svg {
+        width: 40px;
+        height: 54px;
+    }
+
+    .gim-label-text {
+        font-size: 12px;
+    }
+
+    .gim-label-tag {
+        font-size: 12px;
+        padding: 4px 12px;
+    }
+
+    .gim-blurb-text {
+        font-size: 11px;
+    }
+}
+
+@media (min-width: 768px) {
+    .gim-stage {
+        max-width: 600px;
+        height: 440px;
+    }
+
+    .gim-person svg {
+        width: 56px;
+        height: 74px;
+    }
+
+    .gim-label-text {
+        font-size: 14px;
+    }
+
+    .gim-label-tag {
+        font-size: 14px;
+        padding: 6px 20px;
+    }
+
+    .gim-blurb-text {
+        font-size: 13px;
+    }
+}

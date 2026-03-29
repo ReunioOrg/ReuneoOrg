@@ -1,0 +1,386 @@
+/* ──────────────────────────────────────────────────
+   Random Matching Tutorial — Fullscreen Animated Overlay
+   ────────────────────────────────────────────────── */
+
+/* ── Overlay ─────────────────────────────────────── */
+
+.random-matching-tutorial-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #f8f9fc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.6s ease;
+}
+
+.random-matching-tutorial-overlay.rmt-fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ── Stage ───────────────────────────────────────── */
+
+.rmt-stage {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    height: 380px;
+}
+
+/* ── Person Icon ─────────────────────────────────── */
+
+.rmt-person {
+    position: absolute;
+    top: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    will-change: transform;
+}
+
+.rmt-person svg {
+    width: 48px;
+    height: 64px;
+}
+
+.rmt-person-hop {
+    will-change: transform;
+}
+
+/* ── Round 1 — Left person ───────────────────────── */
+
+.rmt-person-left {
+    left: 25%;
+    transform: translateX(-50%) translateY(-50%);
+    animation: rmtSlideFromLeft 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transition: left 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s ease;
+}
+
+/* ── Round 1 — Right person ──────────────────────── */
+
+.rmt-person-right {
+    right: 25%;
+    transform: translateX(50%) translateY(-50%);
+    animation: rmtSlideFromRight 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transition: right 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s ease;
+}
+
+/* ── Close together ──────────────────────────────── */
+
+.rmt-person-left.rmt-person-close {
+    left: 36%;
+}
+
+.rmt-person-right.rmt-person-close {
+    right: 36%;
+}
+
+/* ── Slide keyframes ─────────────────────────────── */
+
+@keyframes rmtSlideFromLeft {
+    0%   { transform: translateX(calc(-50% - 400px)) translateY(-50%); }
+    100% { transform: translateX(-50%) translateY(-50%); }
+}
+
+@keyframes rmtSlideFromRight {
+    0%   { transform: translateX(calc(50% + 400px)) translateY(-50%); }
+    100% { transform: translateX(50%) translateY(-50%); }
+}
+
+/* ── Hop bounce ──────────────────────────────────── */
+
+.rmt-person-left .rmt-person-hop,
+.rmt-person-right .rmt-person-hop {
+    animation: rmtHopBounce 1.5s ease-in-out forwards;
+}
+
+@keyframes rmtHopBounce {
+    0%   { transform: translateY(0); }
+    8%   { transform: translateY(-20px); }
+    16%  { transform: translateY(0); }
+    20%  { transform: translateY(-1px); }
+    28%  { transform: translateY(-24px); }
+    36%  { transform: translateY(0); }
+    40%  { transform: translateY(-1px); }
+    50%  { transform: translateY(-18px); }
+    58%  { transform: translateY(0); }
+    62%  { transform: translateY(-1px); }
+    70%  { transform: translateY(-10px); }
+    78%  { transform: translateY(0); }
+    85%  { transform: translateY(-4px); }
+    92%  { transform: translateY(0); }
+    96%  { transform: translateY(-1px); }
+    100% { transform: translateY(0); }
+}
+
+/* ── Corner positioning (Round 1) ────────────────── */
+
+.rmt-person-left.rmt-person-corner {
+    animation: none;
+    left: 90%;
+    top: 82%;
+    transform: translateX(-50%) translateY(-50%) scale(0.6);
+}
+
+.rmt-person-right.rmt-person-corner {
+    animation: none;
+    right: 5%;
+    top: 82%;
+    transform: translateX(50%) translateY(-50%) scale(0.6);
+}
+
+.rmt-person-behind {
+    opacity: 0.9;
+    z-index: 0;
+}
+
+.rmt-person-corner:not(.rmt-person-behind),
+.rmt-person-corner-r2:not(.rmt-person-behind) {
+    z-index: 1;
+}
+
+/* ══════════════════════════════════════════════════
+   Round 2 — Faster replay, no labels
+   ══════════════════════════════════════════════════ */
+
+.rmt-person-left-r2 {
+    left: 25%;
+    transform: translateX(-50%) translateY(-50%);
+    animation: rmtSlideFromLeft 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transition: left 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s ease;
+}
+
+.rmt-person-right-r2 {
+    right: 25%;
+    transform: translateX(50%) translateY(-50%);
+    animation: rmtSlideFromRight 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transition: right 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s ease;
+}
+
+.rmt-person-left-r2 .rmt-person-hop,
+.rmt-person-right-r2 .rmt-person-hop {
+    animation: rmtHopBounce 1s ease-in-out forwards;
+}
+
+.rmt-person-left-r2.rmt-person-close {
+    left: 36%;
+}
+
+.rmt-person-right-r2.rmt-person-close {
+    right: 36%;
+}
+
+.rmt-person-left-r2.rmt-person-corner-r2 {
+    animation: none;
+    left: 80%;
+    top: 82%;
+    transform: translateX(-50%) translateY(-50%) scale(0.6);
+}
+
+.rmt-person-right-r2.rmt-person-corner-r2 {
+    animation: none;
+    right: 15%;
+    top: 82%;
+    transform: translateX(50%) translateY(-50%) scale(0.6);
+}
+
+/* ══════════════════════════════════════════════════
+   Round 3 — Rapid-fire row fill (right → left wave)
+   ══════════════════════════════════════════════════ */
+
+.rmt-person.rmt-person-fill {
+    top: 82%;
+    transform: translateX(-50%) translateY(-50%) scale(0);
+    opacity: 0;
+    animation: rmtIconPopIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.rmt-person-fill .rmt-person-hop {
+    animation: none;
+}
+
+@keyframes rmtIconPopIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-50%) scale(0);
+    }
+    55% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-50%) scale(0.7);
+    }
+    78% {
+        transform: translateX(-50%) translateY(-50%) scale(0.55);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-50%) scale(0.6);
+    }
+}
+
+/* ── Excited hops (scattered fill icons) ─────────── */
+
+.rmt-person-fill .rmt-fill-hopper {
+    animation: rmtFillHop 0.7s ease-in-out both;
+}
+
+@keyframes rmtFillHop {
+    0%   { transform: translateY(0); }
+    18%  { transform: translateY(-30px); }
+    38%  { transform: translateY(0); }
+    42%  { transform: translateY(-2px); }
+    56%  { transform: translateY(-20px); }
+    76%  { transform: translateY(0); }
+    100% { transform: translateY(0); }
+}
+
+/* ── Conversation Blurbs ─────────────────────────── */
+
+.rmt-chat-blurb {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    z-index: 6;
+    pointer-events: none;
+    opacity: 0;
+    animation: rmtBlurbPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.rmt-blurb-text {
+    font-size: 12px;
+    font-weight: 800;
+    color: #2563eb;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+@keyframes rmtBlurbPop {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(-3deg); }
+    50%  { opacity: 1; transform: translate(-50%, -50%) scale(1.18) rotate(1deg); }
+    75%  { transform: translate(-50%, -50%) scale(0.94) rotate(-0.5deg); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+}
+
+.rmt-blurb-sparkle {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+    font-size: 9px;
+    color: #93c5fd;
+    animation: rmtSparkleSettle 0.6s ease-out both;
+}
+
+.rmt-bsp-a {
+    top: -10px;
+    right: -8px;
+}
+
+.rmt-bsp-b {
+    bottom: -6px;
+    left: -6px;
+    font-size: 7px;
+    color: #bfdbfe;
+}
+
+@keyframes rmtSparkleSettle {
+    0%   { opacity: 0; transform: scale(0) rotate(0deg); }
+    40%  { opacity: 0.9; transform: scale(1.4) rotate(20deg); }
+    70%  { opacity: 0.6; transform: scale(0.9) rotate(30deg); }
+    100% { opacity: 0.45; transform: scale(1) rotate(25deg); }
+}
+
+/* ── "Nice to meet you!" Toast ───────────────────── */
+
+.rmt-match-toast {
+    position: absolute;
+    top: 48%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    pointer-events: none;
+}
+
+.rmt-match-text {
+    font-size: 15px;
+    font-weight: 800;
+    color: #60a5fa;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    opacity: 0;
+    animation: rmtMatchPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes rmtMatchPop {
+    0%   { opacity: 0; transform: scale(0) rotate(-3deg); }
+    45%  { opacity: 1; transform: scale(1.2) rotate(1deg); }
+    70%  { transform: scale(0.94) rotate(-0.5deg); }
+    85%  { transform: scale(1.04) rotate(0deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+.rmt-sparkle {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    animation: rmtSparklePopFade 0.8s ease-out forwards;
+}
+
+.rmt-sp-1 { top: -16px; left: -8px;   font-size: 14px; color: #93c5fd; animation-delay: 0.06s; }
+.rmt-sp-2 { top: -20px; right: -6px;  font-size: 17px; color: #60a5fa; animation-delay: 0.16s; }
+.rmt-sp-3 { top: 50%;   left: -16px;  font-size: 10px; color: #bfdbfe; animation-delay: 0.1s; }
+.rmt-sp-4 { top: 50%;   right: -14px; font-size: 12px; color: #93c5fd; animation-delay: 0.2s; }
+.rmt-sp-5 { top: -10px; left: 42%;    font-size: 9px;  color: #dbeafe; animation-delay: 0.03s; }
+.rmt-sp-6 { bottom: -12px; left: 38%; font-size: 11px; color: #60a5fa; animation-delay: 0.26s; }
+
+@keyframes rmtSparklePopFade {
+    0%   { opacity: 0; transform: scale(0) rotate(0deg); }
+    30%  { opacity: 1; transform: scale(1.5) rotate(25deg); }
+    60%  { opacity: 0.7; transform: scale(0.8) rotate(40deg) translateY(-6px); }
+    100% { opacity: 0; transform: scale(0.2) rotate(55deg) translateY(-14px); }
+}
+
+/* ── Responsive ──────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .rmt-stage {
+        height: 340px;
+    }
+
+    .rmt-person svg {
+        width: 40px;
+        height: 54px;
+    }
+
+    .rmt-blurb-text {
+        font-size: 11px;
+    }
+}
+
+@media (min-width: 768px) {
+    .rmt-stage {
+        max-width: 600px;
+        height: 440px;
+    }
+
+    .rmt-person svg {
+        width: 56px;
+        height: 74px;
+    }
+
+    .rmt-blurb-text {
+        font-size: 13px;
+    }
+}
