@@ -8,6 +8,9 @@ import './create_lobby.css';
 import { apiFetch } from '../utils/api';
 import FloatingLinesBackground from './FloatingLinesBackground';
 import TutorialMatchHistory from '../Tutorials/tutorial-match-history';
+import TutorialMatching from '../Tutorials/tutorial-matching';
+import TutorialRandomMatching from '../Tutorials/tutorial-random-matching';
+import TutorialGeneralIntroMatching from '../Tutorials/tutorial-general-intro-matching';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const CreateLobbyView = () => {
@@ -56,6 +59,10 @@ const CreateLobbyView = () => {
     const [pendingTabSwitch, setPendingTabSwitch] = useState(null);
     const [showTableModal, setShowTableModal] = useState(false);
     const [isEditingReview, setIsEditingReview] = useState(false);
+
+    const [showTutorial, setShowTutorial] = useState(false);
+    const [showRandomTutorial, setShowRandomTutorial] = useState(false);
+    const [showGeneralTutorial, setShowGeneralTutorial] = useState(false);
 
     // ── Plan Limit ──
     const [planLimit, setPlanLimit] = useState(null);
@@ -120,6 +127,14 @@ const CreateLobbyView = () => {
         fetchLobbyData();
     }, [user, location.state]);
 
+    // ── Auto-play general tutorial for first-time visitors on step 1 ──
+    useEffect(() => {
+        const hasRouterData = location.state?.lobbyData;
+        if (!hasRouterData && !localStorage.getItem('reuneo_general_tutorial_seen')) {
+            setShowGeneralTutorial(true);
+        }
+    }, []);
+
     // ── Fetch plan limit for regular organizers ──
     useEffect(() => {
         if (!user || permissions !== 'organizer' || isLegacyOrganizer) return;
@@ -161,6 +176,17 @@ const CreateLobbyView = () => {
         if (num <= 65) return 6;
         return 7;
     };
+
+    // ── Tutorial Handlers ──
+    const handleTutorialComplete = () => setShowTutorial(false);
+    const handleTutorialReplay = () => setShowTutorial(true);
+    const handleRandomTutorialComplete = () => setShowRandomTutorial(false);
+    const handleRandomTutorialReplay = () => setShowRandomTutorial(true);
+    const handleGeneralTutorialComplete = () => {
+        setShowGeneralTutorial(false);
+        localStorage.setItem('reuneo_general_tutorial_seen', 'true');
+    };
+    const handleGeneralTutorialReplay = () => setShowGeneralTutorial(true);
 
     // ── Navigation ──
     const goToStep = (step, direction) => {
@@ -705,20 +731,60 @@ const CreateLobbyView = () => {
             <div className="step-container">
                 <h1 className="step-title">What type of event do you want?</h1>
                 <div className="event-type-container">
-                    <button
-                        className={`event-type-button event-type-primary ${selectedTab === 'custom' ? 'selected' : ''}`}
-                        onClick={() => handleEventTypeSelect('custom')}
-                    >
-                        Custom Matchmaking
-                    </button>
+                    <div className="event-type-button-wrapper">
+                        <button
+                            className={`event-type-button event-type-primary ${selectedTab === 'custom' ? 'selected' : ''}`}
+                            onClick={() => handleEventTypeSelect('custom')}
+                        >
+                            Pair People By Interests
+                        </button>
+                        <button
+                            type="button"
+                            className="tutorial-pill-button"
+                            onClick={handleTutorialReplay}
+                        >
+                            <span>see how it works</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                        </button>
+                    </div>
                     <div className="event-type-divider" />
-                    <button
-                        className={`event-type-button event-type-primary ${selectedTab === 'icebreaker' ? 'selected' : ''}`}
-                        onClick={() => handleEventTypeSelect('icebreaker')}
-                    >
-                        Community Ice-Breaker
-                    </button>
+                    <div className="event-type-button-wrapper">
+                        <button
+                            className={`event-type-button event-type-primary ${selectedTab === 'icebreaker' ? 'selected' : ''}`}
+                            onClick={() => handleEventTypeSelect('icebreaker')}
+                        >
+                            Pair People Randomly
+                        </button>
+                        <button
+                            type="button"
+                            className="tutorial-pill-button"
+                            onClick={handleRandomTutorialReplay}
+                        >
+                            <span>see how it works</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
+                <button
+                    type="button"
+                    className="tutorial-pill-button tutorial-general-pill"
+                    onClick={handleGeneralTutorialReplay}
+                >
+                    <span>general tutorial</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                </button>
             </div>
         );
     };
@@ -1117,7 +1183,7 @@ const CreateLobbyView = () => {
                         <path d="M21 12L15 18L21 24" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                 </button>
-                <img src="/assets/reuneo_test_11.png" alt="Reuneo Logo" className="logo-image-nav" />
+                <img src="/assets/reuneo_test_14.png" alt="Reuneo Logo" className="logo-image-nav" />
                 {currentStep < 6 && visitedSteps.has(currentStep + 1) ? (
                     <button className="nav-arrow" onClick={handleNext} aria-label="Next">
                         <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
@@ -1173,6 +1239,19 @@ const CreateLobbyView = () => {
                     </div>
                 </div>
             )}
+
+            <TutorialMatching
+                isVisible={showTutorial}
+                onComplete={handleTutorialComplete}
+            />
+            <TutorialRandomMatching
+                isVisible={showRandomTutorial}
+                onComplete={handleRandomTutorialComplete}
+            />
+            <TutorialGeneralIntroMatching
+                isVisible={showGeneralTutorial}
+                onComplete={handleGeneralTutorialComplete}
+            />
         </div>
     );
 };

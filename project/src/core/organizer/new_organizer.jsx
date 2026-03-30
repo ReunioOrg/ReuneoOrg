@@ -670,7 +670,7 @@ const NewOrganizerView = () => {
 
         return (
             <div className="step-container">
-                <h1 className="step-title step1-hero-line" style={{ color: '#4b5563' }}>Effortlessly fuse your community into many 1-on-1 connections</h1>
+                <h1 className="step-title step1-hero-line">Effortlessly fuse your community into many 1-on-1 connections</h1>
                 <button
                     type="button"
                     onClick={() => navigate('/forgot-password')}
