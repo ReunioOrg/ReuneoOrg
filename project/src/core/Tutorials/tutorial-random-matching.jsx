@@ -71,9 +71,9 @@ const TutorialRandomMatching = ({ isVisible, onComplete }) => {
     const sceneIndex = currentScene;
 
     const getHeaderText = (scene) => {
-        if (scene >= 0 && scene <= 3) return "Everyone gets randomly paired with someone new!";
+        if (scene >= 0 && scene <= 3) return "Everyone gets paired with someone new!";
         if (scene >= 4 && scene <= 7) return "This is the most recommended use case if you are just starting out";
-        if (scene === 8) return "The fastest way to create quality interactions for your attendees!";
+        if (scene === 8) return "The fastest way to create many quality interactions for your all your attendees!";
         return null;
     };
 

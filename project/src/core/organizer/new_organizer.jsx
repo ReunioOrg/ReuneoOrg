@@ -706,6 +706,7 @@ const NewOrganizerView = () => {
                             onClick={() => handleEventTypeSelect('icebreaker')}
                         >
                             Pair People Randomly
+                            <span className="most-popular-label">MOST POPULAR</span>
                         </button>
                         <button
                             type="button"

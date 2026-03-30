@@ -230,16 +230,16 @@
 
 .existing-organizer-button {
     background: none;
-    color: #6b7280;
+    color: #9ca3af;
     border: none;
     padding: 2px 0;
     cursor: pointer;
     font-size: 0.78rem;
     font-weight: 500;
     text-decoration: underline;
-    text-decoration-color: #6b7280;
+    text-decoration-color: #9ca3af;
     text-underline-offset: 3px;
-    text-decoration-thickness: 1.5px;
+    text-decoration-thickness: 1px;
     margin-top: -14px;
     margin-bottom: 28px;
     transition: color 0.2s ease;
@@ -282,6 +282,15 @@
     color: white;
     border-color: #4b73ef;
     box-shadow: 0 4px 16px rgba(75, 115, 239, 0.3), inset 0 0 0 1.5px rgba(255, 255, 255, 0.25);
+}
+
+.most-popular-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.75);
+    margin-top: 6px;
 }
 
 /* ── Tutorial Info Trigger ────────────────────── */
