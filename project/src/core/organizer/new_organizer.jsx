@@ -666,13 +666,14 @@ const NewOrganizerView = () => {
 
         return (
             <div className="step-container">
-                <h1 className="step-title">Effortlessly fuse your community into 1-on-1 connections, so people actually get to know each other</h1>
+                <h1 className="step-title step1-hero-line" style={{ color: '#4b5563' }}>Effortlessly fuse your community into 1-on-1 connections</h1>
+                <h2 className="step-title step1-hero-sub" style={{ color: '#4b5563' }}>This way people actually get to know each other</h2>
                 <button
                     type="button"
                     onClick={() => navigate('/forgot-password')}
                     className="existing-organizer-button"
                 >
-                    I'm an existing organizer
+                    I have an account
                 </button>
                 <div className="event-type-container">
                     <div className="event-type-button-wrapper">
@@ -680,15 +681,15 @@ const NewOrganizerView = () => {
                             className={`event-type-button event-type-primary ${selectedTab === 'custom' ? 'selected' : ''}`}
                             onClick={() => handleEventTypeSelect('custom')}
                         >
-                            Custom Matchmaking
+                            Pair People By Interests
                         </button>
                         <button
                             type="button"
-                            className="tutorial-info-trigger"
+                            className="tutorial-pill-button"
                             onClick={handleTutorialReplay}
-                            aria-label="How does matching work?"
                         >
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <span>see how it works</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="12" cy="12" r="10" />
                                 <line x1="12" y1="16" x2="12" y2="12" />
                                 <line x1="12" y1="8" x2="12.01" y2="8" />
@@ -701,15 +702,15 @@ const NewOrganizerView = () => {
                             className={`event-type-button event-type-primary ${selectedTab === 'icebreaker' ? 'selected' : ''}`}
                             onClick={() => handleEventTypeSelect('icebreaker')}
                         >
-                            Community Ice-Breaker
+                            Pair People Randomly
                         </button>
                         <button
                             type="button"
-                            className="tutorial-info-trigger"
+                            className="tutorial-pill-button"
                             onClick={handleRandomTutorialReplay}
-                            aria-label="How does random matching work?"
                         >
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <span>see how it works</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="12" cy="12" r="10" />
                                 <line x1="12" y1="16" x2="12" y2="12" />
                                 <line x1="12" y1="8" x2="12.01" y2="8" />
@@ -719,16 +720,15 @@ const NewOrganizerView = () => {
                 </div>
                 <button
                     type="button"
-                    className="tutorial-info-trigger gim-intro-trigger"
+                    className="tutorial-pill-button tutorial-general-pill"
                     onClick={handleGeneralTutorialReplay}
-                    aria-label="See how matching works"
                 >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <span>general tutorial</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="12" cy="12" r="10" />
                         <line x1="12" y1="16" x2="12" y2="12" />
                         <line x1="12" y1="8" x2="12.01" y2="8" />
                     </svg>
-                    <span style={{ marginLeft: 6, fontSize: 13, color: '#6b7280' }}>See how matching works</span>
                 </button>
             </div>
         );

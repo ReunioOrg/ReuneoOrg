@@ -183,6 +183,21 @@
     max-width: 340px;
 }
 
+@keyframes step1FadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.step1-hero-line {
+    animation: step1FadeIn 0.5s ease-out both;
+}
+
+.step1-hero-sub {
+    font-size: 1.1rem;
+    font-weight: 700;
+    animation: step1FadeIn 0.5s ease-out 0.75s both;
+}
+
 .step-subtitle {
     color: #6b7280;
     font-size: 13px;
@@ -254,34 +269,41 @@
 /* ── Tutorial Info Trigger ────────────────────── */
 
 .event-type-button-wrapper {
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     width: 100%;
 }
 
-.tutorial-info-trigger {
-    position: absolute;
-    bottom: -28px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
+.tutorial-pill-button {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    opacity: 0.5;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    background: rgba(255, 255, 255, 0.5);
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 10px;
     transition: opacity 0.2s ease, transform 0.2s ease;
     -webkit-tap-highlight-color: transparent;
 }
 
-.tutorial-info-trigger:hover {
-    opacity: 0.85;
-    transform: translateX(-50%) scale(1.1);
+.tutorial-pill-button:hover {
+    background: rgba(255, 255, 255, 0.75);
+    border-color: #9ca3af;
 }
 
-.tutorial-info-trigger:active {
-    transform: translateX(-50%) scale(0.95);
+.tutorial-pill-button:active {
+    transform: scale(0.97);
+}
+
+.tutorial-general-pill {
+    margin-top: 64px;
+    align-self: center;
 }
 
 /* ── Step 5 Staggered Reveals ── */
@@ -1420,6 +1442,10 @@
         font-size: 1.2rem;
     }
 
+    .step1-hero-sub {
+        font-size: 1.1rem;
+    }
+
     .step-subtitle {
         font-size: 12px;
     }
@@ -1533,6 +1559,10 @@
     .step-title {
         font-size: 1.6rem;
         max-width: 440px;
+    }
+
+    .step1-hero-sub {
+        font-size: 1.1rem;
     }
 
     .step-subtitle {
