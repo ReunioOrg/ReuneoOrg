@@ -355,9 +355,9 @@
 /* ── Step CTA Button ─────────────────────────── */
 
 .step-cta {
-    background: #144dff;
+    background: linear-gradient(180deg, #5b82f7 0%, #4b73ef 100%);
     color: white;
-    border: none;
+    border: 1.5px solid #4b73ef;
     padding: 14px 32px;
     border-radius: 50px;
     font-size: 15px;
@@ -365,7 +365,7 @@
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     letter-spacing: 0.02em;
-    box-shadow: 0 4px 16px rgba(20, 77, 255, 0.3);
+    box-shadow: 0 4px 16px rgba(75, 115, 239, 0.3), inset 0 0 0 1.5px rgba(255, 255, 255, 0.25);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -375,19 +375,21 @@
 }
 
 .step-cta:hover:not(:disabled) {
-    background: #0f3dd4;
+    background: linear-gradient(180deg, #4d72e8 0%, #3d63d9 100%);
+    border-color: #3d63d9;
     transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(20, 77, 255, 0.4);
+    box-shadow: 0 6px 24px rgba(75, 115, 239, 0.4), inset 0 0 0 1.5px rgba(255, 255, 255, 0.3);
 }
 
 .step-cta:active:not(:disabled) {
     transform: translateY(0);
-    box-shadow: 0 2px 10px rgba(20, 77, 255, 0.25);
+    box-shadow: 0 2px 10px rgba(75, 115, 239, 0.25), inset 0 0 0 1.5px rgba(255, 255, 255, 0.2);
 }
 
 .step-cta:disabled {
     background: #c7d2fe;
     color: rgba(255, 255, 255, 0.7);
+    border-color: #c7d2fe;
     cursor: not-allowed;
     box-shadow: none;
     transform: none;
@@ -414,7 +416,7 @@
 }
 
 .create-cta {
-    box-shadow: 0 4px 20px rgba(20, 77, 255, 0.35);
+    box-shadow: 0 4px 20px rgba(75, 115, 239, 0.35), inset 0 0 0 1.5px rgba(255, 255, 255, 0.25);
 }
 
 /* ══════════════════════════════════════════════════
@@ -1154,14 +1156,16 @@
 }
 
 .modal-confirm {
-    background: #144dff;
+    background: linear-gradient(180deg, #5b82f7 0%, #4b73ef 100%);
     color: white;
-    box-shadow: 0 2px 10px rgba(20, 77, 255, 0.25);
+    border: 1.5px solid #4b73ef;
+    box-shadow: 0 2px 10px rgba(75, 115, 239, 0.25), inset 0 0 0 1.5px rgba(255, 255, 255, 0.25);
 }
 
 .modal-confirm:hover {
-    background: #0f3dd4;
-    box-shadow: 0 4px 16px rgba(20, 77, 255, 0.35);
+    background: linear-gradient(180deg, #4d72e8 0%, #3d63d9 100%);
+    border-color: #3d63d9;
+    box-shadow: 0 4px 16px rgba(75, 115, 239, 0.35), inset 0 0 0 1.5px rgba(255, 255, 255, 0.3);
     transform: translateY(-1px);
 }
 
