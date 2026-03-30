@@ -98,11 +98,8 @@ button:focus-visible {
 /* Desktop: Mobile viewport simulation */
 @media (min-width: 769px) {
   body {
-    /* Subtle animated blue gradient background */
-    /* background: linear-gradient(-45deg, #0d3ea8, #144dff, #535bf2, #2d4bc7); */
     background-size: 400% 400%;
-    /* animation: gradientShift 15s ease infinite; */
-    padding: 40px 0;
+    padding: 50px 0;
   }
   
   #root {
@@ -113,16 +110,28 @@ button:focus-visible {
     overflow-y: auto;
     position: relative;
   }
+
+  /* Phone frame decoration — applied only on the home page via RouteLayoutHandler */
+  #root.phone-frame {
+    z-index: 1;
+    background: #000;
+    border-radius: 50px;
+    border: 10px solid #333;
+    box-shadow:
+      0 0 0 2px #444,
+      0 0 0 4px rgba(255, 255, 255, 0.06),
+      0 25px 60px rgba(0, 0, 0, 0.4),
+      0 8px 20px rgba(0, 0, 0, 0.25),
+      inset 0 0 4px rgba(255, 255, 255, 0.08);
+  }
 }
 
 /* Dashboard: Full-width layout override for desktop - MUST come after mobile viewport simulation */
 @media (min-width: 769px) {
-  /* Remove body padding for full-width dashboard */
   body.dashboard-view {
     padding: 0;
   }
   
-  /* Full-width root container for dashboard */
   #root.dashboard-view {
     width: 100%;
     max-width: 100%;
@@ -130,6 +139,7 @@ button:focus-visible {
     margin: 0;
     overflow-y: visible;
   }
+
 }
 
 /* Subtle gradient animation */

@@ -10,27 +10,32 @@ function RouteLayoutHandler() {
     || pathname.startsWith('/new_organizer')
     || pathname.startsWith('/plan-selection');
 
+  const isHomeRoute = pathname === '/';
+
   useEffect(() => {
     const rootElement = document.getElementById('root');
     const bodyElement = document.body;
     
     if (isDashboardRoute) {
-      // Add classes for full-width layout
       rootElement?.classList.add('dashboard-view');
       bodyElement?.classList.add('dashboard-view');
     } else {
-      // Remove classes when not on dashboard
       rootElement?.classList.remove('dashboard-view');
       bodyElement?.classList.remove('dashboard-view');
     }
+
+    if (isHomeRoute) {
+      rootElement?.classList.add('phone-frame');
+    } else {
+      rootElement?.classList.remove('phone-frame');
+    }
     
-    // Cleanup on unmount or route change
     return () => {
-      // Ensure cleanup happens
       rootElement?.classList.remove('dashboard-view');
       bodyElement?.classList.remove('dashboard-view');
+      rootElement?.classList.remove('phone-frame');
     };
-  }, [pathname, isDashboardRoute]);
+  }, [pathname, isDashboardRoute, isHomeRoute]);
 
   return null;
 }

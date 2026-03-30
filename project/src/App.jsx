@@ -1,5 +1,6 @@
 // const asset_path="project/dist/assets/";
 import React, { useState, useRef, useEffect, useContext } from 'react';
+import { createPortal } from 'react-dom';
 import ProfileCreation from './core/profile_creation';
 import usePlaySound from './core/playsound';
 import AuthProvider from './core/Auth/AuthContext';
@@ -11,6 +12,7 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 import LoginSignupLogoutButton from './core/Auth/LoginSignupLogoutButton';
 import PureSignupPage from './core/Auth/PureSignupPage';
 import { CommunityPageButton } from './core/community/mycf';
+import FloatingLinesBackground from './core/organizer/FloatingLinesBackground';
 
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
 import { getStoredLobbyCode, shouldValidateLobby, markLobbyValidated, clearLobbyStorage } from './core/utils/lobbyStorage';
@@ -154,6 +156,7 @@ const App = () => {
   const [userCurrentLobby, setUserCurrentLobby] = useState(null);
   const [showQRInstructionModal, setShowQRInstructionModal] = useState(false);
   const [profileExpanded, setProfileExpanded] = useState(false);
+  const [isDesktop] = useState(() => window.innerWidth >= 769);
 
   const navigate = useNavigate();
   useGetLobbyMetadata(setPlayerCount, setLobbyState);
@@ -664,7 +667,9 @@ const App = () => {
   }, [profileExpanded]);
 
   return (
-    <div style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden' }}>
+    <>
+    {isDesktop && createPortal(<FloatingLinesBackground />, document.body)}
+    <div style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden', zIndex: 1 }}>
 
       {/* <div style={{position: 'absolute', top: '40%', left: '50%', width: '100%', height: '10%', zIndex: 1000}}>
         <CommunityPageButton position="absolute" left_position="0" top_position="0"/>
@@ -684,7 +689,7 @@ const App = () => {
         
         <div style={{ position: 'absolute', top: '0', left: '50%', transform: 'translateX(-50%)' }}>
           <img  
-            src="/assets/reuneo_test_11.png"
+            src="/assets/reuneo_test_15.png"
             alt="Logo"
             style={{width: '100px',height: '100px',objectFit: 'contain'}}
           />
@@ -1290,6 +1295,7 @@ const App = () => {
       <QRInstructionModal />
       <LobbyFullModal />
     </div>
+    </>
   );
 
   
