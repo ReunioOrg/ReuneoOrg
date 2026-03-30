@@ -86,6 +86,9 @@ const NewOrganizerView = () => {
             ).join('');
             setLobbyCode(randomCode);
         }
+        if (!returnData && !localStorage.getItem('reuneo_general_tutorial_seen')) {
+            setShowGeneralTutorial(true);
+        }
     }, []);
 
     useEffect(() => {
@@ -112,6 +115,7 @@ const NewOrganizerView = () => {
 
     const handleGeneralTutorialComplete = () => {
         setShowGeneralTutorial(false);
+        localStorage.setItem('reuneo_general_tutorial_seen', 'true');
     };
 
     const handleGeneralTutorialReplay = () => {
@@ -666,16 +670,15 @@ const NewOrganizerView = () => {
 
         return (
             <div className="step-container">
-                <h1 className="step-title step1-hero-line" style={{ color: '#4b5563' }}>Effortlessly fuse your community into 1-on-1 connections</h1>
-                <h2 className="step-title step1-hero-sub" style={{ color: '#4b5563' }}>This way people actually get to know each other</h2>
+                <h1 className="step-title step1-hero-line" style={{ color: '#4b5563' }}>Effortlessly fuse your community into many 1-on-1 connections</h1>
                 <button
                     type="button"
                     onClick={() => navigate('/forgot-password')}
-                    className="existing-organizer-button"
+                    className="existing-organizer-button step1-fade-link"
                 >
                     I have an account
                 </button>
-                <div className="event-type-container">
+                <div className="event-type-container step1-fade-buttons">
                     <div className="event-type-button-wrapper">
                         <button
                             className={`event-type-button event-type-primary ${selectedTab === 'custom' ? 'selected' : ''}`}
@@ -685,7 +688,7 @@ const NewOrganizerView = () => {
                         </button>
                         <button
                             type="button"
-                            className="tutorial-pill-button"
+                            className="tutorial-pill-button step1-fade-pills"
                             onClick={handleTutorialReplay}
                         >
                             <span>see how it works</span>
@@ -706,7 +709,7 @@ const NewOrganizerView = () => {
                         </button>
                         <button
                             type="button"
-                            className="tutorial-pill-button"
+                            className="tutorial-pill-button step1-fade-pills"
                             onClick={handleRandomTutorialReplay}
                         >
                             <span>see how it works</span>
@@ -720,7 +723,7 @@ const NewOrganizerView = () => {
                 </div>
                 <button
                     type="button"
-                    className="tutorial-pill-button tutorial-general-pill"
+                    className="tutorial-pill-button tutorial-general-pill step1-fade-general"
                     onClick={handleGeneralTutorialReplay}
                 >
                     <span>general tutorial</span>
@@ -1096,7 +1099,7 @@ const NewOrganizerView = () => {
                         <path d="M21 12L15 18L21 24" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                 </button>
-                <img src="/assets/reuneo_test_11.png" alt="Reuneo Logo" className="logo-image-nav" />
+                <img src="/assets/reuneo_test_14.png" alt="Reuneo Logo" className="logo-image-nav" />
                 {currentStep < 6 && visitedSteps.has(currentStep + 1) ? (
                     <button className="nav-arrow" onClick={handleNext} aria-label="Next">
                         <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
