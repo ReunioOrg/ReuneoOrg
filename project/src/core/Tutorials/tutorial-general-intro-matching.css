@@ -30,6 +30,43 @@
     height: 380px;
 }
 
+/* ── Layout Wrapper ──────────────────────────────── */
+
+.gim-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+/* ── Scene Header ────────────────────────────────── */
+
+.gim-header-container {
+    text-align: center;
+    width: 85%;
+    max-width: 420px;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    margin-bottom: 16px;
+}
+
+.gim-header-text {
+    font-size: 19px;
+    font-weight: 700;
+    color: #6b7280;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+    animation: gimHeaderFadeIn 0.5s ease 0.2s both;
+}
+
+@keyframes gimHeaderFadeIn {
+    0%   { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Act 1 wrapper (R1 pair + R2 fill) ──────────── */
 
 .gim-act-one {
@@ -490,7 +527,7 @@
 
 .gim-match-toast {
     position: absolute;
-    top: 48%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 5;
@@ -500,7 +537,7 @@
 .gim-match-text {
     font-size: 15px;
     font-weight: 800;
-    color: #60a5fa;
+    color: #144dff;
     letter-spacing: 0.02em;
     white-space: nowrap;
     opacity: 0;
@@ -562,6 +599,15 @@
     .gim-blurb-text {
         font-size: 11px;
     }
+
+    .gim-header-container {
+        min-height: 44px;
+        margin-bottom: 12px;
+    }
+
+    .gim-header-text {
+        font-size: 16px;
+    }
 }
 
 @media (min-width: 768px) {
@@ -586,5 +632,15 @@
 
     .gim-blurb-text {
         font-size: 13px;
+    }
+
+    .gim-header-container {
+        max-width: 600px;
+        min-height: 64px;
+        margin-bottom: 20px;
+    }
+
+    .gim-header-text {
+        font-size: 22px;
     }
 }

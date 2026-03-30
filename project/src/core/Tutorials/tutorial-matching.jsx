@@ -176,6 +176,16 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
 
     const sceneIndex = currentScene;
 
+    const getHeaderText = (scene) => {
+        if (scene >= 1 && scene <= 12) return "You can pair everyone by matching complimentary interests";
+        if (scene >= 13 && scene <= 25) return "Customize how they get paired up, all in one easy step";
+        if (scene >= 26 && scene <= 29) return "If someone has no interest pairs available - we default to random pairing";
+        return null;
+    };
+
+    const headerText = getHeaderText(sceneIndex);
+    const showSubheader = sceneIndex === 29;
+
     const renderArrowPath = (arrow, markerId) => {
         if (!arrow) return null;
         const d = `M ${arrow.x1} ${arrow.y1} L ${arrow.x2} ${arrow.y2}`;
@@ -215,7 +225,16 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
 
     return (
         <div className={`matching-tutorial-overlay ${fadingOut ? 'tutorial-fade-out' : ''}`}>
-            <div className="tutorial-stage" ref={stageRef}>
+            <div className="tm-wrapper">
+                <div className="tm-header-container">
+                    {headerText && (
+                        <span className="tm-header-text" key={headerText}>{headerText}</span>
+                    )}
+                    {showSubheader && (
+                        <span className="tm-header-text tm-subheader" key="subheader">This way everyone has someone new to talk to!</span>
+                    )}
+                </div>
+                <div className="tutorial-stage" ref={stageRef}>
                 {/* Left person — Founder */}
                 <div className={`tutorial-person tutorial-person-left ${sceneIndex >= 9 ? 'tutorial-person-close' : ''} ${sceneIndex >= 12 ? 'tutorial-person-corner tutorial-person-behind' : ''}`}>
                     <div className={`tutorial-labels ${sceneIndex >= 10 ? 'tutorial-labels-fade' : ''}`}>
@@ -453,6 +472,7 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                         <span className="tutorial-blurb-text">{blurb.text}</span>
                     </div>
                 ))}
+                </div>
             </div>
         </div>
     );

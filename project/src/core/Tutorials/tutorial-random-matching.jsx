@@ -70,8 +70,23 @@ const TutorialRandomMatching = ({ isVisible, onComplete }) => {
 
     const sceneIndex = currentScene;
 
+    const getHeaderText = (scene) => {
+        if (scene >= 0 && scene <= 3) return "Everyone gets randomly paired with someone new!";
+        if (scene >= 4 && scene <= 7) return "This is the most recommended use case if you are just starting out";
+        if (scene === 8) return "The fastest way to create quality interactions for your attendees!";
+        return null;
+    };
+
+    const headerText = getHeaderText(sceneIndex);
+
     return (
         <div className={`random-matching-tutorial-overlay ${fadingOut ? 'rmt-fade-out' : ''}`}>
+            <div className="rmt-wrapper">
+                <div className="rmt-header-container">
+                    {headerText && (
+                        <span className="rmt-header-text" key={headerText}>{headerText}</span>
+                    )}
+                </div>
             <div className="rmt-stage">
                 {/* Round 1 — Left person */}
                 <div className={`rmt-person rmt-person-left ${sceneIndex >= 1 ? 'rmt-person-close' : ''} ${sceneIndex >= 3 ? 'rmt-person-corner rmt-person-behind' : ''}`}>
@@ -164,6 +179,7 @@ const TutorialRandomMatching = ({ isVisible, onComplete }) => {
                         <span className="rmt-blurb-text">{blurb.text}</span>
                     </div>
                 ))}
+            </div>
             </div>
         </div>
     );

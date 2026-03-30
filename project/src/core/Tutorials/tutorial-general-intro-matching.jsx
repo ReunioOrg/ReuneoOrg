@@ -24,22 +24,13 @@ const SCENES = [
     { id: 'labels-fade-r3', duration: 800 },             // 16
     { id: 'match-text-r3', duration: 1800 },             // 17
     { id: 'move-to-corner-r3', duration: 1500 },         // 18
-    // Round 4 — Taurus / Planting (detailed, faster)
+    // Round 4 — Simple pairing (no labels, faster)
     { id: 'enter-r4', duration: 1400 },                  // 19
-    { id: 'labels-ima-r4', duration: 800 },              // 20
-    { id: 'labels-meet-r4', duration: 800 },             // 21
-    { id: 'highlight-taurus-origin', duration: 600 },    // 22
-    { id: 'arrow-taurus', duration: 300 },               // 23
-    { id: 'highlight-taurus-dest', duration: 1000 },     // 24
-    { id: 'highlight-planting-origin', duration: 600 },  // 25
-    { id: 'arrow-planting', duration: 300 },             // 26
-    { id: 'highlight-planting-dest', duration: 800 },    // 27
-    { id: 'close-together-r4', duration: 1400 },         // 28
-    { id: 'labels-fade-r4', duration: 600 },             // 29
-    { id: 'match-text-r4', duration: 1400 },             // 30
-    { id: 'move-to-corner-r4', duration: 1200 },         // 31
+    { id: 'close-together-r4', duration: 1400 },         // 20
+    { id: 'match-text-r4', duration: 1400 },             // 21
+    { id: 'move-to-corner-r4', duration: 1200 },         // 22
     // Finale — fill row
-    { id: 'fill-row-finale', duration: 3400 },           // 32
+    { id: 'fill-row-finale', duration: 3400 },           // 23
 ];
 
 const R2_FILL_POSITIONS = [85, 80, 75, 70, 65, 60, 55, 50, 45, 40, 35, 30, 25, 20, 15, 10, 5];
@@ -72,15 +63,9 @@ const TutorialGeneralIntroMatching = ({ isVisible, onComplete }) => {
     const mechanicTagRightRef = useRef(null);
     const tiresalesTagLeftRef = useRef(null);
     const tiresalesTagRightRef = useRef(null);
-    const taurusTagLeftRef = useRef(null);
-    const taurusTagRightRef = useRef(null);
-    const plantingTagLeftRef = useRef(null);
-    const plantingTagRightRef = useRef(null);
 
     const [mechanicArrow, setMechanicArrow] = useState(null);
     const [tiresalesArrow, setTiresalesArrow] = useState(null);
-    const [taurusArrow, setTaurusArrow] = useState(null);
-    const [plantingArrow, setPlantingArrow] = useState(null);
     const [stageDims, setStageDims] = useState({ w: 420, h: 380 });
 
     const finishTutorial = useCallback(() => {
@@ -96,8 +81,6 @@ const TutorialGeneralIntroMatching = ({ isVisible, onComplete }) => {
             setFadingOut(false);
             setMechanicArrow(null);
             setTiresalesArrow(null);
-            setTaurusArrow(null);
-            setPlantingArrow(null);
             return;
         }
 
@@ -152,31 +135,6 @@ const TutorialGeneralIntroMatching = ({ isVisible, onComplete }) => {
                 });
             }
 
-            const tal = taurusTagLeftRef.current;
-            const tar = taurusTagRightRef.current;
-            if (tal && tar) {
-                const fromRect = tar.getBoundingClientRect();
-                const toRect = tal.getBoundingClientRect();
-                setTaurusArrow({
-                    x1: fromRect.left - sr.left,
-                    y1: fromRect.top - sr.top + fromRect.height / 2,
-                    x2: toRect.right - sr.left,
-                    y2: toRect.top - sr.top + toRect.height / 2,
-                });
-            }
-
-            const pl = plantingTagLeftRef.current;
-            const pr = plantingTagRightRef.current;
-            if (pl && pr) {
-                const fromRect = pl.getBoundingClientRect();
-                const toRect = pr.getBoundingClientRect();
-                setPlantingArrow({
-                    x1: fromRect.right - sr.left,
-                    y1: fromRect.top - sr.top + fromRect.height / 2,
-                    x2: toRect.left - sr.left,
-                    y2: toRect.top - sr.top + toRect.height / 2,
-                });
-            }
         };
 
         const timer = setTimeout(compute, 60);
@@ -186,6 +144,18 @@ const TutorialGeneralIntroMatching = ({ isVisible, onComplete }) => {
     if (!isVisible) return null;
 
     const sceneIndex = currentScene;
+
+    const getHeaderText = (scene) => {
+        if (scene >= 0 && scene <= 1) return "Within an hour or less\u2026";
+        if (scene >= 2 && scene <= 3) return "You can pair everyone in your event!";
+        if (scene === 4) return "Into many quality 1-on-1 conversations";
+        if (scene >= 6 && scene <= 18) return "You can even pair them by matching complimentary interests\u2026";
+        if (scene >= 19 && scene <= 22) return "Or pair everyone randomly!";
+        if (scene === 23) return "You decide: how long, how many rounds, etc.";
+        return null;
+    };
+
+    const headerText = getHeaderText(sceneIndex);
 
     const renderArrowPath = (arrow, markerId) => {
         if (!arrow) return null;
@@ -226,7 +196,13 @@ const TutorialGeneralIntroMatching = ({ isVisible, onComplete }) => {
 
     return (
         <div className={`general-intro-tutorial-overlay ${fadingOut ? 'gim-tutorial-fade-out' : ''}`}>
-            <div className="gim-stage" ref={stageRef}>
+            <div className="gim-wrapper">
+                <div className="gim-header-container">
+                    {headerText && (
+                        <span className="gim-header-text" key={headerText}>{headerText}</span>
+                    )}
+                </div>
+                <div className="gim-stage" ref={stageRef}>
 
                 {/* ── Act 1: R1 simple pair + R2 fill — fades at scene 5 ── */}
 
@@ -295,7 +271,7 @@ const TutorialGeneralIntroMatching = ({ isVisible, onComplete }) => {
 
                 {/* ── Match toasts (R1 / R3 / R4) ── */}
 
-                {(sceneIndex === 2 || sceneIndex === 17 || sceneIndex === 30) && (
+                {(sceneIndex === 2 || sceneIndex === 17 || sceneIndex === 21) && (
                     <div className="gim-match-toast" key={sceneIndex}>
                         <span className="gim-sparkle gim-sp-1">✦</span>
                         <span className="gim-sparkle gim-sp-2">✦</span>
@@ -389,91 +365,29 @@ const TutorialGeneralIntroMatching = ({ isVisible, onComplete }) => {
                     </svg>
                 )}
 
-                {/* ── Round 4 — Taurus / Planting ── */}
+                {/* ── Round 4 — Simple pairing (no labels, faster) ── */}
 
-                {/* R4 Left person — Taurus */}
+                {/* R4 Left person */}
                 {sceneIndex >= 19 && (
-                    <div className={`gim-person gim-person-left-r4 ${sceneIndex >= 28 ? 'gim-person-close' : ''} ${sceneIndex >= 31 ? 'gim-person-corner-r4 gim-person-behind' : ''}`}>
-                        <div className={`gim-labels ${sceneIndex >= 29 ? 'gim-labels-fade' : ''}`}>
-                            {sceneIndex >= 20 && (
-                                <div className="gim-label-group gim-label-slide-r4">
-                                    <span className="gim-label-text">I'm a:</span>
-                                    <span
-                                        ref={taurusTagLeftRef}
-                                        className={`gim-label-tag ${sceneIndex >= 24 ? 'gim-tag-highlight-gold' : ''}`}
-                                    >
-                                        TAURUS
-                                    </span>
-                                </div>
-                            )}
-                            {sceneIndex >= 21 && (
-                                <div className="gim-label-group gim-label-slide-r4">
-                                    <span className="gim-label-text">I want to meet:</span>
-                                    <span
-                                        ref={plantingTagLeftRef}
-                                        className={`gim-label-tag ${sceneIndex >= 25 ? 'gim-tag-highlight-purple' : ''}`}
-                                    >
-                                        PLANTING
-                                    </span>
-                                </div>
-                            )}
-                        </div>
+                    <div className={`gim-person gim-person-left-r4 ${sceneIndex >= 20 ? 'gim-person-close' : ''} ${sceneIndex >= 22 ? 'gim-person-corner-r4 gim-person-behind' : ''}`}>
                         <div className="gim-person-hop">
                             <PersonIcon />
                         </div>
                     </div>
                 )}
 
-                {/* R4 Right person — Planting */}
+                {/* R4 Right person */}
                 {sceneIndex >= 19 && (
-                    <div className={`gim-person gim-person-right-r4 ${sceneIndex >= 28 ? 'gim-person-close' : ''} ${sceneIndex >= 31 ? 'gim-person-corner-r4' : ''}`}>
-                        <div className={`gim-labels ${sceneIndex >= 29 ? 'gim-labels-fade' : ''}`}>
-                            {sceneIndex >= 20 && (
-                                <div className="gim-label-group gim-label-slide-r4">
-                                    <span className="gim-label-text">I'm a:</span>
-                                    <span
-                                        ref={plantingTagRightRef}
-                                        className={`gim-label-tag ${sceneIndex >= 27 ? 'gim-tag-highlight-purple' : ''}`}
-                                    >
-                                        PLANTING
-                                    </span>
-                                </div>
-                            )}
-                            {sceneIndex >= 21 && (
-                                <div className="gim-label-group gim-label-slide-r4">
-                                    <span className="gim-label-text">I want to meet:</span>
-                                    <span
-                                        ref={taurusTagRightRef}
-                                        className={`gim-label-tag ${sceneIndex >= 22 ? 'gim-tag-highlight-gold' : ''}`}
-                                    >
-                                        TAURUS
-                                    </span>
-                                </div>
-                            )}
-                        </div>
+                    <div className={`gim-person gim-person-right-r4 ${sceneIndex >= 20 ? 'gim-person-close' : ''} ${sceneIndex >= 22 ? 'gim-person-corner-r4' : ''}`}>
                         <div className="gim-person-hop">
                             <PersonIcon />
                         </div>
                     </div>
-                )}
-
-                {/* Arrow: right TAURUS → left TAURUS */}
-                {sceneIndex >= 23 && taurusArrow && (
-                    <svg className={`gim-arrow gim-arrow-fade-in ${sceneIndex >= 28 ? 'gim-arrow-hide' : ''}`} viewBox={`0 0 ${stageDims.w} ${stageDims.h}`}>
-                        {renderArrowPath(taurusArrow, 'gim-arrow-taurus')}
-                    </svg>
-                )}
-
-                {/* Arrow: left PLANTING → right PLANTING */}
-                {sceneIndex >= 26 && plantingArrow && (
-                    <svg className={`gim-arrow gim-arrow-fade-in ${sceneIndex >= 28 ? 'gim-arrow-hide' : ''}`} viewBox={`0 0 ${stageDims.w} ${stageDims.h}`}>
-                        {renderArrowPath(plantingArrow, 'gim-arrow-planting')}
-                    </svg>
                 )}
 
                 {/* ── Finale — fill row + blurbs ── */}
 
-                {sceneIndex >= 32 && FINALE_FILL_POSITIONS.map((pos, i) => {
+                {sceneIndex >= 23 && FINALE_FILL_POSITIONS.map((pos, i) => {
                     const isHopper = FINALE_FILL_HOPPERS.has(pos);
                     return (
                         <div
@@ -494,7 +408,7 @@ const TutorialGeneralIntroMatching = ({ isVisible, onComplete }) => {
                     );
                 })}
 
-                {sceneIndex >= 32 && CHAT_BLURBS.map((blurb, i) => (
+                {sceneIndex >= 23 && CHAT_BLURBS.map((blurb, i) => (
                     <div
                         key={`finale-blurb-${i}`}
                         className="gim-chat-blurb"
@@ -515,6 +429,7 @@ const TutorialGeneralIntroMatching = ({ isVisible, onComplete }) => {
                         <span className="gim-blurb-text">{blurb.text}</span>
                     </div>
                 ))}
+                </div>
             </div>
         </div>
     );
