@@ -13,6 +13,7 @@ import LoginSignupLogoutButton from './core/Auth/LoginSignupLogoutButton';
 import PureSignupPage from './core/Auth/PureSignupPage';
 import { CommunityPageButton } from './core/community/mycf';
 import FloatingLinesBackground from './core/organizer/FloatingLinesBackground';
+import BorderGlow from './core/components/BorderGlow/BorderGlow';
 
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
 import { getStoredLobbyCode, shouldValidateLobby, markLobbyValidated, clearLobbyStorage } from './core/utils/lobbyStorage';
@@ -790,17 +791,27 @@ const App = () => {
             justifyContent: 'center',
             alignItems: 'center'
           }}>
-            <div
-              className="app-dock-item-standalone"
-              onClick={() => window.open('https://reuneo.app/become-an-organizer', '_blank')}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open('https://reuneo.app/become-an-organizer', '_blank'); } }}
-              tabIndex={0}
-              role="button"
-              aria-label="Organizer"
+            <BorderGlow
+              borderRadius={18}
+              duration={2000}
+              glowRadius={30}
+              glowIntensity={1}
+              coneSpread={25}
+              glowColor="270 80 70"
+              colors={['#c084fc', '#f472b6', '#38bdf8']}
             >
-              <div className="app-dock-icon"><OrganizerIcon /></div>
-              <span className="app-dock-label">Create</span>
-            </div>
+              <div
+                className="app-dock-item-standalone"
+                onClick={() => window.open('https://reuneo.app/become-an-organizer', '_blank')}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open('https://reuneo.app/become-an-organizer', '_blank'); } }}
+                tabIndex={0}
+                role="button"
+                aria-label="Organizer"
+              >
+                <div className="app-dock-icon"><OrganizerIcon /></div>
+                <span className="app-dock-label">Create</span>
+              </div>
+            </BorderGlow>
           </div>
         ) : activeLobbies.length === 0 && (permissions === 'admin' || permissions === 'organizer') ? (
           <div style={{
@@ -813,17 +824,27 @@ const App = () => {
             justifyContent: 'center',
             alignItems: 'center'
           }}>
-            <div
-              className="app-dock-item-standalone"
-              onClick={handleCreateClick}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCreateClick(); } }}
-              tabIndex={0}
-              role="button"
-              aria-label="Create Lobby"
+            <BorderGlow
+              borderRadius={18}
+              duration={2000}
+              glowRadius={30}
+              glowIntensity={1}
+              coneSpread={25}
+              glowColor="270 80 70"
+              colors={['#c084fc', '#f472b6', '#38bdf8']}
             >
-              <div className="app-dock-icon"><OrganizerIcon /></div>
-              <span className="app-dock-label">Create</span>
-            </div>
+              <div
+                className="app-dock-item-standalone"
+                onClick={handleCreateClick}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCreateClick(); } }}
+                tabIndex={0}
+                role="button"
+                aria-label="Create Lobby"
+              >
+                <div className="app-dock-icon"><OrganizerIcon /></div>
+                <span className="app-dock-label">Create</span>
+              </div>
+            </BorderGlow>
           </div>
         ) : null}
 
