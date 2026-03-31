@@ -30,6 +30,7 @@ const PureSignupPage = () => {
     const [showSelfieModal, setShowSelfieModal] = useState(false);
     const [hasShownSelfieModal, setHasShownSelfieModal] = useState(false);
     const fileInputRef = useRef(null);
+    const submitButtonRef = useRef(null);
     
     // Collapsible credentials section state (for lobby redirect users)
     const [credentialsExpanded, setCredentialsExpanded] = useState(false);
@@ -107,6 +108,16 @@ const PureSignupPage = () => {
             setHasShownSelfieModal(true);
         }
     }, [currentStep, lobbyCode, username, password, displayName, hasShownSelfieModal]);
+
+    // Auto-scroll to submit button after image upload on small screens
+    useEffect(() => {
+        if (imagePreview && submitButtonRef.current) {
+            const timer = setTimeout(() => {
+                submitButtonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [imagePreview]);
 
     // Handle selfie modal "Understood" click
     const handleSelfieModalUnderstood = () => {
@@ -217,32 +228,54 @@ const PureSignupPage = () => {
             reader.onload = (event) => {
                 const img = new Image();
                 img.onload = () => {
-                    let width = img.width;
-                    let height = img.height;
-                    const maxDimension = 1500;
+                    const maxDimensions = [1000, 600, 400];
 
-                    if (width > height && width > maxDimension) {
-                        height = (height * maxDimension) / width;
-                        width = maxDimension;
-                    } else if (height > width && height > maxDimension) {
-                        width = (width * maxDimension) / height;
-                        height = maxDimension;
+                    for (const maxDimension of maxDimensions) {
+                        try {
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > height && width > maxDimension) {
+                                height = (height * maxDimension) / width;
+                                width = maxDimension;
+                            } else if (height > width && height > maxDimension) {
+                                width = (width * maxDimension) / height;
+                                height = maxDimension;
+                            }
+
+                            const canvas = document.createElement('canvas');
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+
+                            const resizedImage = canvas.toDataURL('image/jpeg', 0.75);
+
+                            if (!resizedImage || resizedImage === 'data:,' || resizedImage.length < 100) {
+                                continue;
+                            }
+
+                            setProfileImage(file);
+                            setImagePreview(resizedImage);
+                            setIsCropping(true);
+                            setFieldSuccess(prev => ({ ...prev, image: true }));
+                            setFieldErrors(prev => ({ ...prev, image: '' }));
+                            setCanProceed(true);
+                            return;
+                        } catch (err) {
+                            continue;
+                        }
                     }
 
-                    const canvas = document.createElement('canvas');
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    const resizedImage = canvas.toDataURL('image/jpeg', 0.75);
-                    setProfileImage(file);
-                    setImagePreview(resizedImage);
-                    setIsCropping(true);
-                    setFieldSuccess(prev => ({ ...prev, image: true }));
-                    setFieldErrors(prev => ({ ...prev, image: '' }));
-                    setCanProceed(true);
+                    if (fileInputRef.current) fileInputRef.current.value = '';
+                    setError('Unable to process this image. Please try a smaller photo.');
                 };
+
+                img.onerror = () => {
+                    if (fileInputRef.current) fileInputRef.current.value = '';
+                    setError('Unable to load this image. Please try a different photo.');
+                };
+
                 img.src = event.target.result;
             };
             reader.readAsDataURL(file);
@@ -469,7 +502,7 @@ const PureSignupPage = () => {
             </button>
 
             <img 
-                src="/assets/reuneo_test_11.png"
+                src="/assets/reuneo_test_14.png"
                 alt="Reunio Logo"
                 className="logo-image"
                 style={{ marginTop: '-1.5rem' }}
@@ -810,6 +843,7 @@ const PureSignupPage = () => {
 
                     {currentStep === steps.length - 1 && (
                         <motion.button 
+                            ref={submitButtonRef}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}

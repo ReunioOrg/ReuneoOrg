@@ -1106,10 +1106,10 @@ const LobbyScreen = () => {
                     marginTop: '-1.85rem'
                 }}>
                     <img 
-                        src="/assets/reuneo_test_11.png"
+                        src="/assets/reuneo_test_14.png"
                         alt="Reuneo Logo"
                         style={{
-                            maxWidth: '90px',
+                            maxWidth: '85px',
                             height: 'auto',
                             objectFit: 'contain'
                         }}
@@ -1336,7 +1336,7 @@ const LobbyScreen = () => {
                             <div className="player-count-icon">
                                 <div className="icon-pulse"></div>
                                 <img 
-                                    src="/assets/players_display_icon2.png" 
+                                    src="/assets/players_display_icon3.png" 
                                     alt="Players in lobby" 
                                     className="player-count-img" 
                                 />
