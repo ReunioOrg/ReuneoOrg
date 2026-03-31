@@ -87,8 +87,10 @@ const BorderGlow = ({
         ...buildGradientVars(colors),
       }}
     >
-      <span className="edge-light" />
-      <div className="border-glow-inner">
+      <div className="border-glow-effects" aria-hidden="true">
+        <span className="edge-light" />
+      </div>
+      <div className="border-glow-content">
         {children}
       </div>
     </div>

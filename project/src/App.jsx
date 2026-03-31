@@ -794,10 +794,10 @@ const App = () => {
             <BorderGlow
               borderRadius={18}
               duration={2000}
-              glowRadius={30}
-              glowIntensity={1}
-              coneSpread={25}
-              glowColor="270 80 70"
+              glowRadius={50}
+              glowIntensity={2}
+              coneSpread={40}
+              glowColor="270 85 80"
               colors={['#c084fc', '#f472b6', '#38bdf8']}
             >
               <div
@@ -827,10 +827,10 @@ const App = () => {
             <BorderGlow
               borderRadius={18}
               duration={2000}
-              glowRadius={30}
-              glowIntensity={1}
-              coneSpread={25}
-              glowColor="270 80 70"
+              glowRadius={50}
+              glowIntensity={2}
+              coneSpread={40}
+              glowColor="270 85 80"
               colors={['#c084fc', '#f472b6', '#38bdf8']}
             >
               <div

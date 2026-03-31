@@ -9,17 +9,26 @@
 
   position: relative;
   border-radius: var(--border-radius);
-  isolation: isolate;
-  transform: translate3d(0, 0, 0.01px);
   display: grid;
   border: none;
   background: transparent;
   overflow: visible;
 }
 
-.border-glow-card::before,
-.border-glow-card::after,
-.border-glow-card > .edge-light {
+/* Isolated container for all glow effects — keeps blend modes
+   and mask compositing contained without affecting children's backdrop-filter */
+.border-glow-effects {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  isolation: isolate;
+  overflow: visible;
+}
+
+.border-glow-effects::before,
+.border-glow-effects::after,
+.border-glow-effects > .edge-light {
   content: "";
   position: absolute;
   inset: 0;
@@ -29,8 +38,8 @@
 }
 
 /* Colored mesh-gradient border — masked to border strip + rotating cone */
-.border-glow-card::before {
-  border: 2px solid transparent;
+.border-glow-effects::before {
+  border: 3px solid transparent;
   background:
     var(--gradient-one, radial-gradient(at 80% 55%, hsla(268, 100%, 76%, 1) 0px, transparent 50%)) border-box,
     var(--gradient-two, radial-gradient(at 69% 34%, hsla(349, 100%, 74%, 1) 0px, transparent 50%)) border-box,
@@ -71,7 +80,7 @@
 }
 
 /* Colored mesh-gradient interior fill (disabled when --fill-opacity is 0) */
-.border-glow-card::after {
+.border-glow-effects::after {
   border: 1px solid transparent;
   background:
     var(--gradient-one, radial-gradient(at 80% 55%, hsla(268, 100%, 76%, 1) 0px, transparent 50%)) padding-box,
@@ -98,7 +107,7 @@
 }
 
 /* Outer glow layer */
-.border-glow-card > .edge-light {
+.border-glow-effects > .edge-light {
   inset: calc(var(--glow-padding) * -1);
   pointer-events: none;
   z-index: 1;
@@ -112,32 +121,29 @@
   mix-blend-mode: plus-lighter;
 }
 
-.border-glow-card > .edge-light::before {
+.border-glow-effects > .edge-light::before {
   content: "";
   position: absolute;
   inset: var(--glow-padding);
   border-radius: inherit;
   box-shadow:
-    inset 0 0 0 1px var(--glow-color, hsl(40deg 80% 80% / 100%)),
-    inset 0 0 1px 0 var(--glow-color-60, hsl(40deg 80% 80% / 60%)),
-    inset 0 0 3px 0 var(--glow-color-50, hsl(40deg 80% 80% / 50%)),
-    inset 0 0 6px 0 var(--glow-color-40, hsl(40deg 80% 80% / 40%)),
-    inset 0 0 15px 0 var(--glow-color-30, hsl(40deg 80% 80% / 30%)),
-    inset 0 0 25px 2px var(--glow-color-20, hsl(40deg 80% 80% / 20%)),
-    inset 0 0 50px 2px var(--glow-color-10, hsl(40deg 80% 80% / 10%)),
-    0 0 1px 0 var(--glow-color-60, hsl(40deg 80% 80% / 60%)),
-    0 0 3px 0 var(--glow-color-50, hsl(40deg 80% 80% / 50%)),
-    0 0 6px 0 var(--glow-color-40, hsl(40deg 80% 80% / 40%)),
-    0 0 15px 0 var(--glow-color-30, hsl(40deg 80% 80% / 30%)),
-    0 0 25px 2px var(--glow-color-20, hsl(40deg 80% 80% / 20%)),
-    0 0 50px 2px var(--glow-color-10, hsl(40deg 80% 80% / 10%));
+    inset 0 0 0 2px var(--glow-color, hsl(40deg 80% 80% / 100%)),
+    inset 0 0 2px 1px var(--glow-color-60, hsl(40deg 80% 80% / 60%)),
+    inset 0 0 6px 1px var(--glow-color-50, hsl(40deg 80% 80% / 50%)),
+    inset 0 0 12px 2px var(--glow-color-40, hsl(40deg 80% 80% / 40%)),
+    inset 0 0 25px 2px var(--glow-color-30, hsl(40deg 80% 80% / 30%)),
+    inset 0 0 40px 4px var(--glow-color-20, hsl(40deg 80% 80% / 20%)),
+    inset 0 0 70px 4px var(--glow-color-10, hsl(40deg 80% 80% / 10%)),
+    0 0 2px 1px var(--glow-color-60, hsl(40deg 80% 80% / 60%)),
+    0 0 6px 1px var(--glow-color-50, hsl(40deg 80% 80% / 50%)),
+    0 0 12px 2px var(--glow-color-40, hsl(40deg 80% 80% / 40%)),
+    0 0 25px 2px var(--glow-color-30, hsl(40deg 80% 80% / 30%)),
+    0 0 40px 4px var(--glow-color-20, hsl(40deg 80% 80% / 20%)),
+    0 0 70px 4px var(--glow-color-10, hsl(40deg 80% 80% / 10%));
 }
 
-.border-glow-inner {
-  display: flex;
-  flex-direction: column;
+/* Children container — no stacking context so backdrop-filter works through it */
+.border-glow-content {
   position: relative;
-  overflow: hidden;
   border-radius: inherit;
-  z-index: 1;
 }
