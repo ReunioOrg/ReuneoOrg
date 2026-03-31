@@ -1118,6 +1118,16 @@ const App = () => {
             zIndex: 10,
             transition: 'all 0.3s ease'
           }}>
+            <BorderGlow
+              borderRadius={24}
+              duration={2000}
+              glowRadius={50}
+              glowIntensity={2}
+              coneSpread={40}
+              glowColor="270 85 80"
+              colors={['#c084fc', '#f472b6', '#38bdf8']}
+              style={{ width: '100%' }}
+            >
             <div
               onClick={() => navigate(`/lobby?code=${userCurrentLobby}`)}
               style={{
@@ -1243,6 +1253,7 @@ const App = () => {
                 </svg>
               </div>
             </div>
+            </BorderGlow>
           </div>
         )}
 
@@ -1266,6 +1277,16 @@ const App = () => {
                 <p>Loading your lobbies...</p>
               </div>
             ) : activeLobbies.length > 0 ? (
+              <BorderGlow
+                borderRadius={24}
+                duration={2000}
+                glowRadius={50}
+                glowIntensity={2}
+                coneSpread={40}
+                glowColor="270 85 80"
+                colors={['#c084fc', '#f472b6', '#38bdf8']}
+                style={{ width: '100%' }}
+              >
               <div
                 className="admin-lobby-tile"
                 onClick={() => navigateToAdminLobby(activeLobbies[0])}
@@ -1307,6 +1328,7 @@ const App = () => {
                   </svg>
                 </div>
               </div>
+              </BorderGlow>
             ) : null}
           </div>
         )}

@@ -46,6 +46,7 @@ const BorderGlow = ({
   colors = ['#c084fc', '#f472b6', '#38bdf8'],
   fillOpacity = 0,
   duration = 2000,
+  style: userStyle = {},
 }) => {
   const cardRef = useRef(null);
 
@@ -85,6 +86,7 @@ const BorderGlow = ({
         '--fill-opacity': fillOpacity,
         ...glowVars,
         ...buildGradientVars(colors),
+        ...userStyle,
       }}
     >
       <div className="border-glow-effects" aria-hidden="true">
