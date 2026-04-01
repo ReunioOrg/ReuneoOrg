@@ -98,7 +98,10 @@ const SetPasswordPage = () => {
             if (data.success) {
                 await checkAuth();
 
-                if (permissions === 'organizer') {
+                const lobbyCode = searchParams.get('lobby_code');
+                if (lobbyCode) {
+                    navigate(`/lobby?code=${lobbyCode}`);
+                } else if (permissions === 'organizer') {
                     navigate('/create_lobby');
                 } else {
                     navigate('/paired-player-history');

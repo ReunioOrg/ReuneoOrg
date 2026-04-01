@@ -35,6 +35,13 @@ const PureSignupPage = () => {
     // Collapsible credentials section state (for lobby redirect users)
     const [credentialsExpanded, setCredentialsExpanded] = useState(false);
 
+    // Face-match duplicate detection state
+    const [isCheckingFace, setIsCheckingFace] = useState(false);
+    const [faceMatchResult, setFaceMatchResult] = useState(null);
+    const [showReclaimModal, setShowReclaimModal] = useState(false);
+    const [reclaimEmailSent, setReclaimEmailSent] = useState(false);
+    const [reclaimError, setReclaimError] = useState('');
+
     const navigate = useNavigate();
     const location = useLocation();
     
@@ -227,7 +234,7 @@ const PureSignupPage = () => {
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
-                img.onload = () => {
+                img.onload = async () => {
                     const maxDimensions = [1000, 600, 400];
 
                     for (const maxDimension of maxDimensions) {
@@ -257,6 +264,40 @@ const PureSignupPage = () => {
 
                             setProfileImage(file);
                             setImagePreview(resizedImage);
+
+                            // Face-match check for lobby signups only
+                            if (isLobbyRedirect && lobbyCode && lobbyCode !== 'demolobby') {
+                                setIsCheckingFace(true);
+                                try {
+                                    const base64Only = resizedImage.split(',')[1];
+                                    const controller = new AbortController();
+                                    const timeout = setTimeout(() => controller.abort(), 5000);
+
+                                    const resp = await fetch(`${window.server_url}/check_face_match`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            image_data: base64Only,
+                                            lobby_code: lobbyCode,
+                                            display_name: displayName,
+                                        }),
+                                        signal: controller.signal,
+                                    });
+                                    clearTimeout(timeout);
+
+                                    const matchData = await resp.json();
+                                    if (matchData.match) {
+                                        setFaceMatchResult(matchData);
+                                        setShowReclaimModal(true);
+                                        setIsCheckingFace(false);
+                                        return;
+                                    }
+                                } catch (faceErr) {
+                                    console.warn('Face check skipped:', faceErr.message);
+                                }
+                                setIsCheckingFace(false);
+                            }
+
                             setIsCropping(true);
                             setFieldSuccess(prev => ({ ...prev, image: true }));
                             setFieldErrors(prev => ({ ...prev, image: '' }));
@@ -295,6 +336,58 @@ const PureSignupPage = () => {
             console.error('Error cropping the image:', error);
             setError('Failed to crop image. Please try again.');
         }
+    };
+
+    // Face-match reclaim handlers
+    const handleReclaimAccount = () => {
+        if (!faceMatchResult) return;
+
+        if (!faceMatchResult.has_email) {
+            // Path A: no email — use the returned tokens to log in immediately
+            login({
+                access_token: faceMatchResult.access_token,
+                refresh_token: faceMatchResult.refresh_token,
+                username: faceMatchResult.username,
+                permissions: faceMatchResult.permissions,
+            });
+            navigate(`/lobby?code=${lobbyCode}`);
+        }
+        // Path B is handled by handleSendReclaimLink below
+    };
+
+    const handleSendReclaimLink = async () => {
+        if (!faceMatchResult || !faceMatchResult.email) return;
+        setReclaimError('');
+        try {
+            const resp = await fetch(`${window.server_url}/auth/send-magic-link`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: faceMatchResult.email,
+                    lobby_code: lobbyCode,
+                }),
+            });
+            const data = await resp.json();
+            if (data.success) {
+                setReclaimEmailSent(true);
+            } else {
+                setReclaimError(data.error || 'Failed to send link. Please try again.');
+            }
+        } catch (err) {
+            setReclaimError('Network error. Please try again.');
+        }
+    };
+
+    const handleDismissReclaim = () => {
+        setShowReclaimModal(false);
+        setFaceMatchResult(null);
+        setReclaimEmailSent(false);
+        setReclaimError('');
+        // Proceed with normal signup flow — show cropper
+        setIsCropping(true);
+        setFieldSuccess(prev => ({ ...prev, image: true }));
+        setFieldErrors(prev => ({ ...prev, image: '' }));
+        setCanProceed(true);
     };
 
     // Web Credentials API - save credentials to password manager
@@ -492,8 +585,118 @@ const PureSignupPage = () => {
         return <LoadingSpinner fullScreen message={authLoadingMessage} />;
     }
 
+    // Show loading spinner during face-match check
+    if (isCheckingFace) {
+        return <LoadingSpinner fullScreen message="Checking your photo..." />;
+    }
+
     return (
         <div className="signup-container pure-signup">
+
+            {/* Face-match reclaim modal */}
+            <AnimatePresence>
+                {showReclaimModal && faceMatchResult && (
+                    <motion.div
+                        className="modal-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{
+                            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                            backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            padding: '20px',
+                        }}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            style={{
+                                background: 'linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%)',
+                                borderRadius: '20px',
+                                padding: '32px 28px', maxWidth: '380px', width: '100%',
+                                textAlign: 'center', color: '#333',
+                                boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                            }}
+                        >
+                            {!faceMatchResult.has_email ? (
+                                <>
+                                    <h3 style={{ marginBottom: '12px', fontSize: '1.15rem', color: '#4b73ef' }}>
+                                        Welcome back!
+                                    </h3>
+                                    <p style={{ color: '#6b7280', fontSize: '0.95rem', lineHeight: '1.5' }}>
+                                        It looks like you already have an account as{' '}
+                                        <strong style={{ color: '#1a1a2e' }}>{faceMatchResult.matched_display_name}</strong>.
+                                        We'll get you back in.
+                                    </p>
+                                    <button
+                                        onClick={handleReclaimAccount}
+                                        className="primary-button"
+                                        style={{ marginTop: '20px', width: '100%' }}
+                                    >
+                                        Rejoin as {faceMatchResult.matched_display_name}
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <h3 style={{ marginBottom: '12px', fontSize: '1.15rem', color: '#4b73ef' }}>
+                                        Welcome back!
+                                    </h3>
+                                    {!reclaimEmailSent ? (
+                                        <>
+                                            <p style={{ color: '#6b7280', fontSize: '0.95rem', lineHeight: '1.5' }}>
+                                                It looks like you already have an account as{' '}
+                                                <strong style={{ color: '#1a1a2e' }}>{faceMatchResult.matched_display_name}</strong>.
+                                                To reclaim it, we'll send a verification link to:
+                                            </p>
+                                            <p style={{
+                                                color: '#4b73ef', fontWeight: 600,
+                                                fontSize: '1rem', margin: '14px 0',
+                                            }}>
+                                                {faceMatchResult.email}
+                                            </p>
+                                            {reclaimError && (
+                                                <p style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '8px' }}>
+                                                    {reclaimError}
+                                                </p>
+                                            )}
+                                            <button
+                                                onClick={handleSendReclaimLink}
+                                                className="primary-button"
+                                                style={{ marginTop: '10px', width: '100%' }}
+                                            >
+                                                Send Verification Link
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <p style={{ color: '#16a34a', fontSize: '0.95rem', lineHeight: '1.5', marginTop: '8px' }}>
+                                                Link sent! Check your inbox at{' '}
+                                                <strong>{faceMatchResult.email}</strong>{' '}
+                                                and click the link to get back in.
+                                            </p>
+                                        </>
+                                    )}
+                                </>
+                            )}
+
+                            {!reclaimEmailSent && (
+                                <button
+                                    onClick={handleDismissReclaim}
+                                    style={{
+                                        marginTop: '16px', background: 'none', border: 'none',
+                                        color: '#9ca3af', fontSize: '0.85rem', cursor: 'pointer',
+                                        textDecoration: 'underline',
+                                    }}
+                                >
+                                    This isn't me — create a new account
+                                </button>
+                            )}
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
             <button 
                 onClick={() => navigate('/')} 
                 className="homescreen-button"
