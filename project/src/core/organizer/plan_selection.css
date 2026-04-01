@@ -96,7 +96,7 @@
 }
 
 .ps-page-title {
-    color: #0f1729;
+    color: #4b5563;
     font-size: 1.45rem;
     font-weight: 700;
     letter-spacing: -0.02em;
@@ -144,12 +144,31 @@
 }
 
 .ps-attendee-count {
-    min-width: 32px;
+    width: 45px;
     text-align: center;
     font-size: 15px;
+    font-weight: 700;
     color: #0f1729;
-    user-select: none;
     line-height: 1.2;
+    border: 1px solid rgba(107, 114, 128, 0.3);
+    border-radius: 5px;
+    padding: 2px 4px;
+    background: #fff;
+    outline: none;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.ps-attendee-count::-webkit-outer-spin-button,
+.ps-attendee-count::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+.ps-attendee-count:focus {
+    border-color: #144dff;
+    box-shadow: 0 0 0 2px rgba(20, 77, 255, 0.12);
 }
 
 .ps-attendee-arrow {

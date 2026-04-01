@@ -1574,7 +1574,7 @@ const AdminLobbyView = () => {
                         </svg>
                     </button>
                     <img 
-                        src="/assets/reuneo_test_11.png"
+                        src="/assets/reuneo_test_14.png"
                         alt="Reuneo Logo"
                         className="admin-view-logo-img"
                     />

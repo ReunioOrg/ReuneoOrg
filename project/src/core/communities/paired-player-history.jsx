@@ -1044,7 +1044,7 @@ const PairedPlayerHistory = () => {
             
             <div className="paired-player-history-content">
                 <div className="history-logo">
-                    <img src="/assets/reuneo_test_11.png" alt="Reuneo" />
+                    <img src="/assets/reuneo_test_14.png" alt="Reuneo" />
                 </div>
                 <h1 className="paired-player-history-title">Your Connections</h1>
                 
