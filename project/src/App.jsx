@@ -802,8 +802,8 @@ const App = () => {
             >
               <div
                 className="app-dock-item-standalone"
-                onClick={() => navigate('/new_organizer')}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/new_organizer'); } }}
+                onClick={() => window.open('https://reuneo.app/become-an-organizer', '_blank')}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open('https://reuneo.app/become-an-organizer', '_blank'); } }}
                 tabIndex={0}
                 role="button"
                 aria-label="Organizer"
