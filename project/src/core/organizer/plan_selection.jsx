@@ -18,36 +18,46 @@ const PLANS = [
     {
         key: 'single',
         title: 'One-Time Use',
+        subtitle: 'Best for one-off events',
         priceField: 'single_use_price',
         subheader: (qty) => `${qty} activation${qty === 1 ? '' : 's'}`,
         hasQuantity: true,
-        details: [
-            'Full lobby access for each activation',
-            'Custom matchmaking or ice-breaker mode',
-            'Sponsor logo placement',
-            'Match history tracking',
-            'Up to 200 attendees per session',
-            'No recurring commitment',
+        recommended: false,
+        getDetails: (qty, attendees) => [
+            { text: `Up to ${attendees} attendees per session`, included: true },
+            { text: `${qty} activation${qty === 1 ? '' : 's'}`, included: true },
+            { text: '1 free demo activation included', included: true },
+            { text: 'Interest & Random pairing modes', included: true },
+            { text: 'Sponsor logo placement', included: true },
+            { text: 'Match history for attendee follow-ups', included: true },
+            { text: 'Attendee analytics', included: false },
+            { text: 'Discounted attendee upgrades', included: false },
         ],
     },
     {
         key: 'monthly',
         title: 'Monthly Sub',
+        subtitle: 'Best for community builders',
+        badge: 'Best Value',
         priceField: 'monthly_price',
         subheader: (qty) => `${qty} use${qty === 1 ? '' : 's'} per month`,
         hasQuantity: true,
-        details: [
-            'Lobby activations each month',
-            'Custom matchmaking or ice-breaker mode',
-            'Sponsor logo placement',
-            'Match history tracking',
-            'Up to 200 attendees per session',
-            'Cancel anytime',
+        recommended: true,
+        getDetails: (qty, attendees) => [
+            { text: `Up to ${attendees} attendees per session`, included: true },
+            { text: `${qty} activation${qty === 1 ? '' : 's'} per month`, included: true },
+            { text: '3 bonus demo activations monthly', included: true },
+            { text: 'Interest & Random pairing modes', included: true },
+            { text: 'Sponsor logo placement', included: true },
+            { text: 'Match history for attendee follow-ups', included: true },
+            { text: 'Attendee analytics - interests, contacts, pairing history', included: true },
+            { text: 'Discounted attendee upgrades per event', included: true },
         ],
     },
     {
         key: 'custom',
         title: 'Custom',
+        subtitle: '',
         priceField: null,
         priceLabel: 'Book a Call',
         subheader: () => (
@@ -62,13 +72,13 @@ const PLANS = [
             </span>
         ),
         hasQuantity: false,
-        details: [
-            'Tailored plan for your organization',
-            'Custom attendee limits',
-            'Dedicated onboarding support',
-            'Flexible billing options',
-            'Volume discounts available',
-            'White-glove setup assistance',
+        recommended: false,
+        getDetails: () => [
+            { text: 'Tailored plan for your organization', included: true },
+            { text: 'Enterprise features and integrations', included: true },
+            { text: 'Custom attendee limits', included: true },
+            { text: 'Volume discounts available', included: true },
+            { text: 'Dedicated onboarding support', included: true },
         ],
         ctaLabel: 'Schedule Call',
         ctaLink: 'https://calendly.com/julian-reuneo/30min',
@@ -499,7 +509,7 @@ const PlanSelection = () => {
                         <path d="M19 12H5" /><polyline points="12 19 5 12 12 5" />
                     </svg>
                 </button>
-                <img src="/assets/reuneo_test_11.png" alt="Reuneo Logo" className="ps-logo-image" />
+                <img src="/assets/reuneo_test_14.png" alt="Reuneo Logo" className="ps-logo-image" />
                 <div className="ps-nav-placeholder" />
             </nav>
 
@@ -508,61 +518,6 @@ const PlanSelection = () => {
             {isUpgrade && currentPlan && (
                 <div className="ps-current-plan-banner">
                     Currently on <strong>{PLAN_TYPE_LABELS[currentPlan.plan_type] || currentPlan.plan_type}</strong> with <strong>{currentPlan.attendee_limit}</strong> attendees
-                </div>
-            )}
-
-            {fromActiveLobby && suggestions.length > 0 && suggestionPrices.length > 0 && (
-                <div className="ps-quick-upgrade-section">
-                    <h2 className="ps-quick-upgrade-title">Quick Upgrade</h2>
-                    <div className="ps-quick-upgrade-cards">
-                        {suggestionPrices.filter(s => !s.requires_custom && s.listPrice > 0).map((s) => {
-                            const creditCapped = Math.min(credit, s.listPrice - 1);
-                            const youPay = Math.max(Math.ceil(s.listPrice - creditCapped), 1);
-                            const hasDiscount = youPay < s.listPrice;
-                            const isCardLoading = checkoutLoadingPlan === `quick_${s.attendees}`;
-
-                            return (
-                                <div key={s.attendees} className="ps-quick-card">
-                                    <div className="ps-quick-card-attendees">{s.attendees} attendees</div>
-                                    <div className="ps-quick-card-price">
-                                        {hasDiscount && (
-                                            <span className="ps-quick-card-original">${s.listPrice}</span>
-                                        )}
-                                        <span className="ps-quick-card-amount">${youPay}</span>
-                                    </div>
-                                    <div className="ps-quick-card-type">
-                                        {PLAN_TYPE_LABELS[suggestionPlanType]}
-                                    </div>
-                                    <button
-                                        className={`ps-quick-card-cta ${isCardLoading ? 'ps-cta-loading' : ''}`}
-                                        disabled={!!checkoutLoadingPlan}
-                                        onClick={() => handleQuickUpgrade(s.attendees)}
-                                    >
-                                        {isCardLoading ? 'Processing...' : 'Upgrade'}
-                                    </button>
-                                </div>
-                            );
-                        })}
-                    </div>
-                    {credit > 0 && (
-                        <p className="ps-quick-upgrade-disclaimer">
-                            Estimated after plan credit. Final amount confirmed at checkout.
-                        </p>
-                    )}
-                    <button
-                        className="ps-quick-upgrade-viewall"
-                        onClick={() => setShowAllPlans((v) => !v)}
-                    >
-                        {showAllPlans ? 'Hide all plans' : 'View all plans'}
-                    </button>
-                </div>
-            )}
-
-            {fromActiveLobby && suggestions.length === 0 && (
-                <div className="ps-quick-upgrade-section">
-                    <p className="ps-quick-upgrade-disclaimer" style={{ textAlign: 'center' }}>
-                        You're at the maximum plan size. <a href="https://calendly.com/julian-reuneo/30min" target="_blank" rel="noopener noreferrer">Contact us</a> for a custom plan.
-                    </p>
                 </div>
             )}
 
@@ -652,6 +607,61 @@ const PlanSelection = () => {
                 </div>
             )}
 
+            {fromActiveLobby && suggestions.length > 0 && suggestionPrices.length > 0 && (
+                <div className="ps-quick-upgrade-section">
+                    <h2 className="ps-quick-upgrade-title">Quick Upgrade</h2>
+                    <div className="ps-quick-upgrade-cards">
+                        {suggestionPrices.filter(s => !s.requires_custom && s.listPrice > 0).map((s) => {
+                            const creditCapped = Math.min(credit, s.listPrice - 1);
+                            const youPay = Math.max(Math.ceil(s.listPrice - creditCapped), 1);
+                            const hasDiscount = youPay < s.listPrice;
+                            const isCardLoading = checkoutLoadingPlan === `quick_${s.attendees}`;
+
+                            return (
+                                <div key={s.attendees} className="ps-quick-card">
+                                    <div className="ps-quick-card-attendees">{s.attendees} attendees</div>
+                                    <div className="ps-quick-card-price">
+                                        {hasDiscount && (
+                                            <span className="ps-quick-card-original">${s.listPrice}</span>
+                                        )}
+                                        <span className="ps-quick-card-amount">${youPay}</span>
+                                    </div>
+                                    <div className="ps-quick-card-type">
+                                        {PLAN_TYPE_LABELS[suggestionPlanType]}
+                                    </div>
+                                    <button
+                                        className={`ps-quick-card-cta ${isCardLoading ? 'ps-cta-loading' : ''}`}
+                                        disabled={!!checkoutLoadingPlan}
+                                        onClick={() => handleQuickUpgrade(s.attendees)}
+                                    >
+                                        {isCardLoading ? 'Processing...' : 'Upgrade'}
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    {credit > 0 && (
+                        <p className="ps-quick-upgrade-disclaimer">
+                            Estimated after plan credit. Final amount confirmed at checkout.
+                        </p>
+                    )}
+                    <button
+                        className="ps-quick-upgrade-viewall"
+                        onClick={() => setShowAllPlans((v) => !v)}
+                    >
+                        {showAllPlans ? 'Hide all plans' : 'View all plans'}
+                    </button>
+                </div>
+            )}
+
+            {fromActiveLobby && suggestions.length === 0 && (
+                <div className="ps-quick-upgrade-section">
+                    <p className="ps-quick-upgrade-disclaimer" style={{ textAlign: 'center' }}>
+                        You're at the maximum plan size. <a href="https://calendly.com/julian-reuneo/30min" target="_blank" rel="noopener noreferrer">Contact us</a> for a custom plan.
+                    </p>
+                </div>
+            )}
+
             {showAllPlans && (!isUpgrade || isFreeTrialOnly) && (
                 <button
                     className={`ps-free-trial ${checkoutLoadingPlan === 'free_trial' ? 'ps-cta-loading' : ''} ${isFreeTrialOnly ? 'ps-free-trial-highlighted' : ''}`}
@@ -707,6 +717,8 @@ const PlanSelection = () => {
                                 key={plan.key}
                                 className={[
                                     'ps-column',
+                                    plan.recommended ? 'ps-column-recommended' : '',
+                                    plan.key === 'single' ? 'ps-column-secondary' : '',
                                     isDisabled ? 'ps-column-disabled' : '',
                                     isHighlighted ? 'ps-column-highlighted' : '',
                                 ].filter(Boolean).join(' ')}
@@ -714,7 +726,11 @@ const PlanSelection = () => {
                                 {isCurrent && (
                                     <div className="ps-current-badge">Current Plan</div>
                                 )}
-                                <div className="ps-column-title">{plan.title}</div>
+                                <div className="ps-column-title">
+                                    {plan.badge && <div className="ps-column-badge">{plan.badge}</div>}
+                                    {plan.title}
+                                </div>
+                                {plan.subtitle && <div className="ps-column-subtitle">{plan.subtitle}</div>}
 
                                 <div className="ps-price-section">
                                     {plan.priceField ? (
@@ -766,13 +782,15 @@ const PlanSelection = () => {
                                 )}
 
                                 <ul className="ps-plan-details">
-                                    {plan.details.map((item, i) => (
-                                        <li key={i}>{item}</li>
+                                    {plan.getDetails(qty, activeAttendees).map((item, i) => (
+                                        <li key={i} className={item.included ? 'ps-detail-included' : 'ps-detail-excluded'}>
+                                            {item.text}
+                                        </li>
                                     ))}
                                 </ul>
 
                                 <button
-                                    className={`ps-cta ${isDisabled ? 'ps-cta-disabled' : ''} ${isThisPlanLoading ? 'ps-cta-loading' : ''}`}
+                                    className={`ps-cta${plan.key === 'single' ? ' ps-cta-secondary' : ''} ${isDisabled ? 'ps-cta-disabled' : ''} ${isThisPlanLoading ? 'ps-cta-loading' : ''}`}
                                     disabled={isDisabled || !!checkoutLoadingPlan}
                                     onClick={() => {
                                         if (isDisabled) return;
@@ -790,6 +808,74 @@ const PlanSelection = () => {
                     })
                 )}
             </div>
+            )}
+
+            {showAllPlans && !isLoading && (
+                <div className="ps-compare-section">
+                    <h2 className="ps-compare-title">Compare Plans</h2>
+                    <div className="ps-compare-table-wrapper">
+                        <table className="ps-compare-table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>One-Time</th>
+                                    <th className="ps-compare-highlight">Monthly</th>
+                                    <th>Custom</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Attendees per session</td>
+                                    <td>Up to {activeAttendees}</td>
+                                    <td className="ps-compare-highlight">Up to {activeAttendees}</td>
+                                    <td>Custom</td>
+                                </tr>
+                                <tr>
+                                    <td>Activations</td>
+                                    <td>{singleQuantity} per purchase</td>
+                                    <td className="ps-compare-highlight">{monthlyQuantity}/month</td>
+                                    <td>Custom</td>
+                                </tr>
+                                <tr>
+                                    <td>Demo activations</td>
+                                    <td>1 per purchase</td>
+                                    <td className="ps-compare-highlight">3/month</td>
+                                    <td>Custom</td>
+                                </tr>
+                                <tr>
+                                    <td>Interest &amp; Random pairing</td>
+                                    <td><span className="ps-compare-check">✓</span></td>
+                                    <td className="ps-compare-highlight"><span className="ps-compare-check">✓</span></td>
+                                    <td><span className="ps-compare-check">✓</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Sponsor logo</td>
+                                    <td><span className="ps-compare-check">✓</span></td>
+                                    <td className="ps-compare-highlight"><span className="ps-compare-check">✓</span></td>
+                                    <td><span className="ps-compare-check">✓</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Match history for follow-ups</td>
+                                    <td><span className="ps-compare-check">✓</span></td>
+                                    <td className="ps-compare-highlight"><span className="ps-compare-check">✓</span></td>
+                                    <td><span className="ps-compare-check">✓</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Attendee analytics</td>
+                                    <td><span className="ps-compare-x">—</span></td>
+                                    <td className="ps-compare-highlight"><span className="ps-compare-check">✓</span></td>
+                                    <td><span className="ps-compare-check">✓</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Discounted upgrades</td>
+                                    <td><span className="ps-compare-x">—</span></td>
+                                    <td className="ps-compare-highlight"><span className="ps-compare-check">✓</span></td>
+                                    <td><span className="ps-compare-check">✓</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             )}
 
             {/* Upgrade Confirmation Modal */}
