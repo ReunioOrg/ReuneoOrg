@@ -54,6 +54,7 @@ const CreateLobbyView = () => {
 
     // ── UI State ──
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingCode, setIsLoadingCode] = useState(false);
     const [error, setError] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [pendingTabSwitch, setPendingTabSwitch] = useState(null);
@@ -76,7 +77,11 @@ const CreateLobbyView = () => {
     // ── Initialization + hydration from lobbyData ──
     useEffect(() => {
         window.scrollTo(0, 0);
-        setLobbyCode(generateLobbyCode());
+        if (user) {
+            fetchLobbyCode();
+        } else {
+            setLobbyCode(generateLobbyCode());
+        }
 
         if (hydratedRef.current) return;
 
@@ -165,6 +170,26 @@ const CreateLobbyView = () => {
     // ── Helpers ──
     const generateLobbyCode = () =>
         Array.from({ length: 6 }, () => 'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]).join('');
+
+    const fetchLobbyCode = async (forceNew = false) => {
+        setIsLoadingCode(true);
+        try {
+            const res = await apiFetch(`/generate_lobby_code${forceNew ? '?force_new=true' : ''}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.lobby_code) {
+                    setLobbyCode(data.lobby_code);
+                    return;
+                }
+            }
+            setLobbyCode(generateLobbyCode());
+        } catch (err) {
+            console.error('Error fetching lobby code:', err);
+            setLobbyCode(generateLobbyCode());
+        } finally {
+            setIsLoadingCode(false);
+        }
+    };
 
     const validateLobbyCode = (code) => {
         return code.length >= 2 && /^[a-z0-9]+$/.test(code);
@@ -634,6 +659,14 @@ const CreateLobbyView = () => {
         </svg>
     );
 
+    const RefreshIcon = () => (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+    );
+
     const PencilHint = () => (
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af"
             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
@@ -1080,25 +1113,37 @@ const CreateLobbyView = () => {
 
                 {/* Lobby Code */}
                 <div className="review-section">
-                    {isEditingReview ? (
-                        <div className="review-edit-group">
-                            <label className="review-edit-label" style={{ textAlign: 'center', minWidth: 'auto' }}>Lobby Code</label>
-                            <input type="text" value={lobbyCode}
-                                onChange={handleLobbyCodeChange}
-                                className="form-input review-inline-input" autoComplete="off"
-                                placeholder="Enter lobby code" />
-                            {lobbyCode && !validateLobbyCode(lobbyCode) && (
-                                <div className="input-hint" style={{ color: '#dc2626' }}>
-                                    Min 2 chars, lowercase letters and numbers only
-                                </div>
+                    <div className="review-section-content lobby-code-row">
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                            <span className="review-value-secondary">lobby code</span>
+                            {isLegacyOrganizer ? (
+                                <>
+                                    <input type="text" value={lobbyCode}
+                                        onChange={handleLobbyCodeChange}
+                                        className="form-input review-inline-input" autoComplete="off"
+                                        placeholder="Enter lobby code" />
+                                    {lobbyCode && !validateLobbyCode(lobbyCode) && (
+                                        <div className="input-hint" style={{ color: '#dc2626' }}>
+                                            Min 2 chars, lowercase letters and numbers only
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <span className="review-value-primary">
+                                    {isLoadingCode ? '...' : lobbyCode}
+                                </span>
                             )}
                         </div>
-                    ) : (
-                        <div className="review-section-content">
-                            <span className="review-value-secondary">lobby code</span>
-                            <span className="review-value-primary">{lobbyCode}</span>
-                        </div>
-                    )}
+                        <button
+                            type="button"
+                            className="regenerate-code-button"
+                            onClick={() => fetchLobbyCode(true)}
+                            disabled={isLoadingCode}
+                            title="Generate a new lobby code"
+                        >
+                            <RefreshIcon />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Match History */}
@@ -1144,11 +1189,11 @@ const CreateLobbyView = () => {
             {error && <div className="error-message">{error}</div>}
 
             <button className="step-cta create-cta" onClick={handleSubmit}
-                disabled={isLoading || !validateLobbyCode(lobbyCode)}>
+                disabled={isLoading || isLoadingCode || !validateLobbyCode(lobbyCode)}>
                 {isLoading ? 'Creating...' : 'Create'}
                 {!isLoading && <SparkleIcon />}
             </button>
-            {!isLoading && !validateLobbyCode(lobbyCode) && (
+            {isLegacyOrganizer && !isLoading && !validateLobbyCode(lobbyCode) && (
                 <p className="input-hint" style={{ color: '#dc2626', textAlign: 'center', marginTop: '8px', fontSize: '13px' }}>
                     Lobby code must be at least 2 characters, lowercase letters and numbers only
                 </p>

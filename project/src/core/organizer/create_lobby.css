@@ -661,6 +661,36 @@
     font-weight: 500;
 }
 
+.lobby-code-row {
+    flex-direction: row;
+    justify-content: center;
+    gap: 12px;
+}
+
+.regenerate-code-button {
+    background: none;
+    border: 1.5px solid rgba(20, 77, 255, 0.25);
+    border-radius: 8px;
+    padding: 6px 8px;
+    cursor: pointer;
+    color: #144dff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.regenerate-code-button:hover:not(:disabled) {
+    background: rgba(20, 77, 255, 0.06);
+    border-color: rgba(20, 77, 255, 0.45);
+}
+
+.regenerate-code-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 .review-edit-group {
     display: flex;
     flex-direction: column;
