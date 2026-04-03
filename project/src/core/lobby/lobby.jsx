@@ -143,6 +143,7 @@ const LobbyScreen = () => {
     const isTerminatingRef = useRef(false);  // Guard: prevent re-triggering termination jingle
     const audioSwitchoverDone = useRef(false);  // Guard: tracks if ambient→main audio switchover has been attempted
     const [lobbyState, setLobbyState] = useState(null);
+    const [lobbyCreatorUsername, setLobbyCreatorUsername] = useState(null);
     const [roundTimeLeft, setRoundTimeLeft] = useState(null);
     const [roundDisplayTime, setRoundDisplayTime] = useState(null);
     const [roundDuration, setRoundDuration] = useState(null);
@@ -430,6 +431,7 @@ const LobbyScreen = () => {
                 }
                 setTagsState(data.custom_tags);
                 setLobbyState(data.lobby_state);
+                setLobbyCreatorUsername(data.lobby_creator_username);
                 setRoundDuration(data.lobby_duration);
                 
                 // Add validation check for round_time_left to ensure it's a valid number
@@ -1435,7 +1437,7 @@ const LobbyScreen = () => {
                     onTutorialClick={() => setShowTutorial(true)}
                     userImage={userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : null}
                 />
-                {(permissions === "admin" || permissions === "organizer") && (
+                {(permissions === "admin" || (permissions === "organizer" && lobbyCreatorUsername === user)) && (
                     <button 
                         className="admin-view-button" 
                         onClick={() => navigate(`/admin_lobby_view?code=${lobbyCode}`)}

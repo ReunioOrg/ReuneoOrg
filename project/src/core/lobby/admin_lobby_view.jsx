@@ -1427,6 +1427,10 @@ const AdminLobbyView = () => {
                         setLobbyData([]);
                         setPairedPlayers([]);
                     }
+                } else if (response.status === 403) {
+                    clearInterval(interval);
+                    navigate('/');
+                    return;
                 } else {
                     console.error("Failed to fetch admin lobby data:", response.status);
                 }
