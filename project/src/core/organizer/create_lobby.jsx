@@ -1116,7 +1116,7 @@ const CreateLobbyView = () => {
                     <div className="review-section-content lobby-code-row">
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                             <span className="review-value-secondary">lobby code</span>
-                            {isLegacyOrganizer ? (
+                            {(isLegacyOrganizer || permissions === 'admin') ? (
                                 <>
                                     <input type="text" value={lobbyCode}
                                         onChange={handleLobbyCodeChange}
@@ -1193,7 +1193,7 @@ const CreateLobbyView = () => {
                 {isLoading ? 'Creating...' : 'Create'}
                 {!isLoading && <SparkleIcon />}
             </button>
-            {isLegacyOrganizer && !isLoading && !validateLobbyCode(lobbyCode) && (
+            {(isLegacyOrganizer || permissions === 'admin') && !isLoading && !validateLobbyCode(lobbyCode) && (
                 <p className="input-hint" style={{ color: '#dc2626', textAlign: 'center', marginTop: '8px', fontSize: '13px' }}>
                     Lobby code must be at least 2 characters, lowercase letters and numbers only
                 </p>
