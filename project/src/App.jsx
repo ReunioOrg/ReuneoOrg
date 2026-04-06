@@ -671,7 +671,7 @@ const App = () => {
   return (
     <>
     {isDesktop && createPortal(<FloatingLinesBackground />, document.body)}
-    {isDesktop && !user && createPortal(<DesktopHeroOverlay />, document.body)}
+    {isDesktop && createPortal(<DesktopHeroOverlay />, document.body)}
     <div style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden', zIndex: 1 }}>
 
       {/* <div style={{position: 'absolute', top: '40%', left: '50%', width: '100%', height: '10%', zIndex: 1000}}>
