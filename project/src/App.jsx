@@ -15,6 +15,7 @@ import { CommunityPageButton } from './core/community/mycf';
 import FloatingLinesBackground from './core/organizer/FloatingLinesBackground';
 import BorderGlow from './core/components/BorderGlow/BorderGlow';
 import DesktopHeroOverlay from './core/components/DesktopHeroOverlay/DesktopHeroOverlay';
+import AnimatedText from './core/components/AnimatedText/AnimatedText';
 
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
 import { getStoredLobbyCode, shouldValidateLobby, markLobbyValidated, clearLobbyStorage } from './core/utils/lobbyStorage';
@@ -865,7 +866,22 @@ const App = () => {
           transform: 'translateX(-50%)'
         }}>
           {!user ? (
-            null
+            !isDesktop ? (
+              <h2 className="welcome-header" style={{
+                color: '#ffffff',
+                fontSize: '0.8rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                textShadow: '4px 4px 8px rgba(0,0,0,0.9)',
+                margin: 0
+              }}>
+                <AnimatedText
+                  text="Real events. Real engagement"
+                  stagger={0.04}
+                  duration={0.6}
+                />
+              </h2>
+            ) : null
           ) : (
             <h2 className="welcome-header" style={{ 
               color: '#ffffff',
