@@ -1,0 +1,58 @@
+.desktop-hero-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hero-tagline {
+  position: absolute;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  text-shadow:
+    0 2px 20px rgba(0, 0, 0, 0.08),
+    0 0 40px rgba(20, 77, 255, 0.06);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Phase 1: flanking the phone at mid-height */
+.hero-mid-left {
+  right: calc(50% + 225px);
+  top: 25%;
+  text-align: right;
+}
+
+.hero-mid-right {
+  left: calc(50% + 225px);
+  top: 25%;
+  text-align: left;
+}
+
+/* Phase 2: flanking the phone, lower on screen */
+.hero-low-left {
+  right: calc(50% + 225px);
+  top: 70%;
+  text-align: right;
+}
+
+.hero-low-right {
+  left: calc(50% + 225px);
+  top: 70%;
+  text-align: left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desktop-hero-overlay {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .desktop-hero-overlay {
+    display: none;
+  }
+}

@@ -14,6 +14,7 @@ import PureSignupPage from './core/Auth/PureSignupPage';
 import { CommunityPageButton } from './core/community/mycf';
 import FloatingLinesBackground from './core/organizer/FloatingLinesBackground';
 import BorderGlow from './core/components/BorderGlow/BorderGlow';
+import DesktopHeroOverlay from './core/components/DesktopHeroOverlay/DesktopHeroOverlay';
 
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
 import { getStoredLobbyCode, shouldValidateLobby, markLobbyValidated, clearLobbyStorage } from './core/utils/lobbyStorage';
@@ -670,6 +671,7 @@ const App = () => {
   return (
     <>
     {isDesktop && createPortal(<FloatingLinesBackground />, document.body)}
+    {isDesktop && !user && createPortal(<DesktopHeroOverlay />, document.body)}
     <div style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden', zIndex: 1 }}>
 
       {/* <div style={{position: 'absolute', top: '40%', left: '50%', width: '100%', height: '10%', zIndex: 1000}}>
