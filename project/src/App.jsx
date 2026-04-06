@@ -694,7 +694,7 @@ const App = () => {
           <img  
             src="/assets/reuneo_test_15.png"
             alt="Logo"
-            style={{width: '100px',height: '100px',objectFit: 'contain'}}
+            style={{width: '120px',height: '120px',objectFit: 'contain'}}
           />
         </div>
 
@@ -811,7 +811,7 @@ const App = () => {
                 aria-label="Organizer"
               >
                 <div className="app-dock-icon"><OrganizerIcon /></div>
-                <span className="app-dock-label">Create</span>
+                <span className="app-dock-label shiny-text">Create</span>
               </div>
             </BorderGlow>
           </div>
@@ -844,7 +844,7 @@ const App = () => {
                 aria-label="Create Lobby"
               >
                 <div className="app-dock-icon"><OrganizerIcon /></div>
-                <span className="app-dock-label">Create</span>
+                <span className="app-dock-label shiny-text">Create</span>
               </div>
             </BorderGlow>
           </div>

@@ -21,6 +21,7 @@ const PHASES = [
 
 const HOLD_DURATION = 900;
 const GAP_BETWEEN_PHASES = 150;
+const LOOP_PAUSE = 1500;
 
 const phaseExitVariant = {
   exit: {
@@ -31,7 +32,7 @@ const phaseExitVariant = {
 
 function DesktopHeroOverlay() {
   const [phase, setPhase] = useState(0);
-  const [finished, setFinished] = useState(false);
+  const loopRef = useRef(0);
   const completedCountRef = useRef(0);
   const holdTimerRef = useRef(null);
   const gapTimerRef = useRef(null);
@@ -44,7 +45,6 @@ function DesktopHeroOverlay() {
     };
   }, []);
 
-  // Reset completion counter when phase changes
   useEffect(() => {
     completedCountRef.current = 0;
   }, [phase]);
@@ -55,19 +55,25 @@ function DesktopHeroOverlay() {
 
     if (completedCountRef.current >= taglinesInPhase) {
       holdTimerRef.current = setTimeout(() => {
-        setPhase(-1); // trigger exit fade-out
+        setPhase(-1);
+        const isLastPhase = phase >= PHASES.length - 1;
+        const delay = isLastPhase
+          ? 500 + LOOP_PAUSE
+          : 500 + GAP_BETWEEN_PHASES;
+
         gapTimerRef.current = setTimeout(() => {
-          if (phase < PHASES.length - 1) {
-            setPhase(phase + 1);
+          if (isLastPhase) {
+            loopRef.current += 1;
+            setPhase(0);
           } else {
-            setFinished(true);
+            setPhase(phase + 1);
           }
-        }, GAP_BETWEEN_PHASES + 500); // 500ms for exit animation to complete
+        }, delay);
       }, HOLD_DURATION);
     }
   }, [phase]);
 
-  if (finished || prefersReducedMotion) return null;
+  if (prefersReducedMotion) return null;
 
   const currentPhase = PHASES[phase];
 
@@ -76,7 +82,7 @@ function DesktopHeroOverlay() {
       <AnimatePresence mode="wait">
         {currentPhase && (
           <motion.div
-            key={phase}
+            key={`${loopRef.current}-${phase}`}
             variants={phaseExitVariant}
             exit="exit"
             style={{ position: 'absolute', inset: 0 }}
