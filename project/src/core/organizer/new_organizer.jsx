@@ -86,9 +86,6 @@ const NewOrganizerView = () => {
             ).join('');
             setLobbyCode(randomCode);
         }
-        if (!returnData && !localStorage.getItem('reuneo_general_tutorial_seen')) {
-            setShowGeneralTutorial(true);
-        }
     }, []);
 
     useEffect(() => {
@@ -115,7 +112,6 @@ const NewOrganizerView = () => {
 
     const handleGeneralTutorialComplete = () => {
         setShowGeneralTutorial(false);
-        localStorage.setItem('reuneo_general_tutorial_seen', 'true');
     };
 
     const handleGeneralTutorialReplay = () => {

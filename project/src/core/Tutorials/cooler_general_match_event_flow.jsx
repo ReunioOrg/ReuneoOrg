@@ -95,6 +95,17 @@ const MIX_SETS = [
 
 const PAIR_REVEAL_ORDER = [1, 0, 4, 3, 6, 7, 5, 2];
 
+const PROFILE_IMAGES = [
+    '/assets/kate_rodriguez.png',
+    '/assets/tony_chopper.jpg',
+    '/assets/lolita_johnson.png',
+    '/assets/eddy_nunez.png',
+    '/assets/sarah_ramirez.png',
+    '/assets/ken_johnson.png',
+    '/assets/topaz_jones.png',
+    '/assets/sarah_riez.png',
+];
+
 const CONVO_TEXTS = [
     { text: 'What do you do?', x: 48, y: 12 },
     { text: 'This is so fun!', x: 18, y: 25 },
@@ -502,13 +513,11 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
                                     const pairIdx = Math.floor(c.id / 2);
                                     const revealPos = PAIR_REVEAL_ORDER.indexOf(pairIdx);
                                     if (revealPos >= phoneRevealCount) return null;
-                                    const imgSrc = c.id % 2 === 0
-                                        ? '/assets/tony_chopper.jpg'
-                                        : '/assets/kate_rodriguez.png';
+                                    const imgSrc = PROFILE_IMAGES[c.id % PROFILE_IMAGES.length];
                                     return (
                                         <div
                                             key={`dp-${c.id}`}
-                                            className="cmef-dot-phone"
+                                            className={`cmef-dot-phone${(showConvo || showRound2Convo || showRound3Convo) ? ' cmef-phones-above' : ''}`}
                                             style={{ left: `${c.x}%`, top: `${c.y}%` }}
                                         >
                                             <PhoneFrame imageSrc={imgSrc} />
@@ -523,11 +532,35 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
                                 </div>
                             )}
                             {showConvo && (
-                                <div className={`cmef-convo-overlay ${convoFading ? 'cmef-convo-fade' : ''}`}>
-                                    {CONVO_TEXTS.map((item, i) => (
-                                        i < convoRevealCount && (
+                                <>
+                                    <div className={`cmef-convo-overlay ${convoFading ? 'cmef-convo-fade' : ''}`} />
+                                    <div className={`cmef-convo-text-layer ${convoFading ? 'cmef-convo-fade' : ''}`}>
+                                        {CONVO_TEXTS.map((item, i) => (
+                                            i < convoRevealCount && (
+                                                <div
+                                                    key={`convo-${i}`}
+                                                    className="cmef-convo-text"
+                                                    style={{ left: `${item.x}%`, top: `${item.y}%` }}
+                                                >
+                                                    <span className="cmef-convo-word">{item.text}</span>
+                                                    <div className="cmef-confetti-burst">
+                                                        {[1,2,3,4,5,6,7,8].map(n => (
+                                                            <span key={n} className={`cmef-conf cmef-c${n}`} />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                            {showRound2Convo && (
+                                <>
+                                    <div className="cmef-convo-overlay cmef-convo-light" />
+                                    <div className="cmef-convo-text-layer cmef-convo-glow">
+                                        {CONVO_TEXTS.map((item, i) => (
                                             <div
-                                                key={`convo-${i}`}
+                                                key={`r2convo-${i}`}
                                                 className="cmef-convo-text"
                                                 style={{ left: `${item.x}%`, top: `${item.y}%` }}
                                             >
@@ -538,45 +571,30 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
                                                     ))}
                                                 </div>
                                             </div>
-                                        )
-                                    ))}
-                                </div>
-                            )}
-                            {showRound2Convo && (
-                                <div className="cmef-convo-overlay cmef-convo-light">
-                                    {CONVO_TEXTS.map((item, i) => (
-                                        <div
-                                            key={`r2convo-${i}`}
-                                            className="cmef-convo-text"
-                                            style={{ left: `${item.x}%`, top: `${item.y}%` }}
-                                        >
-                                            <span className="cmef-convo-word">{item.text}</span>
-                                            <div className="cmef-confetti-burst">
-                                                {[1,2,3,4,5,6,7,8].map(n => (
-                                                    <span key={n} className={`cmef-conf cmef-c${n}`} />
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                                        ))}
+                                    </div>
+                                </>
                             )}
                             {showRound3Convo && (
-                                <div className="cmef-convo-overlay cmef-convo-light">
-                                    {CONVO_TEXTS.map((item, i) => (
-                                        <div
-                                            key={`r3convo-${i}`}
-                                            className="cmef-convo-text"
-                                            style={{ left: `${item.x}%`, top: `${item.y}%` }}
-                                        >
-                                            <span className="cmef-convo-word">{item.text}</span>
-                                            <div className="cmef-confetti-burst">
-                                                {[1,2,3,4,5,6,7,8].map(n => (
-                                                    <span key={n} className={`cmef-conf cmef-c${n}`} />
-                                                ))}
+                                <>
+                                    <div className="cmef-convo-overlay cmef-convo-light" />
+                                    <div className="cmef-convo-text-layer cmef-convo-glow">
+                                        {CONVO_TEXTS.map((item, i) => (
+                                            <div
+                                                key={`r3convo-${i}`}
+                                                className="cmef-convo-text"
+                                                style={{ left: `${item.x}%`, top: `${item.y}%` }}
+                                            >
+                                                <span className="cmef-convo-word">{item.text}</span>
+                                                <div className="cmef-confetti-burst">
+                                                    {[1,2,3,4,5,6,7,8].map(n => (
+                                                        <span key={n} className={`cmef-conf cmef-c${n}`} />
+                                                    ))}
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
-                                </div>
+                                        ))}
+                                    </div>
+                                </>
                             )}
                         </div>
                     )}
@@ -597,6 +615,11 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
                     )}
                 </div>
             </div>
+            {s < 27 && (
+                <button className="cmef-skip" onClick={finishTutorial}>
+                    skip <span className="cmef-skip-arrow">{'\u2192'}</span>
+                </button>
+            )}
         </div>
     );
 };

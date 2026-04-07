@@ -10,7 +10,7 @@ import FloatingLinesBackground from './FloatingLinesBackground';
 import TutorialMatchHistory from '../Tutorials/tutorial-match-history';
 import TutorialMatching from '../Tutorials/tutorial-matching';
 import TutorialRandomMatching from '../Tutorials/tutorial-random-matching';
-import TutorialGeneralIntroMatching from '../Tutorials/tutorial-general-intro-matching';
+import CoolerGeneralMatchEventFlow from '../Tutorials/cooler_general_match_event_flow';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const CreateLobbyView = () => {
@@ -132,13 +132,6 @@ const CreateLobbyView = () => {
         fetchLobbyData();
     }, [user, location.state]);
 
-    // ── Auto-play general tutorial for first-time visitors on step 1 ──
-    useEffect(() => {
-        const hasRouterData = location.state?.lobbyData;
-        if (!hasRouterData && !localStorage.getItem('reuneo_general_tutorial_seen')) {
-            setShowGeneralTutorial(true);
-        }
-    }, []);
 
     // ── Fetch plan limit for regular organizers ──
     useEffect(() => {
@@ -207,10 +200,7 @@ const CreateLobbyView = () => {
     const handleTutorialReplay = () => setShowTutorial(true);
     const handleRandomTutorialComplete = () => setShowRandomTutorial(false);
     const handleRandomTutorialReplay = () => setShowRandomTutorial(true);
-    const handleGeneralTutorialComplete = () => {
-        setShowGeneralTutorial(false);
-        localStorage.setItem('reuneo_general_tutorial_seen', 'true');
-    };
+    const handleGeneralTutorialComplete = () => setShowGeneralTutorial(false);
     const handleGeneralTutorialReplay = () => setShowGeneralTutorial(true);
 
     // ── Navigation ──
@@ -1293,7 +1283,7 @@ const CreateLobbyView = () => {
                 isVisible={showRandomTutorial}
                 onComplete={handleRandomTutorialComplete}
             />
-            <TutorialGeneralIntroMatching
+            <CoolerGeneralMatchEventFlow
                 isVisible={showGeneralTutorial}
                 onComplete={handleGeneralTutorialComplete}
             />
