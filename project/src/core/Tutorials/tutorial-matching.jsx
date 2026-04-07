@@ -45,10 +45,10 @@ const CHAT_BLURBS = [
     { text: "Same!",           left: 8,  top: 58, delay: 1.15 },
 ];
 
-const PersonIcon = ({ color = '#144dff' }) => (
+const PersonIcon = ({ color = '#3b82f6' }) => (
     <svg viewBox="0 0 48 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="24" cy="12" r="9" fill={color} />
-        <polygon points="24,14 5,60 43,60" fill={color} />
+        <circle cx="24" cy="10" r="9" fill={color} />
+        <rect x="10" y="23" width="28" height="40" rx="14" fill={color} />
     </svg>
 );
 
@@ -314,13 +314,12 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                 {/* "It's a Match!" pop — between persons during close-together */}
                 {(sceneIndex === 11 || sceneIndex === 24 || sceneIndex === 27) && (
                     <div className="tutorial-match-toast" key={sceneIndex}>
-                        <span className="match-sparkle ms-1">✦</span>
-                        <span className="match-sparkle ms-2">✦</span>
-                        <span className="match-sparkle ms-3">✧</span>
-                        <span className="match-sparkle ms-4">✦</span>
-                        <span className="match-sparkle ms-5">✧</span>
-                        <span className="match-sparkle ms-6">✦</span>
                         <span className="match-text-inner">Nice to meet you!</span>
+                        <div className="tm-confetti-burst">
+                            {[1,2,3,4,5,6,7,8].map(n => (
+                                <span key={n} className={`tm-conf tm-c${n}`} />
+                            ))}
+                        </div>
                     </div>
                 )}
 
@@ -461,19 +460,19 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                             animationDelay: `${blurb.delay}s`,
                         }}
                     >
-                        <span
-                            className="blurb-sparkle blurb-sp-a"
-                            style={{ animationDelay: `${blurb.delay + 0.1}s` }}
-                        >✦</span>
-                        <span
-                            className="blurb-sparkle blurb-sp-b"
-                            style={{ animationDelay: `${blurb.delay + 0.2}s` }}
-                        >✧</span>
                         <span className="tutorial-blurb-text">{blurb.text}</span>
+                        <div className="tm-confetti-burst">
+                            {[1,2,3,4,5,6,7,8].map(n => (
+                                <span key={n} className={`tm-conf tm-c${n}`} />
+                            ))}
+                        </div>
                     </div>
                 ))}
                 </div>
             </div>
+            <button className="tm-skip" onClick={finishTutorial}>
+                skip <span className="tm-skip-arrow">{'\u2192'}</span>
+            </button>
         </div>
     );
 };

@@ -24,10 +24,10 @@ const CHAT_BLURBS = [
     { text: "Same!",           left: 8,  top: 58, delay: 1.15 },
 ];
 
-const PersonIcon = ({ color = '#144dff' }) => (
+const PersonIcon = ({ color = '#3b82f6' }) => (
     <svg viewBox="0 0 48 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="24" cy="12" r="9" fill={color} />
-        <polygon points="24,14 5,60 43,60" fill={color} />
+        <circle cx="24" cy="10" r="9" fill={color} />
+        <rect x="10" y="23" width="28" height="40" rx="14" fill={color} />
     </svg>
 );
 
@@ -105,13 +105,12 @@ const TutorialRandomMatching = ({ isVisible, onComplete }) => {
                 {/* "Nice to meet you!" toast */}
                 {(sceneIndex === 2 || sceneIndex === 6) && (
                     <div className="rmt-match-toast" key={sceneIndex}>
-                        <span className="rmt-sparkle rmt-sp-1">✦</span>
-                        <span className="rmt-sparkle rmt-sp-2">✦</span>
-                        <span className="rmt-sparkle rmt-sp-3">✧</span>
-                        <span className="rmt-sparkle rmt-sp-4">✦</span>
-                        <span className="rmt-sparkle rmt-sp-5">✧</span>
-                        <span className="rmt-sparkle rmt-sp-6">✦</span>
                         <span className="rmt-match-text">Nice to meet you!</span>
+                        <div className="rmt-confetti-burst">
+                            {[1,2,3,4,5,6,7,8].map(n => (
+                                <span key={n} className={`rmt-conf rmt-c${n}`} />
+                            ))}
+                        </div>
                     </div>
                 )}
 
@@ -168,19 +167,19 @@ const TutorialRandomMatching = ({ isVisible, onComplete }) => {
                             animationDelay: `${blurb.delay}s`,
                         }}
                     >
-                        <span
-                            className="rmt-blurb-sparkle rmt-bsp-a"
-                            style={{ animationDelay: `${blurb.delay + 0.1}s` }}
-                        >✦</span>
-                        <span
-                            className="rmt-blurb-sparkle rmt-bsp-b"
-                            style={{ animationDelay: `${blurb.delay + 0.2}s` }}
-                        >✧</span>
                         <span className="rmt-blurb-text">{blurb.text}</span>
+                        <div className="rmt-confetti-burst">
+                            {[1,2,3,4,5,6,7,8].map(n => (
+                                <span key={n} className={`rmt-conf rmt-c${n}`} />
+                            ))}
+                        </div>
                     </div>
                 ))}
             </div>
             </div>
+            <button className="rmt-skip" onClick={finishTutorial}>
+                skip <span className="rmt-skip-arrow">{'\u2192'}</span>
+            </button>
         </div>
     );
 };

@@ -687,7 +687,6 @@ const NewOrganizerView = () => {
                             className="tutorial-pill-button step1-fade-pills"
                             onClick={handleTutorialReplay}
                         >
-                            <span>see how it works</span>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="12" cy="12" r="10" />
                                 <line x1="12" y1="16" x2="12" y2="12" />
@@ -709,7 +708,6 @@ const NewOrganizerView = () => {
                             className="tutorial-pill-button step1-fade-pills"
                             onClick={handleRandomTutorialReplay}
                         >
-                            <span>see how it works</span>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="12" cy="12" r="10" />
                                 <line x1="12" y1="16" x2="12" y2="12" />
@@ -723,7 +721,6 @@ const NewOrganizerView = () => {
                     className="tutorial-pill-button tutorial-general-pill step1-fade-general"
                     onClick={handleGeneralTutorialReplay}
                 >
-                    <span>general tutorial</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="12" cy="12" r="10" />
                         <line x1="12" y1="16" x2="12" y2="12" />
