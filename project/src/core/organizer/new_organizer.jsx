@@ -9,7 +9,7 @@ import FloatingLinesBackground from './FloatingLinesBackground';
 import TutorialMatchHistory from '../Tutorials/tutorial-match-history';
 import TutorialMatching from '../Tutorials/tutorial-matching';
 import TutorialRandomMatching from '../Tutorials/tutorial-random-matching';
-import TutorialGeneralIntroMatching from '../Tutorials/tutorial-general-intro-matching';
+import CoolerGeneralMatchEventFlow from '../Tutorials/cooler_general_match_event_flow';
 
 const NewOrganizerView = () => {
     const navigate = useNavigate();
@@ -1165,7 +1165,7 @@ const NewOrganizerView = () => {
                 isVisible={showRandomTutorial}
                 onComplete={handleRandomTutorialComplete}
             />
-            <TutorialGeneralIntroMatching
+            <CoolerGeneralMatchEventFlow
                 isVisible={showGeneralTutorial}
                 onComplete={handleGeneralTutorialComplete}
             />

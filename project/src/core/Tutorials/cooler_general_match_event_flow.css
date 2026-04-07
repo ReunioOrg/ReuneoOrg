@@ -1,0 +1,987 @@
+/* ──────────────────────────────────────────────────
+   Cooler General Match Event Flow — Fullscreen Overlay
+   Prefix: cmef-
+   ────────────────────────────────────────────────── */
+
+/* ── Overlay ─────────────────────────────────────── */
+
+.cmef-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #f8f9fc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.6s ease;
+}
+
+.cmef-overlay.cmef-fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ── Layout Wrapper ──────────────────────────────── */
+
+.cmef-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+/* ── Header ──────────────────────────────────────── */
+
+.cmef-header-container {
+    text-align: center;
+    width: 85%;
+    max-width: 420px;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    margin-bottom: 16px;
+}
+
+.cmef-header-text {
+    font-size: 19px;
+    font-weight: 800;
+    color: #333;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    text-shadow:
+        0 2px 20px rgba(0, 0, 0, 0.08),
+        0 0 40px rgba(20, 77, 255, 0.06);
+    animation: cmefHeaderFadeIn 0.5s ease 0.2s both;
+}
+
+.cmef-header-text.cmef-header-fade-out {
+    animation: cmefHeaderFadeOut 0.5s ease forwards;
+}
+
+@keyframes cmefHeaderFadeIn {
+    0%   { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cmefHeaderFadeOut {
+    0%   { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-10px); }
+}
+
+/* ── Stage ───────────────────────────────────────── */
+
+.cmef-stage {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    height: 380px;
+    overflow: hidden;
+}
+
+/* ══════════════════════════════════════════════════
+   Person Icon
+   ══════════════════════════════════════════════════ */
+
+.cmef-person {
+    position: absolute;
+    top: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cmef-person svg {
+    width: 48px;
+    height: 80px;
+    transition: width 1s cubic-bezier(0.25, 1, 0.5, 1),
+                height 1s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ── Left Person ─────────────────────────────────── */
+
+.cmef-person-left {
+    left: 25%;
+    transform: translateX(-50%) translateY(-50%);
+    animation: cmefSlideFromLeft 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transition: left 1s cubic-bezier(0.25, 1, 0.5, 1),
+                top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s ease;
+}
+
+.cmef-person-right {
+    right: 25%;
+    transform: translateX(50%) translateY(-50%);
+    animation: cmefSlideFromRight 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transition: right 1s cubic-bezier(0.25, 1, 0.5, 1),
+                top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.8s ease;
+}
+
+@keyframes cmefSlideFromLeft {
+    0%   { transform: translateX(calc(-50% - 400px)) translateY(-50%); }
+    100% { transform: translateX(-50%) translateY(-50%); }
+}
+
+@keyframes cmefSlideFromRight {
+    0%   { transform: translateX(calc(50% + 400px)) translateY(-50%); }
+    100% { transform: translateX(50%) translateY(-50%); }
+}
+
+/* ── Hop Bounce ──────────────────────────────────── */
+
+.cmef-person-left .cmef-person-hop,
+.cmef-person-right .cmef-person-hop {
+    animation: cmefHopBounce 1.5s ease-in-out forwards;
+}
+
+@keyframes cmefHopBounce {
+    0%   { transform: translateY(0); }
+    8%   { transform: translateY(-20px); }
+    16%  { transform: translateY(0); }
+    20%  { transform: translateY(-1px); }
+    28%  { transform: translateY(-24px); }
+    36%  { transform: translateY(0); }
+    40%  { transform: translateY(-1px); }
+    50%  { transform: translateY(-18px); }
+    58%  { transform: translateY(0); }
+    62%  { transform: translateY(-1px); }
+    70%  { transform: translateY(-10px); }
+    78%  { transform: translateY(0); }
+    85%  { transform: translateY(-4px); }
+    92%  { transform: translateY(0); }
+    96%  { transform: translateY(-1px); }
+    100% { transform: translateY(0); }
+}
+
+/* ── Entered State (releases slide-in fill) ──────── */
+
+.cmef-person-left.cmef-entered,
+.cmef-person-right.cmef-entered {
+    animation: none;
+}
+
+/* ── Zoom State ──────────────────────────────────── */
+
+.cmef-person-left.cmef-zoomed {
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+}
+
+.cmef-person-left.cmef-zoomed svg {
+    width: 134px;
+    height: 224px;
+}
+
+.cmef-person-right.cmef-person-hidden {
+    opacity: 0;
+    transform: translateX(50%) translateY(-50%) scale(0.5);
+}
+
+/* ══════════════════════════════════════════════════
+   Phone Frame
+   ══════════════════════════════════════════════════ */
+
+.cmef-phone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #3b82f6;
+    border-radius: 20px;
+    padding: 10px 8px;
+    gap: 6px;
+}
+
+.cmef-phone-speaker {
+    width: 30%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 2px;
+}
+
+.cmef-phone-screen {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+}
+
+.cmef-phone-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.cmef-phone-home {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+/* ══════════════════════════════════════════════════
+   Close-Up Overlay (Match Reveal)
+   ══════════════════════════════════════════════════ */
+
+.cmef-closeup {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    background: #f8f9fc;
+    opacity: 0;
+    transition: opacity 1s ease;
+    pointer-events: none;
+}
+
+.cmef-closeup.cmef-closeup-visible {
+    opacity: 1;
+}
+
+.cmef-closeup-view {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.cmef-closeup-view.cmef-view-visible {
+    opacity: 1;
+}
+
+.cmef-closeup-phone {
+    width: 140px;
+    flex-shrink: 0;
+}
+
+/* ── Close-Up Text ───────────────────────────────── */
+
+.cmef-closeup-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.cmef-closeup-text.cmef-text-visible {
+    opacity: 1;
+}
+
+.cmef-find-label {
+    font-size: 20px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.cmef-find-name {
+    font-size: 22px;
+    font-weight: 800;
+    color: #111827;
+}
+
+/* ── Confetti Burst ──────────────────────────────── */
+
+.cmef-confetti-burst {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.cmef-conf {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.cmef-c1 { width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; animation: cmefC1 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.cmef-c2 { width: 6px; height: 10px; border-radius: 2px; background: #f59e0b; animation: cmefC2 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.04s both; }
+.cmef-c3 { width: 7px; height: 7px; border-radius: 50%; background: #f87171; animation: cmefC3 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.08s both; }
+.cmef-c4 { width: 6px; height: 9px; border-radius: 2px; background: #34d399; animation: cmefC4 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.02s both; }
+.cmef-c5 { width: 8px; height: 8px; border-radius: 50%; background: #8b5cf6; animation: cmefC5 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.06s both; }
+.cmef-c6 { width: 5px; height: 8px; border-radius: 2px; background: #60a5fa; animation: cmefC6 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both; }
+.cmef-c7 { width: 7px; height: 7px; border-radius: 50%; background: #fbbf24; animation: cmefC7 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s both; }
+.cmef-c8 { width: 6px; height: 9px; border-radius: 2px; background: #fb923c; animation: cmefC8 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.03s both; }
+
+@keyframes cmefC1 {
+    0%   { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 1; }
+    25%  { transform: translate(-10px, -12px) scale(1.3) rotate(45deg); opacity: 1; }
+    100% { transform: translate(-45px, -55px) scale(0.3) rotate(200deg); opacity: 0; }
+}
+@keyframes cmefC2 {
+    0%   { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 1; }
+    25%  { transform: translate(14px, -9px) scale(1.3) rotate(-30deg); opacity: 1; }
+    100% { transform: translate(60px, -40px) scale(0.3) rotate(-180deg); opacity: 0; }
+}
+@keyframes cmefC3 {
+    0%   { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 1; }
+    25%  { transform: translate(16px, 3px) scale(1.3) rotate(20deg); opacity: 1; }
+    100% { transform: translate(70px, 15px) scale(0.3) rotate(160deg); opacity: 0; }
+}
+@keyframes cmefC4 {
+    0%   { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 1; }
+    25%  { transform: translate(11px, 10px) scale(1.3) rotate(-25deg); opacity: 1; }
+    100% { transform: translate(50px, 45px) scale(0.3) rotate(-200deg); opacity: 0; }
+}
+@keyframes cmefC5 {
+    0%   { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 1; }
+    25%  { transform: translate(-12px, 8px) scale(1.3) rotate(35deg); opacity: 1; }
+    100% { transform: translate(-55px, 35px) scale(0.3) rotate(220deg); opacity: 0; }
+}
+@keyframes cmefC6 {
+    0%   { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 1; }
+    25%  { transform: translate(-15px, -2px) scale(1.3) rotate(-40deg); opacity: 1; }
+    100% { transform: translate(-65px, -10px) scale(0.3) rotate(-190deg); opacity: 0; }
+}
+@keyframes cmefC7 {
+    0%   { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 1; }
+    25%  { transform: translate(3px, -14px) scale(1.3) rotate(15deg); opacity: 1; }
+    100% { transform: translate(15px, -60px) scale(0.3) rotate(170deg); opacity: 0; }
+}
+@keyframes cmefC8 {
+    0%   { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 1; }
+    25%  { transform: translate(-4px, 12px) scale(1.3) rotate(-20deg); opacity: 1; }
+    100% { transform: translate(-20px, 55px) scale(0.3) rotate(-210deg); opacity: 0; }
+}
+
+/* ══════════════════════════════════════════════════
+   Floating Phones (Convergence Sequence)
+   ══════════════════════════════════════════════════ */
+
+.cmef-float-phone {
+    position: absolute;
+    z-index: 5;
+    pointer-events: none;
+    transition: top 1s cubic-bezier(0.25, 1, 0.5, 1),
+                left 1s cubic-bezier(0.25, 1, 0.5, 1),
+                right 1s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 1s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.cmef-float-phone .cmef-phone {
+    width: 48px;
+}
+
+.cmef-float-pop {
+    animation: cmefPhonePopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes cmefPhonePopIn {
+    0%   { opacity: 0; transform: scale(0); }
+    55%  { opacity: 1; transform: scale(1.12); }
+    78%  { transform: scale(0.94); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* Big state (default when mounted) */
+
+.cmef-float-kate {
+    top: 20%;
+    left: 28%;
+    transform: translateX(-50%) translateY(0) scale(2.4);
+}
+
+.cmef-float-tony {
+    top: 20%;
+    right: 28%;
+    transform: translateX(50%) translateY(0) scale(2.4);
+}
+
+/* Small state — scaled down, centered above icons */
+
+.cmef-float-kate.cmef-float-small {
+    top: 30%;
+    left: 42%;
+    transform: translateX(-50%) translateY(0) scale(1);
+}
+
+.cmef-float-tony.cmef-float-small {
+    top: 30%;
+    right: 42%;
+    transform: translateX(50%) translateY(0) scale(1);
+}
+
+/* Snug state — beside respective icons (must be after small for cascade) */
+
+.cmef-float-kate.cmef-float-snug {
+    top: 55%;
+    left: 30%;
+    transform: translateX(0) translateY(-50%) scale(0.67);
+}
+
+.cmef-float-tony.cmef-float-snug {
+    top: 55%;
+    right: 30%;
+    transform: translateX(0) translateY(-50%) scale(0.67);
+}
+
+/* ══════════════════════════════════════════════════
+   Greeting Text
+   ══════════════════════════════════════════════════ */
+
+.cmef-greet {
+    position: absolute;
+    z-index: 6;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.cmef-greet-text {
+    font-size: 15px;
+    font-weight: 800;
+    color: #333;
+    letter-spacing: -0.02em;
+    text-shadow:
+        0 2px 20px rgba(0, 0, 0, 0.08),
+        0 0 40px rgba(20, 77, 255, 0.06);
+}
+
+.cmef-greet-left {
+    top: 32%;
+    left: 25%;
+    transform: translateX(-50%);
+    animation: cmefGreetPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.cmef-greet-right {
+    top: 32%;
+    right: 25%;
+    transform: translateX(50%);
+    animation: cmefGreetPopRight 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes cmefGreetPop {
+    0%   { opacity: 0; transform: translateX(-50%) scale(0) rotate(-6deg); }
+    30%  { opacity: 1; transform: translateX(-50%) scale(1.35) rotate(2deg); }
+    50%  { transform: translateX(-50%) scale(0.88) rotate(-1.5deg); }
+    65%  { transform: translateX(-50%) scale(1.12) rotate(0.8deg); }
+    80%  { transform: translateX(-50%) scale(0.96) rotate(-0.3deg); }
+    100% { opacity: 1; transform: translateX(-50%) scale(1) rotate(0deg); }
+}
+
+@keyframes cmefGreetPopRight {
+    0%   { opacity: 0; transform: translateX(50%) scale(0) rotate(-6deg); }
+    30%  { opacity: 1; transform: translateX(50%) scale(1.35) rotate(2deg); }
+    50%  { transform: translateX(50%) scale(0.88) rotate(-1.5deg); }
+    65%  { transform: translateX(50%) scale(1.12) rotate(0.8deg); }
+    80%  { transform: translateX(50%) scale(0.96) rotate(-0.3deg); }
+    100% { opacity: 1; transform: translateX(50%) scale(1) rotate(0deg); }
+}
+
+/* ── Greeting Sparkles ───────────────────────────── */
+
+.cmef-greet-sparkle {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+    font-size: 12px;
+    animation: cmefSparkleFloat 0.9s ease-out both;
+}
+
+.cmef-gs-1 { top: -14px; left: -6px; color: #93c5fd; animation-delay: 0.08s; }
+.cmef-gs-2 { top: -16px; right: -4px; font-size: 15px; color: #60a5fa; animation-delay: 0.18s; }
+.cmef-gs-3 { bottom: -10px; left: 30%; font-size: 9px; color: #bfdbfe; animation-delay: 0.12s; }
+.cmef-gs-4 { top: 50%; right: -10px; font-size: 10px; color: #93c5fd; animation-delay: 0.22s; }
+
+@keyframes cmefSparkleFloat {
+    0%   { opacity: 0; transform: scale(0) rotate(0deg); }
+    30%  { opacity: 1; transform: scale(1.6) rotate(25deg); }
+    55%  { opacity: 0.8; transform: scale(0.85) rotate(35deg); }
+    100% { opacity: 0.4; transform: scale(1) rotate(30deg); }
+}
+
+/* ══════════════════════════════════════════════════
+   Act 1 Content Wrapper (fade-out for transition)
+   ══════════════════════════════════════════════════ */
+
+.cmef-act1-content {
+    position: absolute;
+    inset: 0;
+    transition: opacity 0.8s ease;
+}
+
+.cmef-act1-content.cmef-act1-fade {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ── Stage Expansion for Act 4 ──────────────────── */
+
+.cmef-stage.cmef-stage-act4 {
+    max-width: 480px;
+    height: 420px;
+    overflow: visible;
+    transition: max-width 0.01s, height 0.01s;
+}
+
+/* ── Act 4 Header ───────────────────────────────── */
+
+.cmef-header-container.cmef-header-act4 {
+    max-width: 480px;
+    min-height: 64px;
+}
+
+.cmef-act4-header {
+    font-size: 17px;
+    text-align: center;
+    line-height: 1.35;
+    white-space: normal;
+}
+
+/* ── Act 4 Rotating Header Text ──────────────────── */
+
+.cmef-act4-rotate {
+    animation: cmefRotateIn 0.5s ease both;
+}
+
+.cmef-act4-rotate.cmef-rotate-out {
+    animation: cmefRotateOut 0.4s ease forwards;
+}
+
+@keyframes cmefRotateIn {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes cmefRotateOut {
+    0%   { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.cmef-blue-header {
+    color: #3b82f6;
+    font-size: 19px;
+    text-align: center;
+    line-height: 1.25;
+    white-space: normal;
+    text-shadow:
+        0 2px 20px rgba(59, 130, 246, 0.15),
+        0 0 40px rgba(59, 130, 246, 0.08);
+    animation: cmefHeaderFadeIn 0.5s ease 0.2s both;
+}
+
+/* ══════════════════════════════════════════════════
+   Event Space
+   ══════════════════════════════════════════════════ */
+
+.cmef-event-space {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+}
+
+.cmef-event-space.cmef-es-visible {
+    opacity: 1;
+}
+
+.cmef-event-circle {
+    width: 320px;
+    height: 320px;
+    border: 2px dashed #ccc;
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cmef-event-label {
+    font-size: 14px;
+    font-weight: 800;
+    color: #333;
+    letter-spacing: -0.02em;
+    text-shadow:
+        0 2px 20px rgba(0, 0, 0, 0.08),
+        0 0 40px rgba(20, 77, 255, 0.06);
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+.cmef-event-label.cmef-label-fade {
+    opacity: 0;
+}
+
+/* ══════════════════════════════════════════════════
+   Let's Get Started (Final Scene)
+   ══════════════════════════════════════════════════ */
+
+.cmef-lets-go {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+}
+
+.cmef-lets-go-char {
+    display: inline-block;
+    font-size: 22px;
+    font-weight: 800;
+    color: #333;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    text-shadow:
+        0 2px 20px rgba(0, 0, 0, 0.08),
+        0 0 40px rgba(20, 77, 255, 0.06);
+    opacity: 0;
+    transform: translateY(30px);
+    animation: cmefCharIn 0.6s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+
+@keyframes cmefCharIn {
+    0%   { opacity: 0; transform: translateY(30px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════════════════
+   Mini Phone Frames (on circles)
+   ══════════════════════════════════════════════════ */
+
+.cmef-dot-phone {
+    position: absolute;
+    transform: translate(-50%, calc(-100% - 10px));
+    z-index: 8;
+    pointer-events: none;
+    animation: cmefPhonePopIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.cmef-dot-phone .cmef-phone {
+    width: 22px;
+    padding: 2px 1px;
+    gap: 1px;
+    border-radius: 4px;
+}
+
+.cmef-dot-phone .cmef-phone-speaker {
+    height: 2px;
+}
+
+.cmef-dot-phone .cmef-phone-home {
+    width: 6px;
+    height: 6px;
+}
+
+.cmef-dot-phone .cmef-phone-screen {
+    border-radius: 3px;
+}
+
+/* ══════════════════════════════════════════════════
+   Conversation Overlay
+   ══════════════════════════════════════════════════ */
+
+.cmef-convo-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 15;
+    background: rgba(248, 249, 252, 0.78);
+    opacity: 1;
+    transition: opacity 0.6s ease;
+}
+
+.cmef-convo-overlay.cmef-convo-fade {
+    opacity: 0;
+}
+
+.cmef-convo-text {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    max-width: 130px;
+    text-align: center;
+    white-space: normal;
+    animation: cmefConvoPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.cmef-convo-word {
+    font-size: 18px;
+    font-weight: 800;
+    color: #3b82f6;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    text-shadow: 0 2px 10px rgba(59, 130, 246, 0.12);
+}
+
+@keyframes cmefConvoPop {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+    40%  { opacity: 1; transform: translate(-50%, -50%) scale(1.25); }
+    70%  { transform: translate(-50%, -50%) scale(0.92); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ══════════════════════════════════════════════════
+   Blue Circles (Attendees)
+   ══════════════════════════════════════════════════ */
+
+.cmef-dot {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: #3b82f6;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                top 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ── NEW ARRIVALS Label ─────────────────────────── */
+
+.cmef-new-arrivals {
+    position: absolute;
+    right: -60px;
+    top: 45%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    pointer-events: none;
+    animation: cmefHeaderFadeIn 0.4s ease both;
+}
+
+.cmef-arrivals-text {
+    font-size: 9px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    line-height: 1.2;
+    text-align: center;
+    letter-spacing: 0.05em;
+}
+
+.cmef-arrivals-arrow {
+    width: 28px;
+    height: 2px;
+    background: #3b82f6;
+    position: relative;
+}
+
+.cmef-arrivals-arrow::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    border-left: 2px solid #3b82f6;
+    border-bottom: 2px solid #3b82f6;
+    transform: translateY(-50%) rotate(45deg);
+}
+
+/* ══════════════════════════════════════════════════
+   Responsive
+   ══════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+    .cmef-stage {
+        height: 340px;
+    }
+
+    .cmef-person svg {
+        width: 40px;
+        height: 66px;
+    }
+
+    .cmef-person-left.cmef-zoomed svg {
+        width: 112px;
+        height: 185px;
+    }
+
+    .cmef-header-container {
+        min-height: 44px;
+        margin-bottom: 12px;
+    }
+
+    .cmef-header-text {
+        font-size: 16px;
+    }
+
+    .cmef-closeup-phone {
+        width: 110px;
+    }
+
+    .cmef-find-label {
+        font-size: 17px;
+    }
+
+    .cmef-find-name {
+        font-size: 19px;
+    }
+
+    .cmef-greet-text {
+        font-size: 13px;
+    }
+
+    .cmef-stage.cmef-stage-act4 {
+        max-width: 420px;
+        height: 370px;
+    }
+
+    .cmef-event-circle {
+        width: 270px;
+        height: 270px;
+    }
+
+    .cmef-act4-header {
+        font-size: 14px;
+    }
+
+    .cmef-blue-header {
+        font-size: 15px;
+    }
+
+    .cmef-event-label {
+        font-size: 12px;
+    }
+
+    .cmef-dot {
+        width: 13px;
+        height: 13px;
+    }
+
+    .cmef-dot-phone .cmef-phone {
+        width: 18px;
+    }
+
+    .cmef-dot-phone {
+        transform: translate(-50%, calc(-100% - 8px));
+    }
+
+    .cmef-lets-go-char {
+        font-size: 18px;
+    }
+
+    .cmef-convo-word {
+        font-size: 14px;
+    }
+
+    .cmef-convo-text {
+        max-width: 100px;
+    }
+
+    .cmef-new-arrivals {
+        right: -50px;
+    }
+
+    .cmef-arrivals-text {
+        font-size: 8px;
+    }
+}
+
+@media (min-width: 768px) {
+    .cmef-stage {
+        max-width: 600px;
+        height: 440px;
+    }
+
+    .cmef-person svg {
+        width: 56px;
+        height: 94px;
+    }
+
+    .cmef-person-left.cmef-zoomed svg {
+        width: 157px;
+        height: 263px;
+    }
+
+    .cmef-header-container {
+        max-width: 600px;
+        min-height: 64px;
+        margin-bottom: 20px;
+    }
+
+    .cmef-header-text {
+        font-size: 22px;
+    }
+
+    .cmef-closeup-phone {
+        width: 180px;
+    }
+
+    .cmef-find-label {
+        font-size: 22px;
+    }
+
+    .cmef-find-name {
+        font-size: 26px;
+    }
+
+    .cmef-greet-text {
+        font-size: 17px;
+    }
+
+    .cmef-float-phone .cmef-phone {
+        width: 56px;
+    }
+
+    .cmef-stage.cmef-stage-act4 {
+        max-width: 640px;
+        height: 480px;
+    }
+
+    .cmef-header-container.cmef-header-act4 {
+        max-width: 640px;
+        margin-top: 10px;
+    }
+
+    .cmef-event-circle {
+        width: 380px;
+        height: 380px;
+    }
+
+    .cmef-act4-header {
+        font-size: 19px;
+    }
+
+    .cmef-blue-header {
+        font-size: 22px;
+    }
+
+    .cmef-event-label {
+        font-size: 16px;
+    }
+
+    .cmef-dot {
+        width: 18px;
+        height: 18px;
+    }
+
+    .cmef-dot-phone .cmef-phone {
+        width: 26px;
+        padding: 3px 2px;
+        border-radius: 5px;
+    }
+
+    .cmef-lets-go-char {
+        font-size: 26px;
+    }
+
+    .cmef-convo-word {
+        font-size: 20px;
+    }
+
+    .cmef-convo-text {
+        max-width: 160px;
+    }
+
+    .cmef-new-arrivals {
+        right: -55px;
+    }
+}
