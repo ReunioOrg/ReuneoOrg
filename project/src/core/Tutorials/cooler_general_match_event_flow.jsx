@@ -28,7 +28,7 @@ const SCENES = [
     { id: 'settle-pairs', duration: 1500 },    // 18
     // Act 6: Phone reveals + conversation
     { id: 'phones-reveal', duration: 1200 },   // 19
-    { id: 'convo-overlay', duration: 1950 },   // 20
+    { id: 'convo-overlay', duration: 2800 },   // 20
     { id: 'convo-clear', duration: 1100 },     // 21
     // Act 7: Reshuffles
     { id: 'reshuffle-1', duration: 1000 },     // 22
@@ -169,10 +169,10 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
             headerTimersRef.current.forEach(clearTimeout);
             setHeaderPhase(0);
             headerTimersRef.current = [
-                setTimeout(() => setHeaderPhase(1), 2000),
-                setTimeout(() => setHeaderPhase(2), 2500),
-                setTimeout(() => setHeaderPhase(3), 4800),
-                setTimeout(() => setHeaderPhase(4), 5200),
+                setTimeout(() => setHeaderPhase(1), 500),
+                setTimeout(() => setHeaderPhase(2), 2200),
+                setTimeout(() => setHeaderPhase(3), 2700),
+                setTimeout(() => setHeaderPhase(4), 5800),
             ];
         } else if (currentScene === 16) {
             setCircles([
@@ -287,11 +287,12 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
     const showEventLabel = s >= 15 && s <= 16;
     const eventLabelFading = s >= 16;
     const showAct4Header = s >= 15 && s <= 20;
-    const act4HeaderFading = s >= 20;
     const showDots = s >= 16 && s <= 26;
     const showNewArrivals = s >= 16 && s <= 25;
     const showConvo = s >= 20 && s <= 21;
     const convoFading = s >= 21;
+    const showRound2Convo = s === 23;
+    const showRound3Convo = s === 25;
     const blueHeaderText =
         (s >= 23 && (s <= 24 || (s === 25 && !round3HeaderReady)))
             ? "It's a pairing experience that elevates your event!"
@@ -312,25 +313,20 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
                             {headerText}
                         </span>
                     )}
-                    {showAct4Header && (
+                    {showAct4Header && headerPhase >= 0 && headerPhase <= 4 && (
                         <span
-                            className={`cmef-header-text cmef-act4-header ${act4HeaderFading ? 'cmef-header-fade-out' : ''}`}
+                            className={`cmef-header-text cmef-act4-header ${headerPhase === 4 ? 'cmef-header-fade-out' : ''}`}
                             key="act4-header"
                         >
-                            How it Works Best:{' '}
-                            {(headerPhase === 0 || headerPhase === 1) && (
-                                <span className={`cmef-act4-rotate ${headerPhase === 1 ? 'cmef-rotate-out' : ''}`} key="r0">
-                                    open mingling/networking sessions
+                            It works best for:
+                            {(headerPhase === 1 || headerPhase === 2) && (
+                                <span className={`cmef-act4-rotate cmef-act4-sub ${headerPhase === 2 ? 'cmef-rotate-out' : ''}`} key="r0">
+                                    Breaking the ice at the beginning of an event!
                                 </span>
                             )}
-                            {(headerPhase === 2 || headerPhase === 3) && (
-                                <span className={`cmef-act4-rotate ${headerPhase === 3 ? 'cmef-rotate-out' : ''}`} key="r1">
-                                    the beginning of an event, breaking the ice from the start
-                                </span>
-                            )}
-                            {headerPhase === 4 && (
-                                <span className="cmef-act4-rotate" key="r2">
-                                    Automatically
+                            {headerPhase >= 3 && (
+                                <span className="cmef-act4-rotate cmef-act4-sub" key="r1">
+                                    Or during open networking sessions!
                                 </span>
                             )}
                         </span>
@@ -465,20 +461,22 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
                     {/* ── Greeting Text ── */}
                     {s >= 12 && s <= 15 && (
                         <div className="cmef-greet cmef-greet-left">
-                            <span className="cmef-greet-sparkle cmef-gs-1">{'\u2726'}</span>
-                            <span className="cmef-greet-sparkle cmef-gs-2">{'\u2727'}</span>
-                            <span className="cmef-greet-sparkle cmef-gs-3">{'\u2726'}</span>
-                            <span className="cmef-greet-sparkle cmef-gs-4">{'\u2727'}</span>
                             <span className="cmef-greet-text">Nice to meet you Kate!</span>
+                            <div className="cmef-confetti-burst">
+                                {[1,2,3,4,5,6,7,8].map(n => (
+                                    <span key={n} className={`cmef-conf cmef-c${n}`} />
+                                ))}
+                            </div>
                         </div>
                     )}
                     {s >= 13 && s <= 15 && (
                         <div className="cmef-greet cmef-greet-right">
-                            <span className="cmef-greet-sparkle cmef-gs-1">{'\u2726'}</span>
-                            <span className="cmef-greet-sparkle cmef-gs-2">{'\u2727'}</span>
-                            <span className="cmef-greet-sparkle cmef-gs-3">{'\u2726'}</span>
-                            <span className="cmef-greet-sparkle cmef-gs-4">{'\u2727'}</span>
                             <span className="cmef-greet-text">Hi Tony!</span>
+                            <div className="cmef-confetti-burst">
+                                {[1,2,3,4,5,6,7,8].map(n => (
+                                    <span key={n} className={`cmef-conf cmef-c${n}`} />
+                                ))}
+                            </div>
                         </div>
                     )}
                     </div>
@@ -541,6 +539,42 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
                                                 </div>
                                             </div>
                                         )
+                                    ))}
+                                </div>
+                            )}
+                            {showRound2Convo && (
+                                <div className="cmef-convo-overlay cmef-convo-light">
+                                    {CONVO_TEXTS.map((item, i) => (
+                                        <div
+                                            key={`r2convo-${i}`}
+                                            className="cmef-convo-text"
+                                            style={{ left: `${item.x}%`, top: `${item.y}%` }}
+                                        >
+                                            <span className="cmef-convo-word">{item.text}</span>
+                                            <div className="cmef-confetti-burst">
+                                                {[1,2,3,4,5,6,7,8].map(n => (
+                                                    <span key={n} className={`cmef-conf cmef-c${n}`} />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            {showRound3Convo && (
+                                <div className="cmef-convo-overlay cmef-convo-light">
+                                    {CONVO_TEXTS.map((item, i) => (
+                                        <div
+                                            key={`r3convo-${i}`}
+                                            className="cmef-convo-text"
+                                            style={{ left: `${item.x}%`, top: `${item.y}%` }}
+                                        >
+                                            <span className="cmef-convo-word">{item.text}</span>
+                                            <div className="cmef-confetti-burst">
+                                                {[1,2,3,4,5,6,7,8].map(n => (
+                                                    <span key={n} className={`cmef-conf cmef-c${n}`} />
+                                                ))}
+                                            </div>
+                                        </div>
                                     ))}
                                 </div>
                             )}

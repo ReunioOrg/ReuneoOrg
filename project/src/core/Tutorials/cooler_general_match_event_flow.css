@@ -210,9 +210,12 @@
     border-radius: 8px;
     overflow: hidden;
     background: white;
+    position: relative;
 }
 
 .cmef-phone-photo {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -390,13 +393,13 @@
 /* Big state (default when mounted) */
 
 .cmef-float-kate {
-    top: 20%;
+    top: 35%;
     left: 28%;
     transform: translateX(-50%) translateY(0) scale(2.4);
 }
 
 .cmef-float-tony {
-    top: 20%;
+    top: 35%;
     right: 28%;
     transform: translateX(50%) translateY(0) scale(2.4);
 }
@@ -548,6 +551,11 @@
     animation: cmefRotateIn 0.5s ease both;
 }
 
+.cmef-act4-sub {
+    display: block;
+    margin-top: 4px;
+}
+
 .cmef-act4-rotate.cmef-rotate-out {
     animation: cmefRotateOut 0.4s ease forwards;
 }
@@ -563,14 +571,12 @@
 }
 
 .cmef-blue-header {
-    color: #3b82f6;
+    color: #333;
     font-size: 19px;
     text-align: center;
     line-height: 1.25;
     white-space: normal;
-    text-shadow:
-        0 2px 20px rgba(59, 130, 246, 0.15),
-        0 0 40px rgba(59, 130, 246, 0.08);
+    text-shadow: none;
     animation: cmefHeaderFadeIn 0.5s ease 0.2s both;
 }
 
@@ -595,7 +601,7 @@
 .cmef-event-circle {
     width: 320px;
     height: 320px;
-    border: 2px dashed #ccc;
+    border: 2px dashed #93c5fd;
     border-radius: 50%;
     position: relative;
     display: flex;
@@ -634,17 +640,15 @@
 
 .cmef-lets-go-char {
     display: inline-block;
-    font-size: 22px;
+    font-size: 28px;
     font-weight: 800;
     color: #333;
     letter-spacing: -0.02em;
     line-height: 1.2;
-    text-shadow:
-        0 2px 20px rgba(0, 0, 0, 0.08),
-        0 0 40px rgba(20, 77, 255, 0.06);
+    text-shadow: none;
     opacity: 0;
     transform: translateY(30px);
-    animation: cmefCharIn 0.6s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+    animation: cmefCharIn 0.4s cubic-bezier(0.33, 1, 0.68, 1) forwards;
 }
 
 @keyframes cmefCharIn {
@@ -724,6 +728,10 @@
     40%  { opacity: 1; transform: translate(-50%, -50%) scale(1.25); }
     70%  { transform: translate(-50%, -50%) scale(0.92); }
     100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.cmef-convo-overlay.cmef-convo-light {
+    background: rgba(248, 249, 252, 0.78);
 }
 
 /* ══════════════════════════════════════════════════
@@ -865,7 +873,7 @@
     }
 
     .cmef-lets-go-char {
-        font-size: 18px;
+        font-size: 24px;
     }
 
     .cmef-convo-word {
@@ -877,7 +885,8 @@
     }
 
     .cmef-new-arrivals {
-        right: -50px;
+        right: 2px;
+        transform: translateY(-50%) scale(0.85);
     }
 
     .cmef-arrivals-text {
@@ -970,7 +979,7 @@
     }
 
     .cmef-lets-go-char {
-        font-size: 26px;
+        font-size: 32px;
     }
 
     .cmef-convo-word {
