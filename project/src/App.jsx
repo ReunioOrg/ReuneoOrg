@@ -805,8 +805,8 @@ const App = () => {
             >
               <div
                 className="app-dock-item-standalone"
-                onClick={() => navigate('/new_organizer')}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/new_organizer'); } }}
+                onClick={() => navigate('/new_organizer', { state: { showGeneralTutorial: true } })}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/new_organizer', { state: { showGeneralTutorial: true } }); } }}
                 tabIndex={0}
                 role="button"
                 aria-label="Organizer"

@@ -94,20 +94,36 @@ const NewOrganizerView = () => {
         };
     }, []);
 
+    useEffect(() => {
+        if (
+            location.state?.showGeneralTutorial &&
+            permissions !== 'admin' &&
+            permissions !== 'organizer' &&
+            !isLegacyOrganizer
+        ) {
+            setShowGeneralTutorial(true);
+        }
+    }, []);
+
     const handleTutorialComplete = () => {
         setShowTutorial(false);
-    };
-
-    const handleTutorialReplay = () => {
-        setShowTutorial(true);
+        setSelectedTab('custom');
+        setNavDirection('forward');
+        setStep1View(customTags.length > 0 ? 'tags' : 'description');
     };
 
     const handleRandomTutorialComplete = () => {
         setShowRandomTutorial(false);
-    };
-
-    const handleRandomTutorialReplay = () => {
-        setShowRandomTutorial(true);
+        if (customTags.length > 0 || tagInput.trim()) {
+            setPendingTabSwitch('icebreaker');
+            setShowModal(true);
+        } else {
+            setSelectedTab('icebreaker');
+            setCustomTags([]);
+            setTagInput('');
+            setVisitedSteps(prev => new Set([...prev, 2]));
+            goToStep(2, 'forward');
+        }
     };
 
     const handleGeneralTutorialComplete = () => {
@@ -180,20 +196,9 @@ const NewOrganizerView = () => {
     // ── Step 1: Event Type ──
     const handleEventTypeSelect = (type) => {
         if (type === 'icebreaker') {
-            if (customTags.length > 0 || tagInput.trim()) {
-                setPendingTabSwitch('icebreaker');
-                setShowModal(true);
-            } else {
-                setSelectedTab('icebreaker');
-                setCustomTags([]);
-                setTagInput('');
-                setVisitedSteps(prev => new Set([...prev, 2]));
-                goToStep(2, 'forward');
-            }
+            setShowRandomTutorial(true);
         } else if (type === 'custom') {
-            setSelectedTab('custom');
-            setNavDirection('forward');
-            setStep1View(customTags.length > 0 ? 'tags' : 'description');
+            setShowTutorial(true);
         }
     };
 
@@ -666,14 +671,7 @@ const NewOrganizerView = () => {
 
         return (
             <div className="step-container">
-                <h1 className="step-title step1-hero-line">Effortlessly fuse your community into many 1-on-1 connections</h1>
-                <button
-                    type="button"
-                    onClick={() => navigate('/forgot-password')}
-                    className="existing-organizer-button step1-fade-link"
-                >
-                    I have an account
-                </button>
+                <h1 className="step-title step1-hero-line">How do you want to pair up your attendees?</h1>
                 <div className="event-type-container step1-fade-buttons">
                     <div className="event-type-button-wrapper">
                         <button
@@ -681,17 +679,6 @@ const NewOrganizerView = () => {
                             onClick={() => handleEventTypeSelect('custom')}
                         >
                             Pair People By Interests
-                        </button>
-                        <button
-                            type="button"
-                            className="tutorial-pill-button step1-fade-pills"
-                            onClick={handleTutorialReplay}
-                        >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10" />
-                                <line x1="12" y1="16" x2="12" y2="12" />
-                                <line x1="12" y1="8" x2="12.01" y2="8" />
-                            </svg>
                         </button>
                     </div>
                     <div className="event-type-divider" />
@@ -703,29 +690,14 @@ const NewOrganizerView = () => {
                             Pair People Randomly
                             <span className="most-popular-label">MOST POPULAR</span>
                         </button>
-                        <button
-                            type="button"
-                            className="tutorial-pill-button step1-fade-pills"
-                            onClick={handleRandomTutorialReplay}
-                        >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10" />
-                                <line x1="12" y1="16" x2="12" y2="12" />
-                                <line x1="12" y1="8" x2="12.01" y2="8" />
-                            </svg>
-                        </button>
                     </div>
                 </div>
                 <button
                     type="button"
-                    className="tutorial-pill-button tutorial-general-pill step1-fade-general"
-                    onClick={handleGeneralTutorialReplay}
+                    onClick={() => navigate('/forgot-password')}
+                    className="existing-organizer-button step1-fade-link"
                 >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" y1="16" x2="12" y2="12" />
-                        <line x1="12" y1="8" x2="12.01" y2="8" />
-                    </svg>
+                    I have an account
                 </button>
             </div>
         );

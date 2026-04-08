@@ -485,4 +485,9 @@
     .rmt-header-text {
         font-size: 22px;
     }
+
+    .rmt-skip {
+        right: calc(50% - 300px);
+        bottom: max(32px, env(safe-area-inset-bottom, 32px));
+    }
 }

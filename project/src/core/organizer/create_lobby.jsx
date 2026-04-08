@@ -196,12 +196,26 @@ const CreateLobbyView = () => {
     };
 
     // ── Tutorial Handlers ──
-    const handleTutorialComplete = () => setShowTutorial(false);
-    const handleTutorialReplay = () => setShowTutorial(true);
-    const handleRandomTutorialComplete = () => setShowRandomTutorial(false);
-    const handleRandomTutorialReplay = () => setShowRandomTutorial(true);
+    const handleTutorialComplete = () => {
+        setShowTutorial(false);
+        setSelectedTab('custom');
+        setNavDirection('forward');
+        setStep1View(customTags.length > 0 ? 'tags' : 'description');
+    };
+    const handleRandomTutorialComplete = () => {
+        setShowRandomTutorial(false);
+        if (customTags.length > 0 || tagInput.trim()) {
+            setPendingTabSwitch('icebreaker');
+            setShowModal(true);
+        } else {
+            setSelectedTab('icebreaker');
+            setCustomTags([]);
+            setTagInput('');
+            setVisitedSteps(prev => new Set([...prev, 2]));
+            goToStep(2, 'forward');
+        }
+    };
     const handleGeneralTutorialComplete = () => setShowGeneralTutorial(false);
-    const handleGeneralTutorialReplay = () => setShowGeneralTutorial(true);
 
     // ── Navigation ──
     const goToStep = (step, direction) => {
@@ -243,20 +257,9 @@ const CreateLobbyView = () => {
     // ── Step 1: Event Type ──
     const handleEventTypeSelect = (type) => {
         if (type === 'icebreaker') {
-            if (customTags.length > 0 || tagInput.trim()) {
-                setPendingTabSwitch('icebreaker');
-                setShowModal(true);
-            } else {
-                setSelectedTab('icebreaker');
-                setCustomTags([]);
-                setTagInput('');
-                setVisitedSteps(prev => new Set([...prev, 2]));
-                goToStep(2, 'forward');
-            }
+            setShowRandomTutorial(true);
         } else if (type === 'custom') {
-            setSelectedTab('custom');
-            setNavDirection('forward');
-            setStep1View(customTags.length > 0 ? 'tags' : 'description');
+            setShowTutorial(true);
         }
     };
 
@@ -752,7 +755,7 @@ const CreateLobbyView = () => {
 
         return (
             <div className="step-container">
-                <h1 className="step-title">What type of event do you want?</h1>
+                <h1 className="step-title">How do you want to pair up your attendees?</h1>
                 <div className="event-type-container">
                     <div className="event-type-button-wrapper">
                         <button
@@ -760,18 +763,6 @@ const CreateLobbyView = () => {
                             onClick={() => handleEventTypeSelect('custom')}
                         >
                             Pair People By Interests
-                        </button>
-                        <button
-                            type="button"
-                            className="tutorial-pill-button"
-                            onClick={handleTutorialReplay}
-                        >
-                            <span>see how it works</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10" />
-                                <line x1="12" y1="16" x2="12" y2="12" />
-                                <line x1="12" y1="8" x2="12.01" y2="8" />
-                            </svg>
                         </button>
                     </div>
                     <div className="event-type-divider" />
@@ -782,26 +773,13 @@ const CreateLobbyView = () => {
                         >
                             Pair People Randomly
                         </button>
-                        <button
-                            type="button"
-                            className="tutorial-pill-button"
-                            onClick={handleRandomTutorialReplay}
-                        >
-                            <span>see how it works</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10" />
-                                <line x1="12" y1="16" x2="12" y2="12" />
-                                <line x1="12" y1="8" x2="12.01" y2="8" />
-                            </svg>
-                        </button>
                     </div>
                 </div>
                 <button
                     type="button"
                     className="tutorial-pill-button tutorial-general-pill"
-                    onClick={handleGeneralTutorialReplay}
+                    onClick={() => setShowGeneralTutorial(true)}
                 >
-                    <span>general tutorial</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="12" cy="12" r="10" />
                         <line x1="12" y1="16" x2="12" y2="12" />

@@ -579,7 +579,7 @@
 
 .cmef-act4-sub {
     display: block;
-    margin-top: 4px;
+    margin-top: 12px;
 }
 
 .cmef-act4-rotate.cmef-rotate-out {
@@ -638,7 +638,7 @@
 .cmef-event-label {
     font-size: 14px;
     font-weight: 800;
-    color: #333;
+    color: #3b82f6;
     letter-spacing: -0.02em;
     text-shadow:
         0 2px 20px rgba(0, 0, 0, 0.08),
@@ -1042,5 +1042,10 @@
 
     .cmef-new-arrivals {
         right: -55px;
+    }
+
+    .cmef-skip {
+        right: calc(50% - 300px);
+        bottom: max(32px, env(safe-area-inset-bottom, 32px));
     }
 }

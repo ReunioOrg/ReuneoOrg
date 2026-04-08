@@ -32,7 +32,7 @@ const SCENES = [
     { id: 'convo-clear', duration: 1100 },     // 21
     // Act 7: Reshuffles
     { id: 'reshuffle-1', duration: 1000 },     // 22
-    { id: 'show-round2', duration: 1900 },     // 23
+    { id: 'show-round2', duration: 3400 },     // 23
     { id: 'reshuffle-2', duration: 1000 },     // 24
     { id: 'show-round3', duration: 3400 },     // 25
     // Act 8: Closing
@@ -104,16 +104,44 @@ const PROFILE_IMAGES = [
     '/assets/ken_johnson.png',
     '/assets/topaz_jones.png',
     '/assets/sarah_riez.png',
+    '/assets/amy_chang.png',
+    '/assets/blake_johnson.png',
+    '/assets/wendy_blonde.png',
+    '/assets/mike_laos.png',
+    '/assets/loretta_garza.png',
+    '/assets/kayla_villalobos.png',
+    '/assets/sofia_cortez.png',
+    '/assets/yolanda_soap.png',
 ];
 
-const CONVO_TEXTS = [
+const CONVO_TEXTS_R1 = [
     { text: 'What do you do?', x: 48, y: 12 },
     { text: 'This is so fun!', x: 18, y: 25 },
     { text: 'Hi!', x: 12, y: 50 },
     { text: 'Nice to meet you!', x: 18, y: 74 },
-    { text: 'How is your day so far?', x: 42, y: 88 },
-    { text: "I'm meeting so many people!", x: 71, y: 65 },
-    { text: 'Its fun getting paired up!', x: 71, y: 26 },
+    { text: "How's your day going?", x: 42, y: 88 },
+    { text: 'What brings you here?', x: 82, y: 65 },
+    { text: 'Where are you from?', x: 82, y: 26 },
+];
+
+const CONVO_TEXTS_R2 = [
+    { text: 'How are you?', x: 48, y: 12 },
+    { text: "That's awesome!", x: 18, y: 25 },
+    { text: 'Hey!', x: 12, y: 50 },
+    { text: "It's fun getting paired up!", x: 18, y: 74 },
+    { text: "I'm meeting so many people!", x: 42, y: 88 },
+    { text: 'What are you into?', x: 82, y: 65 },
+    { text: 'Have you been here before?', x: 82, y: 26 },
+];
+
+const CONVO_TEXTS_R3 = [
+    { text: 'Great to meet you!', x: 48, y: 12 },
+    { text: 'No way!', x: 18, y: 25 },
+    { text: 'Hello!', x: 12, y: 50 },
+    { text: 'Hope to see you again!', x: 18, y: 74 },
+    { text: 'What have you been up to?', x: 42, y: 88 },
+    { text: 'Who do you know here?', x: 82, y: 65 },
+    { text: 'Really?', x: 82, y: 26 },
 ];
 
 function pairSetToCircles(pairSet) {
@@ -133,6 +161,7 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
     const [convoRevealCount, setConvoRevealCount] = useState(0);
     const [headerPhase, setHeaderPhase] = useState(-1);
     const [round3HeaderReady, setRound3HeaderReady] = useState(false);
+    const [convoTextFading, setConvoTextFading] = useState(false);
     const headerTimersRef = useRef([]);
 
     const finishTutorial = useCallback(() => {
@@ -151,6 +180,7 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
             setConvoRevealCount(0);
             setHeaderPhase(-1);
             setRound3HeaderReady(false);
+            setConvoTextFading(false);
             headerTimersRef.current.forEach(clearTimeout);
             headerTimersRef.current = [];
             return;
@@ -181,8 +211,8 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
             setHeaderPhase(0);
             headerTimersRef.current = [
                 setTimeout(() => setHeaderPhase(1), 500),
-                setTimeout(() => setHeaderPhase(2), 2200),
-                setTimeout(() => setHeaderPhase(3), 2700),
+                setTimeout(() => setHeaderPhase(2), 2900),
+                setTimeout(() => setHeaderPhase(3), 3400),
                 setTimeout(() => setHeaderPhase(4), 5800),
             ];
         } else if (currentScene === 16) {
@@ -227,11 +257,14 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
                 timers.push(setTimeout(() => setPhoneRevealCount(i + 1), i * 140));
             }
         } else if (currentScene === 20) {
+            setConvoTextFading(false);
             for (let i = 0; i < 7; i++) {
                 timers.push(setTimeout(() => setConvoRevealCount(i + 1), i * 180));
             }
+            timers.push(setTimeout(() => setConvoTextFading(true), 1800));
         } else if (currentScene === 21) {
             setConvoRevealCount(0);
+            setConvoTextFading(false);
         } else if (currentScene === 22) {
             setPhoneRevealCount(0);
             for (let t = 0; t < 3; t++) {
@@ -245,6 +278,8 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
             timers.push(setTimeout(() => setCircles(pairSetToCircles(PAIR_SET_B)), 750));
         } else if (currentScene === 23) {
             setPhoneRevealCount(8);
+            setConvoTextFading(false);
+            timers.push(setTimeout(() => setConvoTextFading(true), 1500));
         } else if (currentScene === 24) {
             setPhoneRevealCount(0);
             for (let t = 0; t < 3; t++) {
@@ -259,9 +294,12 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
         } else if (currentScene === 25) {
             setPhoneRevealCount(8);
             setRound3HeaderReady(false);
+            setConvoTextFading(false);
             timers.push(setTimeout(() => setRound3HeaderReady(true), 250));
+            timers.push(setTimeout(() => setConvoTextFading(true), 1500));
         } else if (currentScene === 26) {
             setPhoneRevealCount(0);
+            setConvoTextFading(false);
         }
 
         return () => timers.forEach(clearTimeout);
@@ -306,9 +344,9 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
     const showRound3Convo = s === 25;
     const blueHeaderText =
         (s >= 23 && (s <= 24 || (s === 25 && !round3HeaderReady)))
-            ? "It's a pairing experience that elevates your event!"
+            ? "Each round they get paired up with someone new!"
         : (s >= 25 && s <= 26 && round3HeaderReady)
-            ? 'Creating many, quality connections for everyone!'
+            ? 'Creating real connections and increasing engagement!'
         : null;
     const blueHeaderFading = (s === 25 && !round3HeaderReady) || s === 26;
 
@@ -329,15 +367,15 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
                             className={`cmef-header-text cmef-act4-header ${headerPhase === 4 ? 'cmef-header-fade-out' : ''}`}
                             key="act4-header"
                         >
-                            It works best for:
+                            It works best at:
                             {(headerPhase === 1 || headerPhase === 2) && (
                                 <span className={`cmef-act4-rotate cmef-act4-sub ${headerPhase === 2 ? 'cmef-rotate-out' : ''}`} key="r0">
-                                    Breaking the ice at the beginning of an event!
+                                    the beginning of an event, breaking the ice!
                                 </span>
                             )}
                             {headerPhase >= 3 && (
                                 <span className="cmef-act4-rotate cmef-act4-sub" key="r1">
-                                    Or during open networking sessions!
+                                    open networking sessions!
                                 </span>
                             )}
                         </span>
@@ -499,7 +537,7 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
                             <div className="cmef-event-circle">
                                 {showEventLabel && (
                                     <span className={`cmef-event-label ${eventLabelFading ? 'cmef-label-fade' : ''}`}>
-                                        Event Space
+                                        event space
                                     </span>
                                 )}
                                 {showDots && circles.map(c => (
@@ -533,9 +571,9 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
                             )}
                             {showConvo && (
                                 <>
-                                    <div className={`cmef-convo-overlay ${convoFading ? 'cmef-convo-fade' : ''}`} />
-                                    <div className={`cmef-convo-text-layer ${convoFading ? 'cmef-convo-fade' : ''}`}>
-                                        {CONVO_TEXTS.map((item, i) => (
+                                    <div className={`cmef-convo-overlay ${convoFading || convoTextFading ? 'cmef-convo-fade' : ''}`} />
+                                    <div className={`cmef-convo-text-layer ${convoFading || convoTextFading ? 'cmef-convo-fade' : ''}`}>
+                                        {CONVO_TEXTS_R1.map((item, i) => (
                                             i < convoRevealCount && (
                                                 <div
                                                     key={`convo-${i}`}
@@ -556,9 +594,9 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
                             )}
                             {showRound2Convo && (
                                 <>
-                                    <div className="cmef-convo-overlay cmef-convo-light" />
-                                    <div className="cmef-convo-text-layer cmef-convo-glow">
-                                        {CONVO_TEXTS.map((item, i) => (
+                                    <div className={`cmef-convo-overlay cmef-convo-light ${convoTextFading ? 'cmef-convo-fade' : ''}`} />
+                                    <div className={`cmef-convo-text-layer cmef-convo-glow ${convoTextFading ? 'cmef-convo-fade' : ''}`}>
+                                        {CONVO_TEXTS_R2.map((item, i) => (
                                             <div
                                                 key={`r2convo-${i}`}
                                                 className="cmef-convo-text"
@@ -577,9 +615,9 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
                             )}
                             {showRound3Convo && (
                                 <>
-                                    <div className="cmef-convo-overlay cmef-convo-light" />
-                                    <div className="cmef-convo-text-layer cmef-convo-glow">
-                                        {CONVO_TEXTS.map((item, i) => (
+                                    <div className={`cmef-convo-overlay cmef-convo-light ${convoTextFading ? 'cmef-convo-fade' : ''}`} />
+                                    <div className={`cmef-convo-text-layer cmef-convo-glow ${convoTextFading ? 'cmef-convo-fade' : ''}`}>
+                                        {CONVO_TEXTS_R3.map((item, i) => (
                                             <div
                                                 key={`r3convo-${i}`}
                                                 className="cmef-convo-text"
