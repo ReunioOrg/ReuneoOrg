@@ -678,7 +678,7 @@ const NewOrganizerView = () => {
                             className={`event-type-button event-type-primary ${selectedTab === 'custom' ? 'selected' : ''}`}
                             onClick={() => handleEventTypeSelect('custom')}
                         >
-                            Pair People By Interests
+                            Interests Pairing
                         </button>
                     </div>
                     <div className="event-type-divider" />
@@ -687,7 +687,7 @@ const NewOrganizerView = () => {
                             className={`event-type-button event-type-primary ${selectedTab === 'icebreaker' ? 'selected' : ''}`}
                             onClick={() => handleEventTypeSelect('icebreaker')}
                         >
-                            Pair People Randomly
+                            Regular Pairing
                             <span className="most-popular-label">MOST POPULAR</span>
                         </button>
                     </div>
