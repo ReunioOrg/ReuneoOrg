@@ -1,0 +1,388 @@
+/* ══════════════════════════════════════════════════
+   Tutorial: Attendees Phone Mockup
+   Shown on Step 2 when attendees >= 50
+   3-scene animation: slide-up → overlay → highlight
+   ══════════════════════════════════════════════════ */
+
+/* ── Keyframes ───────────────────────────────────── */
+
+@keyframes tapSlideUp {
+    from {
+        transform: translateY(500px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes tapOverlayIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes tapInfoFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes tapTableGlow {
+    from {
+        transform: scale(1);
+        text-shadow: 0 0 0 transparent;
+    }
+    to {
+        transform: scale(1.1);
+        text-shadow:
+            0 0 14px rgba(75, 115, 239, 0.55),
+            0 0 28px rgba(75, 115, 239, 0.25);
+    }
+}
+
+@keyframes tapTablePulse {
+    0%, 100% {
+        text-shadow:
+            0 0 14px rgba(75, 115, 239, 0.55),
+            0 0 28px rgba(75, 115, 239, 0.25);
+    }
+    50% {
+        text-shadow:
+            0 0 22px rgba(75, 115, 239, 0.75),
+            0 0 44px rgba(75, 115, 239, 0.35);
+    }
+}
+
+@keyframes tapRipple {
+    0% {
+        transform: translate(-50%, -50%) scale(0.85);
+        opacity: 0.55;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2.4);
+        opacity: 0;
+    }
+}
+
+/* ── Wrapper (Scene 1 — slides up 0.5s) ───────── */
+
+.tap-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin-top: 12px;
+    animation: tapSlideUp 0.5s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+/* ── Info Text (inside screen, above table number) ── */
+
+.tap-info-text {
+    color: #1f2937;
+    font-size: 9.5px;
+    font-weight: 700;
+    font-style: normal;
+    line-height: 1.45;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 4px 14px;
+    position: relative;
+    z-index: 10;
+    opacity: 0;
+    animation: tapInfoFadeIn 0.25s ease-out 0.75s forwards;
+}
+
+/* ══════════════════════════════════════════════════
+   Phone Frame
+   ══════════════════════════════════════════════════ */
+
+.tap-phone {
+    width: 230px;
+    background: #374151;
+    border-radius: 36px;
+    padding: 0 10px 8px;
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.tap-notch {
+    width: 80px;
+    height: 24px;
+    background: #1f2937;
+    border-radius: 0 0 14px 14px;
+    flex-shrink: 0;
+}
+
+.tap-home-indicator {
+    width: 90px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 2px;
+    margin-top: 2px;
+}
+
+/* ══════════════════════════════════════════════════
+   Phone Screen
+   ══════════════════════════════════════════════════ */
+
+.tap-screen {
+    width: 100%;
+    background: #ffffff;
+    border-radius: 4px 4px 26px 26px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0 20px;
+}
+
+/* ── Match Name ────────────────────────────────── */
+
+.tap-match-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a2e;
+    text-align: center;
+    margin: 2px 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ══════════════════════════════════════════════════
+   Table Number (above overlay — z-index: 10)
+   ══════════════════════════════════════════════════ */
+
+.tap-table-section {
+    position: relative;
+    z-index: 10;
+    padding: 2px 0 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tap-table-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #4b73ef;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    position: relative;
+    z-index: 2;
+    animation:
+        tapTableGlow 0.25s ease-out 0.75s both,
+        tapTablePulse 2s ease-in-out 1s infinite;
+}
+
+.tap-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 90px;
+    height: 28px;
+    border: 2px solid rgba(75, 115, 239, 0.35);
+    border-radius: 14px;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.tap-ring-1 {
+    animation: tapRipple 2s ease-out 0.8s infinite;
+}
+
+.tap-ring-2 {
+    animation: tapRipple 2s ease-out 1.6s infinite;
+}
+
+/* ══════════════════════════════════════════════════
+   Timer Circle
+   ══════════════════════════════════════════════════ */
+
+.tap-timer {
+    position: relative;
+    width: 78px;
+    height: 78px;
+    margin: 4px 0;
+}
+
+.tap-timer-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.tap-timer-track {
+    fill: none;
+    stroke: #f0f1f4;
+    stroke-width: 7;
+}
+
+.tap-timer-fill {
+    fill: none;
+    stroke: #64B5F6;
+    stroke-width: 7;
+    stroke-linecap: round;
+}
+
+.tap-timer-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.tap-timer-digits {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1a2e;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1;
+}
+
+.tap-timer-sub {
+    font-size: 7.5px;
+    font-weight: 500;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+/* ══════════════════════════════════════════════════
+   Profile Card
+   ══════════════════════════════════════════════════ */
+
+.tap-profile-card {
+    width: 82%;
+    margin: 4px auto 0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.tap-profile-img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    display: block;
+}
+
+/* ══════════════════════════════════════════════════
+   Screen Overlay (Scene 2 — fades in at 0.5s)
+   Covers everything except table number + frame
+   ══════════════════════════════════════════════════ */
+
+.tap-screen-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 5;
+    opacity: 0;
+    pointer-events: none;
+    animation: tapOverlayIn 0.25s ease-out 0.5s forwards;
+}
+
+/* ══════════════════════════════════════════════════
+   Responsive — Small Mobile
+   ══════════════════════════════════════════════════ */
+
+@media screen and (max-width: 480px) {
+    .tap-phone {
+        width: 210px;
+        border-radius: 32px;
+        padding: 0 8px 6px;
+    }
+
+    .tap-notch {
+        width: 70px;
+        height: 20px;
+        border-radius: 0 0 12px 12px;
+    }
+
+    .tap-screen {
+        border-radius: 4px 4px 22px 22px;
+    }
+
+    .tap-match-name {
+        font-size: 13px;
+    }
+
+    .tap-table-value {
+        font-size: 13px;
+    }
+
+    .tap-ring {
+        width: 80px;
+        height: 24px;
+    }
+
+    .tap-timer {
+        width: 68px;
+        height: 68px;
+    }
+
+    .tap-timer-digits {
+        font-size: 15px;
+    }
+
+    .tap-info-text {
+        font-size: 8.5px;
+        padding: 3px 10px;
+    }
+}
+
+/* ══════════════════════════════════════════════════
+   Responsive — Desktop
+   ══════════════════════════════════════════════════ */
+
+@media screen and (min-width: 769px) {
+    .tap-phone {
+        width: 260px;
+        border-radius: 40px;
+        padding: 0 12px 10px;
+    }
+
+    .tap-notch {
+        width: 90px;
+        height: 26px;
+        border-radius: 0 0 16px 16px;
+    }
+
+    .tap-screen {
+        border-radius: 4px 4px 28px 28px;
+    }
+
+    .tap-match-name {
+        font-size: 17px;
+    }
+
+    .tap-timer {
+        width: 88px;
+        height: 88px;
+    }
+
+    .tap-timer-digits {
+        font-size: 19px;
+    }
+
+    .tap-info-text {
+        font-size: 10.5px;
+        padding: 4px 16px;
+    }
+}

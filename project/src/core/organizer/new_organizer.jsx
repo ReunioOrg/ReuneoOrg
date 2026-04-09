@@ -10,6 +10,7 @@ import TutorialMatchHistory from '../Tutorials/tutorial-match-history';
 import TutorialMatching from '../Tutorials/tutorial-matching';
 import TutorialRandomMatching from '../Tutorials/tutorial-random-matching';
 import CoolerGeneralMatchEventFlow from '../Tutorials/cooler_general_match_event_flow';
+import TutorialAttendeesPhone from '../Tutorials/tutorial-attendees-phone';
 
 const NewOrganizerView = () => {
     const navigate = useNavigate();
@@ -707,6 +708,7 @@ const NewOrganizerView = () => {
     const renderStep2 = () => {
         const num = parseInt(attendees);
         const isValid = num >= 1;
+        const showPhoneHint = Number.isInteger(num) && num >= 50;
 
         return (
             <div className="step-container">
@@ -728,6 +730,7 @@ const NewOrganizerView = () => {
                 <button className="step-cta" onClick={handleStep2Submit} disabled={!isValid}>
                     Looks Good! <ArrowRight />
                 </button>
+                {showPhoneHint && <TutorialAttendeesPhone key="tap" />}
             </div>
         );
     };
