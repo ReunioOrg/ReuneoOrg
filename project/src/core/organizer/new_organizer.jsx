@@ -12,6 +12,7 @@ import TutorialRandomMatching from '../Tutorials/tutorial-random-matching';
 import CoolerGeneralMatchEventFlow from '../Tutorials/cooler_general_match_event_flow';
 import TutorialAttendeesPhone from '../Tutorials/tutorial-attendees-phone';
 import RoundDurationTutorial from '../Tutorials/round_duration_tutorial';
+import SponsorLogoTutorial from '../Tutorials/sponsor_logo_tutorial';
 
 const NewOrganizerView = () => {
     const navigate = useNavigate();
@@ -811,14 +812,31 @@ const NewOrganizerView = () => {
                     People spend 30 seconds looking at their screen to find
                     who they paired with, and get paired up 10 times in an event (on average)
                 </p>
-                <div className="sponsor-upload-area">
-                    <span className="sponsor-label">Estimated logo watch time: <strong style={{ color: '#0f1729' }}>{(parseInt(attendees) || 0) * 5} minutes</strong> - (5 min per person)</span>
-                    {renderLogoUpload()}
-                </div>
+                {!hasLogo && (
+                    <div className="sponsor-upload-area">
+                        <span className="sponsor-label">Estimated logo watch time: <strong style={{ color: '#0f1729' }}>{(parseInt(attendees) || 0) * 5} minutes</strong> - (5 min per person)</span>
+                        {renderLogoUpload()}
+                    </div>
+                )}
                 {!isLogoCropping && (
-                    <button className="step-cta" onClick={handleStep4Advance}>
-                        {hasLogo ? 'Continue' : 'Skip'} <ArrowRight />
-                    </button>
+                    <div className="step4-cta-group">
+                        <button className="step-cta" onClick={handleStep4Advance}>
+                            {hasLogo ? 'Continue' : 'Skip'} <ArrowRight />
+                        </button>
+                        {hasLogo && (
+                            <button className="step-cta step-cta-secondary" onClick={handleRemoveLogo}>
+                                Cancel
+                            </button>
+                        )}
+                    </div>
+                )}
+                {hasLogo && (
+                    <SponsorLogoTutorial
+                        key="slt"
+                        logoSrc={logoCroppedImage}
+                        minutes={minutes}
+                        seconds={seconds}
+                    />
                 )}
             </div>
         );
