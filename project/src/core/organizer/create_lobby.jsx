@@ -11,6 +11,9 @@ import TutorialMatchHistory from '../Tutorials/tutorial-match-history';
 import TutorialMatching from '../Tutorials/tutorial-matching';
 import TutorialRandomMatching from '../Tutorials/tutorial-random-matching';
 import CoolerGeneralMatchEventFlow from '../Tutorials/cooler_general_match_event_flow';
+import TutorialAttendeesPhone from '../Tutorials/tutorial-attendees-phone';
+import RoundDurationTutorial from '../Tutorials/round_duration_tutorial';
+import SponsorLogoTutorial from '../Tutorials/sponsor_logo_tutorial';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const CreateLobbyView = () => {
@@ -586,7 +589,7 @@ const CreateLobbyView = () => {
                             <button type="button"
                                 onClick={() => document.getElementById('logoUpload').click()}
                                 className="logo-upload-button">
-                                Upload Logo
+                                Upload
                             </button>
                         </>
                     )}
@@ -657,13 +660,6 @@ const CreateLobbyView = () => {
             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="23 4 23 10 17 10"/>
             <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-        </svg>
-    );
-
-    const PencilHint = () => (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af"
-            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
         </svg>
     );
 
@@ -795,12 +791,13 @@ const CreateLobbyView = () => {
         const num = parseInt(attendees);
         const isValid = num >= 1;
         const showLimitWarning = planLimit && num >= Math.floor(planLimit * 0.5);
+        const showTableHint = Number.isInteger(num) && num >= 50;
 
         return (
             <div className="step-container">
                 <h1 className="step-title">How many people are attending?</h1>
                 <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
-                    Estimate the max, to avoid hitting your limit during the live event
+                    Estimate the max, so everyone gets to make new connections!
                 </p>
                 {showLimitWarning && (
                     <div className="attendee-limit-warning">
@@ -818,10 +815,14 @@ const CreateLobbyView = () => {
                         className="form-input attendees-input"
                         autoComplete="off"
                     />
+                    <button className="step2-go-btn" onClick={handleStep2Submit} disabled={!isValid}>
+                        <ArrowRight />
+                    </button>
                 </div>
-                <button className="step-cta" onClick={handleStep2Submit} disabled={!isValid}>
-                    Looks Good! <ArrowRight />
-                </button>
+                {showTableHint
+                    ? <TutorialAttendeesPhone key="tap-table" variant="table" />
+                    : <TutorialAttendeesPhone key="tap-profile" variant="profile" />
+                }
             </div>
         );
     };
@@ -832,10 +833,10 @@ const CreateLobbyView = () => {
 
         return (
             <div className="step-container">
-                <h1 className="step-title">How long should people talk in each conversation</h1>
-                <p className="step-subtitle">
-                    Based on your inputs, we recommend <strong style={{ color: '#0f1729' }}>{recommended} minutes</strong>. This includes
-                    buffer time for people to end prior conversations and move onto their next match.
+                <h1 className="step-title">Conversation Duration</h1>
+                <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
+                    We recommend <strong style={{ color: '#0f1729' }}>{recommended} minutes</strong>. This includes
+                    buffer time for people to end prior conversations and move onto their next person
                 </p>
                 <div className="duration-edit-wrapper">
                     <div className="duration-input-container">
@@ -878,12 +879,14 @@ const CreateLobbyView = () => {
                             <label className="duration-label">Seconds</label>
                         </div>
                     </div>
-                    <PencilHint />
+                    <button className="step2-go-btn" onClick={handleStep3Submit}>
+                        <ArrowRight />
+                    </button>
                 </div>
-                <div className="input-hint">*Maximum total duration is {MaxMinutes} minutes</div>
-                <button className="step-cta" onClick={handleStep3Submit}>
-                    Looks Good! <ArrowRight />
-                </button>
+                {parseInt(minutes) >= MaxMinutes && (
+                    <div className="duration-max-toast">Maximum total duration is {MaxMinutes} minutes</div>
+                )}
+                <RoundDurationTutorial minutes={minutes} seconds={seconds} />
             </div>
         );
     };
@@ -894,26 +897,38 @@ const CreateLobbyView = () => {
 
         return (
             <div className="step-container">
-                <h1 className="step-title">Upload the logo of your preferred sponsor!</h1>
-                <p className="step-subtitle">
-                    For example: 100 attendees using it for an hour, that's an average of 10 pairings
-                    per hour, that's 1,000 guaranteed impressions!
+                <h1 className="step-title">Sponsor Logo (optional)</h1>
+                <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
+                    {hasLogo
+                        ? <>Estimated logo watch time: <strong style={{ color: '#0f1729' }}>{(parseInt(attendees) || 0) * 5} minutes</strong> - (5 min per person)</>
+                        : 'People spend 30 seconds looking at their screen to find who they paired with, and get paired up 10 times in an event (on average)'
+                    }
                 </p>
-                <div className="sponsor-upload-area">
-                    <span className="sponsor-label">SPONSOR LOGO</span>
-                    {renderLogoUpload()}
-                </div>
+                {!hasLogo && (
+                    <div className="sponsor-upload-area">
+                        <span className="sponsor-label">Estimated logo watch time: <strong style={{ color: '#0f1729' }}>{(parseInt(attendees) || 0) * 5} minutes</strong> - (5 min per person)</span>
+                        {renderLogoUpload()}
+                    </div>
+                )}
                 {!isLogoCropping && (
-                    <>
-                        {!hasLogo && (
-                            <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
-                                You can always add this later
-                            </p>
-                        )}
+                    <div className="step4-cta-group">
                         <button className="step-cta" onClick={handleStep4Advance}>
                             {hasLogo ? 'Continue' : 'Skip'} <ArrowRight />
                         </button>
-                    </>
+                        {hasLogo && (
+                            <button className="step-cta step-cta-secondary" onClick={handleRemoveLogo}>
+                                Cancel
+                            </button>
+                        )}
+                    </div>
+                )}
+                {hasLogo && (
+                    <SponsorLogoTutorial
+                        key="slt"
+                        logoSrc={logoCroppedImage}
+                        minutes={minutes}
+                        seconds={seconds}
+                    />
                 )}
             </div>
         );
@@ -1225,12 +1240,12 @@ const CreateLobbyView = () => {
             {showTableModal && (
                 <div className="modal-overlay table-modal-overlay">
                     <div className="modal-content">
-                        <h3>It is highly advised you provide physical table numbers throughout the space, to help people find each other in a timely manner.</h3>
-                        <p>The table numbers will be displayed on your attendee's screens</p>
+                        <h3>Table numbers will be displayed on your attendee's screens</h3>
+                        <p>Table numbers help people find each other in larger events, you can edit this later</p>
                         <div className="modal-buttons">
                             <button type="button" onClick={handleTableModalDismiss}
                                 className="modal-button modal-confirm" style={{ width: '100%' }}>
-                                Got it! I will provide table numbers
+                                Got it!
                             </button>
                         </div>
                     </div>

@@ -710,7 +710,8 @@ const NewOrganizerView = () => {
     const renderStep2 = () => {
         const num = parseInt(attendees);
         const isValid = num >= 1;
-        const showPhoneHint = Number.isInteger(num) && num >= 50;
+        const showProfileHint = Number.isInteger(num) && num >= 10 && num < 50;
+        const showTableHint = Number.isInteger(num) && num >= 50;
 
         return (
             <div className="step-container">
@@ -732,7 +733,8 @@ const NewOrganizerView = () => {
                         <ArrowRight />
                     </button>
                 </div>
-                {showPhoneHint && <TutorialAttendeesPhone key="tap" />}
+                {showProfileHint && <TutorialAttendeesPhone key="tap-profile" variant="profile" />}
+                {showTableHint && <TutorialAttendeesPhone key="tap-table" variant="table" />}
             </div>
         );
     };
@@ -809,8 +811,10 @@ const NewOrganizerView = () => {
             <div className="step-container">
                 <h1 className="step-title">Sponsor Logo (optional)</h1>
                 <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
-                    People spend 30 seconds looking at their screen to find
-                    who they paired with, and get paired up 10 times in an event (on average)
+                    {hasLogo
+                        ? <>Estimated logo watch time: <strong style={{ color: '#0f1729' }}>{(parseInt(attendees) || 0) * 5} minutes</strong> - (5 min per person)</>
+                        : 'People spend 30 seconds looking at their screen to find who they paired with, and get paired up 10 times in an event (on average)'
+                    }
                 </p>
                 {!hasLogo && (
                     <div className="sponsor-upload-area">

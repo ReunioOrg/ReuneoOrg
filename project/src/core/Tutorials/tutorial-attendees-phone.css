@@ -78,7 +78,7 @@
     align-items: center;
     gap: 14px;
     margin-top: 12px;
-    animation: tapSlideUp 0.5s cubic-bezier(0.25, 1, 0.5, 1) both;
+    animation: tapSlideUp 0.5s cubic-bezier(0.25, 1, 0.5, 1) 0.25s both;
 }
 
 /* ── Info Text (inside screen, above table number) ── */
@@ -97,7 +97,7 @@
     position: relative;
     z-index: 10;
     opacity: 0;
-    animation: tapInfoFadeIn 0.25s ease-out 0.75s forwards;
+    animation: tapInfoFadeIn 0.25s ease-out 1s forwards;
 }
 
 /* ══════════════════════════════════════════════════
@@ -162,6 +162,11 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+.tap-match-name-visible {
+    position: relative;
+    z-index: 10;
+}
+
 /* ══════════════════════════════════════════════════
    Table Number (above overlay — z-index: 10)
    ══════════════════════════════════════════════════ */
@@ -183,8 +188,8 @@
     position: relative;
     z-index: 2;
     animation:
-        tapTableGlow 0.25s ease-out 0.75s both,
-        tapTablePulse 2s ease-in-out 1s infinite;
+        tapTableGlow 0.25s ease-out 1s both,
+        tapTablePulse 2s ease-in-out 1.25s infinite;
 }
 
 .tap-ring {
@@ -200,11 +205,11 @@
 }
 
 .tap-ring-1 {
-    animation: tapRipple 2s ease-out 0.8s infinite;
+    animation: tapRipple 2s ease-out 1.05s infinite;
 }
 
 .tap-ring-2 {
-    animation: tapRipple 2s ease-out 1.6s infinite;
+    animation: tapRipple 2s ease-out 1.85s infinite;
 }
 
 /* ══════════════════════════════════════════════════
@@ -282,8 +287,80 @@
 }
 
 /* ══════════════════════════════════════════════════
+   Profile Card — Focused Variant (above overlay)
+   ══════════════════════════════════════════════════ */
+
+.tap-profile-focused {
+    position: relative;
+    z-index: 10;
+    overflow: visible;
+    animation:
+        tapProfileGlow 0.25s ease-out 1s both,
+        tapProfilePulse 2s ease-in-out 1.25s infinite;
+}
+
+.tap-profile-focused .tap-profile-img {
+    border-radius: 14px;
+}
+
+.tap-profile-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 110%;
+    height: 110%;
+    border: 2px solid rgba(75, 115, 239, 0.35);
+    border-radius: 18px;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.tap-profile-ring-1 {
+    animation: tapProfileRipple 2s ease-out 1.05s infinite;
+}
+
+.tap-profile-ring-2 {
+    animation: tapProfileRipple 2s ease-out 1.85s infinite;
+}
+
+@keyframes tapProfileGlow {
+    from {
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    }
+    to {
+        box-shadow:
+            0 0 14px rgba(75, 115, 239, 0.45),
+            0 0 28px rgba(75, 115, 239, 0.2);
+    }
+}
+
+@keyframes tapProfilePulse {
+    0%, 100% {
+        box-shadow:
+            0 0 14px rgba(75, 115, 239, 0.45),
+            0 0 28px rgba(75, 115, 239, 0.2);
+    }
+    50% {
+        box-shadow:
+            0 0 20px rgba(75, 115, 239, 0.65),
+            0 0 40px rgba(75, 115, 239, 0.3);
+    }
+}
+
+@keyframes tapProfileRipple {
+    0% {
+        transform: translate(-50%, -50%) scale(0.9);
+        opacity: 0.5;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.3);
+        opacity: 0;
+    }
+}
+
+/* ══════════════════════════════════════════════════
    Screen Overlay (Scene 2 — fades in at 0.5s)
-   Covers everything except table number + frame
+   Covers everything except focused element + frame
    ══════════════════════════════════════════════════ */
 
 .tap-screen-overlay {
@@ -295,7 +372,7 @@
     z-index: 5;
     opacity: 0;
     pointer-events: none;
-    animation: tapOverlayIn 0.25s ease-out 0.5s forwards;
+    animation: tapOverlayIn 0.25s ease-out 0.75s forwards;
 }
 
 /* ══════════════════════════════════════════════════
