@@ -327,6 +327,7 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
     const showFloats = s >= 9 && s <= 15;
     const floatSmall = s >= 10;
     const floatSnug = s >= 11;
+    const overflowVisible = s >= 9;
 
     const isAct4 = s >= 14;
     const showAct1 = s <= 15;
@@ -390,7 +391,7 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
                     )}
                 </div>
 
-                <div className={`cmef-stage ${isAct4 ? 'cmef-stage-act4' : ''}`}>
+                <div className={`cmef-stage ${isAct4 ? 'cmef-stage-act4' : ''} ${overflowVisible ? 'cmef-stage-overflow' : ''}`}>
                     {showAct1 && (
                     <div className={`cmef-act1-content ${act1Fading ? 'cmef-act1-fade' : ''}`}>
                     {/* ── Person Icons ── */}

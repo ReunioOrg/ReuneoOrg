@@ -548,6 +548,12 @@
     pointer-events: none;
 }
 
+/* ── Overflow Visible (from Act 3 float phones onward) ── */
+
+.cmef-stage.cmef-stage-overflow {
+    overflow: visible;
+}
+
 /* ── Stage Expansion for Act 4 ──────────────────── */
 
 .cmef-stage.cmef-stage-act4 {
