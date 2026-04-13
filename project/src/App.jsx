@@ -876,7 +876,7 @@ const App = () => {
                 margin: 0
               }}>
                 <AnimatedText
-                  text="Real events. Real engagement"
+                  text="Real people. Real connections."
                   stagger={0.04}
                   duration={0.6}
                 />

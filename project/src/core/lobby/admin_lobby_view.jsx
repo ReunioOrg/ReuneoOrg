@@ -7,7 +7,7 @@ import './admin_lobby_view.css';
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { QRCodeSVG } from 'qrcode.react';
 import toast, { Toaster } from 'react-hot-toast';
-import ArrowHint from './lobby_progress_arrows';
+
 import { apiFetch } from '../utils/api';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../cropImage';
@@ -327,32 +327,21 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
     };
     const handleCancel = () => setModal(null);
 
-    // Auto-open check-in modal on page load if nobody has joined yet
-    useEffect(() => {
-        if (didAutoOpenCheckinModalRef.current) return;
-        if (suppressCheckinAutoOpen) return;
-        if (lobbyState === 'checkin' && playerCount === 0) {
-            didAutoOpenCheckinModalRef.current = true;
-            setHasOpenedCheckinModal(true);
-            setModal('checkin');
-        }
-    }, [lobbyState, playerCount, suppressCheckinAutoOpen]);
+    // Auto-open disabled — inline QR on page makes it redundant
 
-    // Helper for shimmer classes
-    const shimmerClass = (active, available) => {
-        if (active) return 'progress-arrow active-shimmer';
-        if (available) return 'progress-arrow available-shimmer';
-        return 'progress-arrow inactive';
+    const startBtnClass = () => {
+        if (checkinActive) return 'progress-pill-btn progress-pill-start';
+        return 'progress-pill-btn progress-pill-inactive';
     };
 
-    // Arrow should show only if: in checkin state, check-in modal has never been opened, and playerCount < 6
-    const showCheckinArrow = checkinActive && !hasOpenedCheckinModal && playerCount < 6;
+    const endBtnClass = () => {
+        if (endAvailable) return 'progress-pill-btn progress-pill-end';
+        return 'progress-pill-btn progress-pill-inactive';
+    };
 
-    // Arrow for Start Rounds: show only if in checkin state and playerCount >= 6
-    const showStartArrow = lobbyState === 'checkin' && playerCount >= 6;
-
-    // Arrow for End Rounds: show only if in active state and current_round + 1 >= 12
-    const showEndArrow = lobbyState === 'active' && (currentRound + 1) >= 12;
+    const isInterrim = lobbyState === 'interrim';
+    const startOnTop = checkinActive;
+    const endOnTop = lobbyState === 'active' || lobbyState === 'terminated';
    
 
     // Helper function to download QR code
@@ -410,64 +399,30 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
 
 
     return (
-        <div className="lobby-progress-bar" style={{ marginTop: '-1rem', height: '40px' }}>
-            <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-                <div
-                    className={shimmerClass(checkinActive, false)}
-                    tabIndex={0}
-                    title="Check-in phase"
-                    onClick={handleCheckin}
-                    style={{ 
-                        cursor: 'pointer', 
-                        width: '100%', 
-                        color: '#f5f7ff', 
-                        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)',
-                        boxShadow: '0 7px 4px rgba(0, 0, 0, 0.1)'
-                    }}
-                >
-                    Start Checkin
-                </div>
-                <ArrowHint direction="down" show={showCheckinArrow} />
-            </div>
-            <div
-                style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}
-            >
-                <div
-                    className={shimmerClass(startActive, startAvailable && !startActive)}
-                    tabIndex={0}
-                    title={startAvailable ? 'Start rounds' : 'At least 2 players required'}
-                    onClick={handleStart}
-                    style={{ 
-                        cursor: 'pointer', 
-                        width: '100%', 
-                        color: '#f5f7ff', 
-                        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)',
-                        boxShadow: '0 7px 4px rgba(0, 0, 0, 0.1)'
-                    }}
-                >
-                    Start Pairing
-                </div>
-                <ArrowHint direction="down" show={showStartArrow} />
-            </div>
-            <div
-                style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}
-            >
-                <div
-                    className={shimmerClass(endActive, endAvailable && !endActive)}
-                    tabIndex={0}
-                    title={endAvailable ? 'End rounds' : 'Cannot end yet'}
-                    onClick={handleEnd}
-                    style={{ 
-                        cursor: 'pointer', 
-                        width: '100%', 
-                        color: '#f5f7ff', 
-                        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)',
-                        boxShadow: '0 7px 4px rgba(0, 0, 0, 0.1)'
-                    }}
-                >
-                    End Pairing
-                </div>
-                <ArrowHint direction="down" show={showEndArrow} />
+        <div className="lobby-progress-bar">
+            <div className={`lobby-progress-track${isInterrim ? ' lobby-progress-interrim' : ''}`}>
+                {isInterrim ? (
+                    <span className="interrim-round-label">Creating Pairs...</span>
+                ) : (
+                    <>
+                        <button
+                            className={`${startBtnClass()}${startOnTop ? ' pill-on-top' : ''}`}
+                            tabIndex={0}
+                            title={startAvailable ? 'Start rounds' : 'At least 2 players required'}
+                            onClick={handleStart}
+                        >
+                            Start
+                        </button>
+                        <button
+                            className={`${endBtnClass()}${endOnTop ? ' pill-on-top' : ''}`}
+                            tabIndex={0}
+                            title={endAvailable ? 'End rounds' : 'Cannot end yet'}
+                            onClick={handleEnd}
+                        >
+                            End
+                        </button>
+                    </>
+                )}
             </div>
 
             {/* Confirmation Modal */}
@@ -477,9 +432,9 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                         {modal === 'checkin' ? (
                             <>
                                 <div className="checkin-modal-header">
-                                    <h2 className="checkin-modal-title">Display or Print QR Code</h2>
+                                    <h2 className="checkin-modal-title">Display QR Code to People</h2>
                                     <p className="checkin-modal-subtitle">
-                                        When attendees arrive at the event, tell them to scan and to follow the app's instructions. Thats it!
+                                        When attendees arrive at the event, tell people to scan and follow the app's instructions. Thats it!
                                     </p>
                                 </div>
                                 <div className="checkin-modal-qr-wrapper" onClick={handleModalCopyQrPng}>
@@ -499,7 +454,7 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                                                 <polyline points="7 10 12 15 17 10" />
                                                 <line x1="12" y1="15" x2="12" y2="3" />
                                             </svg>
-                                            <span>{modalCopied.qr ? 'Saved!' : 'Tap to save'}</span>
+                                            <span>{modalCopied.qr ? 'Saved!' : 'Tap to save/print'}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -610,7 +565,7 @@ const AdminTagsScrollList = ({ tags }) => {
 };
 
 // OverlappingProfileList component for compact, overlapping user profile images
-const OverlappingProfileList = ({ players, totalAttendeeCount, attendeeLimit, onUpgrade }) => {
+const OverlappingProfileList = ({ players, totalAttendeeCount, attendeeLimit, onUpgrade, lobbyState }) => {
     const allPlayers = [
         ...(players.pairedPlayers ? players.pairedPlayers.flat() : []),
         ...(players.lobbyData ? players.lobbyData : [])
@@ -627,6 +582,30 @@ const OverlappingProfileList = ({ players, totalAttendeeCount, attendeeLimit, on
     const isAlmostFull = attendeeLimit && !isFull
         && totalAttendeeCount >= Math.floor(attendeeLimit * 0.9);
 
+    const [jumpingIndices, setJumpingIndices] = useState([]);
+
+    useEffect(() => {
+        if (lobbyState !== 'checkin' || visiblePlayers.length === 0) {
+            setJumpingIndices([]);
+            return;
+        }
+
+        const interval = setInterval(() => {
+            const count = Math.random() < 0.4 ? 2 : 1;
+            const indices = [];
+            const pool = [...Array(visiblePlayers.length).keys()];
+            for (let i = 0; i < Math.min(count, pool.length); i++) {
+                const pick = Math.floor(Math.random() * pool.length);
+                indices.push(pool[pick]);
+                pool.splice(pick, 1);
+            }
+            setJumpingIndices(indices);
+            setTimeout(() => setJumpingIndices([]), 450);
+        }, 1200);
+
+        return () => clearInterval(interval);
+    }, [lobbyState, visiblePlayers.length]);
+
     return (
         <div className="overlapping-profile-list-wrapper" style={{ marginTop: '3rem' }}>
             <div className="overlapping-profile-list">
@@ -635,20 +614,30 @@ const OverlappingProfileList = ({ players, totalAttendeeCount, attendeeLimit, on
                         key={player.username || player.name || idx}
                         src={player.pfp_data || "/assets/player_icon_trans.png"}
                         alt={player.name || "Player"}
-                        className="overlapping-profile-img"
+                        className={`overlapping-profile-img${jumpingIndices.includes(idx) ? ' profile-jumping' : ''}`}
                         style={{ zIndex: idx + 1 }}
                     />
                 ))}
                 {overflowCount > 0 && (
-                    <span className="overlapping-profile-overflow">+ {overflowCount}</span>
+                    <span className="overlapping-profile-overflow">•••</span>
                 )}
             </div>
             <div className="overlapping-profile-list-label" style={{ marginTop: '0.5rem' }}>
-                People Joined: {attendeeLimit
-                    ? <><span className="overlapping-profile-count">{displayCount}</span> / {attendeeLimit}</>
-                    : <span className="overlapping-profile-count">{displayCount}</span>
-                }
+                People Joined: <span className="overlapping-profile-count">{displayCount}</span>
             </div>
+            {attendeeLimit && (
+                <div className="lobby-capacity-bar-wrapper">
+                    <div className="lobby-capacity-bar-track">
+                        <div
+                            className={`lobby-capacity-bar-fill${displayCount >= Math.round(attendeeLimit * 0.9) ? ' lobby-capacity-bar-warning' : ''}`}
+                            style={{ width: `${Math.min((displayCount / attendeeLimit) * 100, 100)}%` }}
+                        />
+                    </div>
+                    <span className={`lobby-capacity-fraction${displayCount >= Math.round(attendeeLimit * 0.9) ? ' lobby-capacity-fraction-warning' : ''}`}>
+                        {displayCount} / {attendeeLimit}
+                    </span>
+                </div>
+            )}
             {(isAlmostFull || isFull) && onUpgrade && (
                 <button
                     className={`capacity-badge ${isFull ? 'capacity-badge-full' : 'capacity-badge-info'}`}
@@ -1227,6 +1216,9 @@ const AdminLobbyView = () => {
     const [showTableNumbers, setShowTableNumbers] = useState(false);
     const [maxActiveRound, setMaxActiveRound] = useState(0);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [tutorialMode, setTutorialMode] = useState(false);
+    const [inlineQrCopied, setInlineQrCopied] = useState(false);
+    const [inlineQrPulsing, setInlineQrPulsing] = useState(false);
 
     // Add playerCount and lobbyState for progress bar
     const playerCount = (lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0);
@@ -1537,6 +1529,30 @@ const AdminLobbyView = () => {
         }
     };
 
+    const handleInlineQrDownload = () => {
+        const svg = document.getElementById('inline-qr-svg');
+        if (!svg) return;
+        generateStyledQRCodeImage(svg, lobbyCode)
+            .then((blob) => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `reuneo-lobby-${lobbyCode}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                setInlineQrCopied(true);
+                setTimeout(() => setInlineQrCopied(false), 800);
+                if (navigator.clipboard && navigator.clipboard.write) {
+                    navigator.clipboard.write([
+                        new window.ClipboardItem({ "image/png": blob })
+                    ]).catch(() => {});
+                }
+            })
+            .catch((err) => console.error('Error generating QR code image:', err));
+    };
+
     return (
         <>
             {/* Toast container for react-hot-toast */}
@@ -1582,7 +1598,18 @@ const AdminLobbyView = () => {
                         alt="Reuneo Logo"
                         className="admin-view-logo-img"
                     />
-                    <div className="admin-nav-placeholder" />
+                    <div
+                        className={`tutorial-toggle ${tutorialMode ? 'tutorial-toggle-on' : ''}`}
+                        onClick={() => setTutorialMode(prev => !prev)}
+                        role="switch"
+                        aria-checked={tutorialMode}
+                        aria-label="Tutorial mode"
+                    >
+                        <span className="tutorial-toggle-knob" />
+                        <span className="tutorial-toggle-label">
+                            {tutorialMode ? 'Tutorial On' : 'Tutorial Off'}
+                        </span>
+                    </div>
                 </div>
                 <LobbyProgressBar 
                     lobbyState={lobbyState}
@@ -1600,6 +1627,7 @@ const AdminLobbyView = () => {
                     players={{ pairedPlayers, lobbyData }}
                     totalAttendeeCount={playerCount}
                     attendeeLimit={planInfo?.attendee_limit || null}
+                    lobbyState={lobbyState}
                     onUpgrade={planInfo ? () => navigate('/plan-selection', {
                         state: {
                             isUpgrade: true,
@@ -1610,16 +1638,91 @@ const AdminLobbyView = () => {
                         },
                     }) : null}
                 />
+
+                {/* Inline checkin content when lobby is in checkin and < 2 players */}
+                {lobbyState === 'checkin' && playerCount < 2 && (
+                    <div className="inline-checkin-content">
+                        <h2 className="checkin-modal-title">Real People. Real Connections.</h2>
+                        <p className="checkin-modal-subtitle">
+                            Tell people to scan and listen to the app's instructions. Thats it!
+                        </p>
+                        <div className="checkin-modal-qr-wrapper" onClick={() => {
+                            setInlineQrPulsing(true);
+                            setTimeout(() => setInlineQrPulsing(false), 700);
+                            handleInlineQrDownload();
+                        }}>
+                            <div className="inline-qr-pulse-container">
+                                <div className="checkin-modal-qr-card inline-qr-active">
+                                    <QRCodeSVG
+                                        value={`${window.location.origin}/lobby?code=${lobbyCode}`}
+                                        size={180}
+                                        level="H"
+                                        includeMargin={false}
+                                        bgColor="#ffffff"
+                                        fgColor="#1a1a2e"
+                                        id="inline-qr-svg"
+                                    />
+                                    <div className="checkin-modal-qr-download-hint inline-qr-hint-active">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                            <polyline points="7 10 12 15 17 10" />
+                                            <line x1="12" y1="15" x2="12" y2="3" />
+                                        </svg>
+                                        <span>{inlineQrCopied ? 'Saved!' : 'Tap to save/print'}</span>
+                                    </div>
+                                </div>
+                                {inlineQrPulsing && (
+                                    <>
+                                        <span className="inline-qr-ring inline-qr-ring-1" />
+                                        <span className="inline-qr-ring inline-qr-ring-2" />
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                        <p className="checkin-modal-hint">
+                            Click Start whenever you want - new arrivals will get paired up immediately.
+                        </p>
+                    </div>
+                )}
+
+                {/* Attendee QR button — opens CheckinModal when >= 2 players */}
+                {playerCount >= 2 && (
+                    <div
+                        className="admin-lobby-dropdown-toggle attendee-qr-btn"
+                        onClick={() => checkinTriggerRef.current?.()}
+                    >
+                        Attendee QR
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '8px' }}>
+                            <rect x="2" y="2" width="8" height="8" rx="1" />
+                            <rect x="14" y="2" width="8" height="8" rx="1" />
+                            <rect x="2" y="14" width="8" height="8" rx="1" />
+                            <rect x="14" y="14" width="4" height="4" rx="0.5" />
+                            <line x1="22" y1="14" x2="22" y2="18" />
+                            <line x1="18" y1="22" x2="22" y2="22" />
+                            <line x1="14" y1="22" x2="14" y2="22" />
+                        </svg>
+                    </div>
+                )}
                 
                 {/* Dropdown Toggle Bar/Header */}
                 <div
                     className={`admin-lobby-dropdown-toggle ${showLobbyDetails ? 'expanded' : ''}`}
                     onClick={() => setShowLobbyDetails((prev) => !prev)}
                 >
-                    {showLobbyDetails ? 'Hide Controls' : 'Edit'}
-                    <span className={`dropdown-chevron ${showLobbyDetails ? 'rotated' : ''}`}>
-                        ▼
-                    </span>
+                    {showLobbyDetails ? (
+                        <>
+                            Hide Controls
+                            <span className="dropdown-chevron rotated">▼</span>
+                        </>
+                    ) : (
+                        <>
+                            Settings
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '8px', opacity: 0.9 }}>
+                                <circle cx="12" cy="12" r="3" />
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                            </svg>
+                        </>
+                    )}
                 </div>
                 {/* Dropdown Content */}
                 <div
@@ -1643,22 +1746,14 @@ const AdminLobbyView = () => {
                                 alt="Your Profile" 
                                 className="admin-profile-picture"
                             />
-                            <span className="admin-profile-name">
-                                {userProfile?.name ? userProfile.name.slice(0, 20) : user?.slice(0, 20)}
-                            </span>
+                            <div className="admin-profile-name-group">
+                                <span className="admin-profile-name">
+                                    {userProfile?.name ? userProfile.name.slice(0, 20) : user?.slice(0, 20)}
+                                </span>
+                                <span className="admin-profile-role">(organizer)</span>
+                            </div>
                         </div>
-                        <button
-                            onClick={() => checkinTriggerRef.current?.()}
-                            className="page-control-button page-control-join"
-                        >
-                            Checkin Attendees
-                        </button>
-                        <button
-                            onClick={handleOpenJoinModal}
-                            className="page-control-button page-control-join"
-                        >
-                            Join Pairing
-                        </button>
+                        <span className="settings-section-label">Lobby Details:</span>
                         <div className="setting-item">
                             <span className="setting-label">Round Duration: <span className="setting-value">{Math.floor(roundDuration / 60)} min</span></span>
                             <span className="setting-label">Tags: <span className="setting-value">{customTags?.length || 0}</span></span>
@@ -1689,9 +1784,9 @@ const AdminLobbyView = () => {
                                         lobbyState,
                                     },
                                 })}
-                                className="page-control-button page-control-join"
+                                className="page-control-button page-control-secondary"
                             >
-                                Upgrade Plan
+                                Plan Limits
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '6px', flexShrink: 0 }}>
                                     <path d="M12 19V5"/>
@@ -1699,6 +1794,12 @@ const AdminLobbyView = () => {
                                 </svg>
                             </button>
                         )}
+                        <button
+                            onClick={handleOpenJoinModal}
+                            className="page-control-button page-control-secondary"
+                        >
+                            Join Lobby
+                        </button>
                         
                     </div>
                     
@@ -1787,57 +1888,57 @@ const AdminLobbyView = () => {
                         
                     </div>
                 </div>
-                {/* Only render timer container if there is a timer to show */}
-                {((lobbyState === "active" || lobbyState === "interrim") && lobbyTimer) && (
-                    <div className="admin-lobby-timer-container">
-                        <div className="admin-lobby-timer-glass">
-                            <CountdownCircleTimer
-                                key={`${lobbyState}-${Math.floor(lobbyTimer)}`}
-                                isPlaying={lobbyState === "active"}
-                                duration={roundDuration}
-                                initialRemainingTime={lobbyTimer}
-                                colors={["#64B5F6", "#2196F3", "#1976D2"]}
-                                colorsTime={[roundDuration, roundDuration / 2, 0]}
-                                size={90}
-                                strokeWidth={8}
-                                trailColor="#f0f1f4"
-                                onComplete={() => {
-                                    return { shouldRepeat: false };
-                                }}
-                                strokeLinecap="round"
-                            >
-                                {({ remainingTime }) => {
-                                    const validTime = typeof remainingTime === 'number' && !isNaN(remainingTime) ? remainingTime : 0;
-                                    const mins = Math.floor(validTime / 60);
-                                    const secs = Math.floor(validTime % 60);
-                                    return (
-                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                            <span style={{ fontSize: '1.35rem', color: '#1a1a2e', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
-                                                {mins}:{String(secs).padStart(2, '0')}
-                                            </span>
-                                            <span style={{ fontSize: '0.6rem', color: '#6b7280', fontWeight: 500, marginTop: '2px' }}>time left</span>
-                                        </div>
-                                    );
-                                }}
-                            </CountdownCircleTimer>
-                        </div>
-                    </div>
-                )}
-
                 {lobbyState !== 'checkin' && (
-                    <div className="admin-lobby-stats">
-                        <div className="stat-card">
-                            <div className="stat-title">Total<br/>Players</div>
-                            <div className="stat-value">{(lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0)}</div>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-title">Paired<br/>Players</div>
-                            <div className="stat-value">{pairedPlayers?.length * 2 || 0}</div>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-title">Unpaired<br/>Players</div>
-                            <div className="stat-value">{lobbyData?.length || 0}</div>
-                        </div>
+                    <div className="admin-stats-timer-row">
+                        {lobbyState !== 'interrim' && (
+                            <div className="admin-stats-text">
+                                <div className="admin-stats-text-row">
+                                    <span className="admin-stats-label">Paired</span>
+                                    <span className="admin-stats-value">{pairedPlayers?.length * 2 || 0}</span>
+                                </div>
+                                <div className="admin-stats-text-row">
+                                    <span className="admin-stats-label">Unpaired</span>
+                                    <span className="admin-stats-value">{lobbyData?.length || 0}</span>
+                                </div>
+                                <div className="admin-stats-text-row">
+                                    <span className="admin-stats-label">Total</span>
+                                    <span className="admin-stats-value">{(lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0)}</span>
+                                </div>
+                            </div>
+                        )}
+                        {(lobbyState === "active" || lobbyState === "interrim") && lobbyTimer && (
+                            <div className="admin-stats-timer">
+                                <CountdownCircleTimer
+                                    key={`${lobbyState}-${Math.floor(lobbyTimer)}`}
+                                    isPlaying={lobbyState === "active"}
+                                    duration={roundDuration}
+                                    initialRemainingTime={lobbyTimer}
+                                    colors={["#64B5F6", "#2196F3", "#1976D2"]}
+                                    colorsTime={[roundDuration, roundDuration / 2, 0]}
+                                    size={90}
+                                    strokeWidth={8}
+                                    trailColor="#f0f1f4"
+                                    onComplete={() => {
+                                        return { shouldRepeat: false };
+                                    }}
+                                    strokeLinecap="round"
+                                >
+                                    {({ remainingTime }) => {
+                                        const validTime = typeof remainingTime === 'number' && !isNaN(remainingTime) ? remainingTime : 0;
+                                        const mins = Math.floor(validTime / 60);
+                                        const secs = Math.floor(validTime % 60);
+                                        return (
+                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                <span style={{ fontSize: '1.35rem', color: '#1a1a2e', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+                                                    {mins}:{String(secs).padStart(2, '0')}
+                                                </span>
+                                                <span style={{ fontSize: '0.6rem', color: '#6b7280', fontWeight: 500, marginTop: '2px' }}>time left</span>
+                                            </div>
+                                        );
+                                    }}
+                                </CountdownCircleTimer>
+                            </div>
+                        )}
                     </div>
                 )}
                 
