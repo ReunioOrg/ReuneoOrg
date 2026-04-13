@@ -1685,8 +1685,8 @@ const AdminLobbyView = () => {
                     </div>
                 )}
 
-                {/* Attendee QR button — opens CheckinModal when >= 2 players */}
-                {playerCount >= 2 && (
+                {/* Attendee QR button — hidden only when inline QR is visible (checkin + <2 players) */}
+                {!(lobbyState === 'checkin' && playerCount < 2) && (
                     <div
                         className="admin-lobby-dropdown-toggle attendee-qr-btn"
                         onClick={() => checkinTriggerRef.current?.()}
