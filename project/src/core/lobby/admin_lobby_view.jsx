@@ -1942,7 +1942,7 @@ const AdminLobbyView = () => {
                     </div>
                 )}
                 
-                {pairedPlayers && lobbyState !== 'checkin' && (
+                {pairedPlayers && pairedPlayers.length > 0 && lobbyState !== 'checkin' && (
                     <div className="admin-lobby-players">
                         <div className="player-section">
                             {lobbyState === 'interrim' ? (
@@ -2022,7 +2022,7 @@ const AdminLobbyView = () => {
                     </div>
                 )}
 
-                {lobbyData && (
+                {lobbyData && lobbyData.length > 0 && (
                     <div className="admin-lobby-players">
                         <div className="player-section">
                             {lobbyState === 'interrim' ? (
