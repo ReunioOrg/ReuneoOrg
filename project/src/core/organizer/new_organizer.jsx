@@ -34,6 +34,7 @@ const NewOrganizerView = () => {
     const [seconds, setSeconds] = useState(returnData?.seconds || '0');
     const [showTableNumbers, setShowTableNumbers] = useState(returnData?.show_table_numbers ?? false);
     const [enableMatchHistory, setEnableMatchHistory] = useState(returnData?.enable_match_history ?? true);
+    const [organizerName, setOrganizerName] = useState('');
     const [email, setEmail] = useState(returnData?.email || '');
     const [showEmailToast, setShowEmailToast] = useState(false);
 
@@ -52,9 +53,10 @@ const NewOrganizerView = () => {
     const MaxMinutes = 8;
     const toastTimerRef = useRef(null);
     const hasShownEmailToast = useRef(false);
+    const isSubmittingRef = useRef(false);
 
     useEffect(() => {
-        if (permissions === 'organizer' && !isLegacyOrganizer) {
+        if (permissions === 'organizer' && !isLegacyOrganizer && !isSubmittingRef.current) {
             navigate('/organizer-account-details');
         }
     }, [permissions, isLegacyOrganizer]);
@@ -291,6 +293,7 @@ const NewOrganizerView = () => {
 
     // ── Submit — create free trial account directly, then navigate to success ──
     const handleSubmit = async () => {
+        isSubmittingRef.current = true;
         setIsLoading(true);
         setError('');
         const lobbyDuration = (parseInt(minutes) * 60) + parseInt(seconds);
@@ -315,6 +318,7 @@ const NewOrganizerView = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email,
+                    name: organizerName.trim(),
                     lobby_data: lobbyData,
                     attendees: parseInt(attendees),
                 }),
@@ -327,6 +331,7 @@ const NewOrganizerView = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email,
+                    name: organizerName.trim(),
                     lobby_data: lobbyData,
                 }),
             });
@@ -606,17 +611,26 @@ const NewOrganizerView = () => {
 
             {error && <div className="error-message">{error}</div>}
 
+            <input
+                type="text"
+                value={organizerName}
+                onChange={(e) => setOrganizerName(e.target.value)}
+                placeholder="Name"
+                className="form-input name-input"
+                autoComplete="name"
+            />
+
             <div className="create-row">
                 <input
                     type="email"
                     value={email}
                     onChange={handleEmailChange}
-                    placeholder="input your email"
+                    placeholder="Email"
                     className="form-input email-input"
                     autoComplete="email"
                 />
                 <button className="step-cta create-cta" onClick={handleSubmit}
-                    disabled={isLoading || !isValidEmail(email)}>
+                    disabled={isLoading || !organizerName.trim() || !isValidEmail(email)}>
                     {isLoading ? 'Creating...' : 'Create'}
                     {!isLoading && <SparkleIcon />}
                 </button>

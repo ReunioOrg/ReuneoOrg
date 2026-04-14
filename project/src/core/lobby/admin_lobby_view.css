@@ -2026,6 +2026,62 @@
     }
 }
 
+/* Upgrade Pill (free trial) */
+.upgrade-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 18px;
+    border-radius: 50px;
+    border: none;
+    background: #4b73ef;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.2s, box-shadow 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.upgrade-pill:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 14px rgba(75, 115, 239, 0.4);
+}
+
+.upgrade-pill:active {
+    transform: scale(0.97);
+}
+
+.upgrade-pill-text {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    background: linear-gradient(
+        120deg,
+        #ffffff 0%,
+        #ffffff 35%,
+        #c8dcff 50%,
+        #ffffff 65%,
+        #ffffff 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: upgrade-shimmer 1.65s linear infinite;
+}
+
+@keyframes upgrade-shimmer {
+    0% { background-position: 200% center; }
+    100% { background-position: -200% center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .upgrade-pill-text {
+        animation: none;
+        background: none;
+        -webkit-text-fill-color: #fff;
+    }
+}
+
 /* Capacity Warning/Full Badge */
 .capacity-badge {
     display: inline-flex;

@@ -1477,6 +1477,12 @@
 
 /* ── Create Row (email + button unified pill) ── */
 
+.name-input {
+    border-radius: 50px;
+    max-width: 320px;
+    padding: 12px 20px;
+}
+
 .create-row {
     display: flex;
     align-items: center;

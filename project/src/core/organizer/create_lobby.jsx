@@ -76,6 +76,7 @@ const CreateLobbyView = () => {
 
     // ── Hydration state ──
     const hydratedRef = useRef(false);
+    const wasHydratedRef = useRef(false);
     const [isHydrating, setIsHydrating] = useState(false);
 
     // ── Initialization + hydration from lobbyData ──
@@ -110,6 +111,7 @@ const CreateLobbyView = () => {
             setCurrentStep(6);
             setVisitedSteps(new Set([1, 2, 3, 4, 5, 6]));
             hydratedRef.current = true;
+            wasHydratedRef.current = true;
         };
 
         const routerData = location.state?.lobbyData;
@@ -964,10 +966,10 @@ const CreateLobbyView = () => {
 
     // ── Render: Step 6 — Review ──
     const renderStep6 = () => {
-        if (isFreeTrial) {
+        if (isFreeTrial && wasHydratedRef.current) {
             return (
                 <div className="step-container review-step">
-                    <h1 className="step-title">Real people, creating real connections</h1>
+                    <h1 className="step-title">Real People Creating Real Connections</h1>
                     <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
                         Boost engagement!
                     </p>

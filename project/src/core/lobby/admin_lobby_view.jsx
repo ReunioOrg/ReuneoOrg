@@ -565,7 +565,7 @@ const AdminTagsScrollList = ({ tags }) => {
 };
 
 // OverlappingProfileList component for compact, overlapping user profile images
-const OverlappingProfileList = ({ players, totalAttendeeCount, attendeeLimit, onUpgrade, lobbyState }) => {
+const OverlappingProfileList = ({ players, totalAttendeeCount, attendeeLimit, onUpgrade, lobbyState, planType }) => {
     const allPlayers = [
         ...(players.pairedPlayers ? players.pairedPlayers.flat() : []),
         ...(players.lobbyData ? players.lobbyData : [])
@@ -636,9 +636,14 @@ const OverlappingProfileList = ({ players, totalAttendeeCount, attendeeLimit, on
                     <span className={`lobby-capacity-fraction${displayCount >= Math.round(attendeeLimit * 0.9) ? ' lobby-capacity-fraction-warning' : ''}`}>
                         {displayCount} / {attendeeLimit}
                     </span>
+                    {planType === 'free_trial' && onUpgrade && (
+                        <button className="upgrade-pill" onClick={onUpgrade}>
+                            <span className="upgrade-pill-text">UPGRADE</span>
+                        </button>
+                    )}
                 </div>
             )}
-            {(isAlmostFull || isFull) && onUpgrade && (
+            {planType !== 'free_trial' && (isAlmostFull || isFull) && onUpgrade && (
                 <button
                     className={`capacity-badge ${isFull ? 'capacity-badge-full' : 'capacity-badge-info'}`}
                     onClick={onUpgrade}
@@ -1628,6 +1633,7 @@ const AdminLobbyView = () => {
                     totalAttendeeCount={playerCount}
                     attendeeLimit={planInfo?.attendee_limit || null}
                     lobbyState={lobbyState}
+                    planType={planInfo?.plan_type}
                     onUpgrade={planInfo ? () => navigate('/plan-selection', {
                         state: {
                             isUpgrade: true,
