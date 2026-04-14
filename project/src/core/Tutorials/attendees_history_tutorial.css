@@ -1,0 +1,487 @@
+/* ══════════════════════════════════════════════════
+   Attendees History Tutorial
+   Phone-frame mockup with scrolling paired-history
+   ══════════════════════════════════════════════════ */
+
+/* ── Keyframes ───────────────────────────────────── */
+
+@keyframes ahtSlideUp {
+    from {
+        transform: translateY(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes ahtLabelFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes ahtPersonFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Scrolls the inner content upward — loops seamlessly (tiles rendered twice) */
+@keyframes ahtScrollContent {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-50%);
+    }
+}
+
+/* ══════════════════════════════════════════════════
+   Wrapper — horizontal row: person left, phone right
+   ══════════════════════════════════════════════════ */
+
+.aht-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+    padding: 8px 0;
+}
+
+/* ── Person Section (left) ─────────────────────── */
+
+.aht-person-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.aht-person-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #6b7280;
+    opacity: 0;
+    animation: ahtLabelFadeIn 0.5s ease-out 0.6s forwards;
+    white-space: nowrap;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.aht-person-icon {
+    width: 48px;
+    height: auto;
+    opacity: 0;
+    animation: ahtPersonFadeIn 0.4s ease-out 0.2s forwards;
+}
+
+.aht-person-icon svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ══════════════════════════════════════════════════
+   Phone Area (right) — slides up
+   ══════════════════════════════════════════════════ */
+
+.aht-phone-area {
+    flex: 1;
+    max-width: 260px;
+    display: flex;
+    justify-content: center;
+    animation: ahtSlideUp 0.5s cubic-bezier(0.25, 1, 0.5, 1) 0.25s both;
+}
+
+/* ══════════════════════════════════════════════════
+   Phone Frame
+   ══════════════════════════════════════════════════ */
+
+.aht-phone {
+    width: 100%;
+    max-width: 240px;
+    background: #374151;
+    border-radius: 36px;
+    padding: 0 10px 8px;
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.aht-notch {
+    width: 80px;
+    height: 24px;
+    background: #1f2937;
+    border-radius: 0 0 14px 14px;
+    flex-shrink: 0;
+}
+
+.aht-home-indicator {
+    width: 90px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 2px;
+    margin-top: 2px;
+}
+
+/* ══════════════════════════════════════════════════
+   Phone Screen — clip the scrolling content
+   ══════════════════════════════════════════════════ */
+
+.aht-screen {
+    width: 100%;
+    background: #f9fafb;
+    border-radius: 4px 4px 26px 26px;
+    overflow: hidden;
+    position: relative;
+    height: 360px;
+}
+
+.aht-scroll-track {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.aht-scroll-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 8px 0;
+    animation: ahtScrollContent 7s linear 1s infinite;
+}
+
+/* ── Screen Header (logo + title) — scrolls away ── */
+
+.aht-screen-header {
+    width: 100%;
+    padding: 10px 0 6px;
+    text-align: center;
+}
+
+.aht-screen-logo {
+    width: 60px;
+    margin: 0 auto 4px;
+}
+
+.aht-screen-logo img {
+    width: 100%;
+    display: block;
+}
+
+.aht-screen-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a2e;
+    text-align: center;
+    margin: 0 0 6px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ══════════════════════════════════════════════════
+   Tile — mimics paired-player-history card
+   ══════════════════════════════════════════════════ */
+
+.aht-tile {
+    width: 92%;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 12px 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Profile section */
+.aht-tile-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.aht-tile-img {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    background: #f0f1f4;
+}
+
+.aht-tile-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.aht-tile-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-top: 4px;
+    text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.aht-tile-date {
+    font-size: 8px;
+    font-weight: 500;
+    color: #9ca3af;
+    margin-top: 1px;
+}
+
+.aht-tile-socials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.aht-tile-social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+/* Actions section (rating + share) */
+.aht-tile-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.aht-tile-rating-label {
+    font-size: 8px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 2px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.aht-tile-stars {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+}
+
+.aht-star {
+    font-size: 14px;
+    color: #d1d5db;
+    line-height: 1;
+}
+
+.aht-star-filled {
+    color: #f59e0b;
+}
+
+.aht-tile-disclaimer {
+    font-size: 7px;
+    font-style: italic;
+    color: #9ca3af;
+    margin-top: 1px;
+}
+
+.aht-tile-share-label {
+    font-size: 8px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-top: 6px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.aht-tile-share-btns {
+    display: flex;
+    gap: 6px;
+    margin-top: 3px;
+}
+
+.aht-share-btn {
+    font-size: 8px;
+    font-weight: 600;
+    padding: 3px 14px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #374151;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.aht-share-yes {
+    background: #4b73ef;
+    color: #ffffff;
+    border-color: #4b73ef;
+}
+
+/* ══════════════════════════════════════════════════
+   Responsive — Small Mobile (<=480px)
+   ══════════════════════════════════════════════════ */
+
+@media screen and (max-width: 480px) {
+    .aht-wrapper {
+        gap: 14px;
+    }
+
+    .aht-person-label {
+        font-size: 11px;
+    }
+
+    .aht-person-icon {
+        width: 38px;
+    }
+
+    .aht-phone-area {
+        max-width: 210px;
+    }
+
+    .aht-phone {
+        border-radius: 30px;
+        padding: 0 8px 6px;
+    }
+
+    .aht-notch {
+        width: 65px;
+        height: 20px;
+        border-radius: 0 0 11px 11px;
+    }
+
+    .aht-screen {
+        border-radius: 4px 4px 22px 22px;
+        height: 300px;
+    }
+
+    .aht-screen-title {
+        font-size: 11px;
+    }
+
+    .aht-screen-logo {
+        width: 48px;
+    }
+
+    .aht-tile {
+        padding: 10px 8px;
+        border-radius: 12px;
+    }
+
+    .aht-tile-img {
+        width: 42px;
+        height: 42px;
+    }
+
+    .aht-tile-name {
+        font-size: 10px;
+    }
+
+    .aht-star {
+        font-size: 12px;
+    }
+}
+
+/* ══════════════════════════════════════════════════
+   Responsive — Desktop (>=769px)
+   ══════════════════════════════════════════════════ */
+
+@media screen and (min-width: 769px) {
+    .aht-wrapper {
+        gap: 36px;
+    }
+
+    .aht-person-label {
+        font-size: 15px;
+    }
+
+    .aht-person-icon {
+        width: 58px;
+    }
+
+    .aht-phone-area {
+        max-width: 300px;
+    }
+
+    .aht-phone {
+        border-radius: 40px;
+        padding: 0 12px 10px;
+    }
+
+    .aht-notch {
+        width: 90px;
+        height: 26px;
+        border-radius: 0 0 16px 16px;
+    }
+
+    .aht-screen {
+        border-radius: 4px 4px 28px 28px;
+        height: 420px;
+    }
+
+    .aht-screen-title {
+        font-size: 15px;
+    }
+
+    .aht-screen-logo {
+        width: 70px;
+    }
+
+    .aht-tile {
+        padding: 14px 12px;
+        border-radius: 16px;
+        margin-bottom: 12px;
+    }
+
+    .aht-tile-img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .aht-tile-name {
+        font-size: 12px;
+    }
+
+    .aht-tile-rating-label,
+    .aht-tile-share-label {
+        font-size: 9px;
+    }
+
+    .aht-star {
+        font-size: 16px;
+    }
+
+    .aht-share-btn {
+        font-size: 9px;
+        padding: 4px 16px;
+    }
+
+    .aht-home-indicator {
+        width: 100px;
+    }
+}

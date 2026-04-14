@@ -1,18 +1,14 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import Cropper from 'react-easy-crop';
-import getCroppedImg from '../cropImage';
 import './new_organizer.css';
 import { apiFetch } from '../utils/api';
 import { AuthContext } from '../Auth/AuthContext';
 import FloatingLinesBackground from './FloatingLinesBackground';
-import TutorialMatchHistory from '../Tutorials/tutorial-match-history';
+import AttendeesHistoryTutorial from '../Tutorials/attendees_history_tutorial';
 import TutorialMatching from '../Tutorials/tutorial-matching';
-import TutorialRandomMatching from '../Tutorials/tutorial-random-matching';
 import CoolerGeneralMatchEventFlow from '../Tutorials/cooler_general_match_event_flow';
 import TutorialAttendeesPhone from '../Tutorials/tutorial-attendees-phone';
 import RoundDurationTutorial from '../Tutorials/round_duration_tutorial';
-import SponsorLogoTutorial from '../Tutorials/sponsor_logo_tutorial';
 
 const NewOrganizerView = () => {
     const navigate = useNavigate();
@@ -21,16 +17,16 @@ const NewOrganizerView = () => {
     const returnData = location.state?.returnData;
 
     // ── Step Navigation ──
-    const [currentStep, setCurrentStep] = useState(returnData ? 6 : 1);
-    const [visitedSteps, setVisitedSteps] = useState(returnData ? new Set([1,2,3,4,5,6]) : new Set([1]));
+    const [currentStep, setCurrentStep] = useState(returnData ? 5 : 1);
+    const [visitedSteps, setVisitedSteps] = useState(returnData ? new Set([1,2,3,4,5]) : new Set([1]));
     const [navDirection, setNavDirection] = useState('forward');
-    const [step1View, setStep1View] = useState(
-        returnData?.selected_tab === 'custom' ? 'tags' : 'selection'
+    const [step3View, setStep3View] = useState(
+        returnData?.selected_tab === 'custom' ? 'tags' : 'prompt'
     );
 
     // ── Form Data ──
     const [lobbyCode, setLobbyCode] = useState(returnData?.lobby_code || '');
-    const [selectedTab, setSelectedTab] = useState(returnData?.selected_tab || null);
+    const [selectedTab, setSelectedTab] = useState(returnData?.selected_tab || 'icebreaker');
     const [customTags, setCustomTags] = useState(returnData?.custom_tags || []);
     const [tagInput, setTagInput] = useState('');
     const [attendees, setAttendees] = useState(returnData?.attendees != null ? String(returnData.attendees) : '');
@@ -45,18 +41,7 @@ const NewOrganizerView = () => {
     const [aiDescription, setAiDescription] = useState('');
     const [isGeneratingTags, setIsGeneratingTags] = useState(false);
     const [tagsFromAI, setTagsFromAI] = useState(false);
-
-    // ── Logo Upload ──
-    const [logoName, setLogoName] = useState(returnData?.logo_name || '');
-    const [logoUrl, setLogoUrl] = useState(returnData?.logo_url || '');
-    const [logoPreview, setLogoPreview] = useState(null);
-    const [logoCroppedImage, setLogoCroppedImage] = useState(returnData?.logo_cropped_image || null);
-    const [logoError, setLogoError] = useState('');
-    const [isLogoCropping, setIsLogoCropping] = useState(false);
-    const [isLogoProcessing, setIsLogoProcessing] = useState(false);
-    const [logoCrop, setLogoCrop] = useState({ x: 0, y: 0 });
-    const [logoZoom, setLogoZoom] = useState(1);
-    const [logoCropArea, setLogoCropArea] = useState(null);
+    const [animationTags, setAnimationTags] = useState([]);
 
     // ── UI State ──
     const [isLoading, setIsLoading] = useState(false);
@@ -67,7 +52,6 @@ const NewOrganizerView = () => {
     const [isEditingReview, setIsEditingReview] = useState(false);
 
     const [showTutorial, setShowTutorial] = useState(false);
-    const [showRandomTutorial, setShowRandomTutorial] = useState(false);
     const [showGeneralTutorial, setShowGeneralTutorial] = useState(false);
 
     const MaxMinutes = 8;
@@ -99,7 +83,7 @@ const NewOrganizerView = () => {
 
     useEffect(() => {
         if (
-            location.state?.showGeneralTutorial &&
+            !returnData &&
             permissions !== 'admin' &&
             permissions !== 'organizer' &&
             !isLegacyOrganizer
@@ -110,31 +94,10 @@ const NewOrganizerView = () => {
 
     const handleTutorialComplete = () => {
         setShowTutorial(false);
-        setSelectedTab('custom');
-        setNavDirection('forward');
-        setStep1View(customTags.length > 0 ? 'tags' : 'description');
-    };
-
-    const handleRandomTutorialComplete = () => {
-        setShowRandomTutorial(false);
-        if (customTags.length > 0 || tagInput.trim()) {
-            setPendingTabSwitch('icebreaker');
-            setShowModal(true);
-        } else {
-            setSelectedTab('icebreaker');
-            setCustomTags([]);
-            setTagInput('');
-            setVisitedSteps(prev => new Set([...prev, 2]));
-            goToStep(2, 'forward');
-        }
     };
 
     const handleGeneralTutorialComplete = () => {
         setShowGeneralTutorial(false);
-    };
-
-    const handleGeneralTutorialReplay = () => {
-        setShowGeneralTutorial(true);
     };
 
     // ── Helpers ──
@@ -160,7 +123,7 @@ const NewOrganizerView = () => {
 
     // ── Navigation ──
     const goToStep = (step, direction) => {
-        if (currentStep === 6 && step !== 6) hasShownEmailToast.current = false;
+        if (currentStep === 5 && step !== 5) hasShownEmailToast.current = false;
         setNavDirection(direction);
         setCurrentStep(step);
         window.scrollTo(0, 0);
@@ -168,19 +131,21 @@ const NewOrganizerView = () => {
 
     const handleBack = () => {
         if (currentStep === 1) {
-            if (step1View === 'tags' || step1View === 'description') {
+            navigate('/');
+        } else if (currentStep === 3) {
+            if (step3View === 'tags' || step3View === 'description') {
                 setNavDirection('back');
-                setStep1View('selection');
+                setStep3View('prompt');
             } else {
-                navigate('/');
+                goToStep(2, 'back');
             }
         } else {
             const prevStep = currentStep - 1;
-            if (prevStep === 1) {
-                if (selectedTab === 'custom') {
-                    setStep1View(customTags.length > 0 ? 'tags' : 'description');
+            if (prevStep === 3) {
+                if (selectedTab === 'custom' && customTags.length > 0) {
+                    setStep3View('tags');
                 } else {
-                    setStep1View('selection');
+                    setStep3View('prompt');
                 }
             }
             goToStep(prevStep, 'back');
@@ -188,29 +153,15 @@ const NewOrganizerView = () => {
     };
 
     const handleNext = () => {
-        if (currentStep >= 6 || !visitedSteps.has(currentStep + 1)) return;
-        if (currentStep === 2) {
-            handleStep2Submit();
+        if (currentStep >= 5 || !visitedSteps.has(currentStep + 1)) return;
+        if (currentStep === 1) {
+            handleStep1Submit();
             return;
         }
         goToStep(currentStep + 1, 'forward');
     };
 
-    // ── Step 1: Event Type ──
-    const handleEventTypeSelect = (type) => {
-        if (type === 'icebreaker') {
-            setShowRandomTutorial(true);
-        } else if (type === 'custom') {
-            setShowTutorial(true);
-        }
-    };
-
-    const handleStep1Continue = () => {
-        setVisitedSteps(prev => new Set([...prev, 2]));
-        goToStep(2, 'forward');
-    };
-
-    // ── Step 2: Attendees ──
+    // ── Step 1: Attendees ──
     const handleAttendeesChange = (e) => {
         const value = e.target.value;
         if (value === '' || (Number(value) >= 0 && Number.isInteger(Number(value)))) {
@@ -218,48 +169,62 @@ const NewOrganizerView = () => {
         }
     };
 
-    const handleStep2Submit = () => {
+    const handleStep1Submit = () => {
         const num = parseInt(attendees);
         if (!num || num < 1) return;
         if (num >= 50 && !showTableNumbers) {
             setShowTableModal(true);
             return;
         }
-        advanceFromStep2();
+        advanceFromStep1();
     };
 
-    const advanceFromStep2 = () => {
-        if (!visitedSteps.has(3)) {
+    const advanceFromStep1 = () => {
+        if (!visitedSteps.has(2)) {
             setMinutes(String(getRecommendedMinutes()));
             setSeconds('0');
         }
-        setVisitedSteps(prev => new Set([...prev, 3]));
-        goToStep(3, 'forward');
+        setVisitedSteps(prev => new Set([...prev, 2]));
+        goToStep(2, 'forward');
     };
 
     const handleTableModalDismiss = () => {
         setShowTableNumbers(true);
         setShowTableModal(false);
-        advanceFromStep2();
+        advanceFromStep1();
     };
 
-    // ── Step 3: Duration ──
-    const handleStep3Submit = () => {
+    // ── Step 2: Duration ──
+    const handleStep2Submit = () => {
+        setVisitedSteps(prev => new Set([...prev, 3]));
+        goToStep(3, 'forward');
+    };
+
+    // ── Step 3: Interest Pairing ──
+    const handleTryItOut = () => {
+        setNavDirection('forward');
+        setStep3View('description');
+    };
+
+    const handleStep3Skip = () => {
+        setSelectedTab('icebreaker');
+        setCustomTags([]);
+        setTagInput('');
         setVisitedSteps(prev => new Set([...prev, 4]));
         goToStep(4, 'forward');
     };
 
-    // ── Step 4: Logo ──
-    const handleStep4Advance = () => {
-        setVisitedSteps(prev => new Set([...prev, 5]));
-        goToStep(5, 'forward');
+    const handleStep3Continue = () => {
+        setSelectedTab('custom');
+        setVisitedSteps(prev => new Set([...prev, 4]));
+        goToStep(4, 'forward');
     };
 
-    // ── Step 5: Match History ──
-    const handleStep5Advance = (enable) => {
+    // ── Step 4: Match History ──
+    const handleStep4Advance = (enable) => {
         setEnableMatchHistory(enable);
-        setVisitedSteps(prev => new Set([...prev, 6]));
-        goToStep(6, 'forward');
+        setVisitedSteps(prev => new Set([...prev, 5]));
+        goToStep(5, 'forward');
     };
 
     // ── Tags (preserved logic) ──
@@ -316,9 +281,11 @@ const NewOrganizerView = () => {
 
             if (data.status === 'success' && data.tags) {
                 setCustomTags(data.tags);
+                const shuffled = [...data.tags].sort(() => Math.random() - 0.5);
+                setAnimationTags(shuffled.slice(0, 4));
                 setTagsFromAI(true);
                 setNavDirection('forward');
-                setStep1View('tags');
+                setStep3View('tags');
             } else {
                 setError(data.message || 'Failed to generate categories.');
             }
@@ -332,90 +299,9 @@ const NewOrganizerView = () => {
 
     const handleRegenerate = () => {
         setNavDirection('back');
-        setStep1View('description');
+        setStep3View('description');
         setCustomTags([]);
         setTagsFromAI(false);
-    };
-
-    // ── Logo Upload (preserved logic) ──
-    const resizeImage = (file, maxWidth, maxHeight) => {
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                let { width, height } = img;
-                if (width > height) {
-                    if (width > maxWidth) { height = (height * maxWidth) / width; width = maxWidth; }
-                } else {
-                    if (height > maxHeight) { width = (width * maxHeight) / height; height = maxHeight; }
-                }
-                canvas.width = width;
-                canvas.height = height;
-                ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL('image/jpeg', 0.7));
-            };
-            img.src = URL.createObjectURL(file);
-        });
-    };
-
-    const handleLogoUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        setLogoError('');
-        setIsLogoProcessing(true);
-        if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
-            setLogoError('Invalid format. Please upload a JPG or PNG image.');
-            setIsLogoProcessing(false);
-            return;
-        }
-        if (file.size > 2 * 1024 * 1024) {
-            setLogoError('File too large. Please choose an image under 2MB.');
-            setIsLogoProcessing(false);
-            return;
-        }
-        try {
-            const resizedImage = await resizeImage(file, 400, 400);
-            setLogoPreview(resizedImage);
-            setIsLogoCropping(true);
-            setIsLogoProcessing(false);
-        } catch (err) {
-            console.error('Error processing image:', err);
-            setLogoError('Error processing image. Please try again.');
-            setIsLogoProcessing(false);
-        }
-    };
-
-    const handleLogoCropComplete = (croppedArea, croppedAreaPixels) => {
-        setLogoCropArea(croppedAreaPixels);
-    };
-
-    const handleSaveLogoCrop = async () => {
-        try {
-            setIsLogoProcessing(true);
-            const croppedImage = await getCroppedImg(logoPreview, logoCropArea);
-            setLogoCroppedImage(croppedImage);
-            setIsLogoCropping(false);
-            setIsLogoProcessing(false);
-        } catch (err) {
-            console.error('Error cropping logo:', err);
-            setLogoError('Error processing image. Please try again.');
-            setIsLogoCropping(false);
-            setIsLogoProcessing(false);
-        }
-    };
-
-    const handleRemoveLogo = () => {
-        setLogoPreview(null);
-        setLogoCroppedImage(null);
-        setIsLogoCropping(false);
-        setIsLogoProcessing(false);
-        setLogoCrop({ x: 0, y: 0 });
-        setLogoZoom(1);
-        setLogoCropArea(null);
-        setLogoError('');
-        const fileInput = document.getElementById('logoUpload');
-        if (fileInput) fileInput.value = '';
     };
 
     // ── Review Event Type Switch ──
@@ -442,10 +328,6 @@ const NewOrganizerView = () => {
         setTagInput('');
         setShowModal(false);
         setPendingTabSwitch(null);
-        if (currentStep === 1) {
-            setVisitedSteps(prev => new Set([...prev, 2]));
-            goToStep(2, 'forward');
-        }
     };
 
     const handleModalCancel = () => {
@@ -468,29 +350,20 @@ const NewOrganizerView = () => {
             seconds,
             show_table_numbers: showTableNumbers,
             enable_match_history: enableMatchHistory,
-            logo_cropped_image: logoCroppedImage,
-            logo_name: logoName.trim(),
-            logo_url: logoUrl.trim(),
             email,
         };
 
-        // Persist email + logo to localStorage for post-checkout recovery
+        // Persist email to localStorage for post-checkout recovery
         localStorage.setItem('reuneo_plan_email', email);
-        if (logoCroppedImage) {
-            localStorage.setItem('reuneo_plan_logo', logoCroppedImage);
-        } else {
-            localStorage.removeItem('reuneo_plan_logo');
-        }
 
         // Save lead to backend (non-blocking, errors swallowed)
-        const { logo_cropped_image: _logo, ...lobbyDataWithoutLogo } = lobbyData;
         try {
             await apiFetch('/save-organizer-lead', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email,
-                    lobby_data: lobbyDataWithoutLogo,
+                    lobby_data: lobbyData,
                     attendees: parseInt(attendees),
                 }),
             });
@@ -498,56 +371,6 @@ const NewOrganizerView = () => {
 
         navigate('/plan-selection', { state: { lobbyData } });
     };
-
-    // ── Shared: Logo Upload UI (used in step 4 + review edit) ──
-    const renderLogoUpload = () => (
-        <>
-            {!logoCroppedImage && !isLogoCropping && (
-                <>
-                    {isLogoProcessing ? (
-                        <div className="logo-processing">Processing...</div>
-                    ) : (
-                        <>
-                            <input type="file" id="logoUpload" accept="image/jpeg,image/jpg,image/png"
-                                onChange={handleLogoUpload} style={{ display: 'none' }} />
-                            <button type="button"
-                                onClick={() => document.getElementById('logoUpload').click()}
-                                className="logo-upload-button">
-                                Upload
-                            </button>
-                        </>
-                    )}
-                    {logoError && <div className="logo-error-message">{logoError}</div>}
-                </>
-            )}
-            {isLogoCropping && logoPreview && (
-                <div className="logo-crop-container">
-                    <div className="logo-crop-area">
-                        <Cropper image={logoPreview} crop={logoCrop} zoom={logoZoom} aspect={1}
-                            onCropChange={setLogoCrop} onZoomChange={setLogoZoom}
-                            onCropComplete={handleLogoCropComplete} />
-                    </div>
-                    <div className="logo-crop-controls">
-                        <button type="button" onClick={handleSaveLogoCrop}
-                            className="logo-save-button" disabled={isLogoProcessing}>
-                            {isLogoProcessing ? 'Processing...' : 'Save Crop'}
-                        </button>
-                        <button type="button" onClick={handleRemoveLogo}
-                            className="logo-cancel-button">Cancel</button>
-                    </div>
-                </div>
-            )}
-            {logoCroppedImage && !isLogoCropping && (
-                <div className="logo-preview-container">
-                    <div className="logo-preview">
-                        <img src={logoCroppedImage} alt="Logo preview" className="logo-preview-image" />
-                        <button type="button" onClick={handleRemoveLogo}
-                            className="logo-remove-button">×</button>
-                    </div>
-                </div>
-            )}
-        </>
-    );
 
     // ── Inline SVG Components ──
     const ArrowRight = () => (
@@ -586,131 +409,10 @@ const NewOrganizerView = () => {
         </svg>
     );
 
-    // ── Render: Step 1 — Event Type ──
+    // ── Render: Step 1 — Attendees ──
     const renderStep1 = () => {
-        if (step1View === 'description') {
-            return (
-                <div className="step-container">
-                    <h1 className="step-title">Describe the people and event purpose</h1>
-                    <div className="description-input-container">
-                        <textarea
-                            value={aiDescription}
-                            onChange={(e) => {
-                                if (e.target.value.length <= 500) setAiDescription(e.target.value);
-                            }}
-                            placeholder="ex: A networking mixer for content creators and local construction companies"
-                            className="form-input description-textarea"
-                            rows={3}
-                            maxLength={500}
-                            autoComplete="off"
-                            disabled={isGeneratingTags}
-                        />
-                        <button
-                            type="button"
-                            onClick={handleGenerateTags}
-                            className="sparkle-submit-button"
-                            disabled={isGeneratingTags || !aiDescription.trim()}
-                        >
-                            {isGeneratingTags ? (
-                                <div className="button-spinner" />
-                            ) : (
-                                <SparkleIcon />
-                            )}
-                        </button>
-                    </div>
-                    {aiDescription.length > 0 && (
-                        <div className="char-counter">{aiDescription.length}/500</div>
-                    )}
-                    {error && <div className="error-message">{error}</div>}
-                    <button className="step-cta step-cta-secondary"
-                        onClick={aiDescription.trim().length >= 2 ? handleGenerateTags : handleStep1Continue}
-                        disabled={isGeneratingTags}>
-                        Continue <ArrowRight />
-                    </button>
-                </div>
-            );
-        }
-
-        if (step1View === 'tags') {
-            return (
-                <div className="step-container">
-                    <h1 className="step-title">What are your matching categories?</h1>
-                    <div className="custom-matching-section">
-                        <div className="tag-input-container">
-                            <input
-                                type="text"
-                                value={tagInput}
-                                onChange={(e) => setTagInput(e.target.value)}
-                                onKeyDown={handleTagKeyDown}
-                                placeholder="Add categories (press + to add)"
-                                className="form-input"
-                                autoComplete="off"
-                            />
-                            <button type="button" onClick={handleAddTag} className="tag-add-button">+</button>
-                        </div>
-                        {customTags.length > 0 && (
-                            <div className="tag-list">
-                                {customTags.map((tag, index) => (
-                                    <div key={index} className="tag-item">
-                                        {tag}
-                                        <button type="button" onClick={() => handleRemoveTag(tag)}
-                                            className="tag-remove-button">×</button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                    {tagsFromAI && (
-                        <button type="button" className="regenerate-button" onClick={handleRegenerate}>
-                            <SparkleIcon /> Regenerate
-                        </button>
-                    )}
-                    <button className={`step-cta ${customTags.length < 2 ? 'step-cta-secondary' : ''}`} onClick={handleStep1Continue}>
-                        Continue <ArrowRight />
-                    </button>
-                </div>
-            );
-        }
-
-        return (
-            <div className="step-container">
-                <h1 className="step-title step1-hero-line">How do you want to pair up your attendees?</h1>
-                <div className="event-type-container step1-fade-buttons">
-                    <div className="event-type-button-wrapper">
-                        <button
-                            className={`event-type-button event-type-primary ${selectedTab === 'custom' ? 'selected' : ''}`}
-                            onClick={() => handleEventTypeSelect('custom')}
-                        >
-                            Interests Pairing
-                        </button>
-                    </div>
-                    <div className="event-type-divider" />
-                    <div className="event-type-button-wrapper">
-                        <button
-                            className={`event-type-button event-type-primary ${selectedTab === 'icebreaker' ? 'selected' : ''}`}
-                            onClick={() => handleEventTypeSelect('icebreaker')}
-                        >
-                            Regular Pairing
-                            <span className="most-popular-label">MOST POPULAR</span>
-                        </button>
-                    </div>
-                </div>
-                <button
-                    type="button"
-                    onClick={() => navigate('/forgot-password')}
-                    className="existing-organizer-button step1-fade-link"
-                >
-                    I have an account
-                </button>
-            </div>
-        );
-    };
-
-    // ── Render: Step 2 — Attendees ──
-    const renderStep2 = () => {
         const num = parseInt(attendees);
         const isValid = num >= 1;
-        const showProfileHint = Number.isInteger(num) && num >= 10 && num < 50;
         const showTableHint = Number.isInteger(num) && num >= 50;
 
         return (
@@ -729,18 +431,20 @@ const NewOrganizerView = () => {
                         className="form-input attendees-input"
                         autoComplete="off"
                     />
-                    <button className="step2-go-btn" onClick={handleStep2Submit} disabled={!isValid}>
+                    <button className="step2-go-btn" onClick={handleStep1Submit} disabled={!isValid}>
                         <ArrowRight />
                     </button>
                 </div>
-                {showProfileHint && <TutorialAttendeesPhone key="tap-profile" variant="profile" />}
-                {showTableHint && <TutorialAttendeesPhone key="tap-table" variant="table" />}
+                {showTableHint
+                    ? <TutorialAttendeesPhone key="tap-table" variant="table" />
+                    : <TutorialAttendeesPhone key="tap-profile" variant="profile" />
+                }
             </div>
         );
     };
 
-    // ── Render: Step 3 — Duration ──
-    const renderStep3 = () => {
+    // ── Render: Step 2 — Duration ──
+    const renderStep2 = () => {
         const recommended = getRecommendedMinutes();
 
         return (
@@ -791,7 +495,7 @@ const NewOrganizerView = () => {
                             <label className="duration-label">Seconds</label>
                         </div>
                     </div>
-                    <button className="step2-go-btn" onClick={handleStep3Submit}>
+                    <button className="step2-go-btn" onClick={handleStep2Submit}>
                         <ArrowRight />
                     </button>
                 </div>
@@ -803,75 +507,139 @@ const NewOrganizerView = () => {
         );
     };
 
-    // ── Render: Step 4 — Sponsor Logo ──
-    const renderStep4 = () => {
-        const hasLogo = logoCroppedImage && !isLogoCropping;
+    // ── Render: Step 3 — Interest Pairing ──
+    const renderStep3 = () => {
+        if (step3View === 'description') {
+            return (
+                <div className="step-container">
+                    <h1 className="step-title">Describe the people and purpose of your event</h1>
+                    <div className="description-input-container">
+                        <textarea
+                            value={aiDescription}
+                            onChange={(e) => {
+                                if (e.target.value.length <= 500) setAiDescription(e.target.value);
+                            }}
+                            placeholder="ex: A networking mixer for content creators and local construction companies"
+                            className="form-input description-textarea"
+                            rows={3}
+                            maxLength={500}
+                            autoComplete="off"
+                            disabled={isGeneratingTags}
+                        />
+                        <button
+                            type="button"
+                            onClick={handleGenerateTags}
+                            className="sparkle-submit-button"
+                            disabled={isGeneratingTags || !aiDescription.trim()}
+                        >
+                            {isGeneratingTags ? (
+                                <div className="button-spinner" />
+                            ) : (
+                                <SparkleIcon />
+                            )}
+                        </button>
+                    </div>
+                    {aiDescription.length > 0 && (
+                        <div className="char-counter">{aiDescription.length}/500</div>
+                    )}
+                    {error && <div className="error-message">{error}</div>}
+                    <button className="step-cta step-cta-secondary"
+                        onClick={aiDescription.trim().length >= 2 ? handleGenerateTags : handleStep3Skip}
+                        disabled={isGeneratingTags}>
+                        Continue <ArrowRight />
+                    </button>
+                </div>
+            );
+        }
+
+        if (step3View === 'tags') {
+            return (
+                <div className="step-container">
+                    <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>What are your matching categories?</p>
+                    <TutorialMatching
+                        mode="inline"
+                        isVisible={currentStep === 3 && step3View === 'tags'}
+                        tags={animationTags}
+                    />
+                    <div className="custom-matching-section">
+                        <div className="tag-input-container">
+                            <input
+                                type="text"
+                                value={tagInput}
+                                onChange={(e) => setTagInput(e.target.value)}
+                                onKeyDown={handleTagKeyDown}
+                                placeholder="Add categories (press + to add)"
+                                className="form-input"
+                                autoComplete="off"
+                            />
+                            <button type="button" onClick={handleAddTag} className="tag-add-button">+</button>
+                        </div>
+                        {customTags.length > 0 && (
+                            <div className="tag-list">
+                                {customTags.map((tag, index) => (
+                                    <div key={index} className="tag-item">
+                                        {tag}
+                                        <button type="button" onClick={() => handleRemoveTag(tag)}
+                                            className="tag-remove-button">×</button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    {tagsFromAI && (
+                        <button type="button" className="regenerate-button" onClick={handleRegenerate}>
+                            <SparkleIcon /> Regenerate
+                        </button>
+                    )}
+                    <button className={`step-cta ${customTags.length < 2 ? 'step-cta-secondary' : ''}`} onClick={handleStep3Continue}>
+                        Continue <ArrowRight />
+                    </button>
+                </div>
+            );
+        }
 
         return (
             <div className="step-container">
-                <h1 className="step-title">Sponsor Logo (optional)</h1>
+                <h1 className="step-title">Interest Pairing</h1>
                 <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
-                    {hasLogo
-                        ? <>Estimated logo watch time: <strong style={{ color: '#0f1729' }}>{(parseInt(attendees) || 0) * 5} minutes</strong> - (5 min per person)</>
-                        : 'People spend 30 seconds looking at their screen to find who they paired with, and get paired up 10 times in an event (on average)'
-                    }
+                    Matchmaking blended in with the regular pairing, its the best of both worlds!
                 </p>
-                {!hasLogo && (
-                    <div className="sponsor-upload-area">
-                        <span className="sponsor-label">Estimated logo watch time: <strong style={{ color: '#0f1729' }}>{(parseInt(attendees) || 0) * 5} minutes</strong> - (5 min per person)</span>
-                        {renderLogoUpload()}
-                    </div>
-                )}
-                {!isLogoCropping && (
-                    <div className="step4-cta-group">
-                        <button className="step-cta" onClick={handleStep4Advance}>
-                            {hasLogo ? 'Continue' : 'Skip'} <ArrowRight />
-                        </button>
-                        {hasLogo && (
-                            <button className="step-cta step-cta-secondary" onClick={handleRemoveLogo}>
-                                Cancel
-                            </button>
-                        )}
-                    </div>
-                )}
-                {hasLogo && (
-                    <SponsorLogoTutorial
-                        key="slt"
-                        logoSrc={logoCroppedImage}
-                        minutes={minutes}
-                        seconds={seconds}
-                    />
-                )}
+                <button className="step-cta" onClick={handleTryItOut}>
+                    Try it Out <ArrowRight />
+                </button>
+                <button className="step-cta step-cta-secondary" onClick={handleStep3Skip}>
+                    Skip
+                </button>
+                <TutorialMatching
+                    mode="inline"
+                    isVisible={currentStep === 3 && step3View === 'prompt'}
+                />
             </div>
         );
     };
 
-    // ── Render: Step 5 — Match History ──
-    const renderStep5 = () => (
+    // ── Render: Step 4 — Match History ──
+    const renderStep4 = () => (
         <div className="step-container">
-            <h1 className="step-title">Match History for Attendees</h1>
-            <div className="step5-reveal step5-reveal-sub">
-                <p className="step-subtitle">
-                    Once the session is over, people will be taken to a match history page, where
-                    they can share each other's preferred contact information.
-                </p>
-            </div>
-            <div className="step5-reveal step5-reveal-ctas">
-                <button className="step-cta" onClick={() => handleStep5Advance(true)}>
+            <h1 className="step-title">History of Connections</h1>
+            <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
+                They just <strong className="aht-header-green">save their email</strong> to
+                access their connections at the end of the session
+            </p>
+            <div className="step5-reveal step5-reveal-step4-body">
+                <button className="step-cta" onClick={() => handleStep4Advance(true)}>
                     Enable <ArrowRight />
                 </button>
-                <button className="step-cta step-cta-secondary" onClick={() => handleStep5Advance(false)}>
+                <button className="step-cta step-cta-secondary" onClick={() => handleStep4Advance(false)}>
                     Skip
                 </button>
-            </div>
-            <div className="step5-reveal step5-reveal-tutorial">
-                <TutorialMatchHistory />
+                <AttendeesHistoryTutorial />
             </div>
         </div>
     );
 
-    // ── Render: Step 6 — Review (lobby code hidden) ──
-    const renderStep6 = () => (
+    // ── Render: Step 5 — Review (lobby code hidden) ──
+    const renderStep5 = () => (
         <div className="step-container review-step">
             <h1 className="step-title">Everything Look Good?</h1>
 
@@ -1020,24 +788,6 @@ const NewOrganizerView = () => {
                     )}
                 </div>
 
-                {/* Sponsor Logo */}
-                <div className="review-section">
-                    {isEditingReview ? (
-                        <div className="review-edit-group">
-                            <label className="review-edit-label" style={{ textAlign: 'center', minWidth: 'auto' }}>Sponsor Logo</label>
-                            {renderLogoUpload()}
-                        </div>
-                    ) : (
-                        <div className="review-section-content">
-                            <span className="review-value-secondary">sponsor logo</span>
-                            {logoCroppedImage ? (
-                                <img src={logoCroppedImage} alt="Sponsor logo" className="review-logo-thumbnail" />
-                            ) : (
-                                <span className="review-value-primary">No sponsor logo</span>
-                            )}
-                        </div>
-                    )}
-                </div>
             </div>
 
             {showEmailToast && (
@@ -1072,7 +822,7 @@ const NewOrganizerView = () => {
     );
 
     // ── Main Render ──
-    const stepKey = currentStep === 1 ? `1-${step1View}` : String(currentStep);
+    const stepKey = currentStep === 3 ? `3-${step3View}` : String(currentStep);
 
     return (
         <div className="new-organizer-background">
@@ -1087,7 +837,7 @@ const NewOrganizerView = () => {
                     </svg>
                 </button>
                 <img src="/assets/reuneo_test_14.png" alt="Reuneo Logo" className="logo-image-nav" />
-                {currentStep < 6 && visitedSteps.has(currentStep + 1) ? (
+                {currentStep < 5 && visitedSteps.has(currentStep + 1) ? (
                     <button className="nav-arrow" onClick={handleNext} aria-label="Next">
                         <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
                             <circle cx="18" cy="18" r="17" stroke="#374151" strokeWidth="1.5" fill="rgba(255,255,255,0.8)"/>
@@ -1099,6 +849,16 @@ const NewOrganizerView = () => {
                 )}
             </div>
 
+            {currentStep === 1 && (
+                <button
+                    type="button"
+                    onClick={() => navigate('/forgot-password')}
+                    className="existing-organizer-button step1-fade-link"
+                >
+                    I have an account
+                </button>
+            )}
+
             {/* Step Content */}
             <div className="step-content-wrapper">
                 <div key={stepKey} className={`step-content step-${navDirection}`}>
@@ -1107,7 +867,6 @@ const NewOrganizerView = () => {
                     {currentStep === 3 && renderStep3()}
                     {currentStep === 4 && renderStep4()}
                     {currentStep === 5 && renderStep5()}
-                    {currentStep === 6 && renderStep6()}
                 </div>
             </div>
 
@@ -1146,10 +905,6 @@ const NewOrganizerView = () => {
             <TutorialMatching
                 isVisible={showTutorial}
                 onComplete={handleTutorialComplete}
-            />
-            <TutorialRandomMatching
-                isVisible={showRandomTutorial}
-                onComplete={handleRandomTutorialComplete}
             />
             <CoolerGeneralMatchEventFlow
                 isVisible={showGeneralTutorial}

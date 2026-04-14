@@ -227,7 +227,6 @@
     font-size: 13px;
     font-weight: 600;
     color: #0f1729;
-    text-transform: uppercase;
     letter-spacing: 0.04em;
     padding: 5px 16px;
     border: 1.5px solid #d1d5db;
@@ -609,6 +608,27 @@
     40%  { opacity: 1; transform: scale(1.25); }
     70%  { transform: scale(0.92); }
     100% { opacity: 1; transform: scale(1); }
+}
+
+/* ── Inline Mode (embedded in step wizard) ───────── */
+
+.matching-tutorial-inline {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    height: 195px;
+    opacity: 1;
+    transition: opacity 0.6s ease;
+    margin: 4px 0;
+}
+
+.matching-tutorial-inline.tutorial-inline-fade-out {
+    opacity: 0;
+}
+
+.matching-tutorial-inline .tm-wrapper {
+    transform: scale(0.65);
+    transform-origin: top center;
 }
 
 /* ── Responsive ──────────────────────────────────── */

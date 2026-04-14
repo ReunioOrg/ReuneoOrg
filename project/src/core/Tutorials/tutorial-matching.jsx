@@ -52,9 +52,14 @@ const PersonIcon = ({ color = '#3b82f6' }) => (
     </svg>
 );
 
-const TutorialMatching = ({ isVisible, onComplete }) => {
+const TutorialMatching = ({ isVisible, onComplete, mode = 'overlay', tags }) => {
     const [currentScene, setCurrentScene] = useState(0);
     const [fadingOut, setFadingOut] = useState(false);
+    const [loopKey, setLoopKey] = useState(0);
+    const isInline = mode === 'inline';
+    const hasRound2 = !tags || tags.length >= 4;
+    const fadeTimerRef = useRef(null);
+    const loopDelayRef = useRef(null);
 
     const stageRef = useRef(null);
     const founderTagLeftRef = useRef(null);
@@ -74,10 +79,22 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
 
     const finishTutorial = useCallback(() => {
         setFadingOut(true);
-        setTimeout(() => {
-            onComplete?.();
+        fadeTimerRef.current = setTimeout(() => {
+            if (isInline) {
+                loopDelayRef.current = setTimeout(() => {
+                    setCurrentScene(0);
+                    setFounderArrow(null);
+                    setInvestorArrow(null);
+                    setCapricornArrow(null);
+                    setDogmomArrow(null);
+                    setFadingOut(false);
+                    setLoopKey(k => k + 1);
+                }, 1500);
+            } else {
+                onComplete?.();
+            }
         }, 600);
-    }, [onComplete]);
+    }, [isInline, onComplete]);
 
     useEffect(() => {
         if (!isVisible) {
@@ -87,25 +104,34 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
             setInvestorArrow(null);
             setCapricornArrow(null);
             setDogmomArrow(null);
+            if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current);
+            if (loopDelayRef.current) clearTimeout(loopDelayRef.current);
             return;
         }
 
+        const sceneCount = !isInline ? SCENES.length : hasRound2 ? 25 : 12;
+        const scenes = SCENES.slice(0, sceneCount);
+        const speed = isInline ? 0.75 : 1;
         let elapsed = 0;
         const timers = [];
 
-        SCENES.forEach((scene, index) => {
+        scenes.forEach((scene, index) => {
             if (index > 0) {
                 const timer = setTimeout(() => setCurrentScene(index), elapsed);
                 timers.push(timer);
             }
-            elapsed += scene.duration;
+            elapsed += scene.duration * speed;
         });
 
         const endTimer = setTimeout(() => finishTutorial(), elapsed);
         timers.push(endTimer);
 
-        return () => timers.forEach(clearTimeout);
-    }, [isVisible, finishTutorial]);
+        return () => {
+            timers.forEach(clearTimeout);
+            if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current);
+            if (loopDelayRef.current) clearTimeout(loopDelayRef.current);
+        };
+    }, [isVisible, isInline, hasRound2, finishTutorial, loopKey]);
 
     useEffect(() => {
         const stage = stageRef.current;
@@ -173,6 +199,12 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
     }, [currentScene]);
 
     if (!isVisible) return null;
+    if (tags && tags.length < 2) return null;
+
+    const tag1 = tags?.[0] || 'FOUNDER';
+    const tag2 = tags?.[1] || 'INVESTOR';
+    const tag3 = tags?.[2] || 'CAPRICORN';
+    const tag4 = tags?.[3] || 'DOG MOM';
 
     const sceneIndex = currentScene;
 
@@ -223,17 +255,7 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
         );
     };
 
-    return (
-        <div className={`matching-tutorial-overlay ${fadingOut ? 'tutorial-fade-out' : ''}`}>
-            <div className="tm-wrapper">
-                <div className="tm-header-container">
-                    {headerText && (
-                        <span className="tm-header-text" key={headerText}>{headerText}</span>
-                    )}
-                    {showSubheader && (
-                        <span className="tm-header-text tm-subheader" key="subheader">This way everyone has someone new to talk to!</span>
-                    )}
-                </div>
+    const stageContent = (
                 <div className="tutorial-stage" ref={stageRef}>
                 {/* Left person — Founder */}
                 <div className={`tutorial-person tutorial-person-left ${sceneIndex >= 9 ? 'tutorial-person-close' : ''} ${sceneIndex >= 12 ? 'tutorial-person-corner tutorial-person-behind' : ''}`}>
@@ -245,7 +267,7 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                                     ref={founderTagLeftRef}
                                     className={`tutorial-label-tag ${sceneIndex >= 5 ? 'tutorial-tag-highlight' : ''}`}
                                 >
-                                    FOUNDER
+                                    {tag1}
                                 </span>
                             </div>
                         )}
@@ -256,7 +278,7 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                                     ref={investorTagLeftRef}
                                     className={`tutorial-label-tag ${sceneIndex >= 6 ? 'tutorial-tag-highlight-alt' : ''}`}
                                 >
-                                    INVESTOR
+                                    {tag2}
                                 </span>
                             </div>
                         )}
@@ -276,7 +298,7 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                                     ref={investorTagRightRef}
                                     className={`tutorial-label-tag ${sceneIndex >= 8 ? 'tutorial-tag-highlight-alt' : ''}`}
                                 >
-                                    INVESTOR
+                                    {tag2}
                                 </span>
                             </div>
                         )}
@@ -287,7 +309,7 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                                     ref={founderTagRightRef}
                                     className={`tutorial-label-tag ${sceneIndex >= 3 ? 'tutorial-tag-highlight' : ''}`}
                                 >
-                                    FOUNDER
+                                    {tag1}
                                 </span>
                             </div>
                         )}
@@ -333,22 +355,22 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                                 <div className="tutorial-label-group tutorial-label-slide-r2">
                                     <span className="tutorial-label-text">I'm a:</span>
                                     <span
-                                        ref={capricornTagLeftRef}
-                                        className={`tutorial-label-tag ${sceneIndex >= 18 ? 'tutorial-tag-highlight-gold' : ''}`}
-                                    >
-                                        CAPRICORN
-                                    </span>
+                                    ref={capricornTagLeftRef}
+                                    className={`tutorial-label-tag ${sceneIndex >= 18 ? 'tutorial-tag-highlight-gold' : ''}`}
+                                >
+                                    {tag3}
+                                </span>
                                 </div>
                             )}
                             {sceneIndex >= 15 && (
                                 <div className="tutorial-label-group tutorial-label-slide-r2">
                                     <span className="tutorial-label-text">I want to meet:</span>
                                     <span
-                                        ref={dogmomTagLeftRef}
-                                        className={`tutorial-label-tag ${sceneIndex >= 19 ? 'tutorial-tag-highlight-purple' : ''}`}
-                                    >
-                                        DOG MOM
-                                    </span>
+                                    ref={dogmomTagLeftRef}
+                                    className={`tutorial-label-tag ${sceneIndex >= 19 ? 'tutorial-tag-highlight-purple' : ''}`}
+                                >
+                                    {tag4}
+                                </span>
                                 </div>
                             )}
                         </div>
@@ -366,22 +388,22 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                                 <div className="tutorial-label-group tutorial-label-slide-r2">
                                     <span className="tutorial-label-text">I'm a:</span>
                                     <span
-                                        ref={dogmomTagRightRef}
-                                        className={`tutorial-label-tag ${sceneIndex >= 21 ? 'tutorial-tag-highlight-purple' : ''}`}
-                                    >
-                                        DOG MOM
-                                    </span>
+                                    ref={dogmomTagRightRef}
+                                    className={`tutorial-label-tag ${sceneIndex >= 21 ? 'tutorial-tag-highlight-purple' : ''}`}
+                                >
+                                    {tag4}
+                                </span>
                                 </div>
                             )}
                             {sceneIndex >= 15 && (
                                 <div className="tutorial-label-group tutorial-label-slide-r2">
                                     <span className="tutorial-label-text">I want to meet:</span>
                                     <span
-                                        ref={capricornTagRightRef}
-                                        className={`tutorial-label-tag ${sceneIndex >= 16 ? 'tutorial-tag-highlight-gold' : ''}`}
-                                    >
-                                        CAPRICORN
-                                    </span>
+                                    ref={capricornTagRightRef}
+                                    className={`tutorial-label-tag ${sceneIndex >= 16 ? 'tutorial-tag-highlight-gold' : ''}`}
+                                >
+                                    {tag3}
+                                </span>
                                 </div>
                             )}
                         </div>
@@ -469,6 +491,30 @@ const TutorialMatching = ({ isVisible, onComplete }) => {
                     </div>
                 ))}
                 </div>
+    );
+
+    if (isInline) {
+        return (
+            <div className={`matching-tutorial-inline ${fadingOut ? 'tutorial-inline-fade-out' : ''}`}>
+                <div className="tm-wrapper" key={loopKey}>
+                    {stageContent}
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className={`matching-tutorial-overlay ${fadingOut ? 'tutorial-fade-out' : ''}`}>
+            <div className="tm-wrapper">
+                <div className="tm-header-container">
+                    {headerText && (
+                        <span className="tm-header-text" key={headerText}>{headerText}</span>
+                    )}
+                    {showSubheader && (
+                        <span className="tm-header-text tm-subheader" key="subheader">This way everyone has someone new to talk to!</span>
+                    )}
+                </div>
+                {stageContent}
             </div>
             <button className="tm-skip" onClick={finishTutorial}>
                 skip <span className="tm-skip-arrow">{'\u2192'}</span>
