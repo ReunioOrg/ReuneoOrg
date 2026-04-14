@@ -46,11 +46,6 @@ const NewOrganizerView = () => {
     // ── UI State ──
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [showModal, setShowModal] = useState(false);
-    const [pendingTabSwitch, setPendingTabSwitch] = useState(null);
-    const [showTableModal, setShowTableModal] = useState(false);
-    const [isEditingReview, setIsEditingReview] = useState(false);
-
     const [showTutorial, setShowTutorial] = useState(false);
     const [showGeneralTutorial, setShowGeneralTutorial] = useState(false);
 
@@ -172,10 +167,6 @@ const NewOrganizerView = () => {
     const handleStep1Submit = () => {
         const num = parseInt(attendees);
         if (!num || num < 1) return;
-        if (num >= 50 && !showTableNumbers) {
-            setShowTableModal(true);
-            return;
-        }
         advanceFromStep1();
     };
 
@@ -186,12 +177,6 @@ const NewOrganizerView = () => {
         }
         setVisitedSteps(prev => new Set([...prev, 2]));
         goToStep(2, 'forward');
-    };
-
-    const handleTableModalDismiss = () => {
-        setShowTableNumbers(true);
-        setShowTableModal(false);
-        advanceFromStep1();
     };
 
     // ── Step 2: Duration ──
@@ -304,37 +289,6 @@ const NewOrganizerView = () => {
         setTagsFromAI(false);
     };
 
-    // ── Review Event Type Switch ──
-    const handleReviewTabSelect = (tabType) => {
-        if (tabType === selectedTab) return;
-        if (tabType === 'icebreaker') {
-            if (customTags.length > 0 || tagInput.trim()) {
-                setPendingTabSwitch('icebreaker');
-                setShowModal(true);
-            } else {
-                setSelectedTab('icebreaker');
-                setCustomTags([]);
-                setTagInput('');
-            }
-        } else if (tabType === 'custom') {
-            setSelectedTab('custom');
-        }
-    };
-
-    // ── Modals ──
-    const handleModalConfirm = () => {
-        setSelectedTab(pendingTabSwitch);
-        setCustomTags([]);
-        setTagInput('');
-        setShowModal(false);
-        setPendingTabSwitch(null);
-    };
-
-    const handleModalCancel = () => {
-        setShowModal(false);
-        setPendingTabSwitch(null);
-    };
-
     // ── Submit — save lead, persist to localStorage, navigate to plan selection ──
     const handleSubmit = async () => {
         setIsLoading(true);
@@ -384,28 +338,6 @@ const NewOrganizerView = () => {
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2L14 8.5L21 10L14 11.5L12 18L10 11.5L3 10L10 8.5L12 2Z"/>
             <path d="M19 14L19.75 16.25L22 17L19.75 17.75L19 20L18.25 17.75L16 17L18.25 16.25L19 14Z" opacity="0.7"/>
-        </svg>
-    );
-
-    const EditIcon = () => (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#144dff"
-            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-        </svg>
-    );
-
-    const CheckIcon = () => (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#144dff"
-            strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12"/>
-        </svg>
-    );
-
-    const PencilHint = () => (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af"
-            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
         </svg>
     );
 
@@ -543,7 +475,7 @@ const NewOrganizerView = () => {
                         <div className="char-counter">{aiDescription.length}/500</div>
                     )}
                     {error && <div className="error-message">{error}</div>}
-                    <button className="step-cta step-cta-secondary"
+                    <button className={`step-cta ${aiDescription.trim().split(/\s+/).filter(Boolean).length <= 1 ? 'step-cta-secondary' : ''}`}
                         onClick={aiDescription.trim().length >= 2 ? handleGenerateTags : handleStep3Skip}
                         disabled={isGeneratingTags}>
                         Continue <ArrowRight />
@@ -624,7 +556,7 @@ const NewOrganizerView = () => {
             <h1 className="step-title">History of Connections</h1>
             <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
                 They just <strong className="aht-header-green">save their email</strong> to
-                access their connections at the end of the session
+                access their connections at the end of the session. Your <strong className="aht-header-green">organizer dashboard</strong> will have insights and analytics about your attendees!
             </p>
             <div className="step5-reveal step5-reveal-step4-body">
                 <button className="step-cta" onClick={() => handleStep4Advance(true)}>
@@ -638,157 +570,10 @@ const NewOrganizerView = () => {
         </div>
     );
 
-    // ── Render: Step 5 — Review (lobby code hidden) ──
+    // ── Render: Step 5 — Get Started ──
     const renderStep5 = () => (
         <div className="step-container review-step">
-            <h1 className="step-title">Everything Look Good?</h1>
-
-            <div className="review-card">
-                <button className="review-edit-toggle"
-                    onClick={() => setIsEditingReview(!isEditingReview)}
-                    aria-label={isEditingReview ? 'Done editing' : 'Edit'}>
-                    {isEditingReview ? <CheckIcon /> : <EditIcon />}
-                </button>
-
-                {/* Event Type + Tags */}
-                <div className="review-section">
-                    {isEditingReview ? (
-                        <>
-                            <div className="matchmaking-tabs">
-                                <button type="button"
-                                    className={`tab-button ${selectedTab === 'icebreaker' ? 'tab-selected' : ''}`}
-                                    onClick={() => handleReviewTabSelect('icebreaker')}>
-                                    Community Ice Breaker
-                                </button>
-                                <button type="button"
-                                    className={`tab-button ${selectedTab === 'custom' ? 'tab-selected' : ''}`}
-                                    onClick={() => handleReviewTabSelect('custom')}>
-                                    Custom Matching
-                                </button>
-                            </div>
-                            {selectedTab === 'custom' && (
-                                <div className="custom-matching-section" style={{ marginTop: '12px' }}>
-                                    <div className="tag-input-container">
-                                        <input type="text" value={tagInput}
-                                            onChange={(e) => setTagInput(e.target.value)}
-                                            onKeyDown={handleTagKeyDown}
-                                            placeholder="Add categories"
-                                            className="form-input" autoComplete="off" />
-                                        <button type="button" onClick={handleAddTag}
-                                            className="tag-add-button">+</button>
-                                    </div>
-                                    {customTags.length > 0 && (
-                                        <div className="tag-list">
-                                            {customTags.map((tag, index) => (
-                                                <div key={index} className="tag-item">
-                                                    {tag}
-                                                    <button type="button" onClick={() => handleRemoveTag(tag)}
-                                                        className="tag-remove-button">×</button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </>
-                    ) : (
-                        <div className="review-section-content">
-                            <span className="review-value-primary">
-                                {selectedTab === 'custom' ? 'Custom Matchmaking:' : 'Community Ice Breaker'}
-                            </span>
-                            {selectedTab === 'custom' && customTags.length > 0 && (
-                                <span className="review-value-secondary">*{customTags.join(', ')}</span>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                {/* Duration */}
-                <div className="review-section">
-                    {isEditingReview ? (
-                        <div className="duration-input-container">
-                            <div className="duration-input-group">
-                                <input type="number" value={minutes}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        if (value === '' || (parseInt(value) > 0 && parseInt(value) <= MaxMinutes)) {
-                                            setMinutes(value);
-                                            if (parseInt(value) === MaxMinutes) setSeconds('0');
-                                        }
-                                    }}
-                                    min="1" max={MaxMinutes}
-                                    className="form-input duration-input" autoComplete="off" />
-                                <label className="duration-label">Minutes</label>
-                            </div>
-                            <div className="duration-input-group">
-                                <input type="number" value={seconds}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        if (value === '' || (parseInt(value) >= 0 && parseInt(value) <= 59)) setSeconds(value);
-                                    }}
-                                    min="0" max="59"
-                                    className="form-input duration-input" autoComplete="off"
-                                    disabled={parseInt(minutes) === MaxMinutes} />
-                                <label className="duration-label">Seconds</label>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="review-section-content">
-                            <span className="review-value-primary">
-                                {minutes} minute{minutes !== '1' ? 's' : ''}{parseInt(seconds) > 0 ? ` ${seconds} second${seconds !== '1' ? 's' : ''}` : ''} conversations
-                            </span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Attendees + Table Numbers */}
-                <div className="review-section">
-                    {isEditingReview ? (
-                        <div className="review-edit-group">
-                            <div className="review-edit-row">
-                                <label className="review-edit-label">Attendees</label>
-                                <input type="number" value={attendees}
-                                    onChange={handleAttendeesChange}
-                                    min="1" className="form-input review-inline-input" autoComplete="off" />
-                            </div>
-                            <div className="review-edit-row">
-                                <label className="review-edit-label">Table Numbers</label>
-                                <input type="checkbox" checked={showTableNumbers}
-                                    onChange={(e) => setShowTableNumbers(e.target.checked)}
-                                    className="form-input checkbox-input" />
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="review-section-content">
-                            <span className="review-value-primary">{attendees} attendees <span className="review-value-secondary" style={{ fontWeight: 500 }}>(max estimate)</span></span>
-                            <span className={showTableNumbers ? 'review-value-primary' : 'review-value-secondary'}>
-                                {showTableNumbers ? 'Table Numbers are displayed' : 'Table Numbers are not displayed'}
-                            </span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Match History */}
-                <div className="review-section">
-                    {isEditingReview ? (
-                        <div className="review-edit-group">
-                            <div className="review-edit-row">
-                                <label className="review-edit-label">Match History</label>
-                                <input type="checkbox" checked={enableMatchHistory}
-                                    onChange={(e) => setEnableMatchHistory(e.target.checked)}
-                                    className="form-input checkbox-input" />
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="review-section-content">
-                            <span className={enableMatchHistory ? 'review-value-primary' : 'review-value-secondary'}>
-                                {enableMatchHistory ? 'Match History enabled' : 'Match History not enabled'}
-                            </span>
-                        </div>
-                    )}
-                </div>
-
-            </div>
+            <h1 className="step-title">Get Started for Free</h1>
 
             {showEmailToast && (
                 <div className="email-toast">
@@ -869,38 +654,6 @@ const NewOrganizerView = () => {
                     {currentStep === 5 && renderStep5()}
                 </div>
             </div>
-
-            {/* Table Numbers Modal — cannot be dismissed by tapping outside */}
-            {showTableModal && (
-                <div className="modal-overlay table-modal-overlay">
-                    <div className="modal-content">
-                        <h3>Table numbers will be displayed on your attendee's screens</h3>
-                        <p>Table numbers help people find each other in larger events</p>
-                        <div className="modal-buttons">
-                            <button type="button" onClick={handleTableModalDismiss}
-                                className="modal-button modal-confirm" style={{ width: '100%' }}>
-                                Got it!
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Tab Switch Confirmation Modal */}
-            {showModal && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <h3>Switch to Community Ice Breaker?</h3>
-                        <p>This will clear your current matching categories.</p>
-                        <div className="modal-buttons">
-                            <button type="button" onClick={handleModalCancel}
-                                className="modal-button modal-cancel">Cancel</button>
-                            <button type="button" onClick={handleModalConfirm}
-                                className="modal-button modal-confirm">Confirm</button>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             <TutorialMatching
                 isVisible={showTutorial}
