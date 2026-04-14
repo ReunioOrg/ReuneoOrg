@@ -1976,7 +1976,7 @@
 .lobby-capacity-bar-wrapper {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
     width: 80%;
     max-width: 340px;
     margin: 0.15rem auto 0.25rem;
@@ -2031,8 +2031,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 6px 18px;
-    border-radius: 50px;
+    padding: 3px 10px;
+    border-radius: 20px;
     border: none;
     background: #4b73ef;
     cursor: pointer;
@@ -2051,7 +2051,7 @@
 }
 
 .upgrade-pill-text {
-    font-size: 0.72rem;
+    font-size: 0.6rem;
     font-weight: 800;
     letter-spacing: 0.1em;
     background: linear-gradient(
