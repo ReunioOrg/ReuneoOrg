@@ -13,7 +13,7 @@ import RoundDurationTutorial from '../Tutorials/round_duration_tutorial';
 const NewOrganizerView = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { user, permissions, isLegacyOrganizer } = useContext(AuthContext);
+    const { user, permissions, isLegacyOrganizer, checkAuth } = useContext(AuthContext);
     const returnData = location.state?.returnData;
 
     // ── Step Navigation ──
@@ -289,9 +289,10 @@ const NewOrganizerView = () => {
         setTagsFromAI(false);
     };
 
-    // ── Submit — save lead, persist to localStorage, navigate to plan selection ──
+    // ── Submit — create free trial account directly, then navigate to success ──
     const handleSubmit = async () => {
         setIsLoading(true);
+        setError('');
         const lobbyDuration = (parseInt(minutes) * 60) + parseInt(seconds);
 
         const lobbyData = {
@@ -307,10 +308,7 @@ const NewOrganizerView = () => {
             email,
         };
 
-        // Persist email to localStorage for post-checkout recovery
-        localStorage.setItem('reuneo_plan_email', email);
-
-        // Save lead to backend (non-blocking, errors swallowed)
+        // Save lead (non-blocking, errors swallowed)
         try {
             await apiFetch('/save-organizer-lead', {
                 method: 'POST',
@@ -323,7 +321,32 @@ const NewOrganizerView = () => {
             });
         } catch {}
 
-        navigate('/plan-selection', { state: { lobbyData } });
+        try {
+            const res = await apiFetch('/create-free-trial', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email,
+                    lobby_data: lobbyData,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                await checkAuth();
+                navigate('/plan-checkout-success', {
+                    state: { freeTrial: true, email, lobbyData },
+                });
+            } else {
+                setError(data.message || 'Failed to create account. Please try again.');
+                setIsLoading(false);
+            }
+        } catch (err) {
+            console.error('Free trial creation error:', err);
+            setError('Something went wrong. Please check your connection and try again.');
+            setIsLoading(false);
+        }
     };
 
     // ── Inline SVG Components ──

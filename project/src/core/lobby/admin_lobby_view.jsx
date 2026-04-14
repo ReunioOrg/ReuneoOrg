@@ -1784,9 +1784,9 @@ const AdminLobbyView = () => {
                                         lobbyState,
                                     },
                                 })}
-                                className="page-control-button page-control-secondary"
+                                className={`page-control-button ${planInfo.plan_type === 'free_trial' ? 'page-control-join' : 'page-control-secondary'}`}
                             >
-                                Plan Limits
+                                {planInfo.plan_type === 'free_trial' ? 'Upgrade Plan' : 'Plan Limits'}
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '6px', flexShrink: 0 }}>
                                     <path d="M12 19V5"/>

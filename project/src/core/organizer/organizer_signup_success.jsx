@@ -18,13 +18,23 @@ const OrganizerSignupSuccess = () => {
     const [lobbyData, setLobbyData] = useState(null);
     const [error, setError] = useState('');
     const [isUpgradeResult, setIsUpgradeResult] = useState(false);
+    const [isFreeTrial, setIsFreeTrial] = useState(false);
     const [addedActivations, setAddedActivations] = useState(null);
     const [upgradeLobbyCode, setUpgradeLobbyCode] = useState(null);
 
     const timerRef = useRef(null);
 
-    // Phase 1: verify payment on mount
+    // Phase 1: verify payment on mount (or skip for free trial)
     useEffect(() => {
+        // Free trial path: skip Stripe verification entirely
+        if (location.state?.freeTrial) {
+            setIsFreeTrial(true);
+            setEmail(location.state.email || '');
+            setLobbyData(location.state.lobbyData || null);
+            setPhase('animation');
+            return;
+        }
+
         const searchParams = new URLSearchParams(location.search);
         const sessionId = searchParams.get('session_id');
 
@@ -67,13 +77,14 @@ const OrganizerSignupSuccess = () => {
         verify();
     }, [location.search]);
 
-    // Phase 3: 30-second timer during "check-email"
+    // Phase 3: timer during "check-email" (5s for free trial, 30s for paid)
     useEffect(() => {
         if (phase !== 'check-email') return;
 
+        const delay = isFreeTrial ? 5000 : 30000;
         timerRef.current = setTimeout(() => {
             navigate('/create_lobby', { state: { lobbyData } });
-        }, 30000);
+        }, delay);
 
         return () => {
             if (timerRef.current) clearTimeout(timerRef.current);
@@ -122,12 +133,16 @@ const OrganizerSignupSuccess = () => {
 
     // Phase 2: success animation
     if (phase === 'animation') {
-        const mainText = isUpgradeResult ? 'Plan updated!' : 'Payment successful!';
-        const subText = addedActivations
-            ? `Added ${addedActivations} activation${addedActivations === 1 ? '' : 's'} to your plan!`
-            : isUpgradeResult
-                ? (upgradeLobbyCode ? 'Redirecting to your lobby...' : 'Redirecting to your account...')
-                : 'Welcome to Reuneo!';
+        const mainText = isFreeTrial
+            ? 'You\'re all set!'
+            : isUpgradeResult ? 'Plan updated!' : 'Payment successful!';
+        const subText = isFreeTrial
+            ? 'Welcome to Reuneo!'
+            : addedActivations
+                ? `Added ${addedActivations} activation${addedActivations === 1 ? '' : 's'} to your plan!`
+                : isUpgradeResult
+                    ? (upgradeLobbyCode ? 'Redirecting to your lobby...' : 'Redirecting to your account...')
+                    : 'Welcome to Reuneo!';
 
         return (
             <UserIsReadyAnimation

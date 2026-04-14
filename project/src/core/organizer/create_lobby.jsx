@@ -70,6 +70,7 @@ const CreateLobbyView = () => {
 
     // ── Plan Limit ──
     const [planLimit, setPlanLimit] = useState(null);
+    const [isFreeTrial, setIsFreeTrial] = useState(false);
 
     const MaxMinutes = 8;
 
@@ -145,6 +146,9 @@ const CreateLobbyView = () => {
                 const data = await res.json();
                 if (data.has_plan && data.attendee_limit) {
                     setPlanLimit(data.attendee_limit);
+                }
+                if (data.plan_type === 'free_trial') {
+                    setIsFreeTrial(true);
                 }
             } catch (err) {
                 console.error('Failed to fetch plan limit:', err);
@@ -959,7 +963,25 @@ const CreateLobbyView = () => {
     );
 
     // ── Render: Step 6 — Review ──
-    const renderStep6 = () => (
+    const renderStep6 = () => {
+        if (isFreeTrial) {
+            return (
+                <div className="step-container review-step">
+                    <h1 className="step-title">Real people, creating real connections</h1>
+                    <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
+                        Boost engagement!
+                    </p>
+                    {error && <div className="error-message">{error}</div>}
+                    <button className="step-cta create-cta" onClick={handleSubmit}
+                        disabled={isLoading || isLoadingCode}>
+                        {isLoading ? 'Creating...' : 'Get Started'}
+                        {!isLoading && <SparkleIcon />}
+                    </button>
+                </div>
+            );
+        }
+
+        return (
         <div className="step-container review-step">
             <h1 className="step-title">Everything Look Good?</h1>
 
@@ -1183,6 +1205,7 @@ const CreateLobbyView = () => {
             )}
         </div>
     );
+    };
 
     // ── Hydrating: show spinner while fetching lobby data from API ──
     if (isHydrating) {
