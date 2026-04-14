@@ -223,12 +223,26 @@ const OrganizerAccountDetails = () => {
                         </div>
                     )}
 
-                    {/* Single Use / Free Trial: Activations Card */}
-                    {(planType === 'single_use' || planType === 'free_trial') && (
+                    {/* Free Trial: Trial Uses Card */}
+                    {planType === 'free_trial' && (
+                        <div className="account-activations-card">
+                            <div className="account-activations-label">Trial Activations</div>
+                            <div className="account-activations-value">{planDetails.trial_uses_remaining ?? 0}</div>
+                            <div className="account-activations-subtext">
+                                of 3 per month
+                            </div>
+                            <div className="account-usage-reset">
+                                Resets monthly
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Single Use: Activations Card */}
+                    {planType === 'single_use' && (
                         <div className="account-activations-card">
                             <div className="account-activations-label">Activations Remaining</div>
                             <div className="account-activations-value">{planDetails.activations_remaining}</div>
-                            {planType === 'single_use' && planDetails.activations_purchased && (
+                            {planDetails.activations_purchased && (
                                 <div className="account-activations-subtext">
                                     of {planDetails.activations_purchased} purchased
                                 </div>

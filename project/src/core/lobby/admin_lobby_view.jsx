@@ -16,34 +16,6 @@ import LoadingSpinner from '../components/LoadingSpinner';
 //load asset image earthart.jpg
 import { returnBase64TestImg } from '../misc/misc';
 
-const PlanLimitsModal = ({ isOpen, onClose, planInfo }) => {
-    if (!isOpen || !planInfo) return null;
-
-    const { trial_uses_remaining, plan_type, attendee_limit } = planInfo;
-    const isFreeTrialOnly = plan_type === 'free_trial';
-    const perLabel = plan_type === 'monthly' ? 'per month' : 'per event';
-
-    return (
-        <div className="progress-modal-overlay">
-            <div className="progress-modal">
-                <div className="confirm-modal-header">
-                    <h2 className="confirm-modal-title">
-                        Get comfortable with Reuneo! You can create up to {trial_uses_remaining} demo activation{trial_uses_remaining !== 1 ? 's' : ''}
-                    </h2>
-                    {!isFreeTrialOnly && (
-                        <p className="confirm-modal-subtitle" style={{ fontWeight: 600 }}>
-                            Once more than 15 people join, your plan of - <em style={{ fontWeight: 900, color: '#1565C0' }}>{attendee_limit} attendees {perLabel} </em> - will begin
-                        </p>
-                    )}
-                </div>
-                <div className="confirm-modal-actions">
-                    <button className="confirm-modal-btn primary" onClick={onClose}>Got it!</button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
 const AttendeeLimitWarningModal = ({ isOpen, onClose, playerCount, attendeeLimit, onUpgrade }) => {
     if (!isOpen) return null;
     const remaining = attendeeLimit - playerCount;
@@ -285,8 +257,8 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
     // Ensure we only auto-open once per page load
     const didAutoOpenCheckinModalRef = useRef(false);
 
-    // Activation warning for paid plans with >15 attendees
-    const isPaidPlanActivation = planInfo && (planInfo.plan_type === 'single_use' || planInfo.plan_type === 'monthly') && playerCount > 15;
+    // Activation warning for paid plans with >25 attendees
+    const isPaidPlanActivation = planInfo && (planInfo.plan_type === 'single_use' || planInfo.plan_type === 'monthly') && playerCount > 25;
     const [activationPhase, setActivationPhase] = useState('idle');
 
     useEffect(() => {
@@ -1113,8 +1085,6 @@ const AdminLobbyView = () => {
     const location = useLocation();
     const DEVMODE = false;
 
-    // Plan Limits Modal state
-    const [showPlanLimitsModal, setShowPlanLimitsModal] = useState(false);
     const [planInfo, setPlanInfo] = useState(null);
     const didFetchPlanInfoRef = useRef(false);
 
@@ -1134,10 +1104,6 @@ const AdminLobbyView = () => {
                 const data = await res.json();
                 if (data.has_plan) {
                     setPlanInfo(data);
-                    const isNewlyCreated = location.state?.newlyCreated === true;
-                    if (isNewlyCreated && data.trial_uses_remaining != null && data.trial_uses_remaining > 0) {
-                        setShowPlanLimitsModal(true);
-                    }
                 }
             } catch (err) {
                 console.error('Failed to fetch plan info:', err);
@@ -1510,7 +1476,7 @@ const AdminLobbyView = () => {
             if (data.status === 'success') {
                 toast.success('Rounds started!', { position: 'top-center' });
             } else {
-                if (data.reason === 'activations_exhausted' || data.reason === 'monthly_limit_reached') {
+                if (data.reason === 'activations_exhausted' || data.reason === 'monthly_limit_reached' || data.reason === 'no_uses_remaining') {
                     navigate('/organizer-account-details', { state: { limitMessage: data.message } });
                 } else {
                     toast.error(data.message || 'Failed to start rounds', { position: 'top-center' });
@@ -1562,11 +1528,6 @@ const AdminLobbyView = () => {
         <>
             {/* Toast container for react-hot-toast */}
             <Toaster position="top-center" />
-            <PlanLimitsModal
-                isOpen={showPlanLimitsModal}
-                onClose={() => setShowPlanLimitsModal(false)}
-                planInfo={planInfo}
-            />
             <AttendeeLimitWarningModal
                 isOpen={showLimitWarningModal}
                 onClose={() => setShowLimitWarningModal(false)}
@@ -1574,15 +1535,7 @@ const AdminLobbyView = () => {
                 attendeeLimit={planInfo?.attendee_limit || 0}
                 onUpgrade={() => {
                     setShowLimitWarningModal(false);
-                    navigate('/plan-selection', {
-                        state: {
-                            isUpgrade: true,
-                            currentPlan: planInfo,
-                            fromActiveLobby: true,
-                            lobbyCode,
-                            lobbyState,
-                        },
-                    });
+                    navigate('/organizer-account-details');
                 }}
             />
             <div className="admin-lobby-container">
@@ -1624,7 +1577,7 @@ const AdminLobbyView = () => {
                     lobbyCode={lobbyCode}
                     currentRound={maxActiveRound}
                     checkinTriggerRef={checkinTriggerRef}
-                    suppressCheckinAutoOpen={showPlanLimitsModal}
+                    suppressCheckinAutoOpen={false}
                     planInfo={planInfo}
                 />
                 {/* Overlapping user profile list below progress bar */}
@@ -1634,15 +1587,7 @@ const AdminLobbyView = () => {
                     attendeeLimit={planInfo?.attendee_limit || null}
                     lobbyState={lobbyState}
                     planType={planInfo?.plan_type}
-                    onUpgrade={planInfo ? () => navigate('/plan-selection', {
-                        state: {
-                            isUpgrade: true,
-                            currentPlan: planInfo,
-                            fromActiveLobby: true,
-                            lobbyCode,
-                            lobbyState,
-                        },
-                    }) : null}
+                    onUpgrade={planInfo ? () => navigate('/organizer-account-details') : null}
                 />
 
                 {/* Inline checkin content when lobby is in checkin and < 2 players */}
@@ -1781,18 +1726,10 @@ const AdminLobbyView = () => {
                         </button>
                         {planInfo && (
                             <button
-                                onClick={() => navigate('/plan-selection', {
-                                    state: {
-                                        isUpgrade: true,
-                                        currentPlan: planInfo,
-                                        fromActiveLobby: true,
-                                        lobbyCode,
-                                        lobbyState,
-                                    },
-                                })}
+                                onClick={() => navigate('/organizer-account-details')}
                                 className={`page-control-button ${planInfo.plan_type === 'free_trial' ? 'page-control-join' : 'page-control-secondary'}`}
                             >
-                                {planInfo.plan_type === 'free_trial' ? 'Upgrade Plan' : 'Plan Limits'}
+                                {planInfo.plan_type === 'free_trial' ? 'Upgrade Plan' : 'Plan Details'}
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '6px', flexShrink: 0 }}>
                                     <path d="M12 19V5"/>

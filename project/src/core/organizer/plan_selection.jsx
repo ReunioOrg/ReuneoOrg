@@ -26,7 +26,6 @@ const PLANS = [
         getDetails: (qty, attendees) => [
             { text: `Up to ${attendees} attendees per session`, included: true },
             { text: `${qty} activation${qty === 1 ? '' : 's'}`, included: true },
-            { text: '1 free demo activation included', included: true },
             { text: 'Interest & Random pairing modes', included: true },
             { text: 'Sponsor logo placement', included: true },
             { text: 'Match history for attendee follow-ups', included: true },
@@ -40,13 +39,11 @@ const PLANS = [
         subtitle: 'Best for community builders',
         badge: 'Best Value',
         priceField: 'monthly_price',
-        subheader: (qty) => `${qty} use${qty === 1 ? '' : 's'} per month`,
-        hasQuantity: true,
+        subheader: () => '3 activations per month',
         recommended: true,
-        getDetails: (qty, attendees) => [
+        getDetails: (_qty, attendees) => [
             { text: `Up to ${attendees} attendees per session`, included: true },
-            { text: `${qty} activation${qty === 1 ? '' : 's'} per month`, included: true },
-            { text: '3 bonus demo activations monthly', included: true },
+            { text: '3 activations per month', included: true },
             { text: 'Interest & Random pairing modes', included: true },
             { text: 'Sponsor logo placement', included: true },
             { text: 'Match history for attendee follow-ups', included: true },
@@ -71,7 +68,6 @@ const PLANS = [
                 </svg>
             </span>
         ),
-        hasQuantity: false,
         recommended: false,
         getDetails: () => [
             { text: 'Tailored plan for your organization', included: true },
@@ -99,14 +95,13 @@ const PlanSelection = () => {
     const [activeLobbyData, setActiveLobbyData] = useState(null);
     const [prices, setPrices] = useState(null);
     const [singleQuantity, setSingleQuantity] = useState(1);
-    const [monthlyQuantity, setMonthlyQuantity] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [checkoutLoadingPlan, setCheckoutLoadingPlan] = useState(null);
     const [checkoutError, setCheckoutError] = useState(null);
 
     const [upgradeAttendees, setUpgradeAttendees] = useState(
-        currentPlan?.attendee_limit || 15
+        currentPlan?.attendee_limit || 25
     );
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [pendingUpgradePlan, setPendingUpgradePlan] = useState(null);
@@ -134,7 +129,7 @@ const PlanSelection = () => {
     useEffect(() => {
         if (isUpgrade) {
             setActiveLobbyData({
-                attendees: currentPlan?.attendee_limit || 15,
+                attendees: currentPlan?.attendee_limit || 25,
                 email: currentPlan?.email || '',
             });
             return;
@@ -182,8 +177,6 @@ const PlanSelection = () => {
             setPrices({
                 single_use_price: 0,
                 monthly_price: 0,
-                single_use_per_attendee: 0,
-                monthly_per_attendee: 0,
                 requires_custom: false,
             });
         } finally {
@@ -212,7 +205,6 @@ const PlanSelection = () => {
 
     const activeAttendees = isUpgrade ? upgradeAttendees : activeLobbyData?.attendees;
 
-    // Determine CTA label for upgrade mode
     const getUpgradeCtaLabel = (planKey) => {
         if (!currentPlan) return 'Buy';
         const targetType = PLAN_KEY_MAP[planKey];
@@ -228,7 +220,6 @@ const PlanSelection = () => {
         return 'Switch to This Plan';
     };
 
-    // Build confirmation modal message
     const getConfirmMessage = (planKey) => {
         if (!currentPlan) return '';
         const targetType = PLAN_KEY_MAP[planKey];
@@ -249,12 +240,12 @@ const PlanSelection = () => {
                 msg += ' Your current subscription will be canceled immediately. Any remaining time will be credited towards your new plan.';
             }
             if (currentType === 'single_use' && (currentPlan.activations_remaining || 0) > 0) {
-                msg += ` Your ${currentPlan.activations_remaining} unused activation${currentPlan.activations_remaining === 1 ? '' : 's'} will be replaced. Any unused value will be credited towards your new plan.`;
+                msg += ' Any unused value will be credited towards your new plan.';
             }
         } else if (targetType === 'single_use') {
             msg = `Your attendee limit will change from ${currentPlan.attendee_limit} to ${upgradeAttendees}, and you'll receive ${qty} new activation${qty === 1 ? '' : 's'}.`;
             if ((currentPlan.activations_remaining || 0) > 0) {
-                msg += ` Your ${currentPlan.activations_remaining} remaining activation${currentPlan.activations_remaining === 1 ? '' : 's'} will be replaced. Any unused value will be credited towards your new plan.`;
+                msg += ' Any unused value will be credited towards your new plan.';
             }
         } else if (targetType === 'monthly') {
             msg = 'Your current subscription will be canceled and replaced with a new one. Any remaining time on your current billing period will be credited towards your new plan.';
@@ -363,7 +354,6 @@ const PlanSelection = () => {
             const checkoutBody = {
                 plan_type: suggestionPlanType,
                 attendees,
-                quantity: 1,
             };
             if (lobbyCode) checkoutBody.lobby_code = lobbyCode;
             const res = await apiFetch('/upgrade-plan-checkout', {
@@ -385,19 +375,17 @@ const PlanSelection = () => {
         }
     };
 
-    const adjustQuantity = (planKey, delta) => {
-        const setter = planKey === 'single' ? setSingleQuantity : setMonthlyQuantity;
-        setter((prev) => Math.min(100, Math.max(1, prev + delta)));
+    const adjustQuantity = (delta) => {
+        setSingleQuantity((prev) => Math.min(3, Math.max(1, prev + delta)));
     };
 
     const getQuantity = (planKey) => {
         if (planKey === 'single') return singleQuantity;
-        if (planKey === 'monthly') return monthlyQuantity;
         return 1;
     };
 
     const requiresCustom = prices?.requires_custom || (activeAttendees > 200);
-    const isFreeTrialOnly = activeAttendees <= 15;
+    const isFreeTrialOnly = activeAttendees <= 25;
 
     const getDisplayPrice = (plan) => {
         if (!prices || !plan.priceField) return '—';
@@ -423,14 +411,13 @@ const PlanSelection = () => {
     };
 
     // Quick-upgrade suggestions for active lobby flow
-    const currentLimit = currentPlan?.attendee_limit || 15;
+    const currentLimit = currentPlan?.attendee_limit || 25;
     const suggestions = fromActiveLobby
         ? [currentLimit + 10, currentLimit + 20, currentLimit + 30].filter(n => n <= 200)
         : [];
     const suggestionPlanType = (!currentPlan || currentPlan.plan_type === 'free_trial')
         ? 'single_use'
         : currentPlan.plan_type;
-    const suggestionPlanKey = suggestionPlanType === 'monthly' ? 'monthly' : 'single';
 
     const estimateCredit = () => {
         if (!currentPlan) return 0;
@@ -662,7 +649,7 @@ const PlanSelection = () => {
                 </div>
             )}
 
-            {showAllPlans && (!isUpgrade || isFreeTrialOnly) && (
+            {showAllPlans && !isUpgrade && (
                 <button
                     className={`ps-free-trial ${checkoutLoadingPlan === 'free_trial' ? 'ps-cta-loading' : ''} ${isFreeTrialOnly ? 'ps-free-trial-highlighted' : ''}`}
                     onClick={() => handleCheckout('free_trial')}
@@ -673,9 +660,9 @@ const PlanSelection = () => {
                         {checkoutLoadingPlan === 'free_trial' ? 'Processing...' : 'Free Trial Plan'}
                     </span>
                     <span className="ps-free-trial-details">
-                        <span className="ps-free-trial-attendees">15 attendees</span>
+                        <span className="ps-free-trial-attendees">25 attendees</span>
                         <span className="ps-free-trial-divider" />
-                        <span className="ps-free-trial-per-use">per use</span>
+                        <span className="ps-free-trial-per-use">3 uses per month</span>
                     </span>
                 </button>
             )}
@@ -761,7 +748,7 @@ const PlanSelection = () => {
                                     <div className="ps-quantity-incrementer">
                                         <button
                                             className="ps-qty-btn"
-                                            onClick={() => adjustQuantity(plan.key, -1)}
+                                            onClick={() => adjustQuantity(-1)}
                                             disabled={isDisabled || !!checkoutLoadingPlan || qty <= 1}
                                         >
                                             &minus;
@@ -769,8 +756,8 @@ const PlanSelection = () => {
                                         <span className="ps-qty-value">{qty}</span>
                                         <button
                                             className="ps-qty-btn"
-                                            onClick={() => adjustQuantity(plan.key, 1)}
-                                            disabled={isDisabled || !!checkoutLoadingPlan || qty >= 100}
+                                            onClick={() => adjustQuantity(1)}
+                                            disabled={isDisabled || !!checkoutLoadingPlan || qty >= 3}
                                         >
                                             +
                                         </button>
@@ -833,12 +820,6 @@ const PlanSelection = () => {
                                 <tr>
                                     <td>Activations</td>
                                     <td>{singleQuantity} per purchase</td>
-                                    <td className="ps-compare-highlight">{monthlyQuantity}/month</td>
-                                    <td>Custom</td>
-                                </tr>
-                                <tr>
-                                    <td>Demo activations</td>
-                                    <td>1 per purchase</td>
                                     <td className="ps-compare-highlight">3/month</td>
                                     <td>Custom</td>
                                 </tr>
