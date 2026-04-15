@@ -1,3 +1,11 @@
+/* Login Page Wrapper */
+.login-page-wrapper {
+    min-height: 100vh;
+    background: #f8f9fb;
+    display: flex;
+    flex-direction: column;
+}
+
 /* Login Page Styles */
 .login-container {
     padding: 1rem 1.5rem 2rem;
@@ -292,6 +300,42 @@ form ~ .login-primary-button {
 
 .forgot-password-link:hover {
     color: #1a1a2e;
+}
+
+/* Desktop optimizations */
+@media screen and (min-width: 769px) {
+    .login-desktop .login-container {
+        flex: 1;
+        justify-content: center;
+        padding-top: 0;
+        min-height: 0;
+    }
+
+    .login-header {
+        font-size: 2rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .login-signup-form {
+        max-width: 400px;
+        padding: 2.5rem;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    }
+
+    .login-input {
+        padding: 16px 18px;
+    }
+
+    .login-primary-button,
+    .login-outline-button {
+        padding: 16px 24px;
+        font-size: 1.05rem;
+    }
 }
 
 /* Media queries for better mobile responsiveness */

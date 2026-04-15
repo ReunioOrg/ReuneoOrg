@@ -14,7 +14,6 @@ import PureSignupPage from './core/Auth/PureSignupPage';
 import { CommunityPageButton } from './core/community/mycf';
 import FloatingLinesBackground from './core/organizer/FloatingLinesBackground';
 import BorderGlow from './core/components/BorderGlow/BorderGlow';
-import DesktopHeroOverlay from './core/components/DesktopHeroOverlay/DesktopHeroOverlay';
 import AnimatedText from './core/components/AnimatedText/AnimatedText';
 
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
@@ -40,19 +39,6 @@ const Sparkle4pt = ({ cx, cy, r, className }) => (
     className={className}
     d={`M${cx} ${cy - r} C${cx + r * 0.1} ${cy - r * 0.1} ${cx + r * 0.1} ${cy - r * 0.1} ${cx + r} ${cy} C${cx + r * 0.1} ${cy + r * 0.1} ${cx + r * 0.1} ${cy + r * 0.1} ${cx} ${cy + r} C${cx - r * 0.1} ${cy + r * 0.1} ${cx - r * 0.1} ${cy + r * 0.1} ${cx - r} ${cy} C${cx - r * 0.1} ${cy - r * 0.1} ${cx - r * 0.1} ${cy - r * 0.1} ${cx} ${cy - r}Z`}
   />
-);
-const ProfileIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <circle cx="12" cy="12" r="3" />
-    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-  </svg>
-);
-const LogoutIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden style={{ transform: 'scaleX(-1)' }}>
-    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-    <polyline points="10 17 15 12 10 7" />
-    <line x1="15" y1="12" x2="3" y2="12" />
-  </svg>
 );
 const MatchesIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -156,7 +142,7 @@ const App = () => {
   const [isLoadingLobbies, setIsLoadingLobbies] = useState(false);
   const [userCurrentLobby, setUserCurrentLobby] = useState(null);
   const [showQRInstructionModal, setShowQRInstructionModal] = useState(false);
-  const [profileExpanded, setProfileExpanded] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [isDesktop] = useState(() => window.innerWidth >= 769);
 
   const navigate = useNavigate();
@@ -655,28 +641,132 @@ const App = () => {
     );
   };
 
-  // Close profile expand when clicking outside the dock area
-  useEffect(() => {
-    if (!profileExpanded) return;
-    const handleClickOutside = (e) => {
-      if (!e.target.closest('.app-dock-outer') && !e.target.closest('.app-dock-expand-logout')) {
-        setProfileExpanded(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [profileExpanded]);
+  // SiteNavBar — desktop only horizontal top nav
+  const SiteNavBar = () => (
+    <nav className="site-nav-bar">
+      <img
+        src="/assets/reuneo_test_14.png"
+        alt="Reuneo Logo"
+        className="site-nav-logo"
+        onClick={() => navigate('/')}
+      />
+      <div className="site-nav-links">
+        <button onClick={() => navigate('/tutorial')}>Tutorial</button>
+        <button onClick={() => navigate(
+          (permissions === 'organizer' || permissions === 'admin')
+            ? '/organizer-account-details'
+            : '/plan-selection'
+        )}>
+          {(permissions === 'organizer' || permissions === 'admin') ? 'Plan' : 'Pricing'}
+        </button>
+        <button onClick={() => navigate('/contact')}>Contact</button>
+      </div>
+      <div className="site-nav-auth">
+        {!user ? (
+          <button className="site-nav-login" onClick={() => navigate('/login')}>Login</button>
+        ) : (
+          <>
+            <button className="site-nav-profile-btn" onClick={() => setShowProfileCreation(true)}>Profile</button>
+            <button className="site-nav-logout-btn" onClick={() => navigate('/logout')}>Logout</button>
+          </>
+        )}
+      </div>
+    </nav>
+  );
+
+  // MobileMenuOverlay — full-screen overlay for mobile nav
+  const MobileMenuOverlay = () => (
+    <AnimatePresence>
+      {menuOpen && (
+        <motion.div
+          className="mobile-menu-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <motion.div
+            className="mobile-menu-content"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+          >
+            <div className="mobile-menu-header">
+              <img
+                src="/assets/reuneo_test_14.png"
+                alt="Reuneo Logo"
+                className="mobile-menu-logo"
+                onClick={() => { navigate('/'); setMenuOpen(false); }}
+              />
+              <button className="mobile-menu-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+            <div className="mobile-menu-links">
+              {user && (
+                <button className="mobile-menu-link" onClick={() => { setShowProfileCreation(true); setMenuOpen(false); }}>
+                  Profile
+                </button>
+              )}
+              {!user ? (
+                <button className="mobile-menu-link" onClick={() => { navigate('/login'); setMenuOpen(false); }}>
+                  Login
+                </button>
+              ) : (
+                <button className="mobile-menu-link" onClick={() => { navigate('/logout'); setMenuOpen(false); }}>
+                  Logout
+                </button>
+              )}
+              <button className="mobile-menu-link" onClick={() => {
+                navigate((permissions === 'organizer' || permissions === 'admin') ? '/organizer-account-details' : '/plan-selection');
+                setMenuOpen(false);
+              }}>
+                {(permissions === 'organizer' || permissions === 'admin') ? 'Plan' : 'Pricing'}
+              </button>
+              <button className="mobile-menu-link" onClick={() => { navigate('/contact'); setMenuOpen(false); }}>
+                Contact
+              </button>
+              <button className="mobile-menu-link" onClick={() => { navigate('/tutorial'); setMenuOpen(false); }}>
+                Tutorial
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 
   return (
     <>
     {isDesktop && createPortal(<FloatingLinesBackground />, document.body)}
-    {isDesktop && createPortal(<DesktopHeroOverlay />, document.body)}
+    {isDesktop && createPortal(
+      <div className="desktop-hero-header">
+        <AnimatedText
+          text="Real Connections. Real Engagement. Real Results."
+          className="desktop-hero-heading"
+          stagger={0.03}
+          duration={0.7}
+        />
+        <motion.p
+          className="desktop-hero-subheading"
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25, duration: 0.7, ease: 'easeOut' }}
+        >
+          Turn any social gathering into a community building experience!
+        </motion.p>
+      </div>,
+      document.body
+    )}
     <div style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden', zIndex: 1 }}>
 
-      {/* <div style={{position: 'absolute', top: '40%', left: '50%', width: '100%', height: '10%', zIndex: 1000}}>
-        <CommunityPageButton position="absolute" left_position="0" top_position="0"/>
-      </div> */}
-      
+      {isDesktop && <SiteNavBar />}
+      <MobileMenuOverlay />
+
       {/* Background Video */}
       <video className="background-video" autoPlay loop muted playsInline poster="/assets/demo_app_home_video_cover.jpg">
         <source src="/assets/demo_app_home_video_X2_small.mp4" type="video/mp4" />
@@ -1039,80 +1129,29 @@ const App = () => {
                           ? (lobby_state === 'terminate' ? 'Lobby closed' : 'Lobby loading…')
                           : undefined
                       },
-                      ...(isDesktop
-                        ? (user ? [
-                            {
+                      ...(!user ? [] :
+                        (permissions === 'organizer' || permissions === 'admin')
+                          ? [{
+                              icon: <OrganizerIcon />,
+                              label: 'Organizer',
+                              onClick: () => navigate('/organizer-dashboard'),
+                              disabled: false
+                            }]
+                          : [{
                               icon: <MatchesIcon />,
                               label: 'Matches',
                               onClick: () => navigate('/paired-player-history'),
                               disabled: false
-                            },
-                            {
-                              icon: <ProfileIcon />,
-                              label: 'Profile',
-                              onClick: () => {
-                                if (profileExpanded) {
-                                  setProfileExpanded(false);
-                                  setShowProfileCreation(true);
-                                } else {
-                                  setProfileExpanded(true);
-                                }
-                              },
-                              disabled: false
-                            }
-                          ] : [])
-                        : [
-                            ...(!user ? []
-                              : (permissions === 'organizer' || permissions === 'admin')
-                                ? [{
-                                    icon: <OrganizerIcon />,
-                                    label: 'Organizer',
-                                    onClick: () => navigate('/organizer-dashboard'),
-                                    disabled: false
-                                  }]
-                                : [{
-                                    icon: <MatchesIcon />,
-                                    label: 'Matches',
-                                    onClick: () => navigate('/paired-player-history'),
-                                    disabled: false
-                                  }]
-                            ),
-                            {
-                              icon: <MenuIcon />,
-                              label: 'Menu',
-                              onClick: () => {
-                                if (!user) {
-                                  navigate('/login');
-                                } else {
-                                  setProfileExpanded(prev => !prev);
-                                }
-                              },
-                              disabled: false
-                            }
-                          ]
-                      )
+                            }]
+                      ),
+                      ...(!isDesktop ? [{
+                        icon: <MenuIcon />,
+                        label: 'Menu',
+                        onClick: () => setMenuOpen(true),
+                        disabled: false
+                      }] : [])
                     ]}
                   />
-                  {/* Expandable Logout button — pops up above Profile */}
-                  <AnimatePresence>
-                    {profileExpanded && user && (
-                      <motion.div
-                        className="app-dock-expand-logout"
-                        initial={{ opacity: 0, y: 20, scale: 0.8 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 20, scale: 0.8 }}
-                        transition={{ duration: 0.1, ease: 'easeOut' }}
-                        onClick={() => { navigate('/logout'); setProfileExpanded(false); }}
-                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/logout'); setProfileExpanded(false); } }}
-                        tabIndex={0}
-                        role="button"
-                        aria-label="Logout"
-                      >
-                        <div className="app-dock-icon"><LogoutIcon /></div>
-                        <span className="app-dock-label">Logout</span>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
                 </div>
                 {/* Create Lobby button moved to centered standalone position above */}
                 {/* {(permissions === 'admin' || permissions === 'organizer') && (

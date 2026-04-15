@@ -4,6 +4,7 @@ import './plan_selection.css';
 import { apiFetch } from '../utils/api';
 import { AuthContext } from '../Auth/AuthContext';
 import FloatingLinesBackground from './FloatingLinesBackground';
+import PageNavBar from '../components/PageNavBar/PageNavBar';
 
 const bulkDiscount = (n) => {
     if (n <= 1) return 1;
@@ -24,6 +25,8 @@ const PlanSelection = () => {
     const fromActiveLobby = !!location.state?.fromActiveLobby;
     const lobbyCode = location.state?.lobbyCode || '';
     const lobbyState = location.state?.lobbyState || null;
+
+    const [isDesktop] = useState(() => window.innerWidth >= 769);
 
     // ── Core state ──
     const [tiers, setTiers] = useState([]);
@@ -184,7 +187,7 @@ const PlanSelection = () => {
             return `You are purchasing ${qty} additional activation${qty === 1 ? '' : 's'} for $${price}.`;
         }
 
-        let msg = `You are switching from ${currentLabel} to ${billingMode === 'single' ? 'One-Time Use' : 'Monthly'} (${tier.range_label} attendees).`;
+        let msg = `You are switching from ${currentLabel} to ${billingMode === 'single' ? 'One-Time Use' : 'Monthly'} (up to ${tier.upper} attendees).`;
         if (targetType !== currentType) {
             msg += ' Your current plan will be replaced after payment.';
             if (currentType === 'monthly') {
@@ -199,7 +202,7 @@ const PlanSelection = () => {
                 msg += ' Any unused value will be credited towards your new plan.';
             }
         } else if (targetType === 'monthly') {
-            msg = `Your current subscription will be canceled and replaced with a new one for ${tier.range_label} attendees. Any remaining time on your current billing period will be credited towards your new plan.`;
+            msg = `Your current subscription will be canceled and replaced with a new one for up to ${tier.upper} attendees. Any remaining time on your current billing period will be credited towards your new plan.`;
         }
         return msg;
     };
@@ -309,16 +312,20 @@ const PlanSelection = () => {
         <div className="plan-selection-background ps-pricing-page">
             <FloatingLinesBackground />
 
-            <nav className="ps-nav-bar">
-                <button className="ps-nav-arrow" onClick={handleBack}>
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#144dff"
-                        strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M19 12H5" /><polyline points="12 19 5 12 12 5" />
-                    </svg>
-                </button>
-                <img src="/assets/reuneo_test_14.png" alt="Reuneo Logo" className="ps-logo-image" />
-                <div className="ps-nav-placeholder" />
-            </nav>
+            {isDesktop ? (
+                <PageNavBar />
+            ) : (
+                <nav className="ps-nav-bar">
+                    <button className="ps-nav-arrow" onClick={handleBack}>
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#144dff"
+                            strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M19 12H5" /><polyline points="12 19 5 12 12 5" />
+                        </svg>
+                    </button>
+                    <img src="/assets/reuneo_test_14.png" alt="Reuneo Logo" className="ps-logo-image" />
+                    <div className="ps-nav-placeholder" />
+                </nav>
+            )}
 
             <h1 className="ps-page-title">
                 {isUpgrade ? 'Change Plan' : 'Pricing'}
@@ -447,7 +454,7 @@ const PlanSelection = () => {
                                     )}
 
                                     <div className="ps-tier-banner">
-                                        {tier.range_label} attendees
+                                        Up to {tier.upper} attendees
                                     </div>
 
                                     <div className="ps-tier-price-section">
@@ -505,7 +512,7 @@ const PlanSelection = () => {
                             className="ps-see-more-btn"
                             onClick={() => setShowMoreTiers((v) => !v)}
                         >
-                            {showMoreTiers ? 'Show less' : `See ${tiers.length - INITIAL_VISIBLE_TIERS} more plans`}
+                            {showMoreTiers ? 'Show less' : 'Up to 120+ attendees'}
                         </button>
                     )}
                 </>

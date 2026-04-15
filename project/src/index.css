@@ -113,6 +113,7 @@ button:focus-visible {
 
   /* Phone frame decoration — applied only on the home page via RouteLayoutHandler */
   #root.phone-frame {
+    margin-top: 140px;
     z-index: 1;
     background: #000;
     border-radius: 50px;

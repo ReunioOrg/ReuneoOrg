@@ -3,6 +3,7 @@ import { AuthContext } from './AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import './LoginSignupPage.css';
 import { apiFetch } from '../utils/api';
+import PageNavBar from '../components/PageNavBar/PageNavBar';
 
 const LoginSignupPage = () => {
     const { login, signup, user, logout, checkAuth } = useContext(AuthContext);
@@ -18,6 +19,7 @@ const LoginSignupPage = () => {
 
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    const [isDesktop] = useState(() => window.innerWidth >= 769);
 
     // Check for error query param (e.g., from expired magic link)
     useEffect(() => {
@@ -101,21 +103,27 @@ const LoginSignupPage = () => {
     };
 
     return (
-        <div className="login-container">
-            <button 
-                onClick={() => navigate('/')} 
-                className="login-home-button"
-            >
-                Home
-            </button>
+        <div className={`login-page-wrapper${isDesktop ? ' login-desktop' : ''}`}>
+            {isDesktop && <PageNavBar />}
+            <div className="login-container">
+                {!isDesktop && (
+                    <button 
+                        onClick={() => navigate('/')} 
+                        className="login-home-button"
+                    >
+                        Home
+                    </button>
+                )}
 
-            <img 
-                src="/assets/reuneo_test_11.png"
-                alt="Reunio Logo"
-                className="logo-image"
-            />
+                {!isDesktop && (
+                    <img 
+                        src="/assets/reuneo_test_11.png"
+                        alt="Reunio Logo"
+                        className="logo-image"
+                    />
+                )}
 
-            <h1 className="login-header">Login</h1>
+                <h1 className="login-header">Login</h1>
             
             <div className="login-signup-form">
                 {linkError && (
@@ -203,6 +211,7 @@ const LoginSignupPage = () => {
                     </button>
                 )}
             </div>
+        </div>
         </div>
     );
 };

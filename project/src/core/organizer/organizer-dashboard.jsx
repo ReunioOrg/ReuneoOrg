@@ -3,6 +3,45 @@ import { AuthContext } from '../Auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import './organizer-dashboard.css';
 import { apiFetch } from '../utils/api';
+import FloatingLinesBackground from './FloatingLinesBackground';
+import PageNavBar from '../components/PageNavBar/PageNavBar';
+import { FaInstagram, FaFacebookF, FaLinkedinIn, FaEnvelope, FaPhone, FaGlobe, FaTiktok, FaSnapchatGhost, FaCopy } from 'react-icons/fa';
+
+const SOCIAL_PLATFORM_ORDER = ['phone', 'email', 'website', 'instagram', 'facebook', 'linkedin', 'tiktok', 'snapchat'];
+
+const getSocialPlatformInfo = (platform) => {
+    const platforms = {
+        instagram: { label: 'Instagram', Icon: FaInstagram, color: '#E4405F', displayPrefix: '@' },
+        facebook: { label: 'Facebook', Icon: FaFacebookF, color: '#1877F2', displayPrefix: '@' },
+        email: { label: 'Email', Icon: FaEnvelope, color: '#4b7ef0', displayPrefix: '' },
+        phone: { label: 'Phone', Icon: FaPhone, color: '#25D366', displayPrefix: '' },
+        website: { label: 'Website', Icon: FaGlobe, color: '#4b7ef0', displayPrefix: '' },
+        linkedin: { label: 'LinkedIn', Icon: FaLinkedinIn, color: '#0A66C2', displayPrefix: '' },
+        tiktok: { label: 'TikTok', Icon: FaTiktok, color: '#000000', displayPrefix: '@' },
+        snapchat: { label: 'Snapchat', Icon: FaSnapchatGhost, color: '#F7D600', displayPrefix: '@' }
+    };
+    return platforms[platform] || { label: platform, Icon: FaGlobe, color: '#4b7ef0', displayPrefix: '' };
+};
+
+const buildSocialLinkUrl = (platform, value) => {
+    if (!value) return null;
+    switch (platform) {
+        case 'instagram': return `https://instagram.com/${value}`;
+        case 'facebook': return `https://facebook.com/${value}`;
+        case 'tiktok': return `https://tiktok.com/@${value}`;
+        case 'snapchat': return `https://snapchat.com/add/${value}`;
+        case 'linkedin': return `https://linkedin.com/in/${value}`;
+        case 'email': return `mailto:${value}`;
+        case 'phone': return `tel:${value.replace(/[^\d+]/g, '')}`;
+        case 'website': return value;
+        default: return value;
+    }
+};
+
+const hasAnySocialLinks = (socialLinks) => {
+    if (!socialLinks || typeof socialLinks !== 'object') return false;
+    return Object.values(socialLinks).some(value => value && typeof value === 'string' && value.trim());
+};
 
 const LoadingSpinner = ({ size = 60, className = '' }) => {
     return (
@@ -338,7 +377,9 @@ const CommunityAttendeesCarousel = ({ attendees = [], navigate }) => {
                     self_tags: data.attendee.tags?.tags_work || [],
                     desiring_tags: data.attendee.tags?.desiring_tags_work || [],
                     lobbies_attended: data.attendee.stats?.lobbies_attended || 0,
-                    rounds_paired: data.attendee.stats?.rounds_paired || 0
+                    rounds_paired: data.attendee.stats?.rounds_paired || 0,
+                    social_links: data.attendee.social_links || null,
+                    email: data.attendee.email || null
                 };
 
                 setAttendeeDetails(prev => {
@@ -654,6 +695,58 @@ const CommunityAttendeesCarousel = ({ attendees = [], navigate }) => {
                                                                 )}
                                                             </div>
                                                         </div>
+                                                        <div className="attendee-modal-contact-section">
+                                                            <h3 className="attendee-modal-tags-label">contact info:</h3>
+                                                            {details.email && (
+                                                                <div className="attendee-modal-email-row">
+                                                                    <FaEnvelope size={14} color="#4b7ef0" />
+                                                                    <a href={`mailto:${details.email}`} className="attendee-modal-email-value">
+                                                                        {details.email}
+                                                                    </a>
+                                                                    <button
+                                                                        type="button"
+                                                                        className="attendee-modal-copy-btn"
+                                                                        onClick={(e) => {
+                                                                            e.preventDefault();
+                                                                            navigator.clipboard.writeText(details.email);
+                                                                            const btn = e.currentTarget;
+                                                                            btn.classList.add('copied');
+                                                                            setTimeout(() => btn.classList.remove('copied'), 1200);
+                                                                        }}
+                                                                        title="Copy email"
+                                                                    >
+                                                                        <FaCopy size={11} />
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                            {hasAnySocialLinks(details.social_links) ? (
+                                                                <div className="attendee-modal-social-pills">
+                                                                    {SOCIAL_PLATFORM_ORDER.map((platform) => {
+                                                                        const value = details.social_links?.[platform];
+                                                                        if (!value || !value.trim()) return null;
+                                                                        const { label, Icon, color, displayPrefix } = getSocialPlatformInfo(platform);
+                                                                        const url = buildSocialLinkUrl(platform, value);
+                                                                        return (
+                                                                            <a
+                                                                                key={platform}
+                                                                                href={url}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                className="attendee-modal-social-pill"
+                                                                                title={label}
+                                                                            >
+                                                                                <Icon size={14} color={color} />
+                                                                                <span className="attendee-modal-social-pill-text">
+                                                                                    {displayPrefix}{value}
+                                                                                </span>
+                                                                            </a>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            ) : !details.email ? (
+                                                                <span className="attendee-modal-empty-state">No contact info shared</span>
+                                                            ) : null}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </>
@@ -672,6 +765,7 @@ const CommunityAttendeesCarousel = ({ attendees = [], navigate }) => {
 const OrganizerDashboard = () => {
     const { user, userProfile, permissions, checkAuth } = useContext(AuthContext);
     const navigate = useNavigate();
+    const [isDesktop] = useState(() => window.innerWidth >= 769);
     const [attendees, setAttendees] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -731,20 +825,26 @@ const OrganizerDashboard = () => {
 
     return (
         <div className="organizer-dashboard">
-            <div className="dashboard-nav-bar">
-                <button className="dashboard-nav-back" onClick={() => navigate('/')} aria-label="Back">
-                    <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
-                        <circle cx="18" cy="18" r="17" stroke="#374151" strokeWidth="1.5" fill="rgba(255,255,255,0.8)"/>
-                        <path d="M21 12L15 18L21 24" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                </button>
-                <img
-                    src="/assets/reuneo_test_11.png"
-                    alt="Reuneo Logo"
-                    className="dashboard-logo-img"
-                />
-                <div className="dashboard-nav-placeholder" />
-            </div>
+            <FloatingLinesBackground />
+
+            {isDesktop ? (
+                <PageNavBar />
+            ) : (
+                <div className="dashboard-nav-bar">
+                    <button className="dashboard-nav-back" onClick={() => navigate('/')} aria-label="Back">
+                        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                            <circle cx="18" cy="18" r="17" stroke="#374151" strokeWidth="1.5" fill="rgba(255,255,255,0.8)"/>
+                            <path d="M21 12L15 18L21 24" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                    </button>
+                    <img
+                        src="/assets/reuneo_test_14.png"
+                        alt="Reuneo Logo"
+                        className="dashboard-logo-img"
+                    />
+                    <div className="dashboard-nav-placeholder" />
+                </div>
+            )}
 
             <h1 className="dashboard-title">
                 {(userProfile?.name || user || 'Your')}&apos;s Dashboard

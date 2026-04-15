@@ -8,7 +8,10 @@ function RouteLayoutHandler() {
   const isDashboardRoute = pathname.startsWith('/organizer-dashboard')
     || pathname.startsWith('/create_lobby')
     || pathname.startsWith('/new_organizer')
-    || pathname.startsWith('/plan-selection');
+    || pathname.startsWith('/plan-selection')
+    || pathname.startsWith('/tutorial')
+    || pathname.startsWith('/contact')
+    || pathname.startsWith('/login');
 
   const isHomeRoute = pathname === '/';
 

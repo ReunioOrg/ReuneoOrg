@@ -27,6 +27,8 @@ import PostEventAuth from './core/Auth/post-event-auth.jsx'
 import AuthSuccess from './core/Auth/AuthSuccess.jsx'
 import SetPasswordPage from './core/Auth/SetPasswordPage.jsx'
 import ForgotPasswordPage from './core/Auth/ForgotPasswordPage.jsx'
+import TutorialPage from './core/pages/tutorial.jsx'
+import ContactPage from './core/pages/contact.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
@@ -52,6 +54,8 @@ createRoot(document.getElementById('root')).render(
           <Route path="/set-password" element={<SetPasswordPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/auth/success" element={<AuthSuccess />} />
+          <Route path="/tutorial" element={<TutorialPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           {/* <Route path="/cofounders" element={<MyCF />} /> */}
         </Routes>
         </Router>
