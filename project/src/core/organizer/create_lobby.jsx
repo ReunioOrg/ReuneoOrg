@@ -547,7 +547,8 @@ const CreateLobbyView = () => {
                 lobby_code: lobbyCode,
                 custom_tags: selectedTab === 'custom' ? customTags : [],
                 lobby_duration: lobbyDuration,
-                show_table_numbers: showTableNumbers
+                show_table_numbers: showTableNumbers,
+                enable_match_history: enableMatchHistory
             };
             if (logoIconData) requestBody.logo_icon = logoIconData;
             if (logoName.trim()) requestBody.logo_name = logoName.trim();

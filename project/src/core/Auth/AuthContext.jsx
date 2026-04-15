@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [permissions, setPermissions] = useState(null);
     const [emailVerified, setEmailVerified] = useState(false);
+    const [userEmail, setUserEmail] = useState(null);
     const [isLegacyOrganizer, setIsLegacyOrganizer] = useState(false);
     const [isAuthLoading, setIsAuthLoading] = useState(true); // Start true - we're checking auth on mount
     const [authLoadingMessage, setAuthLoadingMessage] = useState('Connecting...');
@@ -86,6 +87,7 @@ export const AuthProvider = ({ children }) => {
               setUserProfile(sessionData.user.profile || null);
               setPermissions(sessionData.user.permissions || null);
               setEmailVerified(sessionData.user.email_verified === true);
+              setUserEmail(sessionData.user.email || null);
               setIsLegacyOrganizer(sessionData.user.is_legacy_organizer === true);
               return; // Session auth succeeded, no need to try JWT
             }
@@ -116,6 +118,7 @@ export const AuthProvider = ({ children }) => {
               setUserProfile(userData.profile);
               setPermissions(userData.permissions);
               setEmailVerified(userData.email_verified === true);
+              setUserEmail(userData.email || null);
               setIsLegacyOrganizer(userData.is_legacy_organizer === true);
               console.log("PERMISSIONS:", userData.permissions);
             } else {
@@ -205,11 +208,12 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
       setPermissions(null);
       setEmailVerified(false);
+      setUserEmail(null);
       setIsLegacyOrganizer(false);
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, signup, logout, userProfile, checkAuth, permissions, emailVerified, isLegacyOrganizer, isAuthLoading, authLoadingMessage }}>
+        <AuthContext.Provider value={{ user, login, signup, logout, userProfile, checkAuth, permissions, emailVerified, userEmail, isLegacyOrganizer, isAuthLoading, authLoadingMessage }}>
             {children}
         </AuthContext.Provider>
     );

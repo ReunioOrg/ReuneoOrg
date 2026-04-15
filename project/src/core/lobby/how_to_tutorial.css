@@ -592,6 +592,177 @@
   line-height: 1.5;
 }
 
+/* ===== Email Collection Slide ===== */
+
+.slide-email-layout {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.slide-email-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 340px;
+  width: 100%;
+}
+
+.slide-email-icon {
+  margin-bottom: 1.25rem;
+  animation: slideEmailIconPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s both;
+}
+
+@keyframes slideEmailIconPop {
+  0% { opacity: 0; transform: scale(0.5); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.slide-email-header {
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #1a1a2e;
+  text-align: center;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.4;
+  animation: slideEmailFadeUp 0.5s ease-out 0.4s both;
+}
+
+.slide-email-subheader {
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #6b7280;
+  text-align: center;
+  margin: 0 0 1.75rem 0;
+  line-height: 1.5;
+  animation: slideEmailFadeUp 0.5s ease-out 0.5s both;
+}
+
+@keyframes slideEmailFadeUp {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.slide-email-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  animation: slideEmailFadeUp 0.5s ease-out 0.6s both;
+}
+
+.slide-email-input-wrapper {
+  width: 100%;
+}
+
+.slide-email-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 500;
+  color: #1a1a2e;
+  background: #f8f9fb;
+  border: 2px solid #e5e7eb;
+  border-radius: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.slide-email-input::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.slide-email-input:focus {
+  border-color: #4b73ef;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(75, 115, 239, 0.1);
+}
+
+.slide-email-input-valid {
+  border-color: #4b73ef;
+  background: #ffffff;
+}
+
+.slide-email-input-error {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.slide-email-input-error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+.slide-email-error {
+  color: #ef4444;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  text-align: center;
+  margin-top: -0.25rem;
+}
+
+.slide-email-cta {
+  width: 100%;
+  padding: 14px 24px;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+  background: #c8cdd6;
+  border: none;
+  border-radius: 14px;
+  cursor: not-allowed;
+  transition: all 0.25s ease;
+}
+
+.slide-email-cta-active {
+  background: #1a1a2e;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(26, 26, 46, 0.2);
+}
+
+.slide-email-cta-active:hover {
+  background: #2d2d44;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(26, 26, 46, 0.25);
+}
+
+.slide-email-cta-active:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Skip arrow — subtle, bottom-right corner */
+.slide-email-skip {
+  position: absolute;
+  bottom: 2rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  opacity: 0.35;
+  transition: opacity 0.2s ease;
+}
+
+.slide-email-skip:hover {
+  opacity: 0.6;
+}
+
 /* Mobile adjustments for slide 3 */
 @media (max-width: 768px) {
   .slide3-phone-frame {
@@ -614,5 +785,18 @@
 
   .slide3-pulse-ring {
     height: 28px;
+  }
+
+  .slide-email-content {
+    max-width: 300px;
+  }
+
+  .slide-email-header {
+    font-size: 1.25rem;
+  }
+
+  .slide-email-skip {
+    bottom: 1.5rem;
+    right: 1rem;
   }
 }

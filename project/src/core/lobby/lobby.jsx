@@ -52,7 +52,7 @@ const LobbyScreen = () => {
     const { code } = useParams();
     const [player_count, setPlayerCount] = useState(null);
     useGetLobbyMetadata(setPlayerCount, null, lobbyCode);
-    const { user, userProfile, checkAuth, permissions, isAuthLoading, authLoadingMessage, emailVerified } = useContext(AuthContext);
+    const { user, userProfile, checkAuth, permissions, isAuthLoading, authLoadingMessage, emailVerified, userEmail } = useContext(AuthContext);
     
     // Email backup modal state (for saving email as backup sign-in method)
     const [showEmailBackupModal, setShowEmailBackupModal] = useState(false);
@@ -173,6 +173,9 @@ const LobbyScreen = () => {
     const logoDataRef = useRef(null);
     const [logoLoaded, setLogoLoaded] = useState(false);
 
+    // Match history setting (from organizer's lobby config)
+    const enableMatchHistoryRef = useRef(false);
+
     // Update the ref whenever lobbyCode changes
     useEffect(() => {
         lobbyCodeRef.current = lobbyCode;
@@ -285,6 +288,9 @@ const LobbyScreen = () => {
                     console.log("Sponsor logo loaded successfully");
                 } else {
                     console.log("No sponsor logo available for this lobby");
+                }
+                if (data.enable_match_history != null) {
+                    enableMatchHistoryRef.current = data.enable_match_history;
                 }
             } else {
                 console.error("Failed to fetch lobby setup data:", response.status);
@@ -1561,7 +1567,7 @@ const LobbyScreen = () => {
 
             {/* Add the tutorial component */}
             {showTutorial && (
-                <HowToTutorial onComplete={handleTutorialComplete} lobbyCode={lobbyCode} />
+                <HowToTutorial onComplete={handleTutorialComplete} lobbyCode={lobbyCode} showEmailSlide={enableMatchHistoryRef.current && !userEmail} />
             )}
 
             {/* Profile Edit Modal */}

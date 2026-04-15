@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useContext } from 'react';
 import { AuthContext } from '../Auth/AuthContext';
+import { apiFetch } from '../utils/api';
 import './how_to_tutorial.css';
 
 // Slide 2: Animated Volume Slider Component
@@ -127,8 +128,108 @@ const TutorialSlide3 = ({ isActive, onPauseClicked }) => {
   );
 };
 
-const HowToTutorial = ({ onComplete, lobbyCode = 'this' }) => {
-  const { userProfile } = useContext(AuthContext);
+// Email collection slide (conditional — shown when organizer enabled match history & user has no email)
+const TutorialEmailSlide = ({ isActive, onEmailSubmit, onSkip }) => {
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const inputRef = useRef(null);
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isValid = emailRegex.test(email.trim());
+
+  useEffect(() => {
+    if (isActive && inputRef.current) {
+      setTimeout(() => inputRef.current?.focus(), 600);
+    }
+  }, [isActive]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!isValid || isSubmitting) return;
+
+    setEmailError('');
+    setIsSubmitting(true);
+
+    try {
+      const response = await apiFetch('/update_profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.detail?.toLowerCase().includes('already associated')) {
+          setEmailError('This email is already in use. Try a different one.');
+        } else {
+          setEmailError(errorData.detail || 'Failed to save email.');
+        }
+        setIsSubmitting(false);
+        return;
+      }
+
+      onEmailSubmit();
+    } catch (err) {
+      console.error('Tutorial email save error:', err);
+      setEmailError('Something went wrong. Try again.');
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="slide-email-layout">
+      <div className="slide-email-content">
+        <div className="slide-email-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="4" width="20" height="16" rx="3" stroke="#4b73ef" strokeWidth="1.5" />
+            <path d="M2 7l10 7 10-7" stroke="#4b73ef" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+        <h2 className="slide-email-header">Save Your Connections</h2>
+        <p className="slide-email-subheader">
+          Enter your email to access your match history after the event.
+        </p>
+
+        <form className="slide-email-form" onSubmit={handleSubmit}>
+          <div className="slide-email-input-wrapper">
+            <input
+              ref={inputRef}
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); setEmailError(''); }}
+              placeholder="you@example.com"
+              className={`slide-email-input ${emailError ? 'slide-email-input-error' : ''} ${isValid ? 'slide-email-input-valid' : ''}`}
+              disabled={isSubmitting}
+              autoComplete="email"
+            />
+          </div>
+
+          {emailError && (
+            <div className="slide-email-error">{emailError}</div>
+          )}
+
+          <button
+            type="submit"
+            className={`slide-email-cta ${isValid && !isSubmitting ? 'slide-email-cta-active' : ''}`}
+            disabled={!isValid || isSubmitting}
+          >
+            {isSubmitting ? 'Saving...' : 'Continue'}
+          </button>
+        </form>
+      </div>
+
+      <button className="slide-email-skip" onClick={onSkip} aria-label="Skip">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M9 18l6-6-6-6" stroke="#b0b0b0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  );
+};
+
+const HowToTutorial = ({ onComplete, lobbyCode = 'this', showEmailSlide = false }) => {
+  const { userProfile, checkAuth } = useContext(AuthContext);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isTextAnimating, setIsTextAnimating] = useState(false);
@@ -140,122 +241,152 @@ const HowToTutorial = ({ onComplete, lobbyCode = 'this' }) => {
   const transitionTimeoutRef = useRef(null);
   const hasCompleted = useRef(false);
   const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete; // Keep ref in sync every render
+  onCompleteRef.current = onComplete;
 
-  // Safe completion guard - prevents double-calling onComplete
   const safeComplete = () => {
     if (hasCompleted.current) return;
     hasCompleted.current = true;
     if (onCompleteRef.current) onCompleteRef.current();
   };
 
-  // Handler for when user clicks mock Pause button on slide 3
   const handleSlide3PauseClicked = () => {
     if (hasCompleted.current) return;
-    // Clear auto-advance timer
     if (intervalRef.current) clearInterval(intervalRef.current);
     if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
-    // Start the completion flow: fade out → congrats → exit
+    setTutorialCompleting(true);
+    setTimeout(() => {
+      setShowCongrats(true);
+      setTimeout(() => { safeComplete(); }, 1500);
+    }, 500);
+  };
+
+  // Build slides dynamically — email slide inserted only when showEmailSlide is true
+  const slides = useMemo(() => {
+    const base = [
+      { type: 'blank', duration: 2000 },
+      { type: 'volume', customSlide: true, duration: 4000 },
+    ];
+    if (showEmailSlide) {
+      base.push({ type: 'email', customSlide: true, duration: null });
+    }
+    base.push({ type: 'pause', customSlide: true, duration: 10000 });
+    return base;
+  }, [showEmailSlide]);
+
+  // Manually advance to next slide (used by email slide callbacks)
+  const advanceFromCurrentSlide = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+
+    if (currentSlide >= slides.length - 1) {
+      if (!hasCompleted.current) {
+        setTutorialCompleting(true);
+        setTimeout(() => {
+          setShowCongrats(true);
+          setTimeout(() => { safeComplete(); }, 1500);
+        }, 500);
+      }
+      return;
+    }
+
+    setIsAnimating(true);
+    const nextSlideIndex = currentSlide + 1;
+    setVisibleSlides([currentSlide, nextSlideIndex]);
+
+    transitionTimeoutRef.current = setTimeout(() => {
+      setShowAnimatedText(false);
+      setCurrentSlide(nextSlideIndex);
+      setIsAnimating(false);
+      setTimeout(() => {
+        setVisibleSlides([nextSlideIndex]);
+        setIsTextAnimating(true);
+        if (slides[nextSlideIndex].animatedText) {
+          setShowAnimatedText(true);
+        }
+      }, 500);
+    }, 500);
+  };
+
+  const handleEmailSubmit = () => {
+    if (hasCompleted.current) return;
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
     setTutorialCompleting(true);
     setTimeout(() => {
       setShowCongrats(true);
       setTimeout(() => {
         safeComplete();
+        checkAuth();
       }, 1500);
     }, 500);
   };
 
-  // Slide data with custom durations
-  const slides = [
-    {
-      // Empty white slide — no image or text
-      duration: 2000, // 2 seconds for first slide
-    },
-    {
-      customSlide: true, // Uses TutorialSlide2 component instead of an image
-      duration: 4000, // 4 seconds for second slide
-    },
-    {
-      customSlide: true, // Uses TutorialSlide3 component
-      duration: 10000, // 10 seconds max for interactive slide
-    }
-  ];
-  
-  // Effect for slide transitions
+  const handleEmailSkip = () => {
+    if (hasCompleted.current) return;
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+    setTutorialCompleting(true);
+    setTimeout(() => {
+      setShowCongrats(true);
+      setTimeout(() => { safeComplete(); }, 1500);
+    }, 500);
+  };
+
+  // Slide transition timer — skips indefinite-duration slides
   useEffect(() => {
-    // Function to advance to the next slide
+    const currentDuration = slides[currentSlide]?.duration;
+
+    if (!currentDuration) return;
+
     const advanceSlide = () => {
-      // Check if we're at the last slide
       if (currentSlide >= slides.length - 1) {
         clearInterval(intervalRef.current);
-        // Same fade + congrats flow as the Pause button click
         if (!hasCompleted.current) {
           setTutorialCompleting(true);
           setTimeout(() => {
             setShowCongrats(true);
-            setTimeout(() => {
-              safeComplete();
-            }, 1500);
+            setTimeout(() => { safeComplete(); }, 1500);
           }, 500);
         }
         return;
       }
 
-      // Start the transition
       setIsAnimating(true);
-      
-      // Add next slide to visible slides
       const nextSlideIndex = currentSlide + 1;
       setVisibleSlides([currentSlide, nextSlideIndex]);
-      
-      // After animation starts, update the slide
+
       transitionTimeoutRef.current = setTimeout(() => {
-        // Only hide animated text when we're actually transitioning to the next slide
         setShowAnimatedText(false);
-        
         setCurrentSlide(nextSlideIndex);
         setIsAnimating(false);
-        
-        // Remove the previous slide after transition
         setTimeout(() => {
           setVisibleSlides([nextSlideIndex]);
-          
-          // Start text animation after slide change is complete
           setIsTextAnimating(true);
-          
-          // Show animated text for the current slide
           if (slides[nextSlideIndex].animatedText) {
             setShowAnimatedText(true);
           }
         }, 500);
       }, 500);
     };
-    
-    // Start the slideshow with the appropriate duration for the current slide
-    intervalRef.current = setInterval(advanceSlide, slides[currentSlide].duration);
-    
-    // Initial text animation for first slide
+
+    intervalRef.current = setInterval(advanceSlide, currentDuration);
     setIsTextAnimating(true);
-    
-    // Show animated text for the first slide on initial render
+
     if (currentSlide === 0 && slides[0].animatedText) {
       setShowAnimatedText(true);
     }
-    
+
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      if (transitionTimeoutRef.current) {
-        clearTimeout(transitionTimeoutRef.current);
-      }
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
     };
-  }, [currentSlide, slides.length]);
-  
+  }, [currentSlide, slides]);
+
+  const isOnEmailSlide = slides[currentSlide]?.type === 'email';
+
   return (
     <div className="tutorial-overlay">
       <div className="tutorial-container">
-        {/* Congratulations message - renders on top after slide 3 completion */}
         {showCongrats && (
           <div className="slide3-congrats">
             <h2 className="slide3-congrats-text">Congratulations! You are ready.</h2>
@@ -275,9 +406,11 @@ const HowToTutorial = ({ onComplete, lobbyCode = 'this' }) => {
                 {slides[slideIndex].animatedText}
               </div>
             )}
-            {slideIndex === 1 ? (
+            {slides[slideIndex].type === 'volume' ? (
               <TutorialSlide2 isActive={slideIndex === currentSlide} />
-            ) : slideIndex === 2 ? (
+            ) : slides[slideIndex].type === 'email' ? (
+              <TutorialEmailSlide isActive={slideIndex === currentSlide} onEmailSubmit={handleEmailSubmit} onSkip={handleEmailSkip} />
+            ) : slides[slideIndex].type === 'pause' ? (
               <TutorialSlide3 isActive={slideIndex === currentSlide} onPauseClicked={handleSlide3PauseClicked} />
             ) : null}
             <div className={`tutorial-text ${isTextAnimating && slideIndex === currentSlide ? 'text-animate' : ''}`}>
@@ -285,11 +418,13 @@ const HowToTutorial = ({ onComplete, lobbyCode = 'this' }) => {
             </div>
           </div>
         ))}
-        <div className={`tutorial-progress-bar-container ${tutorialCompleting ? 'tutorial-fading' : ''}`}>
-          <div className="tutorial-progress-bar">
-            <div className="tutorial-progress-bar-fill"></div>
+        {!isOnEmailSlide && (
+          <div className={`tutorial-progress-bar-container ${tutorialCompleting ? 'tutorial-fading' : ''}`}>
+            <div className="tutorial-progress-bar">
+              <div className="tutorial-progress-bar-fill"></div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
