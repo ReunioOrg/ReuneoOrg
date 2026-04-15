@@ -97,147 +97,32 @@ const TutorialSlide2 = ({ isActive }) => {
 
 // Slide 3: Interactive Pause Button Tutorial
 const TutorialSlide3 = ({ isActive, onPauseClicked }) => {
-  const layoutRef = useRef(null);
-  const subheaderRef = useRef(null);
-  const pauseBtnRef = useRef(null);
-  const cursorRef = useRef(null);
-  const animFrameRef = useRef(null);
-  const startPos = useRef({ x: 0, y: 0 });
-  const endPos = useRef({ x: 0, y: 0 });
-
-  useEffect(() => {
-    if (!isActive) return;
-
-    const calculatePositions = () => {
-      if (!layoutRef.current || !subheaderRef.current || !pauseBtnRef.current) return;
-      const layoutRect = layoutRef.current.getBoundingClientRect();
-      const subheaderRect = subheaderRef.current.getBoundingClientRect();
-      const btnRect = pauseBtnRef.current.getBoundingClientRect();
-      // Start: horizontally centered below the sub-header
-      startPos.current = {
-        x: (subheaderRect.left + subheaderRect.right) / 2 - layoutRect.left,
-        y: subheaderRect.bottom - layoutRect.top + 12
-      };
-      // End: center of the Pause button
-      endPos.current = {
-        x: (btnRect.left + btnRect.right) / 2 - layoutRect.left,
-        y: (btnRect.top + btnRect.bottom) / 2 - layoutRect.top
-      };
-    };
-
-    const lerp = (a, b, t) => a + (b - a) * t;
-    const easeInOut = (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-
-    let startTime = null;
-    const duration = 3500; // matches ripple animation
-
-    const animate = (currentTime) => {
-      if (!cursorRef.current) {
-        animFrameRef.current = requestAnimationFrame(animate);
-        return;
-      }
-      if (startTime === null) startTime = currentTime;
-      const elapsed = (currentTime - startTime) % duration;
-      const progress = elapsed / duration;
-
-      const sx = startPos.current.x;
-      const sy = startPos.current.y;
-      const ex = endPos.current.x;
-      const ey = endPos.current.y;
-
-      let x, y, scale, rotation;
-
-      if (progress <= 0.35) {
-        // Move from start to button
-        const t = easeInOut(progress / 0.35);
-        x = lerp(sx, ex, t);
-        y = lerp(sy, ey, t);
-        scale = 1;
-        rotation = lerp(0, 10, t);
-      } else if (progress <= 0.45) {
-        // Tap down
-        x = ex; y = ey;
-        scale = lerp(1, 0.8, (progress - 0.35) / 0.1);
-        rotation = 10;
-      } else if (progress <= 0.55) {
-        // Release
-        x = ex; y = ey;
-        scale = lerp(0.8, 1, (progress - 0.45) / 0.1);
-        rotation = 10;
-      } else if (progress <= 0.90) {
-        // Move back to start
-        const t = easeInOut((progress - 0.55) / 0.35);
-        x = lerp(ex, sx, t);
-        y = lerp(ey, sy, t);
-        scale = 1;
-        rotation = lerp(10, 0, t);
-      } else {
-        // Pause at start
-        x = sx; y = sy;
-        scale = 1;
-        rotation = 0;
-      }
-
-      cursorRef.current.style.left = `${x}px`;
-      cursorRef.current.style.top = `${y}px`;
-      cursorRef.current.style.transform = `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})`;
-
-      animFrameRef.current = requestAnimationFrame(animate);
-    };
-
-    // Small delay to ensure DOM layout is ready before calculating positions
-    const initTimeout = setTimeout(() => {
-      calculatePositions();
-      animFrameRef.current = requestAnimationFrame(animate);
-    }, 50);
-
-    // Recalculate positions on resize (e.g. DevTools device switch)
-    window.addEventListener('resize', calculatePositions);
-
-    return () => {
-      clearTimeout(initTimeout);
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-      window.removeEventListener('resize', calculatePositions);
-    };
-  }, [isActive]);
-
   return (
-    <div className="slide3-layout" ref={layoutRef}>
-      {/* Header content at the top */}
+    <div className="slide3-layout">
       <div className="slide3-top-content">
         <h2 className="slide3-header">
           Click 'Pause' to take a break or leave.
         </h2>
-        <span className="slide3-subheader" ref={subheaderRef}>
+        <span className="slide3-subheader">
           You can rejoin at any time.
         </span>
       </div>
 
-      {/* Phone frame mockup */}
       <div className="slide3-phone-frame">
-        <button className="slide3-mock-pause" ref={pauseBtnRef} onClick={onPauseClicked}>
-          Pause
-        </button>
-        <span className="slide3-tap-hint">Tap here to continue</span>
+        <div className="slide3-pause-wrapper">
+          <button className="slide3-mock-pause" onClick={onPauseClicked}>
+            Pause
+          </button>
+          <span className="slide3-pulse-ring slide3-pulse-ring-1" />
+          <span className="slide3-pulse-ring slide3-pulse-ring-2" />
+          <span className="slide3-tap-label">Tap here</span>
+        </div>
         <img
           src="/assets/stock-woman-cropped.png"
           alt="Profile example"
           className="slide3-phone-image"
         />
       </div>
-
-      {/* Animated finger cursor - JS-driven to dynamically track element positions */}
-      {isActive && (
-        <div className="slide3-finger-cursor" ref={cursorRef}>
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M11.5 2A1.5 1.5 0 0 0 10 3.5V12l-2.3-2.3a1.5 1.5 0 0 0-2.12 2.12l5.16 5.16A4.5 4.5 0 0 0 13.92 18.5h1.58A3.5 3.5 0 0 0 19 15V8a1.5 1.5 0 0 0-3 0v-.5a1.5 1.5 0 0 0-3 0V7a1.5 1.5 0 0 0-3 0V3.5A1.5 1.5 0 0 0 11.5 2z"
-              fill="#4b73ef"
-              opacity="0.9"
-            />
-          </svg>
-        </div>
-      )}
     </div>
   );
 };
