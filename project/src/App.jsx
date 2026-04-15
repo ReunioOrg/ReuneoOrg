@@ -29,19 +29,10 @@ import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from
 /* Inline icons for dock (Join Lobby: people/high-five, Login: arrow into line) */
 const JoinLobbyIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-    <circle cx="9" cy="7" r="4" />
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    <path d="M12 11v6" />
-    <path d="M9 14h6" />
-  </svg>
-);
-const LoginIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-    <polyline points="10 17 15 12 10 7" />
-    <line x1="15" y1="12" x2="3" y2="12" />
+    <circle cx="9" cy="8" r="3.5" />
+    <path d="M2 21v-1.5a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5V21" />
+    <line x1="19" y1="8" x2="19" y2="14" />
+    <line x1="16" y1="11" x2="22" y2="11" />
   </svg>
 );
 const Sparkle4pt = ({ cx, cy, r, className }) => (
@@ -74,6 +65,13 @@ const OrganizerIcon = () => (
     <Sparkle4pt cx={12} cy={12} r={12.5} />
     <Sparkle4pt cx={26} cy={25} r={7} />
     <Sparkle4pt cx={27} cy={6} r={4} />
+  </svg>
+);
+const MenuIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <line x1="3" y1="12" x2="21" y2="12" />
+    <line x1="3" y1="18" x2="21" y2="18" />
   </svg>
 );
 
@@ -1041,32 +1039,58 @@ const App = () => {
                           ? (lobby_state === 'terminate' ? 'Lobby closed' : 'Lobby loading…')
                           : undefined
                       },
-                      ...(!user ? [{
-                        icon: <LoginIcon />,
-                        label: 'Login',
-                        onClick: () => navigate('/login'),
-                        disabled: false
-                      }] : [
-                        {
-                          icon: <MatchesIcon />,
-                          label: 'Matches',
-                          onClick: () => navigate(emailVerified ? '/paired-player-history' : '/paired-player-history'),
-                          disabled: false
-                        },
-                        {
-                          icon: <ProfileIcon />,
-                          label: 'Profile',
-                          onClick: () => {
-                            if (profileExpanded) {
-                              setProfileExpanded(false);
-                              setShowProfileCreation(true);
-                            } else {
-                              setProfileExpanded(true);
+                      ...(isDesktop
+                        ? (user ? [
+                            {
+                              icon: <MatchesIcon />,
+                              label: 'Matches',
+                              onClick: () => navigate('/paired-player-history'),
+                              disabled: false
+                            },
+                            {
+                              icon: <ProfileIcon />,
+                              label: 'Profile',
+                              onClick: () => {
+                                if (profileExpanded) {
+                                  setProfileExpanded(false);
+                                  setShowProfileCreation(true);
+                                } else {
+                                  setProfileExpanded(true);
+                                }
+                              },
+                              disabled: false
                             }
-                          },
-                          disabled: false
-                        }
-                      ])
+                          ] : [])
+                        : [
+                            ...(!user ? []
+                              : (permissions === 'organizer' || permissions === 'admin')
+                                ? [{
+                                    icon: <OrganizerIcon />,
+                                    label: 'Organizer',
+                                    onClick: () => navigate('/organizer-dashboard'),
+                                    disabled: false
+                                  }]
+                                : [{
+                                    icon: <MatchesIcon />,
+                                    label: 'Matches',
+                                    onClick: () => navigate('/paired-player-history'),
+                                    disabled: false
+                                  }]
+                            ),
+                            {
+                              icon: <MenuIcon />,
+                              label: 'Menu',
+                              onClick: () => {
+                                if (!user) {
+                                  navigate('/login');
+                                } else {
+                                  setProfileExpanded(prev => !prev);
+                                }
+                              },
+                              disabled: false
+                            }
+                          ]
+                      )
                     ]}
                   />
                   {/* Expandable Logout button — pops up above Profile */}

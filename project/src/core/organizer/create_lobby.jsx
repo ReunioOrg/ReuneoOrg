@@ -969,9 +969,9 @@ const CreateLobbyView = () => {
         if (isFreeTrial && wasHydratedRef.current) {
             return (
                 <div className="step-container review-step">
-                    <h1 className="step-title">Real People Creating Real Connections</h1>
+                    <h1 className="step-title">Turn any social gathering into a community!</h1>
                     <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
-                        Boost engagement!
+                        Real connections, real engagement, real results
                     </p>
                     {error && <div className="error-message">{error}</div>}
                     <button className="step-cta create-cta" onClick={handleSubmit}
