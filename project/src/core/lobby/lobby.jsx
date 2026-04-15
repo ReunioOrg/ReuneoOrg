@@ -604,7 +604,7 @@ const LobbyScreen = () => {
                     }
                     
                     // Check if we need match count data for any modal triggers
-                    const needsEmailModal = !emailVerified && !hasShownEmailBackupModal.current;
+                    const needsEmailModal = !emailVerified && !userEmail && !hasShownEmailBackupModal.current;
                     const needsPauseInfoModal = !hasShownPauseInfoModal.current;
                     
                     if (needsEmailModal || needsPauseInfoModal) {

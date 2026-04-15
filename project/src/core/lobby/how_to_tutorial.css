@@ -601,8 +601,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 2rem 1.5rem;
+  justify-content: flex-start;
+  padding: 4rem 1.5rem 2rem;
   box-sizing: border-box;
 }
 
@@ -746,21 +746,40 @@
   transform: translateY(0) scale(0.98);
 }
 
-/* Skip arrow — subtle, bottom-right corner */
+/* Skip button — bottom-right corner */
 .slide-email-skip {
   position: absolute;
-  bottom: 2rem;
+  bottom: 0.25rem;
   right: 1.5rem;
   background: none;
   border: none;
   cursor: pointer;
   padding: 8px;
-  opacity: 0.35;
+  opacity: 0.5;
   transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.slide-email-skip-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #4b73ef;
+}
+
+.slide-email-skip svg {
+  width: 26px;
+  height: 26px;
+}
+
+.slide-email-skip svg path {
+  stroke: #4b73ef;
 }
 
 .slide-email-skip:hover {
-  opacity: 0.6;
+  opacity: 0.8;
 }
 
 /* Mobile adjustments for slide 3 */
@@ -798,5 +817,10 @@
   .slide-email-skip {
     bottom: 1.5rem;
     right: 1rem;
+  }
+
+  .slide-email-skip svg {
+    width: 22px;
+    height: 22px;
   }
 }

@@ -219,7 +219,8 @@ const TutorialEmailSlide = ({ isActive, onEmailSubmit, onSkip }) => {
         </form>
       </div>
 
-      <button className="slide-email-skip" onClick={onSkip} aria-label="Skip">
+      <button className="slide-email-skip" onClick={onSkip} aria-label="Opt out">
+        <span className="slide-email-skip-text">Opt out</span>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
           <path d="M9 18l6-6-6-6" stroke="#b0b0b0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
