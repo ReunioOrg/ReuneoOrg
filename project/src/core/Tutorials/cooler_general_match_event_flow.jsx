@@ -3,41 +3,41 @@ import './cooler_general_match_event_flow.css';
 
 const SCENES = [
     // Act 1: Entrance
-    { id: 'enter', duration: 1500 },           // 0
-    { id: 'header-in', duration: 1650 },       // 1
+    { id: 'enter', duration: 1100 },           // 0
+    { id: 'header-in', duration: 1200 },       // 1
     // Act 2: Zoom + match reveal
-    { id: 'zoom-in', duration: 1050 },         // 2
-    { id: 'phone-kate', duration: 900 },       // 3
-    { id: 'find-kate', duration: 1650 },       // 4
-    { id: 'swap-out', duration: 600 },         // 5
-    { id: 'phone-tony', duration: 900 },       // 6
-    { id: 'find-tony', duration: 1650 },       // 7
-    { id: 'zoom-out', duration: 1050 },        // 8
+    { id: 'zoom-in', duration: 850 },          // 2
+    { id: 'phone-kate', duration: 700 },       // 3
+    { id: 'find-kate', duration: 1100 },       // 4
+    { id: 'swap-out', duration: 500 },         // 5
+    { id: 'phone-tony', duration: 700 },       // 6
+    { id: 'find-tony', duration: 1100 },       // 7
+    { id: 'zoom-out', duration: 850 },         // 8
     // Act 3: Phone convergence + greetings
-    { id: 'phones-big', duration: 1100 },      // 9
-    { id: 'phones-shrink', duration: 900 },    // 10
-    { id: 'phones-slide', duration: 900 },     // 11
-    { id: 'greet-left', duration: 900 },       // 12
-    { id: 'greet-right', duration: 1100 },     // 13
+    { id: 'phones-big', duration: 900 },       // 9
+    { id: 'phones-shrink', duration: 700 },    // 10
+    { id: 'phones-slide', duration: 700 },     // 11
+    { id: 'greet-left', duration: 700 },       // 12
+    { id: 'greet-right', duration: 900 },      // 13
     // Act 4: Transition + Event Space
-    { id: 'act4-clear', duration: 1100 },      // 14
-    { id: 'event-header', duration: 1900 },    // 15
+    { id: 'act4-clear', duration: 800 },       // 14
+    { id: 'event-header', duration: 1500 },    // 15
     // Act 5: Circle entry + mixing
-    { id: 'first-arrive', duration: 1100 },    // 16
-    { id: 'crowd-fill', duration: 950 },       // 17
-    { id: 'settle-pairs', duration: 1500 },    // 18
+    { id: 'first-arrive', duration: 900 },     // 16
+    { id: 'crowd-fill', duration: 800 },       // 17
+    { id: 'settle-pairs', duration: 1000 },    // 18
     // Act 6: Phone reveals + conversation
-    { id: 'phones-reveal', duration: 1200 },   // 19
-    { id: 'convo-overlay', duration: 2800 },   // 20
-    { id: 'convo-clear', duration: 1100 },     // 21
+    { id: 'phones-reveal', duration: 900 },    // 19
+    { id: 'convo-overlay', duration: 2000 },   // 20
+    { id: 'convo-clear', duration: 800 },      // 21
     // Act 7: Reshuffles
-    { id: 'reshuffle-1', duration: 1000 },     // 22
-    { id: 'show-round2', duration: 3400 },     // 23
-    { id: 'reshuffle-2', duration: 1000 },     // 24
-    { id: 'show-round3', duration: 3400 },     // 25
+    { id: 'reshuffle-1', duration: 1200 },     // 22
+    { id: 'show-round2', duration: 2200 },     // 23
+    { id: 'reshuffle-2', duration: 1200 },     // 24
+    { id: 'show-round3', duration: 2200 },     // 25
     // Act 8: Closing
-    { id: 'final-fade', duration: 1100 },      // 26
-    { id: 'lets-go', duration: 1900 },         // 27
+    { id: 'final-fade', duration: 800 },       // 26
+    { id: 'lets-go', duration: 1400 },         // 27
 ];
 
 const PersonIcon = ({ color = '#3b82f6' }) => (
@@ -159,10 +159,10 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
     const [circles, setCircles] = useState([]);
     const [phoneRevealCount, setPhoneRevealCount] = useState(0);
     const [convoRevealCount, setConvoRevealCount] = useState(0);
-    const [headerPhase, setHeaderPhase] = useState(-1);
     const [round3HeaderReady, setRound3HeaderReady] = useState(false);
     const [convoTextFading, setConvoTextFading] = useState(false);
-    const headerTimersRef = useRef([]);
+    const [isShuffling, setIsShuffling] = useState(false);
+    const animFrameRef = useRef(null);
 
     const finishTutorial = useCallback(() => {
         setFadingOut(true);
@@ -178,11 +178,10 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
             setCircles([]);
             setPhoneRevealCount(0);
             setConvoRevealCount(0);
-            setHeaderPhase(-1);
             setRound3HeaderReady(false);
             setConvoTextFading(false);
-            headerTimersRef.current.forEach(clearTimeout);
-            headerTimersRef.current = [];
+            setIsShuffling(false);
+            if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
             return;
         }
 
@@ -206,16 +205,45 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
     useEffect(() => {
         const timers = [];
 
-        if (currentScene === 15) {
-            headerTimersRef.current.forEach(clearTimeout);
-            setHeaderPhase(0);
-            headerTimersRef.current = [
-                setTimeout(() => setHeaderPhase(1), 500),
-                setTimeout(() => setHeaderPhase(2), 2900),
-                setTimeout(() => setHeaderPhase(3), 3400),
-                setTimeout(() => setHeaderPhase(4), 5800),
-            ];
-        } else if (currentScene === 16) {
+        const runShufflePhysics = (targetPairSet) => {
+            setIsShuffling(true);
+            setPhoneRevealCount(0);
+            const vels = Array.from({ length: 16 }, () => ({
+                vx: (Math.random() - 0.5) * 120,
+                vy: (Math.random() - 0.5) * 120,
+            }));
+            let lastTime = performance.now();
+            const CENTER = 50, BOUND = 36;
+            const animate = (time) => {
+                const dt = Math.min((time - lastTime) / 1000, 0.05);
+                lastTime = time;
+                setCircles(prev => prev.map((c, i) => {
+                    if (!vels[i]) return c;
+                    let nx = c.x + vels[i].vx * dt;
+                    let ny = c.y + vels[i].vy * dt;
+                    const dx = nx - CENTER, dy = ny - CENTER;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist > BOUND) {
+                        const normX = dx / dist, normY = dy / dist;
+                        const dp = vels[i].vx * normX + vels[i].vy * normY;
+                        vels[i].vx -= 2 * dp * normX;
+                        vels[i].vy -= 2 * dp * normY;
+                        nx = CENTER + normX * BOUND;
+                        ny = CENTER + normY * BOUND;
+                    }
+                    return { ...c, x: nx, y: ny };
+                }));
+                animFrameRef.current = requestAnimationFrame(animate);
+            };
+            animFrameRef.current = requestAnimationFrame(animate);
+            timers.push(setTimeout(() => {
+                cancelAnimationFrame(animFrameRef.current);
+                setIsShuffling(false);
+                setCircles(pairSetToCircles(targetPairSet));
+            }, 1000));
+        };
+
+        if (currentScene === 16) {
             setCircles([
                 { id: 0, x: 100, y: 48 },
                 { id: 1, x: 106, y: 48 },
@@ -261,48 +289,33 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
             for (let i = 0; i < 7; i++) {
                 timers.push(setTimeout(() => setConvoRevealCount(i + 1), i * 180));
             }
-            timers.push(setTimeout(() => setConvoTextFading(true), 1800));
+            timers.push(setTimeout(() => setConvoTextFading(true), 1300));
         } else if (currentScene === 21) {
             setConvoRevealCount(0);
             setConvoTextFading(false);
         } else if (currentScene === 22) {
-            setPhoneRevealCount(0);
-            for (let t = 0; t < 3; t++) {
-                timers.push(setTimeout(() => {
-                    const mix = MIX_SETS[t % MIX_SETS.length];
-                    setCircles(prev => prev.map((c, i) => ({
-                        ...c, x: mix[i]?.x ?? c.x, y: mix[i]?.y ?? c.y,
-                    })));
-                }, t * 230));
-            }
-            timers.push(setTimeout(() => setCircles(pairSetToCircles(PAIR_SET_B)), 750));
+            runShufflePhysics(PAIR_SET_B);
         } else if (currentScene === 23) {
             setPhoneRevealCount(8);
             setConvoTextFading(false);
-            timers.push(setTimeout(() => setConvoTextFading(true), 1500));
+            timers.push(setTimeout(() => setConvoTextFading(true), 1000));
         } else if (currentScene === 24) {
-            setPhoneRevealCount(0);
-            for (let t = 0; t < 3; t++) {
-                timers.push(setTimeout(() => {
-                    const mix = MIX_SETS[(t + 1) % MIX_SETS.length];
-                    setCircles(prev => prev.map((c, i) => ({
-                        ...c, x: mix[i]?.x ?? c.x, y: mix[i]?.y ?? c.y,
-                    })));
-                }, t * 230));
-            }
-            timers.push(setTimeout(() => setCircles(pairSetToCircles(PAIR_SET_C)), 750));
+            runShufflePhysics(PAIR_SET_C);
         } else if (currentScene === 25) {
             setPhoneRevealCount(8);
             setRound3HeaderReady(false);
             setConvoTextFading(false);
             timers.push(setTimeout(() => setRound3HeaderReady(true), 250));
-            timers.push(setTimeout(() => setConvoTextFading(true), 1500));
+            timers.push(setTimeout(() => setConvoTextFading(true), 1000));
         } else if (currentScene === 26) {
             setPhoneRevealCount(0);
             setConvoTextFading(false);
         }
 
-        return () => timers.forEach(clearTimeout);
+        return () => {
+            timers.forEach(clearTimeout);
+            if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+        };
     }, [currentScene]);
 
     if (!isVisible) return null;
@@ -363,22 +376,12 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
                             {headerText}
                         </span>
                     )}
-                    {showAct4Header && headerPhase >= 0 && headerPhase <= 4 && (
+                    {showAct4Header && (
                         <span
-                            className={`cmef-header-text cmef-act4-header ${headerPhase === 4 ? 'cmef-header-fade-out' : ''}`}
+                            className={`cmef-header-text cmef-act4-header ${s >= 19 ? 'cmef-header-fade-out' : ''}`}
                             key="act4-header"
                         >
-                            It works best at:
-                            {(headerPhase === 1 || headerPhase === 2) && (
-                                <span className={`cmef-act4-rotate cmef-act4-sub ${headerPhase === 2 ? 'cmef-rotate-out' : ''}`} key="r0">
-                                    the beginning of an event, breaking the ice!
-                                </span>
-                            )}
-                            {headerPhase >= 3 && (
-                                <span className="cmef-act4-rotate cmef-act4-sub" key="r1">
-                                    open networking sessions!
-                                </span>
-                            )}
+                            It works best at open networking sessions!
                         </span>
                     )}
                     {blueHeaderText && (
@@ -544,7 +547,7 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete }) => {
                                 {showDots && circles.map(c => (
                                     <div
                                         key={c.id}
-                                        className="cmef-dot"
+                                        className={`cmef-dot${isShuffling ? ' cmef-dot-shuffling' : ''}`}
                                         style={{ left: `${c.x}%`, top: `${c.y}%` }}
                                     />
                                 ))}

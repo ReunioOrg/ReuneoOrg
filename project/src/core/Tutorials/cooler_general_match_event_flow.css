@@ -805,6 +805,10 @@
                 top 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
+.cmef-dot.cmef-dot-shuffling {
+    transition: none;
+}
+
 /* ── NEW ARRIVALS Label ─────────────────────────── */
 
 .cmef-new-arrivals {
