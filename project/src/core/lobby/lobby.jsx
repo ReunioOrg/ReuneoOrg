@@ -90,7 +90,7 @@ const LobbyScreen = () => {
     }, [isAuthLoading, user, navigate, code]);
 
     useEffect(() => {
-        const checkParams = () => {
+        const checkParams = async () => {
             const params = new URLSearchParams(window.location.search);
             const codeParam = params.get('code') || code;      
             if (codeParam) {
@@ -98,8 +98,8 @@ const LobbyScreen = () => {
                 // Store lobby code in localStorage for "return to lobby" feature
                 storeLobbyCode(codeParam);
 
-                // Fetch sponsor logo data for this lobby
-                fetchLobbySetupData(codeParam);
+                // Wait for lobby setup data (including enable_match_history) before showing tutorial
+                await fetchLobbySetupData(codeParam);
 
                 // Check if the user has seen the tutorial for this specific lobby
                 const lobbyTutorialKey = `hasSeenTutorial_${codeParam}`;
@@ -123,8 +123,8 @@ const LobbyScreen = () => {
                 }
             }
         };
-        checkParams(); // Initial check for tutorial and lobby code setup only
-    }, [code]); // Remove the interval since we're now handling metadata in fetchLobbyData
+        checkParams();
+    }, [code]);
 
     const [opponentProfile, setOpponentProfile] = useState(null);
     const [prevOpponentProfile, setPrevOpponentProfile] = useState(null);
@@ -930,6 +930,7 @@ const LobbyScreen = () => {
     // Add this handler for when the tutorial completes
     const handleTutorialComplete = () => {
         setShowTutorial(false);
+        checkAuth();
     };
 
     // Reset match banner and animation tracking when lobby state changes or opponent leaves

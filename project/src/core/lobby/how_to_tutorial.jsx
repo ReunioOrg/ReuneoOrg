@@ -230,8 +230,9 @@ const TutorialEmailSlide = ({ isActive, onEmailSubmit, onSkip }) => {
 };
 
 const HowToTutorial = ({ onComplete, lobbyCode = 'this', showEmailSlide = false }) => {
-  const { userProfile, checkAuth } = useContext(AuthContext);
+  const { userProfile } = useContext(AuthContext);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const currentSlideRef = useRef(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isTextAnimating, setIsTextAnimating] = useState(false);
   const [visibleSlides, setVisibleSlides] = useState([0]);
@@ -243,6 +244,8 @@ const HowToTutorial = ({ onComplete, lobbyCode = 'this', showEmailSlide = false 
   const hasCompleted = useRef(false);
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
+  const showEmailSlideRef = useRef(showEmailSlide);
+
 
   const safeComplete = () => {
     if (hasCompleted.current) return;
@@ -250,36 +253,26 @@ const HowToTutorial = ({ onComplete, lobbyCode = 'this', showEmailSlide = false 
     if (onCompleteRef.current) onCompleteRef.current();
   };
 
-  const handleSlide3PauseClicked = () => {
-    if (hasCompleted.current) return;
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
-    setTutorialCompleting(true);
-    setTimeout(() => {
-      setShowCongrats(true);
-      setTimeout(() => { safeComplete(); }, 1500);
-    }, 500);
-  };
-
-  // Build slides dynamically — email slide inserted only when showEmailSlide is true
+  // Build slides dynamically — email slide inserted after pause only when showEmailSlide was true at mount
   const slides = useMemo(() => {
     const base = [
       { type: 'blank', duration: 2000 },
       { type: 'volume', customSlide: true, duration: 4000 },
+      { type: 'pause', customSlide: true, duration: 10000 },
     ];
-    if (showEmailSlide) {
+    if (showEmailSlideRef.current) {
       base.push({ type: 'email', customSlide: true, duration: null });
     }
-    base.push({ type: 'pause', customSlide: true, duration: 10000 });
     return base;
-  }, [showEmailSlide]);
+  }, []);
 
-  // Manually advance to next slide (used by email slide callbacks)
   const advanceFromCurrentSlide = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (intervalRef.current) clearTimeout(intervalRef.current);
     if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
 
-    if (currentSlide >= slides.length - 1) {
+    const slide = currentSlideRef.current;
+
+    if (slide >= slides.length - 1) {
       if (!hasCompleted.current) {
         setTutorialCompleting(true);
         setTimeout(() => {
@@ -291,11 +284,12 @@ const HowToTutorial = ({ onComplete, lobbyCode = 'this', showEmailSlide = false 
     }
 
     setIsAnimating(true);
-    const nextSlideIndex = currentSlide + 1;
-    setVisibleSlides([currentSlide, nextSlideIndex]);
+    const nextSlideIndex = slide + 1;
+    setVisibleSlides([slide, nextSlideIndex]);
 
     transitionTimeoutRef.current = setTimeout(() => {
       setShowAnimatedText(false);
+      currentSlideRef.current = nextSlideIndex;
       setCurrentSlide(nextSlideIndex);
       setIsAnimating(false);
       setTimeout(() => {
@@ -308,30 +302,21 @@ const HowToTutorial = ({ onComplete, lobbyCode = 'this', showEmailSlide = false 
     }, 500);
   };
 
-  const handleEmailSubmit = () => {
+  const handleSlide3PauseClicked = () => {
     if (hasCompleted.current) return;
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
-    setTutorialCompleting(true);
-    setTimeout(() => {
-      setShowCongrats(true);
-      setTimeout(() => {
-        safeComplete();
-        checkAuth();
-      }, 1500);
-    }, 500);
+    advanceFromCurrentSlide();
+  };
+
+  const handleEmailSubmit = () => {
+    advanceFromCurrentSlide();
   };
 
   const handleEmailSkip = () => {
-    if (hasCompleted.current) return;
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
-    setTutorialCompleting(true);
-    setTimeout(() => {
-      setShowCongrats(true);
-      setTimeout(() => { safeComplete(); }, 1500);
-    }, 500);
+    advanceFromCurrentSlide();
   };
+
+  const advanceRef = useRef(advanceFromCurrentSlide);
+  advanceRef.current = advanceFromCurrentSlide;
 
   // Slide transition timer — skips indefinite-duration slides
   useEffect(() => {
@@ -339,38 +324,9 @@ const HowToTutorial = ({ onComplete, lobbyCode = 'this', showEmailSlide = false 
 
     if (!currentDuration) return;
 
-    const advanceSlide = () => {
-      if (currentSlide >= slides.length - 1) {
-        clearInterval(intervalRef.current);
-        if (!hasCompleted.current) {
-          setTutorialCompleting(true);
-          setTimeout(() => {
-            setShowCongrats(true);
-            setTimeout(() => { safeComplete(); }, 1500);
-          }, 500);
-        }
-        return;
-      }
-
-      setIsAnimating(true);
-      const nextSlideIndex = currentSlide + 1;
-      setVisibleSlides([currentSlide, nextSlideIndex]);
-
-      transitionTimeoutRef.current = setTimeout(() => {
-        setShowAnimatedText(false);
-        setCurrentSlide(nextSlideIndex);
-        setIsAnimating(false);
-        setTimeout(() => {
-          setVisibleSlides([nextSlideIndex]);
-          setIsTextAnimating(true);
-          if (slides[nextSlideIndex].animatedText) {
-            setShowAnimatedText(true);
-          }
-        }, 500);
-      }, 500);
-    };
-
-    intervalRef.current = setInterval(advanceSlide, currentDuration);
+    intervalRef.current = setTimeout(() => {
+      advanceRef.current();
+    }, currentDuration);
     setIsTextAnimating(true);
 
     if (currentSlide === 0 && slides[0].animatedText) {
@@ -378,7 +334,7 @@ const HowToTutorial = ({ onComplete, lobbyCode = 'this', showEmailSlide = false 
     }
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (intervalRef.current) clearTimeout(intervalRef.current);
       if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
     };
   }, [currentSlide, slides]);
