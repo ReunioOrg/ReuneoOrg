@@ -129,20 +129,21 @@ const TutorialSlide3 = ({ isActive, onPauseClicked }) => {
 };
 
 // Email collection slide (conditional — shown when organizer enabled match history & user has no email)
-const TutorialEmailSlide = ({ isActive, onEmailSubmit, onSkip }) => {
+const TutorialEmailSlide = ({ isActive, onEmailSubmit, onSkip, onClaimTriggered }) => {
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [claimState, setClaimState] = useState(null); // null | 'prompt' | 'sending' | 'sent'
   const inputRef = useRef(null);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isValid = emailRegex.test(email.trim());
 
   useEffect(() => {
-    if (isActive && inputRef.current) {
+    if (isActive && inputRef.current && !claimState) {
       setTimeout(() => inputRef.current?.focus(), 600);
     }
-  }, [isActive]);
+  }, [isActive, claimState]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -161,7 +162,8 @@ const TutorialEmailSlide = ({ isActive, onEmailSubmit, onSkip }) => {
       if (!response.ok) {
         const errorData = await response.json();
         if (errorData.detail?.toLowerCase().includes('already associated')) {
-          setEmailError('This email is already in use. Try a different one.');
+          setClaimState('prompt');
+          setEmailError('');
         } else {
           setEmailError(errorData.detail || 'Failed to save email.');
         }
@@ -177,6 +179,115 @@ const TutorialEmailSlide = ({ isActive, onEmailSubmit, onSkip }) => {
     }
   };
 
+  const handleClaimAccount = async () => {
+    setClaimState('sending');
+
+    try {
+      const response = await apiFetch('/auth/claim-existing-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setClaimState('sent');
+        if (onClaimTriggered) onClaimTriggered();
+      } else {
+        setEmailError(data.error || 'Failed to send verification email.');
+        setClaimState('prompt');
+      }
+    } catch (err) {
+      console.error('Account claim error:', err);
+      setEmailError('Something went wrong. Try again.');
+      setClaimState('prompt');
+    }
+  };
+
+  const handleBackToInput = () => {
+    setClaimState(null);
+    setEmail('');
+    setEmailError('');
+    setTimeout(() => inputRef.current?.focus(), 100);
+  };
+
+  // Claim sent confirmation — user can continue to congrats
+  if (claimState === 'sent') {
+    return (
+      <div className="slide-email-layout">
+        <div className="slide-email-content">
+          <div className="slide-email-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M22 4L12 14.01l-3-3" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <h2 className="slide-email-header">Check Your Email</h2>
+          <p className="slide-email-subheader">
+            We sent a verification link to <strong>{email}</strong>. Click it to merge your matches into your existing account.
+          </p>
+
+          <button
+            type="button"
+            className="slide-email-cta slide-email-cta-active"
+            onClick={onSkip}
+          >
+            Continue
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Claim prompt — email is already associated, offer to claim
+  if (claimState === 'prompt' || claimState === 'sending') {
+    return (
+      <div className="slide-email-layout">
+        <div className="slide-email-content">
+          <div className="slide-email-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="#4b73ef" strokeWidth="1.5"/>
+              <path d="M12 8v4M12 16h.01" stroke="#4b73ef" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <h2 className="slide-email-header">Welcome Back</h2>
+          <p className="slide-email-subheader">
+            <strong>{email}</strong> is linked to an existing account. Claim it to merge your matches.
+          </p>
+
+          {emailError && (
+            <div className="slide-email-error">{emailError}</div>
+          )}
+
+          <button
+            type="button"
+            className="slide-email-cta slide-email-cta-active"
+            onClick={handleClaimAccount}
+            disabled={claimState === 'sending'}
+          >
+            {claimState === 'sending' ? 'Sending...' : 'Claim My Account'}
+          </button>
+
+          <button
+            type="button"
+            className="slide-email-cta slide-email-cta-secondary"
+            onClick={handleBackToInput}
+          >
+            Use a Different Email
+          </button>
+        </div>
+
+        <button className="slide-email-skip" onClick={onSkip} aria-label="Opt out">
+          <span className="slide-email-skip-text">Opt out</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M9 18l6-6-6-6" stroke="#b0b0b0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    );
+  }
+
+  // Default state — email input form
   return (
     <div className="slide-email-layout">
       <div className="slide-email-content">
@@ -229,7 +340,7 @@ const TutorialEmailSlide = ({ isActive, onEmailSubmit, onSkip }) => {
   );
 };
 
-const HowToTutorial = ({ onComplete, lobbyCode = 'this', showEmailSlide = false }) => {
+const HowToTutorial = ({ onComplete, lobbyCode = 'this', showEmailSlide = false, onClaimTriggered }) => {
   const { userProfile } = useContext(AuthContext);
   const [currentSlide, setCurrentSlide] = useState(0);
   const currentSlideRef = useRef(0);
@@ -366,7 +477,7 @@ const HowToTutorial = ({ onComplete, lobbyCode = 'this', showEmailSlide = false 
             {slides[slideIndex].type === 'volume' ? (
               <TutorialSlide2 isActive={slideIndex === currentSlide} />
             ) : slides[slideIndex].type === 'email' ? (
-              <TutorialEmailSlide isActive={slideIndex === currentSlide} onEmailSubmit={handleEmailSubmit} onSkip={handleEmailSkip} />
+              <TutorialEmailSlide isActive={slideIndex === currentSlide} onEmailSubmit={handleEmailSubmit} onSkip={handleEmailSkip} onClaimTriggered={onClaimTriggered} />
             ) : slides[slideIndex].type === 'pause' ? (
               <TutorialSlide3 isActive={slideIndex === currentSlide} onPauseClicked={handleSlide3PauseClicked} />
             ) : null}

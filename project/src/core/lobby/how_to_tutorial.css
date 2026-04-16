@@ -746,6 +746,25 @@
   transform: translateY(0) scale(0.98);
 }
 
+.slide-email-cta-secondary {
+  background: transparent;
+  color: #6b7280;
+  border: 1.5px solid #e5e7eb;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.slide-email-cta-secondary:hover {
+  background: #f9fafb;
+  color: #4b5563;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+.slide-email-cta-secondary:active {
+  transform: translateY(0) scale(0.98);
+}
+
 /* Skip button — bottom-right corner */
 .slide-email-skip {
   position: absolute;

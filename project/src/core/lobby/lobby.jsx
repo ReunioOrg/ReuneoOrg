@@ -933,6 +933,12 @@ const LobbyScreen = () => {
         checkAuth();
     };
 
+    // Called when user triggers account claim during tutorial email slide
+    const handleClaimTriggered = () => {
+        hasShownEmailBackupModal.current = true;
+        localStorage.setItem('hasShownEmailBackupModal', 'true');
+    };
+
     // Reset match banner and animation tracking when lobby state changes or opponent leaves
     useEffect(() => {
         if (lobbyState !== "active" || !opponentProfile) {
@@ -1568,7 +1574,7 @@ const LobbyScreen = () => {
 
             {/* Add the tutorial component */}
             {showTutorial && (
-                <HowToTutorial onComplete={handleTutorialComplete} lobbyCode={lobbyCode} showEmailSlide={enableMatchHistoryRef.current && !userEmail} />
+                <HowToTutorial onComplete={handleTutorialComplete} lobbyCode={lobbyCode} showEmailSlide={enableMatchHistoryRef.current && !userEmail} onClaimTriggered={handleClaimTriggered} />
             )}
 
             {/* Profile Edit Modal */}
