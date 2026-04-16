@@ -1496,7 +1496,7 @@ const AdminLobbyView = () => {
             }
         });
         if (response.ok) {
-            navigate('/');
+            navigate('/organizer-dashboard');
         }
     };
 

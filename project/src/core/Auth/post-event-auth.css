@@ -529,20 +529,33 @@
 }
 
 .social-selector-list {
-    height: 130px;
-    overflow-y: auto;
-    padding: 4px 0;
+    height: 170px;
+    overflow-y: scroll;
+    padding: 4px 8px 4px 0;
     scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(20, 77, 255, 0.55) rgba(20, 77, 255, 0.12);
 }
 
-/* Hide scrollbar for a cleaner look */
 .social-selector-list::-webkit-scrollbar {
-    display: none;
+    width: 10px;
 }
-.social-selector-list {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+
+.social-selector-list::-webkit-scrollbar-track {
+    background: rgba(20, 77, 255, 0.12);
+    border-radius: 10px;
+    margin: 6px 0;
+}
+
+.social-selector-list::-webkit-scrollbar-thumb {
+    background: rgba(20, 77, 255, 0.55);
+    border-radius: 10px;
+    min-height: 36px;
+}
+
+.social-selector-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(20, 77, 255, 0.7);
 }
 
 /* Item wrapper */
@@ -666,6 +679,6 @@
     }
 
     .social-selector-list {
-        height: 120px;
+        height: 155px;
     }
 }

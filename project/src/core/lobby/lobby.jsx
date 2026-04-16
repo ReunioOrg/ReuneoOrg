@@ -20,7 +20,6 @@ import AnimatedTagList from './animated_tag_list';
 import ProfileDropdown from './ProfileDropdown';
 import LobbyProfileModal from './LobbyProfileModal';
 import TagsPhaseIntroOverlay from './tags_phase_intro_overlay';
-import TutorialMatchHistory from '../Tutorials/tutorial-match-history';
 
 const AVAILABLE_TAGS = []; // Remove hardcoded tags
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
@@ -409,19 +408,20 @@ const LobbyScreen = () => {
                         isTerminatingRef.current = true;
                         setIsSessionEnding(true);
                         
+                        const terminationStart = Date.now();
+                        const navigateWhenReady = (totalDuration) => {
+                            const elapsed = Date.now() - terminationStart;
+                            const remaining = Math.max(0, totalDuration - elapsed);
+                            setTimeout(() => {
+                                cancelSound();
+                                navigate('/paired-player-history', { state: { fromLobby: true } });
+                            }, remaining);
+                        };
+
                         // Switch to main track for termination jingle (handles both ambient and main modes)
-                        switchToMainTrack(playat).then(() => {
-                            setTimeout(() => {
-                                cancelSound();
-                                navigate('/paired-player-history', { state: { fromLobby: true } });
-                            }, 7000);
-                        }).catch(() => {
-                            // Audio failed — still wait so the tutorial preview plays
-                            setTimeout(() => {
-                                cancelSound();
-                                navigate('/paired-player-history', { state: { fromLobby: true } });
-                            }, 5000);
-                        });
+                        switchToMainTrack(playat)
+                            .then(() => navigateWhenReady(7000))
+                            .catch(() => navigateWhenReady(5000));
                     }
                     return;  // Exit early, don't continue processing
                 }
@@ -1068,43 +1068,15 @@ const LobbyScreen = () => {
         return <LoadingSpinner fullScreen message={authLoadingMessage} />;
     }
 
-    // Show fullscreen spinner while termination jingle plays
+    // Show termination screen while jingle plays
     if (isSessionEnding) {
         return (
-            <div style={{
-                position: 'fixed',
-                top: 0, left: 0, right: 0, bottom: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                background: 'rgba(255, 255, 255, 0.95)',
-                zIndex: 1000,
-                gap: '0.5rem',
-                overflowY: 'auto',
-                padding: '2rem 1rem'
-            }}>
-                <h2 style={{
-                    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-                    color: '#1a1a2e',
-                    fontSize: '1.4rem',
-                    fontWeight: 700,
-                    textAlign: 'center',
-                    margin: 0
-                }}>
-                    Let's find you a good connection
+            <div className="termination-screen">
+                <h2 className="termination-heading">
+                    Get ready to see your connections!
                 </h2>
-                <p style={{
-                    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-                    color: '#6b7280',
-                    fontSize: '0.95rem',
-                    textAlign: 'center',
-                    margin: '0 0 0.5rem 0'
-                }}>
-                    Review your interactions from today's event
-                </p>
-                <div style={{ width: '100%', maxWidth: '400px' }}>
-                    <TutorialMatchHistory hideLabel />
+                <div className="termination-progress-track">
+                    <span className="termination-progress-label">Loading...</span>
                 </div>
             </div>
         );

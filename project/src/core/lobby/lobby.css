@@ -1564,3 +1564,102 @@
         font-size: 0.95rem;
     }
 }
+
+/* ============================================================
+   Termination Screen — progress bar while jingle plays
+   ============================================================ */
+.termination-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    z-index: 1000;
+    gap: 1.5rem;
+    padding: 2rem 1rem;
+}
+
+.termination-heading {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #1a1a2e;
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 0;
+}
+
+.termination-progress-track {
+    position: relative;
+    width: 280px;
+    height: 44px;
+    background: #e8eaef;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.termination-progress-track::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(
+        135deg,
+        #8ab4f8 0%,
+        #6fa3f7 35%,
+        #4b73ef 70%,
+        #3a5fe0 100%
+    );
+    opacity: 0.55;
+    animation: termination-fill 7s linear forwards;
+    z-index: 0;
+}
+
+.termination-progress-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #fff;
+    z-index: 3;
+    pointer-events: none;
+    clip-path: inset(0 100% 0 0);
+    animation: termination-reveal-text 7s linear forwards, termination-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes termination-fill {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
+
+@keyframes termination-reveal-text {
+    0% { clip-path: inset(0 100% 0 0); }
+    100% { clip-path: inset(0 0% 0 0); }
+}
+
+@keyframes termination-pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.04); opacity: 0.85; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 480px) {
+    .termination-heading {
+        font-size: 1.2rem;
+    }
+
+    .termination-progress-track {
+        width: 240px;
+        height: 40px;
+    }
+}
