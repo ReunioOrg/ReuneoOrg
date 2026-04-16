@@ -873,7 +873,7 @@ const App = () => {
         {/* Centered standalone button — Organizer (for non-admin/organizer) or Create Lobby (for admin/organizer with no active lobby) */}
         {permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby ? (
           <div style={{
-            position: 'fixed',
+            position: isDesktop ? 'absolute' : 'fixed',
             top: '46%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
@@ -906,7 +906,7 @@ const App = () => {
           </div>
         ) : activeLobbies.length === 0 && (permissions === 'admin' || permissions === 'organizer') ? (
           <div style={{
-            position: 'fixed',
+            position: isDesktop ? 'absolute' : 'fixed',
             top: '46%',
             left: '50%',
             transform: 'translate(-50%, -50%)',

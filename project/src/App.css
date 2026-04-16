@@ -1186,11 +1186,11 @@
    ============================================ */
 
 .desktop-hero-header {
-  position: fixed;
+  position: absolute;
   top: 90px;
   left: 0;
   right: 0;
-  z-index: 2;
+  z-index: 0;
   text-align: center;
   pointer-events: none;
   padding: 0 24px;
