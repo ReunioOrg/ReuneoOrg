@@ -1,0 +1,578 @@
+/* ══════════════════════════════════════════════════
+   Admin Checkin Tutorial – Full Overlay
+   4-scene animation for first-time organizers
+   ══════════════════════════════════════════════════ */
+
+/* ── Keyframes ───────────────────────────────────── */
+
+@keyframes actFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes actTextIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes actSlideFromLeft {
+    0%   { transform: translateX(-120px); opacity: 0; }
+    100% { transform: translateX(0);      opacity: 1; }
+}
+
+@keyframes actHopBounce {
+    0%   { transform: translateY(0); }
+    10%  { transform: translateY(-18px); }
+    20%  { transform: translateY(0); }
+    25%  { transform: translateY(-1px); }
+    35%  { transform: translateY(-22px); }
+    45%  { transform: translateY(0); }
+    50%  { transform: translateY(-1px); }
+    60%  { transform: translateY(-12px); }
+    70%  { transform: translateY(0); }
+    80%  { transform: translateY(-5px); }
+    88%  { transform: translateY(0); }
+    94%  { transform: translateY(-2px); }
+    100% { transform: translateY(0); }
+}
+
+@keyframes actPhoneSlide {
+    0%   { transform: translateX(-20px); opacity: 0; }
+    100% { transform: translateX(0);     opacity: 1; }
+}
+
+@keyframes actTableFadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes actScanSweep {
+    0%, 100% { top: 15%; }
+    50%      { top: 70%; }
+}
+
+@keyframes actCatIn {
+    from { opacity: 0; transform: scale(0.88); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes actRipple {
+    0% {
+        transform: translate(-50%, -50%) scale(0.85);
+        opacity: 0.55;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2.2);
+        opacity: 0;
+    }
+}
+
+@keyframes actCtaIn {
+    from { opacity: 0; transform: scale(0.7); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/* Faster variants for scene-3 re-entry */
+
+@keyframes actSlideFromLeftFast {
+    0%   { transform: translateX(-80px); opacity: 0; }
+    100% { transform: translateX(0);     opacity: 1; }
+}
+
+@keyframes actHopBounceFast {
+    0%   { transform: translateY(0); }
+    15%  { transform: translateY(-16px); }
+    30%  { transform: translateY(0); }
+    45%  { transform: translateY(-10px); }
+    60%  { transform: translateY(0); }
+    78%  { transform: translateY(-4px); }
+    92%  { transform: translateY(0); }
+    100% { transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════════════════
+   Overlay
+   ══════════════════════════════════════════════════ */
+
+.act-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+    background: #f8f9fb;
+    animation: actFadeIn 0.35s ease both;
+    overflow: hidden;
+}
+
+.act-overlay-exit {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+/* ══════════════════════════════════════════════════
+   Scene Container
+   ══════════════════════════════════════════════════ */
+
+.act-scene {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 24px 32px;
+    padding-top: max(env(safe-area-inset-top, 0px) + 52px, 88px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.act-scene-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ══════════════════════════════════════════════════
+   Header Area
+   ══════════════════════════════════════════════════ */
+
+.act-header-area {
+    width: 100%;
+    max-width: 340px;
+    text-align: center;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.act-header-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #1f2937;
+    line-height: 1.5;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 0 4px;
+}
+
+/* Scan-scene stacked headers (crossfade between scenes 0 ↔ 1) */
+
+.act-scan-headers {
+    position: relative;
+    min-height: 100px;
+}
+
+.act-scan-headers .act-header-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.act-scan-headers[data-active-header="0"] .act-sh-0,
+.act-scan-headers[data-active-header="1"] .act-sh-1 {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Single header (cat / final scenes) – animates on mount */
+
+.act-single-header {
+    animation: actTextIn 0.5s ease both;
+}
+
+/* ══════════════════════════════════════════════════
+   Stage (fills remaining height, centres content)
+   ══════════════════════════════════════════════════ */
+
+.act-stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 360px;
+}
+
+/* ══════════════════════════════════════════════════
+   Illustration Layout (Person + Phone + Arrow + Table)
+   ══════════════════════════════════════════════════ */
+
+.act-illustration {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 14px;
+    width: 100%;
+}
+
+/* ── Person Group (person icon + phone side-by-side) ── */
+
+.act-person-group {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.act-person-group svg {
+    width: 46px;
+    height: 80px;
+}
+
+/* Entrance – slides from left */
+.act-person-enter {
+    animation: actSlideFromLeft 0.7s cubic-bezier(0.25, 1, 0.5, 1) 0.15s both;
+}
+
+/* Hop bounce on the inner icon wrapper */
+.act-person-bounce {
+    animation: actHopBounce 0.9s ease-in-out 0.2s both;
+}
+
+/* Re-entry (scene 3) — faster */
+.act-person-reenter {
+    animation: actSlideFromLeftFast 0.45s cubic-bezier(0.25, 1, 0.5, 1) 0.1s both;
+}
+
+.act-reenter .act-person-bounce {
+    animation: actHopBounceFast 0.5s ease-in-out 0.15s both;
+}
+
+/* ══════════════════════════════════════════════════
+   Phone Frame
+   ══════════════════════════════════════════════════ */
+
+.act-phone {
+    width: 44px;
+    height: 74px;
+    background: #374151;
+    border-radius: 9px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4px 3px 3px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    animation: actPhoneSlide 0.4s cubic-bezier(0.25, 1, 0.5, 1) 0.5s both;
+}
+
+.act-reenter .act-phone {
+    animation: actPhoneSlide 0.3s cubic-bezier(0.25, 1, 0.5, 1) 0.3s both;
+}
+
+.act-phone-speaker {
+    width: 18px;
+    height: 3px;
+    background: #1f2937;
+    border-radius: 2px;
+    margin-bottom: 3px;
+    flex-shrink: 0;
+}
+
+.act-phone-screen {
+    flex: 1;
+    width: 100%;
+    background: #ffffff;
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+}
+
+.act-phone-home {
+    width: 10px;
+    height: 10px;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════
+   Viewfinder (inside phone screen)
+   ══════════════════════════════════════════════════ */
+
+.act-viewfinder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+}
+
+.act-vf-corner {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-color: #3b82f6;
+    border-style: solid;
+    border-width: 0;
+}
+
+.act-vf-tl { top: 0;    left: 0;   border-top-width: 2px;    border-left-width: 2px; }
+.act-vf-tr { top: 0;    right: 0;  border-top-width: 2px;    border-right-width: 2px; }
+.act-vf-bl { bottom: 0; left: 0;   border-bottom-width: 2px; border-left-width: 2px; }
+.act-vf-br { bottom: 0; right: 0;  border-bottom-width: 2px; border-right-width: 2px; }
+
+.act-scan-line {
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    height: 1.5px;
+    background: rgba(59, 130, 246, 0.7);
+    animation: actScanSweep 1.5s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════════════════
+   Arrow Indicator
+   ══════════════════════════════════════════════════ */
+
+.act-arrow {
+    color: #9ca3af;
+    font-size: 20px;
+    opacity: 0.5;
+    align-self: center;
+    flex-shrink: 0;
+    animation: actFadeIn 0.4s ease 0.6s both;
+}
+
+.act-reenter .act-arrow {
+    animation: actFadeIn 0.3s ease 0.35s both;
+}
+
+/* ══════════════════════════════════════════════════
+   Table + QR Sign SVG
+   ══════════════════════════════════════════════════ */
+
+.act-table-group {
+    flex-shrink: 0;
+}
+
+.act-table-svg {
+    width: 90px;
+    height: auto;
+}
+
+.act-table-enter {
+    animation: actTableFadeIn 0.5s ease 0.1s both;
+}
+
+.act-reenter .act-table-group {
+    animation: actTableFadeIn 0.35s ease 0.08s both;
+}
+
+/* ══════════════════════════════════════════════════
+   Cat Image (Scene 2)
+   ══════════════════════════════════════════════════ */
+
+.act-cat-frame {
+    width: 85%;
+    max-width: 300px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 2px solid #93c5fd;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.08);
+    animation: actCatIn 0.65s cubic-bezier(0.25, 1, 0.5, 1) 0.3s both;
+}
+
+.act-cat-img {
+    width: 100%;
+    display: block;
+}
+
+/* ══════════════════════════════════════════════════
+   CTA Continue Button (Scene 3)
+   ══════════════════════════════════════════════════ */
+
+.act-cta-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 28px;
+    cursor: pointer;
+    animation: actCtaIn 0.35s ease 0.6s both;
+}
+
+.act-cta-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #3b82f6;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.act-cta-btn:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
+}
+
+.act-cta-btn:active {
+    transform: scale(0.93);
+}
+
+.act-cta-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 52px;
+    height: 52px;
+    border: 2px solid rgba(59, 130, 246, 0.35);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.act-cta-ring-1 {
+    animation: actRipple 2s ease-out 0.8s infinite;
+}
+
+.act-cta-ring-2 {
+    animation: actRipple 2s ease-out 1.6s infinite;
+}
+
+/* ══════════════════════════════════════════════════
+   Responsive — Small Mobile
+   ══════════════════════════════════════════════════ */
+
+@media screen and (max-width: 380px) {
+    .act-scene {
+        padding: 0 16px 24px;
+        padding-top: max(env(safe-area-inset-top, 0px) + 48px, 80px);
+    }
+
+    .act-header-text {
+        font-size: 0.95rem;
+    }
+
+    .act-scan-headers {
+        min-height: 90px;
+    }
+
+    .act-person-group svg {
+        width: 38px;
+        height: 66px;
+    }
+
+    .act-phone {
+        width: 38px;
+        height: 64px;
+        border-radius: 8px;
+    }
+
+    .act-phone-speaker {
+        width: 15px;
+    }
+
+    .act-viewfinder {
+        width: 20px;
+        height: 20px;
+    }
+
+    .act-vf-corner {
+        width: 6px;
+        height: 6px;
+    }
+
+    .act-table-svg {
+        width: 75px;
+    }
+
+    .act-illustration {
+        gap: 10px;
+    }
+
+    .act-cat-frame {
+        width: 90%;
+        max-width: 260px;
+    }
+}
+
+/* ══════════════════════════════════════════════════
+   Responsive — Desktop
+   ══════════════════════════════════════════════════ */
+
+@media screen and (min-width: 769px) {
+    .act-scene {
+        padding: 0 32px 40px;
+        padding-top: max(env(safe-area-inset-top, 0px) + 56px, 92px);
+    }
+
+    .act-header-area {
+        max-width: 420px;
+    }
+
+    .act-header-text {
+        font-size: 1.15rem;
+    }
+
+    .act-scan-headers {
+        min-height: 110px;
+    }
+
+    .act-stage {
+        max-width: 440px;
+    }
+
+    .act-person-group svg {
+        width: 54px;
+        height: 90px;
+    }
+
+    .act-phone {
+        width: 50px;
+        height: 82px;
+        border-radius: 10px;
+    }
+
+    .act-phone-speaker {
+        width: 20px;
+    }
+
+    .act-viewfinder {
+        width: 28px;
+        height: 28px;
+    }
+
+    .act-vf-corner {
+        width: 8px;
+        height: 8px;
+    }
+
+    .act-table-svg {
+        width: 105px;
+    }
+
+    .act-illustration {
+        gap: 18px;
+    }
+
+    .act-cat-frame {
+        max-width: 340px;
+    }
+
+    .act-cta-btn {
+        width: 58px;
+        height: 58px;
+    }
+
+    .act-cta-ring {
+        width: 58px;
+        height: 58px;
+    }
+}

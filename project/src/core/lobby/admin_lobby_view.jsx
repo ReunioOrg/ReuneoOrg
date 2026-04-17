@@ -12,6 +12,7 @@ import { apiFetch } from '../utils/api';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../cropImage';
 import LoadingSpinner from '../components/LoadingSpinner';
+import AdminCheckinTutorialFull from '../Tutorials/admin_checkin_tutorial_full';
 
 //load asset image earthart.jpg
 import { returnBase64TestImg } from '../misc/misc';
@@ -1544,7 +1545,7 @@ const AdminLobbyView = () => {
                         Reset Lobby Timer
                     </button>
                 )}
-                <div className="admin-view-nav-bar">
+                <div className="admin-view-nav-bar" style={tutorialMode ? { zIndex: 1001, background: '#f8f9fb' } : undefined}>
                     <button className="admin-nav-back" onClick={() => navigate('/')} aria-label="Back">
                         <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
                             <circle cx="18" cy="18" r="17" stroke="#374151" strokeWidth="1.5" fill="rgba(255,255,255,0.8)"/>
@@ -1569,6 +1570,12 @@ const AdminLobbyView = () => {
                         </span>
                     </div>
                 </div>
+                {tutorialMode && (
+                    <AdminCheckinTutorialFull
+                        isVisible={tutorialMode}
+                        onComplete={() => setTutorialMode(false)}
+                    />
+                )}
                 <LobbyProgressBar 
                     lobbyState={lobbyState}
                     playerCount={playerCount}
