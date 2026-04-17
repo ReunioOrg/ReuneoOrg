@@ -22,6 +22,10 @@
     pointer-events: none;
 }
 
+.cmef-overlay.cmef-compact {
+    transition: opacity 0.4s ease;
+}
+
 /* ── Skip Button ────────────────────────────────── */
 
 .cmef-skip {
@@ -55,6 +59,16 @@
     flex-direction: column;
     align-items: center;
     width: 100%;
+    animation: cmefContentIn 0.6s ease both;
+}
+
+@keyframes cmefContentIn {
+    0%   { opacity: 0; transform: translateY(14px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.cmef-dot-phone .cmef-phone-home {
+    display: none;
 }
 
 /* ── Header ──────────────────────────────────────── */
@@ -72,14 +86,14 @@
 }
 
 .cmef-header-text {
-    font-size: 19px;
-    font-weight: 800;
-    color: #333;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
+    font-size: 24px;
+    font-weight: 900;
+    color: #1a1a2e;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
     text-shadow:
-        0 2px 20px rgba(0, 0, 0, 0.08),
-        0 0 40px rgba(20, 77, 255, 0.06);
+        0 2px 24px rgba(0, 0, 0, 0.1),
+        0 0 48px rgba(20, 77, 255, 0.08);
     animation: cmefHeaderFadeIn 0.5s ease 0.2s both;
 }
 
@@ -571,9 +585,9 @@
 }
 
 .cmef-act4-header {
-    font-size: 17px;
+    font-size: 22px;
     text-align: center;
-    line-height: 1.35;
+    line-height: 1.25;
     white-space: normal;
 }
 
@@ -603,10 +617,10 @@
 }
 
 .cmef-blue-header {
-    color: #333;
-    font-size: 19px;
+    color: #1a1a2e;
+    font-size: 24px;
     text-align: center;
-    line-height: 1.25;
+    line-height: 1.2;
     white-space: normal;
     text-shadow: none;
     animation: cmefHeaderFadeIn 0.5s ease 0.2s both;
@@ -639,6 +653,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.cmef-event-circle::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 72px;
+    background: #f8f9fc;
+    z-index: 0;
 }
 
 .cmef-event-label {
@@ -686,6 +712,10 @@
 @keyframes cmefCharIn {
     0%   { opacity: 0; transform: translateY(30px); }
     100% { opacity: 1; transform: translateY(0); }
+}
+
+.cmef-lets-go-char.cmef-char-fast {
+    animation: cmefCharIn 0.3s cubic-bezier(0.33, 1, 0.68, 1) forwards;
 }
 
 /* ══════════════════════════════════════════════════
@@ -801,12 +831,22 @@
     background: #3b82f6;
     border-radius: 50%;
     transform: translate(-50%, -50%);
+    z-index: 2;
     transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                top 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+                top 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.3s ease;
+}
+
+.cmef-dot.cmef-dot-hidden {
+    opacity: 0;
 }
 
 .cmef-dot.cmef-dot-shuffling {
     transition: none;
+}
+
+.cmef-dot.cmef-dot-shuffling.cmef-dot-hidden {
+    transition: opacity 0.3s ease;
 }
 
 /* ── NEW ARRIVALS Label ─────────────────────────── */
@@ -819,7 +859,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 10px;
     pointer-events: none;
     animation: cmefHeaderFadeIn 0.4s ease both;
 }
@@ -832,6 +872,12 @@
     line-height: 1.2;
     text-align: center;
     letter-spacing: 0.05em;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.cmef-arrivals-text.cmef-arrivals-text-visible {
+    opacity: 1;
 }
 
 .cmef-arrivals-arrow {
@@ -839,6 +885,19 @@
     height: 2px;
     background: #3b82f6;
     position: relative;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.cmef-arrivals-arrow.cmef-arrow-active {
+    opacity: 1;
+    animation: cmefArrowPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes cmefArrowPulse {
+    0%   { transform: translateX(0); opacity: 0.3; }
+    50%  { transform: translateX(-6px); opacity: 1; }
+    100% { transform: translateX(0); opacity: 0.3; }
 }
 
 .cmef-arrivals-arrow::before {
@@ -878,7 +937,7 @@
     }
 
     .cmef-header-text {
-        font-size: 16px;
+        font-size: 20px;
     }
 
     .cmef-closeup-phone {
@@ -908,11 +967,11 @@
     }
 
     .cmef-act4-header {
-        font-size: 14px;
+        font-size: 18px;
     }
 
     .cmef-blue-header {
-        font-size: 15px;
+        font-size: 19px;
     }
 
     .cmef-event-label {
@@ -977,7 +1036,7 @@
     }
 
     .cmef-header-text {
-        font-size: 22px;
+        font-size: 28px;
     }
 
     .cmef-closeup-phone {
@@ -1016,11 +1075,11 @@
     }
 
     .cmef-act4-header {
-        font-size: 19px;
+        font-size: 24px;
     }
 
     .cmef-blue-header {
-        font-size: 22px;
+        font-size: 28px;
     }
 
     .cmef-event-label {
