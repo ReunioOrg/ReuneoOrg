@@ -194,6 +194,17 @@
     max-width: 320px;
 }
 
+/* ── Step 4 Green Emphasis ── */
+
+.aht-header-green {
+    color: #22c55e;
+    font-weight: 700;
+}
+
+.step5-reveal-step4-body {
+    animation-delay: 0.25s;
+}
+
 /* ── Step 5 Staggered Reveals ── */
 
 .step5-reveal {

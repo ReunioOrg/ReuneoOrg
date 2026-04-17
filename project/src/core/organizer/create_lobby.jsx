@@ -7,9 +7,8 @@ import getCroppedImg from '../cropImage';
 import './create_lobby.css';
 import { apiFetch } from '../utils/api';
 import FloatingLinesBackground from './FloatingLinesBackground';
-import TutorialMatchHistory from '../Tutorials/tutorial-match-history';
 import TutorialMatching from '../Tutorials/tutorial-matching';
-import TutorialRandomMatching from '../Tutorials/tutorial-random-matching';
+import AttendeesHistoryTutorial from '../Tutorials/attendees_history_tutorial';
 import CoolerGeneralMatchEventFlow from '../Tutorials/cooler_general_match_event_flow';
 import TutorialAttendeesPhone from '../Tutorials/tutorial-attendees-phone';
 import RoundDurationTutorial from '../Tutorials/round_duration_tutorial';
@@ -25,7 +24,7 @@ const CreateLobbyView = () => {
     const [currentStep, setCurrentStep] = useState(1);
     const [visitedSteps, setVisitedSteps] = useState(new Set([1]));
     const [navDirection, setNavDirection] = useState('forward');
-    const [step1View, setStep1View] = useState('selection');
+    const [step3View, setStep3View] = useState('prompt');
 
     // ── Form Data ──
     const [lobbyCode, setLobbyCode] = useState('');
@@ -42,6 +41,7 @@ const CreateLobbyView = () => {
     const [aiDescription, setAiDescription] = useState('');
     const [isGeneratingTags, setIsGeneratingTags] = useState(false);
     const [tagsFromAI, setTagsFromAI] = useState(false);
+    const [animationTags, setAnimationTags] = useState([]);
 
     // ── Logo Upload ──
     const [logoName, setLogoName] = useState('');
@@ -64,8 +64,6 @@ const CreateLobbyView = () => {
     const [showTableModal, setShowTableModal] = useState(false);
     const [isEditingReview, setIsEditingReview] = useState(false);
 
-    const [showTutorial, setShowTutorial] = useState(false);
-    const [showRandomTutorial, setShowRandomTutorial] = useState(false);
     const [showGeneralTutorial, setShowGeneralTutorial] = useState(false);
 
     // ── Plan Limit ──
@@ -105,7 +103,7 @@ const CreateLobbyView = () => {
             if (savedLogo) setLogoCroppedImage(savedLogo);
 
             if (data.selected_tab === 'custom') {
-                setStep1View('tags');
+                setStep3View('tags');
             }
 
             setCurrentStep(6);
@@ -120,17 +118,29 @@ const CreateLobbyView = () => {
             return;
         }
 
-        if (!user) return;
+        if (!user) {
+            setShowGeneralTutorial(true);
+            return;
+        }
 
         // Fallback: fetch lobby_data from OrganizerPlans via API
         const fetchLobbyData = async () => {
             setIsHydrating(true);
             try {
                 const res = await apiFetch('/organizer-lobby-data');
-                if (!res.ok) return;
+                if (!res.ok) {
+                    setShowGeneralTutorial(true);
+                    return;
+                }
                 const json = await res.json();
-                if (json.lobby_data) hydrate(json.lobby_data);
-            } catch {} finally {
+                if (json.lobby_data) {
+                    hydrate(json.lobby_data);
+                } else {
+                    setShowGeneralTutorial(true);
+                }
+            } catch {
+                setShowGeneralTutorial(true);
+            } finally {
                 setIsHydrating(false);
                 hydratedRef.current = true;
             }
@@ -204,26 +214,6 @@ const CreateLobbyView = () => {
         return 7;
     };
 
-    // ── Tutorial Handlers ──
-    const handleTutorialComplete = () => {
-        setShowTutorial(false);
-        setSelectedTab('custom');
-        setNavDirection('forward');
-        setStep1View(customTags.length > 0 ? 'tags' : 'description');
-    };
-    const handleRandomTutorialComplete = () => {
-        setShowRandomTutorial(false);
-        if (customTags.length > 0 || tagInput.trim()) {
-            setPendingTabSwitch('icebreaker');
-            setShowModal(true);
-        } else {
-            setSelectedTab('icebreaker');
-            setCustomTags([]);
-            setTagInput('');
-            setVisitedSteps(prev => new Set([...prev, 2]));
-            goToStep(2, 'forward');
-        }
-    };
     const handleGeneralTutorialComplete = () => setShowGeneralTutorial(false);
 
     // ── Navigation ──
@@ -235,19 +225,21 @@ const CreateLobbyView = () => {
 
     const handleBack = () => {
         if (currentStep === 1) {
-            if (step1View === 'tags' || step1View === 'description') {
+            navigate('/');
+        } else if (currentStep === 3) {
+            if (step3View === 'tags' || step3View === 'description') {
                 setNavDirection('back');
-                setStep1View('selection');
+                setStep3View('prompt');
             } else {
-                navigate('/');
+                goToStep(2, 'back');
             }
         } else {
             const prevStep = currentStep - 1;
-            if (prevStep === 1) {
-                if (selectedTab === 'custom') {
-                    setStep1View(customTags.length > 0 ? 'tags' : 'description');
+            if (prevStep === 3) {
+                if (selectedTab === 'custom' && customTags.length > 0) {
+                    setStep3View('tags');
                 } else {
-                    setStep1View('selection');
+                    setStep3View('prompt');
                 }
             }
             goToStep(prevStep, 'back');
@@ -256,28 +248,14 @@ const CreateLobbyView = () => {
 
     const handleNext = () => {
         if (currentStep >= 6 || !visitedSteps.has(currentStep + 1)) return;
-        if (currentStep === 2) {
-            handleStep2Submit();
+        if (currentStep === 1) {
+            handleStep1Submit();
             return;
         }
         goToStep(currentStep + 1, 'forward');
     };
 
-    // ── Step 1: Event Type ──
-    const handleEventTypeSelect = (type) => {
-        if (type === 'icebreaker') {
-            setShowRandomTutorial(true);
-        } else if (type === 'custom') {
-            setShowTutorial(true);
-        }
-    };
-
-    const handleStep1Continue = () => {
-        setVisitedSteps(prev => new Set([...prev, 2]));
-        goToStep(2, 'forward');
-    };
-
-    // ── Step 2: Attendees ──
+    // ── Step 1: Attendees ──
     const handleAttendeesChange = (e) => {
         const value = e.target.value;
         if (value === '' || (Number(value) >= 0 && Number.isInteger(Number(value)))) {
@@ -289,46 +267,66 @@ const CreateLobbyView = () => {
         }
     };
 
-    const handleStep2Submit = () => {
+    const handleStep1Submit = () => {
         const num = parseInt(attendees);
         if (!num || num < 1) return;
         if (num >= 50 && !showTableNumbers) {
             setShowTableModal(true);
             return;
         }
-        advanceFromStep2();
+        advanceFromStep1();
     };
 
-    const advanceFromStep2 = () => {
-        if (!visitedSteps.has(3)) {
+    const advanceFromStep1 = () => {
+        if (!visitedSteps.has(2)) {
             setMinutes(String(getRecommendedMinutes()));
             setSeconds('0');
         }
-        setVisitedSteps(prev => new Set([...prev, 3]));
-        goToStep(3, 'forward');
+        setVisitedSteps(prev => new Set([...prev, 2]));
+        goToStep(2, 'forward');
     };
 
     const handleTableModalDismiss = () => {
         setShowTableNumbers(true);
         setShowTableModal(false);
-        advanceFromStep2();
+        advanceFromStep1();
     };
 
-    // ── Step 3: Duration ──
-    const handleStep3Submit = () => {
+    // ── Step 2: Duration ──
+    const handleStep2Submit = () => {
+        setVisitedSteps(prev => new Set([...prev, 3]));
+        goToStep(3, 'forward');
+    };
+
+    // ── Step 3: Interest Pairing ──
+    const handleTryItOut = () => {
+        setNavDirection('forward');
+        setStep3View('description');
+    };
+
+    const handleStep3Skip = () => {
+        setSelectedTab('icebreaker');
+        setCustomTags([]);
+        setTagInput('');
         setVisitedSteps(prev => new Set([...prev, 4]));
         goToStep(4, 'forward');
     };
 
-    // ── Step 4: Logo ──
-    const handleStep4Advance = () => {
+    const handleStep3Continue = () => {
+        setSelectedTab('custom');
+        setVisitedSteps(prev => new Set([...prev, 4]));
+        goToStep(4, 'forward');
+    };
+
+    // ── Step 4: Match History ──
+    const handleStep4Advance = (enable) => {
+        setEnableMatchHistory(enable);
         setVisitedSteps(prev => new Set([...prev, 5]));
         goToStep(5, 'forward');
     };
 
-    // ── Step 5: Match History ──
-    const handleStep5Advance = (enable) => {
-        setEnableMatchHistory(enable);
+    // ── Step 5: Sponsor Logo ──
+    const handleStep5Advance = () => {
         setVisitedSteps(prev => new Set([...prev, 6]));
         goToStep(6, 'forward');
     };
@@ -386,9 +384,11 @@ const CreateLobbyView = () => {
 
             if (data.status === 'success' && data.tags) {
                 setCustomTags(data.tags);
+                const shuffled = [...data.tags].sort(() => Math.random() - 0.5);
+                setAnimationTags(shuffled.slice(0, 4));
                 setTagsFromAI(true);
                 setNavDirection('forward');
-                setStep1View('tags');
+                setStep3View('tags');
             } else {
                 setError(data.message || 'Failed to generate categories.');
             }
@@ -402,7 +402,7 @@ const CreateLobbyView = () => {
 
     const handleRegenerate = () => {
         setNavDirection('back');
-        setStep1View('description');
+        setStep3View('description');
         setCustomTags([]);
         setTagsFromAI(false);
     };
@@ -517,10 +517,6 @@ const CreateLobbyView = () => {
         setTagInput('');
         setShowModal(false);
         setPendingTabSwitch(null);
-        if (currentStep === 1) {
-            setVisitedSteps(prev => new Set([...prev, 2]));
-            goToStep(2, 'forward');
-        }
     };
 
     const handleModalCancel = () => {
@@ -670,131 +666,8 @@ const CreateLobbyView = () => {
         </svg>
     );
 
-    // ── Render: Step 1 — Event Type ──
+    // ── Render: Step 1 — Attendees ──
     const renderStep1 = () => {
-        if (step1View === 'description') {
-            return (
-                <div className="step-container">
-                    <h1 className="step-title">Describe the people and event purpose</h1>
-                    <div className="description-input-container">
-                        <textarea
-                            value={aiDescription}
-                            onChange={(e) => {
-                                if (e.target.value.length <= 500) setAiDescription(e.target.value);
-                            }}
-                            placeholder="ex: A networking mixer for content creators and local construction companies"
-                            className="form-input description-textarea"
-                            rows={3}
-                            maxLength={500}
-                            autoComplete="off"
-                            disabled={isGeneratingTags}
-                        />
-                        <button
-                            type="button"
-                            onClick={handleGenerateTags}
-                            className="sparkle-submit-button"
-                            disabled={isGeneratingTags || !aiDescription.trim()}
-                        >
-                            {isGeneratingTags ? (
-                                <div className="button-spinner" />
-                            ) : (
-                                <SparkleIcon />
-                            )}
-                        </button>
-                    </div>
-                    {aiDescription.length > 0 && (
-                        <div className="char-counter">{aiDescription.length}/500</div>
-                    )}
-                    {error && <div className="error-message">{error}</div>}
-                    <button className="step-cta step-cta-secondary"
-                        onClick={aiDescription.trim().length >= 2 ? handleGenerateTags : handleStep1Continue}
-                        disabled={isGeneratingTags}>
-                        Continue <ArrowRight />
-                    </button>
-                </div>
-            );
-        }
-
-        if (step1View === 'tags') {
-            return (
-                <div className="step-container">
-                    <h1 className="step-title">What are your matching categories?</h1>
-                    <div className="custom-matching-section">
-                        <div className="tag-input-container">
-                            <input
-                                type="text"
-                                value={tagInput}
-                                onChange={(e) => setTagInput(e.target.value)}
-                                onKeyDown={handleTagKeyDown}
-                                placeholder="Add categories (press + to add)"
-                                className="form-input"
-                                autoComplete="off"
-                            />
-                            <button type="button" onClick={handleAddTag} className="tag-add-button">+</button>
-                        </div>
-                        {customTags.length > 0 && (
-                            <div className="tag-list">
-                                {customTags.map((tag, index) => (
-                                    <div key={index} className="tag-item">
-                                        {tag}
-                                        <button type="button" onClick={() => handleRemoveTag(tag)}
-                                            className="tag-remove-button">×</button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                    {tagsFromAI && (
-                        <button type="button" className="regenerate-button" onClick={handleRegenerate}>
-                            <SparkleIcon /> Regenerate
-                        </button>
-                    )}
-                    <button className={`step-cta ${customTags.length < 2 ? 'step-cta-secondary' : ''}`} onClick={handleStep1Continue}>
-                        Continue <ArrowRight />
-                    </button>
-                </div>
-            );
-        }
-
-        return (
-            <div className="step-container">
-                <h1 className="step-title">How do you want to pair up your attendees?</h1>
-                <div className="event-type-container">
-                    <div className="event-type-button-wrapper">
-                        <button
-                            className={`event-type-button event-type-primary ${selectedTab === 'custom' ? 'selected' : ''}`}
-                            onClick={() => handleEventTypeSelect('custom')}
-                        >
-                            Pair People By Interests
-                        </button>
-                    </div>
-                    <div className="event-type-divider" />
-                    <div className="event-type-button-wrapper">
-                        <button
-                            className={`event-type-button event-type-primary ${selectedTab === 'icebreaker' ? 'selected' : ''}`}
-                            onClick={() => handleEventTypeSelect('icebreaker')}
-                        >
-                            Pair People Randomly
-                        </button>
-                    </div>
-                </div>
-                <button
-                    type="button"
-                    className="tutorial-pill-button tutorial-general-pill"
-                    onClick={() => setShowGeneralTutorial(true)}
-                >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" y1="16" x2="12" y2="12" />
-                        <line x1="12" y1="8" x2="12.01" y2="8" />
-                    </svg>
-                </button>
-            </div>
-        );
-    };
-
-    // ── Render: Step 2 — Attendees ──
-    const renderStep2 = () => {
         const num = parseInt(attendees);
         const isValid = num >= 1;
         const showLimitWarning = planLimit && num >= Math.floor(planLimit * 0.5);
@@ -822,7 +695,7 @@ const CreateLobbyView = () => {
                         className="form-input attendees-input"
                         autoComplete="off"
                     />
-                    <button className="step2-go-btn" onClick={handleStep2Submit} disabled={!isValid}>
+                    <button className="step2-go-btn" onClick={handleStep1Submit} disabled={!isValid}>
                         <ArrowRight />
                     </button>
                 </div>
@@ -834,8 +707,8 @@ const CreateLobbyView = () => {
         );
     };
 
-    // ── Render: Step 3 — Duration ──
-    const renderStep3 = () => {
+    // ── Render: Step 2 — Duration ──
+    const renderStep2 = () => {
         const recommended = getRecommendedMinutes();
 
         return (
@@ -886,7 +759,7 @@ const CreateLobbyView = () => {
                             <label className="duration-label">Seconds</label>
                         </div>
                     </div>
-                    <button className="step2-go-btn" onClick={handleStep3Submit}>
+                    <button className="step2-go-btn" onClick={handleStep2Submit}>
                         <ArrowRight />
                     </button>
                 </div>
@@ -898,8 +771,139 @@ const CreateLobbyView = () => {
         );
     };
 
-    // ── Render: Step 4 — Sponsor Logo ──
-    const renderStep4 = () => {
+    // ── Render: Step 3 — Interest Pairing ──
+    const renderStep3 = () => {
+        if (step3View === 'description') {
+            return (
+                <div className="step-container">
+                    <h1 className="step-title">Describe the people and purpose of your event</h1>
+                    <div className="description-input-container">
+                        <textarea
+                            value={aiDescription}
+                            onChange={(e) => {
+                                if (e.target.value.length <= 500) setAiDescription(e.target.value);
+                            }}
+                            placeholder="ex: A networking mixer for content creators and local construction companies"
+                            className="form-input description-textarea"
+                            rows={3}
+                            maxLength={500}
+                            autoComplete="off"
+                            disabled={isGeneratingTags}
+                        />
+                        <button
+                            type="button"
+                            onClick={handleGenerateTags}
+                            className="sparkle-submit-button"
+                            disabled={isGeneratingTags || !aiDescription.trim()}
+                        >
+                            {isGeneratingTags ? (
+                                <div className="button-spinner" />
+                            ) : (
+                                <SparkleIcon />
+                            )}
+                        </button>
+                    </div>
+                    {aiDescription.length > 0 && (
+                        <div className="char-counter">{aiDescription.length}/500</div>
+                    )}
+                    {error && <div className="error-message">{error}</div>}
+                    <button className={`step-cta ${aiDescription.trim().split(/\s+/).filter(Boolean).length <= 1 ? 'step-cta-secondary' : ''}`}
+                        onClick={aiDescription.trim().length >= 2 ? handleGenerateTags : handleStep3Skip}
+                        disabled={isGeneratingTags}>
+                        Continue <ArrowRight />
+                    </button>
+                </div>
+            );
+        }
+
+        if (step3View === 'tags') {
+            return (
+                <div className="step-container">
+                    <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>What are your matching categories?</p>
+                    <TutorialMatching
+                        mode="inline"
+                        isVisible={currentStep === 3 && step3View === 'tags'}
+                        tags={animationTags}
+                    />
+                    <div className="custom-matching-section">
+                        <div className="tag-input-container">
+                            <input
+                                type="text"
+                                value={tagInput}
+                                onChange={(e) => setTagInput(e.target.value)}
+                                onKeyDown={handleTagKeyDown}
+                                placeholder="Add categories (press + to add)"
+                                className="form-input"
+                                autoComplete="off"
+                            />
+                            <button type="button" onClick={handleAddTag} className="tag-add-button">+</button>
+                        </div>
+                        {customTags.length > 0 && (
+                            <div className="tag-list">
+                                {customTags.map((tag, index) => (
+                                    <div key={index} className="tag-item">
+                                        {tag}
+                                        <button type="button" onClick={() => handleRemoveTag(tag)}
+                                            className="tag-remove-button">×</button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    {tagsFromAI && (
+                        <button type="button" className="regenerate-button" onClick={handleRegenerate}>
+                            <SparkleIcon /> Regenerate
+                        </button>
+                    )}
+                    <button className={`step-cta ${customTags.length < 2 ? 'step-cta-secondary' : ''}`} onClick={handleStep3Continue}>
+                        Continue <ArrowRight />
+                    </button>
+                </div>
+            );
+        }
+
+        return (
+            <div className="step-container">
+                <h1 className="step-title">Interest Pairing</h1>
+                <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
+                    Matchmaking blended in with the regular pairing, its the best of both worlds!
+                </p>
+                <button className="step-cta" onClick={handleTryItOut}>
+                    Try it Out <ArrowRight />
+                </button>
+                <button className="step-cta step-cta-secondary" onClick={handleStep3Skip}>
+                    Skip
+                </button>
+                <TutorialMatching
+                    mode="inline"
+                    isVisible={currentStep === 3 && step3View === 'prompt'}
+                />
+            </div>
+        );
+    };
+
+    // ── Render: Step 4 — Match History ──
+    const renderStep4 = () => (
+        <div className="step-container">
+            <h1 className="step-title">History of Connections</h1>
+            <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
+                They just <strong className="aht-header-green">save their email</strong> to
+                access their connections at the end of the session. Your <strong className="aht-header-green">organizer dashboard</strong> will have insights and analytics about your attendees!
+            </p>
+            <div className="step5-reveal step5-reveal-step4-body">
+                <button className="step-cta" onClick={() => handleStep4Advance(true)}>
+                    Enable <ArrowRight />
+                </button>
+                <button className="step-cta step-cta-secondary" onClick={() => handleStep4Advance(false)}>
+                    Skip
+                </button>
+                <AttendeesHistoryTutorial />
+            </div>
+        </div>
+    );
+
+    // ── Render: Step 5 — Sponsor Logo ──
+    const renderStep5 = () => {
         const hasLogo = logoCroppedImage && !isLogoCropping;
 
         return (
@@ -919,7 +923,7 @@ const CreateLobbyView = () => {
                 )}
                 {!isLogoCropping && (
                     <div className="step4-cta-group">
-                        <button className="step-cta" onClick={handleStep4Advance}>
+                        <button className="step-cta" onClick={handleStep5Advance}>
                             {hasLogo ? 'Continue' : 'Skip'} <ArrowRight />
                         </button>
                         {hasLogo && (
@@ -940,30 +944,6 @@ const CreateLobbyView = () => {
             </div>
         );
     };
-
-    // ── Render: Step 5 — Match History ──
-    const renderStep5 = () => (
-        <div className="step-container">
-            <h1 className="step-title">Match History for Attendees</h1>
-            <div className="step5-reveal step5-reveal-sub">
-                <p className="step-subtitle">
-                    Once the session is over, people will be taken to a match history page, where
-                    they can share each other's preferred contact information.
-                </p>
-            </div>
-            <div className="step5-reveal step5-reveal-ctas">
-                <button className="step-cta" onClick={() => handleStep5Advance(true)}>
-                    Enable <ArrowRight />
-                </button>
-                <button className="step-cta step-cta-secondary" onClick={() => handleStep5Advance(false)}>
-                    Skip
-                </button>
-            </div>
-            <div className="step5-reveal step5-reveal-tutorial">
-                <TutorialMatchHistory />
-            </div>
-        </div>
-    );
 
     // ── Render: Step 6 — Review ──
     const renderStep6 = () => {
@@ -1223,7 +1203,7 @@ const CreateLobbyView = () => {
     }
 
     // ── Main Render ──
-    const stepKey = currentStep === 1 ? `1-${step1View}` : String(currentStep);
+    const stepKey = currentStep === 3 ? `3-${step3View}` : String(currentStep);
 
     return (
         <div className="create-lobby-background">
@@ -1294,14 +1274,6 @@ const CreateLobbyView = () => {
                 </div>
             )}
 
-            <TutorialMatching
-                isVisible={showTutorial}
-                onComplete={handleTutorialComplete}
-            />
-            <TutorialRandomMatching
-                isVisible={showRandomTutorial}
-                onComplete={handleRandomTutorialComplete}
-            />
             <CoolerGeneralMatchEventFlow
                 isVisible={showGeneralTutorial}
                 onComplete={handleGeneralTutorialComplete}
