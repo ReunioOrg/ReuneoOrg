@@ -1574,6 +1574,7 @@ const AdminLobbyView = () => {
                     <AdminCheckinTutorialFull
                         isVisible={tutorialMode}
                         onComplete={() => setTutorialMode(false)}
+                        customTags={customTags}
                     />
                 )}
                 <LobbyProgressBar 

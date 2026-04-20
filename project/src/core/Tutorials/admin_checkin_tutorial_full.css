@@ -126,7 +126,7 @@
     flex-direction: column;
     align-items: center;
     padding: 0 24px 32px;
-    padding-top: max(env(safe-area-inset-top, 0px) + 52px, 88px);
+    padding-top: max(env(safe-area-inset-top, 0px) + 64px, 96px);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s ease;
@@ -595,9 +595,11 @@
     background: #f8f9fb;
 }
 
-/* Scene 4 wrapper — full bleed, phone centred */
+/* Scene 4 wrapper — phone centred; padding: 0 resets horizontal/bottom but top
+   clearance is restored so the nav bar is never obscured by the zoom animation */
 .act-scene-zoom {
     padding: 0;
+    padding-top: max(env(safe-area-inset-top, 0px) + 64px, 96px);
     justify-content: center;
 }
 
@@ -998,5 +1000,230 @@
 
     .act-scene-mock {
         padding-top: max(env(safe-area-inset-top, 0px) + 80px, 124px);
+    }
+}
+
+/* ══════════════════════════════════════════════════
+   Scenes 7-8 (no-tags) – How-To Slides
+   ══════════════════════════════════════════════════ */
+
+/* Override tutorial-container's fixed 80% height so it fills
+   the available flex space inside act-scene-mock naturally */
+.act-howto-scene .act-howto-container {
+    flex: 1;
+    height: auto;
+    min-height: 0;
+    width: 100%;
+    max-width: 420px;
+    background: transparent;
+}
+
+/* ══════════════════════════════════════════════════
+   Scenes 7-8 (tags) – Mock Tag Selection
+   ══════════════════════════════════════════════════ */
+
+/* Extend the mock signup container to accommodate the tag list */
+.act-tag-step {
+    gap: 0.85rem;
+}
+
+/* ── Progress tabs ── */
+
+.act-tag-progress {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 6px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    flex-shrink: 0;
+}
+
+.act-tag-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 10px 8px;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f0f1f4;
+    color: #6b7280;
+    text-align: center;
+    transition: background 0.3s ease, color 0.3s ease;
+    position: relative;
+}
+
+.act-tag-tab-active {
+    background: #1a1a2e;
+    color: #ffffff;
+}
+
+.act-tag-tab-complete {
+    background: linear-gradient(135deg, #4b73ef, #2196F3);
+    color: #ffffff;
+}
+
+.act-tag-tab-check {
+    font-size: 0.7rem;
+}
+
+/* ── Phase heading ── */
+
+.act-tag-heading {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0;
+    text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    animation: actTextIn 0.35s ease both;
+}
+
+/* ── Tag list ── */
+
+.act-tag-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    max-height: 260px;
+    overflow-y: auto;
+    padding: 2px 0;
+}
+
+.act-tag-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.act-tag-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.act-tag-list::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+
+/* ── Individual tag item ── */
+
+.act-tag-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 13px;
+    border-radius: 11px;
+    background: #f8f9fb;
+    border: 2px solid transparent;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: #1a1a2e;
+    transition: background 0.35s ease, border-color 0.35s ease;
+    animation: actTagItemIn 0.25s ease both;
+}
+
+@keyframes actTagItemIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.act-tag-item-selected {
+    background: rgba(33, 150, 243, 0.09);
+    border-color: #2196F3;
+}
+
+/* ── Checkbox visual ── */
+
+.act-tag-checkbox {
+    width: 19px;
+    height: 19px;
+    border-radius: 5px;
+    border: 2px solid #d1d5db;
+    flex-shrink: 0;
+    position: relative;
+    transition: background 0.3s ease, border-color 0.3s ease;
+    background: #ffffff;
+}
+
+.act-tag-checkbox-checked {
+    background: #2196F3;
+    border-color: #2196F3;
+}
+
+.act-tag-checkbox-checked::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 5px;
+    height: 9px;
+    border: 2px solid #ffffff;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+}
+
+.act-tag-item-text {
+    flex: 1;
+    user-select: none;
+}
+
+/* ── Continue / Save button ── */
+
+@keyframes actTagBtnIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.act-tag-btn {
+    width: 100%;
+    padding: 14px 24px;
+    margin-top: 0.25rem;
+    background: #1a1a2e;
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 0.98rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    cursor: default;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+    animation: actTagBtnIn 0.35s ease both;
+    transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    flex-shrink: 0;
+}
+
+.act-tag-btn-press {
+    transform: scale(0.96);
+    background: #2d2d44;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Responsive ── */
+
+@media screen and (max-width: 380px) {
+    .act-tag-tab {
+        font-size: 0.72rem;
+        padding: 8px 6px;
+    }
+
+    .act-tag-heading {
+        font-size: 1.05rem;
+    }
+
+    .act-tag-list {
+        max-height: 200px;
+    }
+
+    .act-tag-item {
+        padding: 10px 11px;
+        font-size: 0.87rem;
     }
 }

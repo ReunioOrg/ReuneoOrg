@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './admin_checkin_tutorial_full.css';
+import '../lobby/how_to_tutorial.css';
+import UserIsReadyAnimation from '../lobby/user_is_ready_animation';
+import { TutorialSlide2, TutorialSlide3 } from '../lobby/how_to_tutorial';
 
 const PersonIcon = ({ color = '#3b82f6' }) => (
     <svg viewBox="0 0 32 80" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -27,29 +30,21 @@ const ScanPhone = () => (
 const TableWithQR = ({ className }) => (
     <div className={`act-table-group${className ? ' ' + className : ''}`}>
         <svg viewBox="0 0 120 150" fill="none" xmlns="http://www.w3.org/2000/svg" className="act-table-svg">
-            {/* Easel back-support leg */}
             <line x1="58" y1="8" x2="78" y2="58" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" />
-            {/* Sign card */}
             <rect x="18" y="2" width="55" height="58" rx="4" fill="#ffffff" stroke="#3b82f6" strokeWidth="2.5" />
-            {/* SCAN ME label */}
             <text x="45" y="16" textAnchor="middle" fill="#3b82f6" fontSize="9" fontWeight="800"
                   fontFamily="-apple-system, BlinkMacSystemFont, sans-serif">SCAN ME</text>
-            {/* QR code block */}
             <rect x="27" y="20" width="36" height="34" rx="2" fill="#1a1a2e" />
-            {/* Position markers */}
             <rect x="30" y="23" width="9" height="9" rx="1.5" fill="#ffffff" />
             <rect x="31.5" y="24.5" width="6" height="6" rx="0.5" fill="#1a1a2e" />
             <rect x="51" y="23" width="9" height="9" rx="1.5" fill="#ffffff" />
             <rect x="52.5" y="24.5" width="6" height="6" rx="0.5" fill="#1a1a2e" />
             <rect x="30" y="39" width="9" height="9" rx="1.5" fill="#ffffff" />
             <rect x="31.5" y="40.5" width="6" height="6" rx="0.5" fill="#1a1a2e" />
-            {/* Data pattern */}
             <rect x="44" y="35" width="4" height="4" fill="#ffffff" />
             <rect x="51" y="39" width="5" height="5" fill="#ffffff" />
             <rect x="44" y="43" width="5" height="4" fill="#ffffff" />
-            {/* Table surface */}
             <rect x="2" y="65" width="116" height="13" rx="4" fill="#3b82f6" />
-            {/* Table legs */}
             <rect x="10" y="78" width="9" height="55" rx="3" fill="#3b82f6" />
             <rect x="101" y="78" width="9" height="55" rx="3" fill="#3b82f6" />
         </svg>
@@ -242,10 +237,8 @@ const MockPhotoStep = ({ active, onDone }) => {
                 </button>
             )}
 
-            {/* Camera flash */}
             {showFlash && <div className="act-camera-flash" />}
 
-            {/* Selfie reminder modal */}
             {showModal && (
                 <div className="act-selfie-modal-overlay">
                     <div className="act-selfie-modal-card">
@@ -263,17 +256,148 @@ const MockPhotoStep = ({ active, onDone }) => {
     );
 };
 
+/* ── Scenes 7 & 8: Mock tag selection ───────────────────────────────────── */
+
+/* Reusable component for both self and desiring phases */
+const MockTagStep = ({ active, phase, allTags, autoSelected, selfComplete, onDone }) => {
+    const [selectedTags, setSelectedTags] = useState([]);
+    const [showBtn, setShowBtn] = useState(false);
+    const [pressBtn, setPressBtn] = useState(false);
+
+    const isSelf = phase === 'self';
+    const btnLabel = isSelf ? 'Continue' : 'Save';
+
+    useEffect(() => {
+        if (!active) {
+            setSelectedTags([]);
+            setShowBtn(false);
+            setPressBtn(false);
+            return;
+        }
+
+        const count = autoSelected.length;
+        const baseDelay = 600;
+        const tagInterval = 520;
+        const lastTagTime = baseDelay + (count - 1) * tagInterval;
+        const btnDelay  = lastTagTime + 720;
+        const pressDelay = btnDelay + 800;
+        const doneDelay  = pressDelay + 520;
+
+        const timers = [];
+
+        autoSelected.forEach((tag, i) => {
+            timers.push(
+                setTimeout(() => {
+                    setSelectedTags(prev => [...prev, tag]);
+                }, baseDelay + i * tagInterval)
+            );
+        });
+
+        timers.push(setTimeout(() => setShowBtn(true),  btnDelay));
+        timers.push(setTimeout(() => setPressBtn(true), pressDelay));
+        timers.push(setTimeout(() => onDone?.(),        doneDelay));
+
+        return () => timers.forEach(clearTimeout);
+    }, [active]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    return (
+        <div className="act-mock-signup act-tag-step">
+            {/* Progress tabs */}
+            <div className="act-tag-progress">
+                <div className={`act-tag-tab${isSelf && !selfComplete ? ' act-tag-tab-active' : ''}${selfComplete ? ' act-tag-tab-complete' : ''}`}>
+                    {selfComplete && <span className="act-tag-tab-check">✓</span>}
+                    Who are you?
+                </div>
+                <div className={`act-tag-tab${!isSelf ? ' act-tag-tab-active' : ''}`}>
+                    Who do you want to meet?
+                </div>
+            </div>
+
+            {/* Phase heading */}
+            <h2 className="act-tag-heading">
+                {isSelf ? 'Who are you?' : 'Who do you want to meet?'}
+            </h2>
+
+            {/* Tag list */}
+            <div className="act-tag-list">
+                {allTags.map(tag => {
+                    const isSelected = selectedTags.includes(tag);
+                    return (
+                        <div
+                            key={tag}
+                            className={`act-tag-item${isSelected ? ' act-tag-item-selected' : ''}`}
+                        >
+                            <span className={`act-tag-checkbox${isSelected ? ' act-tag-checkbox-checked' : ''}`} />
+                            <span className="act-tag-item-text">{tag}</span>
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* Continue / Save button */}
+            {showBtn && (
+                <button className={`act-tag-btn${pressBtn ? ' act-tag-btn-press' : ''}`}>
+                    {btnLabel}
+                </button>
+            )}
+        </div>
+    );
+};
+
+/* ── Shuffle utility (Fisher-Yates) ─────────────────────────────────────── */
+
+function shuffleArray(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+/* ── Tag split: determine how many go to self vs desiring ───────────────── */
+
+function splitTags(shuffled) {
+    const n = shuffled.length;
+    let selfCount;
+    if (n === 2) selfCount = 1;
+    else if (n === 3) selfCount = 2;
+    else if (n <= 5) selfCount = 2;
+    else selfCount = 3;
+
+    const desiringCount = Math.min(3, n - selfCount);
+    return {
+        selfTags: shuffled.slice(0, selfCount),
+        desiringTags: shuffled.slice(selfCount, selfCount + desiringCount),
+    };
+}
+
 /* ── Main component ─────────────────────────────────────────────────────── */
 
-const AdminCheckinTutorialFull = ({ isVisible, onComplete }) => {
+const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
     const [scene, setScene] = useState(0);
     const [fadingOut, setFadingOut] = useState(false);
+    const [showReady, setShowReady] = useState(false);
+
+    /* One-time shuffle of tags — computed when tutorial becomes visible */
+    const tagSplitRef = useRef(null);
+    const hasTags = Array.isArray(customTags) && customTags.length >= 2;
+
+    useEffect(() => {
+        if (isVisible && hasTags && !tagSplitRef.current) {
+            tagSplitRef.current = splitTags(shuffleArray(customTags));
+        }
+        if (!isVisible) {
+            tagSplitRef.current = null;
+        }
+    }, [isVisible, hasTags]); // eslint-disable-line react-hooks/exhaustive-deps
 
     /* Scenes 0-3: auto-advancing timers */
     useEffect(() => {
         if (!isVisible) {
             setScene(0);
             setFadingOut(false);
+            setShowReady(false);
             return;
         }
 
@@ -285,16 +409,14 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete }) => {
         return () => timers.forEach(clearTimeout);
     }, [isVisible]);
 
-    /* Scene 4 → 5: after phone zoom completes (~1.1s anim + small buffer) */
+    /* Scene 4 → 5: after phone zoom completes */
     useEffect(() => {
         if (scene !== 4) return;
         const t = setTimeout(() => setScene(5), 1400);
         return () => clearTimeout(t);
     }, [scene]);
 
-    /* Scene 5 → 6: after typing + Continue press
-       500ms start delay + 4×160ms typing = 1140ms
-       + 1800ms until pressContinue = 2940ms total → advance at 3200ms */
+    /* Scene 5 → 6 */
     useEffect(() => {
         if (scene !== 5) return;
         const t = setTimeout(() => setScene(6), 3200);
@@ -306,11 +428,33 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete }) => {
         setTimeout(() => onComplete?.(), 400);
     };
 
+    /* Scene 7 → 8 (no-tags branch: volume slide auto-advances after 4000ms) */
+    useEffect(() => {
+        if (scene !== 7 || hasTags) return;
+        const t = setTimeout(() => setScene(8), 4000);
+        return () => clearTimeout(t);
+    }, [scene, hasTags]);
+
+    /* Scene 8 → complete (no-tags branch: pause slide auto-advances after 5000ms) */
+    useEffect(() => {
+        if (scene !== 8 || hasTags) return;
+        const t = setTimeout(handleComplete, 5000);
+        return () => clearTimeout(t);
+    }, [scene, hasTags]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    /* Scene 6 advances to 7 regardless — tags branch shows tag selection,
+       no-tags branch shows the how-to slides (volume + pause) */
+    const handleAfterPhoto = () => {
+        setScene(7);
+    };
+
     if (!isVisible) return null;
 
     const s = scene;
+    const split = tagSplitRef.current;
 
     return (
+        <>
         <div className={`act-overlay${fadingOut ? ' act-overlay-exit' : ''}${s >= 4 ? ' act-overlay-white' : ''}`}>
 
             {/* ── Scenes 0-1: Scanning illustration ── */}
@@ -398,10 +542,77 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete }) => {
 
             {/* ── Scene 6: Mock signup – photo ── */}
             <div className={`act-scene act-scene-mock${s === 6 ? ' act-scene-active' : ''}`}>
-                {s >= 6 && <MockPhotoStep active={s === 6} onDone={handleComplete} />}
+                {s >= 6 && <MockPhotoStep active={s === 6} onDone={handleAfterPhoto} />}
             </div>
 
+            {/* ── Scene 7: Tag selection – Who are you? ── */}
+            {hasTags && (
+                <div className={`act-scene act-scene-mock${s === 7 ? ' act-scene-active' : ''}`}>
+                    {s >= 7 && split && (
+                        <MockTagStep
+                            active={s === 7}
+                            phase="self"
+                            allTags={customTags}
+                            autoSelected={split.selfTags}
+                            selfComplete={false}
+                            onDone={() => setScene(8)}
+                        />
+                    )}
+                </div>
+            )}
+
+            {/* ── Scene 8: Tag selection – Who do you want to meet? ── */}
+            {hasTags && (
+                <div className={`act-scene act-scene-mock${s === 8 ? ' act-scene-active' : ''}`}>
+                    {s >= 8 && split && (
+                        <MockTagStep
+                            active={s === 8}
+                            phase="desiring"
+                            allTags={customTags}
+                            autoSelected={split.desiringTags}
+                            selfComplete={true}
+                            onDone={() => setShowReady(true)}
+                        />
+                    )}
+                </div>
+            )}
+
+            {/* ── Scene 7 (no-tags): Volume slide ── */}
+            {!hasTags && (
+                <div className={`act-scene act-scene-mock act-howto-scene${s === 7 ? ' act-scene-active' : ''}`}>
+                    {s >= 7 && (
+                        <div className="tutorial-container act-howto-container">
+                            <div className="tutorial-slide current">
+                                <TutorialSlide2 isActive={s === 7} />
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* ── Scene 8 (no-tags): Pause slide ── */}
+            {!hasTags && (
+                <div className={`act-scene act-scene-mock act-howto-scene${s === 8 ? ' act-scene-active' : ''}`}>
+                    {s >= 8 && (
+                        <div className="tutorial-container act-howto-container">
+                            <div className="tutorial-slide current">
+                                <TutorialSlide3 isActive={s === 8} onPauseClicked={null} />
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
         </div>
+
+        {/* ── "You're ready!" animation — plays after Save in scene 8 ── */}
+        <UserIsReadyAnimation
+            isVisible={showReady}
+            onAnimationEnd={handleComplete}
+            mainText="You're ready!"
+            subText="You will be paired up soon."
+        />
+        </>
     );
 };
 

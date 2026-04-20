@@ -5,7 +5,7 @@ import { apiFetch } from '../utils/api';
 import './how_to_tutorial.css';
 
 // Slide 2: Animated Volume Slider Component
-const TutorialSlide2 = ({ isActive }) => {
+export const TutorialSlide2 = ({ isActive }) => {
   const [progress, setProgress] = useState(0);
   const animationRef = useRef(null);
 
@@ -97,7 +97,7 @@ const TutorialSlide2 = ({ isActive }) => {
 };
 
 // Slide 3: Interactive Pause Button Tutorial
-const TutorialSlide3 = ({ isActive, onPauseClicked }) => {
+export const TutorialSlide3 = ({ isActive, onPauseClicked }) => {
   return (
     <div className="slide3-layout">
       <div className="slide3-top-content">
