@@ -169,8 +169,6 @@ const MockNameStep = ({ active }) => {
 /* ── Scene 6: Mock signup — photo step ──────────────────────────────────── */
 
 const MockPhotoStep = ({ active, onDone }) => {
-    const [showModal, setShowModal] = useState(false);
-    const [pressModal, setPressModal] = useState(false);
     const [showFlash, setShowFlash] = useState(false);
     const [showPhoto, setShowPhoto] = useState(false);
     const [showComplete, setShowComplete] = useState(false);
@@ -178,8 +176,6 @@ const MockPhotoStep = ({ active, onDone }) => {
 
     useEffect(() => {
         if (!active) {
-            setShowModal(false);
-            setPressModal(false);
             setShowFlash(false);
             setShowPhoto(false);
             setShowComplete(false);
@@ -188,15 +184,12 @@ const MockPhotoStep = ({ active, onDone }) => {
         }
 
         const timers = [
-            setTimeout(() => setShowModal(true),    300),
-            setTimeout(() => setPressModal(true),   1800),
-            setTimeout(() => setShowModal(false),   2100),
-            setTimeout(() => setShowFlash(true),    2700),
-            setTimeout(() => setShowFlash(false),   3150),
-            setTimeout(() => setShowPhoto(true),    3250),
-            setTimeout(() => setShowComplete(true), 4100),
-            setTimeout(() => setPressComplete(true),5000),
-            setTimeout(() => onDone?.(),            5500),
+            setTimeout(() => setShowFlash(true),     600),
+            setTimeout(() => setShowFlash(false),   1050),
+            setTimeout(() => setShowPhoto(true),    1150),
+            setTimeout(() => setShowComplete(true), 2000),
+            setTimeout(() => setPressComplete(true),2900),
+            setTimeout(() => onDone?.(),            3400),
         ];
 
         return () => timers.forEach(clearTimeout);
@@ -239,20 +232,6 @@ const MockPhotoStep = ({ active, onDone }) => {
             )}
 
             {showFlash && <div className="act-camera-flash" />}
-
-            {showModal && (
-                <div className="act-selfie-modal-overlay">
-                    <div className="act-selfie-modal-card">
-                        <h2 className="act-selfie-modal-title">You Must Take a Selfie</h2>
-                        <p className="act-selfie-modal-text">
-                            Don't use old photos, people need to know how you look in order to find you in the room - trust us.
-                        </p>
-                        <button className={`act-selfie-modal-btn${pressModal ? ' act-mock-btn-press' : ''}`}>
-                            Understood
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
@@ -265,8 +244,21 @@ const MockTagStep = ({ active, phase, allTags, autoSelected, selfComplete, onDon
     const [showBtn, setShowBtn] = useState(false);
     const [pressBtn, setPressBtn] = useState(false);
 
+    const listRef = useRef(null);
+    const tagItemRefs = useRef({});
+
     const isSelf = phase === 'self';
     const btnLabel = isSelf ? 'Continue' : 'Save';
+
+    /* Scroll to the most recently selected tag */
+    useEffect(() => {
+        if (selectedTags.length === 0) return;
+        const lastTag = selectedTags[selectedTags.length - 1];
+        const el = tagItemRefs.current[lastTag];
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }, [selectedTags]);
 
     useEffect(() => {
         if (!active) {
@@ -320,12 +312,13 @@ const MockTagStep = ({ active, phase, allTags, autoSelected, selfComplete, onDon
             </h2>
 
             {/* Tag list */}
-            <div className="act-tag-list">
+            <div className="act-tag-list" ref={listRef}>
                 {allTags.map(tag => {
                     const isSelected = selectedTags.includes(tag);
                     return (
                         <div
                             key={tag}
+                            ref={el => { tagItemRefs.current[tag] = el; }}
                             className={`act-tag-item${isSelected ? ' act-tag-item-selected' : ''}`}
                         >
                             <span className={`act-tag-checkbox${isSelected ? ' act-tag-checkbox-checked' : ''}`} />
@@ -529,7 +522,7 @@ const MockActiveState = ({ customTags, active }) => {
                 {showBlur && (
                     <div className="act-active-blur-header">
                         <p className="act-active-blur-header-text">
-                            The only way to guarantee connections at the beginning of any event!
+                            Your everyone will check their phones, find their person, and start chatting!
                             <span className="act-blur-conf-burst">
                                 <span className="act-bconf act-bconf-1" />
                                 <span className="act-bconf act-bconf-2" />
@@ -712,7 +705,7 @@ const MockVideoEnding = ({ active }) => {
 /* ── Main component ─────────────────────────────────────────────────────── */
 
 const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
-    const [scene, setScene] = useState(0);
+    const [scene, setScene] = useState(3);
     const [fadingOut, setFadingOut] = useState(false);
     const [showReady, setShowReady] = useState(false);
     const [showAdminPulse, setShowAdminPulse] = useState(false);
@@ -732,30 +725,22 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
         }
     }, [isVisible, hasTags]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    /* Scenes 0-3: auto-advancing timers */
+    /* Reset state when tutorial is hidden */
     useEffect(() => {
         if (!isVisible) {
-            setScene(0);
+            setScene(3);
             setFadingOut(false);
             setShowReady(false);
             setShowAdminPulse(false);
             setShowAdminPress(false);
             setCardZoomed(false);
-            return;
         }
-
-        const timers = [
-            setTimeout(() => setScene(1), 3000),
-            setTimeout(() => setScene(2), 6000),
-            setTimeout(() => setScene(3), 9500),
-        ];
-        return () => timers.forEach(clearTimeout);
     }, [isVisible]);
 
-    /* Scene 3 → 4: auto-advance after 3s on scene 3 */
+    /* Scene 3 → 4: auto-advance after 4.5s on scene 3 */
     useEffect(() => {
         if (scene !== 3) return;
-        const t = setTimeout(() => setScene(4), 3000);
+        const t = setTimeout(() => setScene(4), 4500);
         return () => clearTimeout(t);
     }, [scene]);
 
@@ -792,7 +777,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
         return () => clearTimeout(t);
     }, [scene]);
 
-    /* Scene 8 end: pause slide auto-advances after 5000ms.
+    /* Scene 8 end: pause slide auto-advances after 3500ms.
        no-tags  → trigger You're Ready directly
        has-tags → advance to tag selection (scene 9) */
     useEffect(() => {
@@ -800,7 +785,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
         const t = setTimeout(() => {
             if (hasTags) setScene(9);
             else setShowReady(true);
-        }, 5000);
+        }, 3500);
         return () => clearTimeout(t);
     }, [scene, hasTags]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -871,60 +856,13 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
         <>
         <div className={`act-overlay${fadingOut ? ' act-overlay-exit' : ''}${s >= 4 ? ' act-overlay-white' : ''}`} style={s === 16 ? { zIndex: 1002 } : undefined}>
 
-            {/* ── Scenes 0-1: Scanning illustration ── */}
-            <div className={`act-scene${s <= 1 ? ' act-scene-active' : ''}`}>
-                <div className="act-header-area act-scan-headers" data-active-header={s <= 1 ? s : -1} style={{ marginTop: '36px' }}>
-                    <p className="act-header-text act-sh-0">
-                        I start pairing people after a handful have scanned &amp; joined
-                    </p>
-                    <p className="act-header-text act-sh-1">
-                        Its a pairing machine! As new people arrive they also get paired up immediately!
-                    </p>
-                </div>
-
-                <div className="act-stage">
-                    <div className="act-illustration">
-                        <div className="act-person-group act-person-enter">
-                            <div className="act-person-bounce">
-                                <PersonIcon />
-                            </div>
-                            <ScanPhone />
-                        </div>
-                        <span className="act-arrow">&rarr;</span>
-                        <TableWithQR className="act-table-enter" />
-                    </div>
-                </div>
-            </div>
-
-            {/* ── Scene 2: Cat on the beach ── */}
-            <div className={`act-scene${s === 2 ? ' act-scene-active' : ''}`}>
-                {s >= 2 && (
-                    <>
-                        <div className="act-header-area" style={{ marginTop: '36px' }}>
-                            <p className="act-header-text act-single-header">
-                                I'm not a natural event host, so the app helps me relax while everyone makes quality connections.
-                            </p>
-                        </div>
-                        <div className="act-stage">
-                            <div className="act-cat-frame">
-                                <img
-                                    src="/assets/relaxing_cat_beach.png"
-                                    alt="Relaxing cat on beach"
-                                    className="act-cat-img"
-                                />
-                            </div>
-                        </div>
-                    </>
-                )}
-            </div>
-
-            {/* ── Scene 3: Final + CTA ── */}
+            {/* ── Scene 3: Opening scene ── */}
             <div className={`act-scene${s === 3 ? ' act-scene-active' : ''}`}>
                 {s >= 3 && (
                     <>
                         <div className="act-header-area" style={{ marginTop: '36px' }}>
                             <p className="act-header-text act-single-header">
-                                After scanning, I tell them just one thing: &ldquo;Just listen to the app&rsquo;s instructions&rdquo;
+                                After scanning, tell them one thing: &ldquo;Listen to the app&rsquo;s instructions&rdquo;
                             </p>
                         </div>
                         <div className="act-stage">
