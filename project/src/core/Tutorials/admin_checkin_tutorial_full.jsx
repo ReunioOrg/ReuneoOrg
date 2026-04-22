@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './admin_checkin_tutorial_full.css';
 import '../lobby/how_to_tutorial.css';
 import UserIsReadyAnimation from '../lobby/user_is_ready_animation';
 import { TutorialSlide2, TutorialSlide3 } from '../lobby/how_to_tutorial';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
+import CoolerGeneralMatchEventFlow from './cooler_general_match_event_flow';
 
 const PersonIcon = ({ color = '#3b82f6' }) => (
     <svg viewBox="0 0 32 80" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -522,7 +523,7 @@ const MockActiveState = ({ customTags, active }) => {
                 {showBlur && (
                     <div className="act-active-blur-header">
                         <p className="act-active-blur-header-text">
-                            Your everyone will check their phones, find their person, and start chatting!
+                            Everyone will check their phones, find their person, and start chatting!
                             <span className="act-blur-conf-burst">
                                 <span className="act-bconf act-bconf-1" />
                                 <span className="act-bconf act-bconf-2" />
@@ -669,15 +670,15 @@ const ENDING_HEADERS = [
 
 const MockVideoEnding = ({ active }) => {
     const [phase, setPhase] = useState(0);
-    // phase 0 = idle, 1 = first header in, 2 = first header out, 3 = second header in, 4 = second header out
+    // phases: 0=idle, 1=h1 in, 2=h1 out, 3=h2 in, 4=h2 out
 
     useEffect(() => {
         if (!active) { setPhase(0); return; }
         const timers = [
             setTimeout(() => setPhase(1), 100),
-            setTimeout(() => setPhase(2), 1800),
-            setTimeout(() => setPhase(3), 2200),
-            setTimeout(() => setPhase(4), 3900),
+            setTimeout(() => setPhase(2), 2300),
+            setTimeout(() => setPhase(3), 2700),
+            setTimeout(() => setPhase(4), 4500),
         ];
         return () => timers.forEach(clearTimeout);
     }, [active]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -711,6 +712,14 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
     const [showAdminPulse, setShowAdminPulse] = useState(false);
     const [showAdminPress, setShowAdminPress] = useState(false);
     const [cardZoomed, setCardZoomed] = useState(false);
+    const [showCmef, setShowCmef] = useState(false);
+
+    /* Stable callback so CMEF's isVisible effect never re-runs due to a new
+       function reference produced by AdminLobbyView's 1-second polling re-renders. */
+    const handleCmefComplete = useCallback(() => {
+        setShowCmef(false);
+        setScene(16);
+    }, []);
 
     /* One-time shuffle of tags — computed when tutorial becomes visible */
     const tagSplitRef = useRef(null);
@@ -734,6 +743,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
             setShowAdminPulse(false);
             setShowAdminPress(false);
             setCardZoomed(false);
+            setShowCmef(false);
         }
     }, [isVisible]);
 
@@ -833,17 +843,17 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
         return () => timers.forEach(clearTimeout);
     }, [scene]);
 
-    /* Scene 15 → 16 (video ending) */
+    /* Scene 15 → CMEF section → 16 (video ending) */
     useEffect(() => {
         if (scene !== 15) return;
-        const t = setTimeout(() => setScene(16), 4500);
+        const t = setTimeout(() => setShowCmef(true), 4500);
         return () => clearTimeout(t);
     }, [scene]);
 
-    /* Scene 16 → final complete */
+    /* Scene 16 → final complete (5000ms covers both video headers) */
     useEffect(() => {
         if (scene !== 16) return;
-        const t = setTimeout(() => handleFinalComplete(), 4200);
+        const t = setTimeout(() => handleFinalComplete(), 5000);
         return () => clearTimeout(t);
     }, [scene]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -854,7 +864,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
 
     return (
         <>
-        <div className={`act-overlay${fadingOut ? ' act-overlay-exit' : ''}${s >= 4 ? ' act-overlay-white' : ''}`} style={s === 16 ? { zIndex: 1002 } : undefined}>
+        <div className={`act-overlay${fadingOut ? ' act-overlay-exit' : ''}${s >= 4 ? ' act-overlay-white' : ''}`} style={s === 16 ? { zIndex: 10002 } : undefined}>
 
             {/* ── Scene 3: Opening scene ── */}
             <div className={`act-scene${s === 3 ? ' act-scene-active' : ''}`}>
@@ -988,7 +998,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
             <div className={`act-scene act-scene-mock${s === 15 ? ' act-scene-active' : ''}`}>
                 {s >= 15 && (
                     <MockLobbyView
-                        active={s === 15}
+                        active={s === 15 && !showCmef}
                         customTags={customTags}
                         hasTags={hasTags}
                     />
@@ -1001,6 +1011,19 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
             </div>
 
         </div>
+
+        {/* ── CMEF section: 2nd + 3rd reshuffle → engagement header ── */}
+        {showCmef && (
+            <CoolerGeneralMatchEventFlow
+                isVisible={showCmef}
+                variant="compact"
+                startScene={22}
+                stopAfterScene={26}
+                embedded
+                hideSkip
+                onComplete={handleCmefComplete}
+            />
+        )}
 
         {/* ── "You're ready!" animation — plays after Save in scene 8/10 ── */}
         <UserIsReadyAnimation

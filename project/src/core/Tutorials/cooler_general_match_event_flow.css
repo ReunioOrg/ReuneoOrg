@@ -26,6 +26,17 @@
     transition: opacity 0.4s ease;
 }
 
+.cmef-overlay.cmef-embedded {
+    z-index: 1000;
+    transition: opacity 0.4s ease;
+    animation: cmefEmbeddedFadeIn 0.4s ease both;
+}
+
+@keyframes cmefEmbeddedFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
 /* ── Skip Button ────────────────────────────────── */
 
 .cmef-skip {

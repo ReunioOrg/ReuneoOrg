@@ -156,9 +156,18 @@ function pairSetToCircles(pairSet) {
     return result;
 }
 
-const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete, variant = 'full' }) => {
+const CoolerGeneralMatchEventFlow = ({
+    isVisible,
+    onComplete,
+    variant = 'full',
+    startScene: startSceneProp,
+    stopAfterScene,
+    hideSkip = false,
+    embedded = false,
+}) => {
     const isCompact = variant === 'compact';
-    const [currentScene, setCurrentScene] = useState(isCompact ? 15 : 0);
+    const startIdx = startSceneProp !== undefined ? startSceneProp : (isCompact ? 15 : 0);
+    const [currentScene, setCurrentScene] = useState(startIdx);
     const [fadingOut, setFadingOut] = useState(false);
     const [circles, setCircles] = useState([]);
     const [phoneRevealCount, setPhoneRevealCount] = useState(0);
@@ -175,9 +184,15 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete, variant = 'full' }
         }, isCompact ? 400 : 600);
     }, [onComplete, isCompact]);
 
+    // Always keep a ref to the latest finishTutorial so the isVisible effect can
+    // call it without being re-triggered every time the parent re-renders and
+    // produces a new onComplete reference (e.g. from AdminLobbyView's 1s polling).
+    const finishTutorialRef = useRef(finishTutorial);
+    finishTutorialRef.current = finishTutorial;
+
     useEffect(() => {
         if (!isVisible) {
-            setCurrentScene(isCompact ? 15 : 0);
+            setCurrentScene(startIdx);
             setFadingOut(false);
             setCircles([]);
             setPhoneRevealCount(0);
@@ -189,13 +204,21 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete, variant = 'full' }
             return;
         }
 
+        // When jumping into Act 7 (scene 22+), circles would normally be populated
+        // by scenes 16-21. Pre-seed them to the PAIR_SET_A layout so the reshuffle
+        // physics animation has dots to bounce on the very first frame.
+        if (startIdx >= 22) {
+            setCircles(pairSetToCircles(PAIR_SET_A));
+        }
+
         let elapsed = 0;
         const timers = [];
-        const start = isCompact ? 15 : 0;
 
         SCENES.forEach((scene, index) => {
-            if (index < start) return;
-            if (index > start) {
+            if (index < startIdx) return;
+            if (stopAfterScene !== undefined && index >= stopAfterScene) return;
+
+            if (index > startIdx) {
                 const timer = setTimeout(() => setCurrentScene(index), elapsed);
                 timers.push(timer);
             }
@@ -203,11 +226,13 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete, variant = 'full' }
             elapsed += duration;
         });
 
-        const endTimer = setTimeout(() => finishTutorial(), elapsed);
+        // Use the ref so this effect never needs to re-run just because onComplete
+        // changed reference — the ref always holds the latest version.
+        const endTimer = setTimeout(() => finishTutorialRef.current(), elapsed);
         timers.push(endTimer);
 
         return () => timers.forEach(clearTimeout);
-    }, [isVisible, finishTutorial]);
+    }, [isVisible]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         const timers = [];
@@ -390,7 +415,7 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete, variant = 'full' }
     const blueHeaderFading = (s === 25 && !round3HeaderReady) || s === 26;
 
     return (
-        <div className={`cmef-overlay ${isCompact ? 'cmef-compact' : ''} ${fadingOut ? 'cmef-fade-out' : ''}`}>
+        <div className={`cmef-overlay ${isCompact ? 'cmef-compact' : ''} ${embedded ? 'cmef-embedded' : ''} ${fadingOut ? 'cmef-fade-out' : ''}`}>
             <div className="cmef-wrapper">
                 <div className={`cmef-header-container ${isAct4 ? 'cmef-header-act4' : ''}`}>
                     {headerText && (
@@ -685,7 +710,7 @@ const CoolerGeneralMatchEventFlow = ({ isVisible, onComplete, variant = 'full' }
                     )}
                 </div>
             </div>
-            {s < 27 && (
+            {s < 27 && !hideSkip && (
                 <button className="cmef-skip" onClick={finishTutorial}>
                     skip <span className="cmef-skip-arrow">{'\u2192'}</span>
                 </button>

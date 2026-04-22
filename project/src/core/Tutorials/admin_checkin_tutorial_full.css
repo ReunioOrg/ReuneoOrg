@@ -279,7 +279,7 @@
 .act-phone-screen {
     flex: 1;
     width: 100%;
-    background: #ffffff;
+    background: #f8f9fb;
     border-radius: 3px;
     position: relative;
     overflow: hidden;
