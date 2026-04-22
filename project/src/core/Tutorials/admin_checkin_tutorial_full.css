@@ -1227,3 +1227,872 @@
         font-size: 0.87rem;
     }
 }
+
+/* ══════════════════════════════════════════════════
+   Scenes 11–15: Admin Start → Pairs → Lobby View
+   ══════════════════════════════════════════════════ */
+
+/* ── Keyframes ── */
+
+@keyframes actPillSlideIn {
+    from { opacity: 0; transform: translateY(14px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+@keyframes actActiveSlideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes actCardZoom {
+    from { transform: scale(1);    opacity: 1; }
+    to   { transform: scale(2.6);  opacity: 0; }
+}
+
+/* Real interrim fill (shortened from 8s → 1.4s for tutorial) */
+@keyframes actInterrimFill {
+    0%   { width: 0%; }
+    100% { width: 100%; }
+}
+
+@keyframes actInterrimRevealText {
+    0%   { clip-path: inset(0 100% 0 0); }
+    100% { clip-path: inset(0 0% 0 0); }
+}
+
+@keyframes actInterrimPulse {
+    0%, 100% { transform: scale(1);    opacity: 1;    }
+    50%       { transform: scale(1.08); opacity: 0.35; }
+}
+
+/* Real lobby.jsx lobbyPopBurst animation */
+@keyframes actLobbyPopBurst {
+    0%   { opacity: 0; transform: scale(2.5); }
+    25%  { opacity: 1; transform: scale(2);   }
+    50%  { opacity: 1; transform: scale(1);   }
+    75%  { opacity: 1; transform: scale(1.3); }
+    100% { opacity: 1; transform: scale(1);   }
+}
+
+@keyframes actLobbyCardIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* ── Shared: real pill track (matches .lobby-progress-track) ── */
+
+.act-admin-start-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0.35rem 0 0.6rem;
+    animation: actPillSlideIn 0.4s ease both;
+}
+
+/* Matches .lobby-progress-track exactly */
+.act-admin-pill-track {
+    display: flex;
+    align-items: center;
+    position: relative;
+    background: #e8eaef;
+    border-radius: 999px;
+    padding: 3px;
+    width: 280px;
+    max-width: 90vw;
+    height: 44px;
+}
+
+/* Matches .progress-pill-btn */
+.act-admin-pill {
+    position: relative;
+    flex: 1 1 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border-radius: 999px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    cursor: default;
+    transition: transform 0.15s ease;
+    border: none;
+}
+
+/* First pill overlaps second (matches real negative margin) */
+.act-admin-pill:first-child { margin-right: -10px; }
+.act-admin-pill:last-child  { margin-left: -10px; }
+
+/* .pill-on-top — matches real class */
+.act-admin-pill.pill-on-top {
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ── Scene 11 pill colors ── */
+
+/* Green Start (matches .progress-pill-start exactly) */
+.act-admin-pill-start {
+    background: #22c55e;
+    color: #ffffff;
+}
+
+/* Inactive End */
+.act-admin-pill-end-inactive {
+    background: transparent;
+    color: #9ca3af;
+}
+
+/* CTA pulse rings on Start pill */
+.act-admin-pill-start .act-cta-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    border: 2px solid rgba(34, 197, 94, 0.5);
+    transform: translate(-50%, -50%) scale(0.85);
+    animation: actRipple 1s ease-out infinite;
+}
+
+.act-admin-pill-start .act-cta-ring-2 {
+    animation-delay: 0.5s;
+}
+
+.act-admin-pill-press {
+    transform: scale(0.93) !important;
+    box-shadow: 0 2px 6px rgba(34, 197, 94, 0.2) !important;
+}
+
+/* ── Scene 12: Creating Pairs fill animation ── */
+
+/* Add overflow:hidden + fill ::before to the track */
+.act-interrim-track {
+    overflow: hidden;
+}
+
+.act-interrim-track::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    border-radius: 999px 0 0 999px;
+    background: linear-gradient(
+        90deg,
+        #93b8fc 0%,
+        #6fa3f7 35%,
+        #4b73ef 70%,
+        #3a5fe0 100%
+    );
+    opacity: 0.55;
+    animation: actInterrimFill 1.4s linear forwards;
+    z-index: 0;
+}
+
+/* Text label that reveals left-to-right as bar fills */
+.act-interrim-label-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    font-weight: 800;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #fff;
+    z-index: 3;
+    pointer-events: none;
+    clip-path: inset(0 100% 0 0);
+    animation: actInterrimRevealText 1.4s linear forwards,
+               actInterrimPulse 1.6s ease-in-out infinite;
+}
+
+/* ── Scene 13: Active-state pill colors ── */
+
+.act-active-pill-track {
+    margin-bottom: 0;
+}
+
+/* Inactive Start in active state */
+.act-admin-pill-end-inactive-s13 {
+    background: transparent;
+    color: #9ca3af;
+}
+
+/* Red End (matches .progress-pill-end) */
+.act-admin-pill-end-active {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+/* ── Scene 13: Full active-state mock ── */
+
+.act-active-mock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 340px;
+    animation: actActiveSlideIn 0.4s ease both;
+    padding-bottom: 24px;
+}
+
+/* Attendee QR / Settings wide buttons (match .admin-lobby-dropdown-toggle) */
+.act-admin-wide-btn {
+    width: 100%;
+    max-width: 340px;
+    margin-top: 8px;
+    padding: 13px 20px;
+    background: #4b73ef;
+    color: #ffffff;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    box-shadow: 0 2px 8px rgba(75, 115, 239, 0.2);
+}
+
+/* Overlapping profile icons row */
+.act-mock-profile-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.act-mock-profile-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2.5px solid #ffffff;
+    margin-left: -10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.act-mock-profile-icon:first-child { margin-left: 0; }
+
+.act-mock-profile-overflow {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    border: 2.5px solid #ffffff;
+    margin-left: -10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #6b7280;
+    letter-spacing: -1px;
+}
+
+.act-mock-profile-label {
+    font-size: 0.82rem;
+    color: #3b82f6;
+    font-weight: 500;
+    margin-bottom: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.act-mock-profile-label strong { font-weight: 700; }
+
+/* Stats + Timer row */
+.act-mock-stats-timer-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 8px;
+    gap: 16px;
+}
+
+.act-mock-stats-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.act-mock-stat-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.act-mock-stat-label {
+    font-size: 0.78rem;
+    color: #6b7280;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-width: 60px;
+}
+
+.act-mock-stat-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.act-mock-timer { flex-shrink: 0; }
+
+/* Paired Players section header (matches .section-header) */
+.act-section-header {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    width: 100%;
+    padding: 4px 8px 10px;
+}
+
+.act-section-header-count {
+    color: #4b73ef;
+    font-weight: 800;
+    margin-left: 4px;
+}
+
+/* Player grid — 2 cards per row on wider screens, 1 on narrow */
+.act-player-grid {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Paired player card (matches .paired-player-card) */
+.act-paired-player-card {
+    position: relative;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+    padding: 28px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Vertical connecting line between the two players */
+.act-paired-player-card::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1px;
+    height: 50px;
+    background: linear-gradient(180deg,
+        rgba(20, 77, 255, 0) 0%,
+        rgba(20, 77, 255, 0.4) 20%,
+        rgba(20, 77, 255, 0.7) 50%,
+        rgba(20, 77, 255, 0.4) 80%,
+        rgba(20, 77, 255, 0) 100%
+    );
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+/* MATCHED badge (matches .matched-pair-badge) */
+.act-matched-pair-badge {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #4b73ef 0%, #64B5F6 100%);
+    color: #ffffff;
+    padding: 3px 14px;
+    border-radius: 16px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 10;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    white-space: nowrap;
+}
+
+/* Row of two players side by side */
+.act-paired-players-row {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Individual player column */
+.act-paired-player-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+}
+
+/* Player avatar (matches .paired-player-avatar) */
+.act-paired-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Player name */
+.act-paired-name {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #1f2937;
+    text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.3;
+}
+
+/* Matching tag container */
+.act-matched-player-tag {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 3px;
+    max-width: 100%;
+}
+
+/* Tag pill (matches .matching-tag-pill) */
+.act-matching-tag-pill {
+    background: linear-gradient(135deg, #4b73ef 0%, #64B5F6 100%);
+    color: #ffffff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.58rem;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 90px;
+    white-space: nowrap;
+}
+
+/* ── Scenes 11 & 12: Admin start header text ── */
+
+.act-admin-scene-header-text {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #4b5563;
+    text-align: center;
+    margin: 0 0 1.2rem;
+    line-height: 1.45;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    animation: actMockContentIn 0.4s ease both;
+    max-width: 280px;
+}
+
+/* ── Scene 13: Centered timer ── */
+
+.act-mock-timer-centered {
+    display: flex;
+    justify-content: center;
+    padding: 12px 0 8px;
+}
+
+/* ── Scene 13: Upper group blur ── */
+
+/* Outer wrapper — provides the stacking context the absolute header is relative to */
+.act-active-upper-wrap {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.act-active-upper-group {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: filter 0.5s ease, opacity 0.5s ease;
+}
+
+.act-active-upper-blurred {
+    filter: blur(4px);
+    opacity: 0.18;
+    pointer-events: none;
+}
+
+/* ── Scene 13: Overlay header on blurred area ── */
+
+.act-active-blur-header {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    pointer-events: none;
+    background: rgba(248, 249, 251, 0.88);
+    border-radius: 16px;
+    animation: actFadeIn 0.45s ease both;
+    z-index: 5;
+}
+
+@keyframes actTextPopBurst {
+    0%   { opacity: 0; transform: scale(0.45); }
+    55%  { opacity: 1; transform: scale(1.1);  }
+    75%  { transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1);    }
+}
+
+.act-active-blur-header-text {
+    position: relative;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    text-align: center;
+    line-height: 1.5;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    animation: actTextPopBurst 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* ── Confetti burst on header text ── */
+
+.act-blur-conf-burst {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.act-bconf {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.act-bconf-1 { width: 8px;  height: 8px;  border-radius: 50%;  background: #3b82f6; animation: actBhC1 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s both; }
+.act-bconf-2 { width: 6px;  height: 10px; border-radius: 2px;  background: #f59e0b; animation: actBhC2 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) 0.09s both; }
+.act-bconf-3 { width: 7px;  height: 7px;  border-radius: 50%;  background: #f87171; animation: actBhC3 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) 0.13s both; }
+.act-bconf-4 { width: 6px;  height: 9px;  border-radius: 2px;  background: #34d399; animation: actBhC4 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) 0.07s both; }
+.act-bconf-5 { width: 8px;  height: 8px;  border-radius: 50%;  background: #8b5cf6; animation: actBhC5 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) 0.11s both; }
+.act-bconf-6 { width: 5px;  height: 8px;  border-radius: 2px;  background: #60a5fa; animation: actBhC6 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both; }
+.act-bconf-7 { width: 7px;  height: 7px;  border-radius: 50%;  background: #fbbf24; animation: actBhC7 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) 0.10s both; }
+.act-bconf-8 { width: 6px;  height: 9px;  border-radius: 2px;  background: #fb923c; animation: actBhC8 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) 0.06s both; }
+
+@keyframes actBhC1 { 0% { transform: translate(0,0) scale(0) rotate(0deg); opacity:1; } 25% { transform: translate(-12px,-15px) scale(1.3) rotate(45deg); opacity:1; } 100% { transform: translate(-52px,-62px) scale(0.2) rotate(200deg); opacity:0; } }
+@keyframes actBhC2 { 0% { transform: translate(0,0) scale(0) rotate(0deg); opacity:1; } 25% { transform: translate(16px,-11px) scale(1.3) rotate(-30deg); opacity:1; } 100% { transform: translate(68px,-48px) scale(0.2) rotate(-180deg); opacity:0; } }
+@keyframes actBhC3 { 0% { transform: translate(0,0) scale(0) rotate(0deg); opacity:1; } 25% { transform: translate(18px,4px) scale(1.3) rotate(20deg); opacity:1; } 100% { transform: translate(78px,18px) scale(0.2) rotate(160deg); opacity:0; } }
+@keyframes actBhC4 { 0% { transform: translate(0,0) scale(0) rotate(0deg); opacity:1; } 25% { transform: translate(13px,12px) scale(1.3) rotate(-25deg); opacity:1; } 100% { transform: translate(58px,52px) scale(0.2) rotate(-200deg); opacity:0; } }
+@keyframes actBhC5 { 0% { transform: translate(0,0) scale(0) rotate(0deg); opacity:1; } 25% { transform: translate(-14px,10px) scale(1.3) rotate(35deg); opacity:1; } 100% { transform: translate(-62px,42px) scale(0.2) rotate(220deg); opacity:0; } }
+@keyframes actBhC6 { 0% { transform: translate(0,0) scale(0) rotate(0deg); opacity:1; } 25% { transform: translate(-17px,-3px) scale(1.3) rotate(-40deg); opacity:1; } 100% { transform: translate(-72px,-12px) scale(0.2) rotate(-190deg); opacity:0; } }
+@keyframes actBhC7 { 0% { transform: translate(0,0) scale(0) rotate(0deg); opacity:1; } 25% { transform: translate(4px,-16px) scale(1.3) rotate(15deg); opacity:1; } 100% { transform: translate(18px,-68px) scale(0.2) rotate(170deg); opacity:0; } }
+@keyframes actBhC8 { 0% { transform: translate(0,0) scale(0) rotate(0deg); opacity:1; } 25% { transform: translate(-5px,14px) scale(1.3) rotate(-20deg); opacity:1; } 100% { transform: translate(-24px,62px) scale(0.2) rotate(-210deg); opacity:0; } }
+
+/* ── Scene 13: Kate avatar pulse rings ── */
+
+.act-avatar-pulse-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes actAvatarRipple {
+    0%   { transform: translate(-50%, -50%) scale(0.9); opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
+}
+
+.act-avatar-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2.5px solid rgba(75, 115, 239, 0.55);
+    animation: actAvatarRipple 1.1s ease-out infinite;
+    pointer-events: none;
+}
+
+.act-avatar-ring-2 {
+    animation-delay: 0.55s;
+}
+
+/* ── Scene 14: Profile photo zoom (spatial — starts from Kate's card position) ── */
+
+.act-scene-profile-zoom {
+    overflow: hidden;
+    padding: 0;
+}
+
+.act-profile-zoom-wrapper {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.act-profile-zoom-img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e5e7eb;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    /* Start below center, small — approximates Kate's paired card position in scene 13 */
+    transform: translateY(130px) scale(0.65);
+    transition: transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+}
+
+.act-profile-zoom-in {
+    transform: translateY(0) scale(2.4);
+}
+
+/* ── Scene 14 (old): Paired card zoom — kept for reference ── */
+
+.act-zoom-pair-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    padding: 20px 28px 24px;
+    width: 270px;
+    transform: scale(1);
+    opacity: 1;
+    position: relative;
+}
+
+.act-zoom-pair-zoomed {
+    animation: actCardZoom 0.7s ease forwards;
+}
+
+.act-matched-badge-mock {
+    background: linear-gradient(135deg, #4b73ef, #64B5F6);
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 4px 14px;
+    border-radius: 999px;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.act-pair-avatars {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.act-pair-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.act-pair-avatar {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e5e7eb;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.act-pair-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #1f2937;
+    text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ── Scene 15: Kate's lobby view (matches lobby.jsx paired layout) ── */
+
+.act-lobby-mock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 380px;
+}
+
+/* "Go find!" h2 — matches lobby.jsx margin-top: -30px */
+.act-lobby-header {
+    margin: -30px 0 0 0;
+    text-align: center;
+    width: 100%;
+}
+
+/* Matches .lobby-pop-burst from lobby.css exactly */
+.act-lobby-pop-burst {
+    display: inline-block;
+    color: #4b5563;
+    font-weight: 700;
+    font-size: 1.4rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    animation: actLobbyPopBurst 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Timer — sits below the header, matches real lobby layout */
+.act-lobby-timer-wrap {
+    margin: 10px 0 18px;
+}
+
+/* PlayerCard — scaled 0.74× from real (350×450) → 260×335 */
+.act-lobby-player-card-wrap {
+    position: relative;
+    width: 260px;
+    height: 335px;
+    animation: actLobbyCardIn 0.5s ease 0.15s both;
+}
+
+.act-lobby-player-photo {
+    width: 260px;
+    height: 335px;
+    object-fit: cover;
+    border-radius: 21px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    display: block;
+}
+
+/* Name badge — matches playerCard.jsx exactly (scaled) */
+.act-lobby-player-name-badge {
+    position: absolute;
+    bottom: -6px;
+    left: 1px;
+    right: 1px;
+    background: linear-gradient(135deg, #42A5F5 0%, #2196F3 30%, #1976D2 70%, #1565C0 100%);
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 50px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.25);
+    letter-spacing: 0.02em;
+}
+
+/* Matched tags row */
+.act-mock-tag-row {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.act-mock-matched-tag {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ══════════════════════════════════════════════════
+   Scene 16: Video ending
+   ══════════════════════════════════════════════════ */
+
+/* Override scene padding so the video fills edge to edge */
+.act-scene-video {
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Container that fills the scene absolutely */
+.act-video-ending {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Background video — covers the full scene */
+.act-video-ending-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Dark gradient scrim — lower half of screen for text legibility */
+.act-video-ending-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 35%,
+        rgba(0, 0, 0, 0.45) 65%,
+        rgba(0, 0, 0, 0.65) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Text header */
+.act-video-header {
+    position: absolute;
+    bottom: 22%;
+    left: 0;
+    right: 0;
+    padding: 0 28px;
+    margin: 0;
+    text-align: center;
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    z-index: 2;
+}
+
+@keyframes actVideoHeaderIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes actVideoHeaderOut {
+    from { opacity: 1; transform: translateY(0);     }
+    to   { opacity: 0; transform: translateY(-14px); }
+}
+
+.act-video-header-in {
+    animation: actVideoHeaderIn 0.5s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+.act-video-header-out {
+    animation: actVideoHeaderOut 0.4s cubic-bezier(0.4, 0, 1, 1) both;
+}

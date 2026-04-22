@@ -3,6 +3,7 @@ import './admin_checkin_tutorial_full.css';
 import '../lobby/how_to_tutorial.css';
 import UserIsReadyAnimation from '../lobby/user_is_ready_animation';
 import { TutorialSlide2, TutorialSlide3 } from '../lobby/how_to_tutorial';
+import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 
 const PersonIcon = ({ color = '#3b82f6' }) => (
     <svg viewBox="0 0 32 80" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -372,12 +373,351 @@ function splitTags(shuffled) {
     };
 }
 
+/* ── Scene 11-15 data & components ──────────────────────────────────────── */
+
+const MOCK_PROFILES = [
+    { src: '/assets/kate_rodriguez.png',  name: 'Kate Rodriguez' },
+    { src: '/assets/tony_chopper.jpg',    name: 'Tony Chopper' },
+    { src: '/assets/lolita_johnson.png',  name: 'Lolita Johnson' },
+    { src: '/assets/eddy_nunez.png',      name: 'Eddy Nunez' },
+    { src: '/assets/sarah_ramirez.png',   name: 'Sarah Ramirez' },
+    { src: '/assets/ken_johnson.png',     name: 'Ken Johnson' },
+    { src: '/assets/topaz_jones.png',     name: 'Topaz Jones' },
+    { src: '/assets/sarah_riez.png',      name: 'Sarah Riez' },
+    { src: '/assets/amy_chang.png',       name: 'Amy Chang' },
+    { src: '/assets/blake_johnson.png',   name: 'Blake Johnson' },
+    { src: '/assets/wendy_blonde.png',    name: 'Wendy B.' },
+    { src: '/assets/mike_laos.png',       name: 'Mike Laos' },
+    { src: '/assets/loretta_garza.png',   name: 'Loretta Garza' },
+    { src: '/assets/kayla_villalobos.png',name: 'Kayla V.' },
+    { src: '/assets/sofia_cortez.png',    name: 'Sofia Cortez' },
+    { src: '/assets/yolanda_soap.png',    name: 'Yolanda Soap' },
+];
+
+/* Admin mock — isolated pill bar with CTA pulse, pinned near top */
+const MockAdminStart = ({ showPulse, showPress }) => (
+    <div className="act-admin-start-wrapper">
+        <div className="act-admin-pill-track">
+            <div className={`act-admin-pill act-admin-pill-start pill-on-top${showPress ? ' act-admin-pill-press' : ''}`}>
+                Start
+                {showPulse && !showPress && (
+                    <>
+                        <span className="act-cta-ring act-cta-ring-1" />
+                        <span className="act-cta-ring act-cta-ring-2" />
+                    </>
+                )}
+            </div>
+            <div className="act-admin-pill act-admin-pill-end-inactive">End</div>
+        </div>
+    </div>
+);
+
+/* Interrim "Creating Pairs…" — real fill-bar animation matching lobby-progress-interrim */
+const MockInterrimBar = () => (
+    <div className="act-admin-start-wrapper">
+        <div className="act-admin-pill-track act-interrim-track">
+            <div className="act-interrim-label-text">Creating Pairs…</div>
+        </div>
+    </div>
+);
+
+/* Active state — simplified mock of admin_lobby_view active state */
+const MOCK_PAIRS = [
+    { p1: MOCK_PROFILES[0], p2: MOCK_PROFILES[1], tag1: null,         tag2: null },
+    { p1: MOCK_PROFILES[2], p2: MOCK_PROFILES[3], tag1: null,         tag2: null },
+    { p1: MOCK_PROFILES[4], p2: MOCK_PROFILES[5], tag1: null,         tag2: null },
+];
+
+const MockActiveState = ({ customTags, active }) => {
+    const visible = MOCK_PROFILES.slice(0, 10);
+    const tag1 = customTags && customTags[0] ? customTags[0] : null;
+    const tag2 = customTags && customTags[1] ? customTags[1] : null;
+
+    /* Rapid countdown: 6:55 → 6:35 (20s) over 2 real seconds */
+    const [timerSecs, setTimerSecs] = useState(415);
+    const ivRef = useRef(null);
+
+    /* Blur upper section + show header + pulse Kate's avatar */
+    const [showBlur, setShowBlur] = useState(false);
+    const [showKatePulse, setShowKatePulse] = useState(false);
+
+    useEffect(() => {
+        if (!active) {
+            setTimerSecs(415);
+            setShowBlur(false);
+            setShowKatePulse(false);
+            if (ivRef.current) { clearInterval(ivRef.current); ivRef.current = null; }
+            return;
+        }
+        const timers = [];
+
+        /* Start rapid countdown after 250ms */
+        timers.push(setTimeout(() => {
+            let count = 0;
+            ivRef.current = setInterval(() => {
+                count++;
+                setTimerSecs(prev => prev - 1);
+                if (count >= 20) { clearInterval(ivRef.current); ivRef.current = null; }
+            }, 100);
+        }, 250));
+
+        /* Blur + header + Kate pulse kick in after timer finishes (~2.4s) */
+        timers.push(setTimeout(() => {
+            setShowBlur(true);
+            setShowKatePulse(true);
+        }, 2400));
+
+        return () => {
+            timers.forEach(clearTimeout);
+            if (ivRef.current) { clearInterval(ivRef.current); ivRef.current = null; }
+        };
+    }, [active]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const timerMins = Math.floor(timerSecs / 60);
+    const timerSecsPart = timerSecs % 60;
+    const timerStr = `${timerMins}:${String(timerSecsPart).padStart(2, '0')}`;
+
+    return (
+        <div className="act-active-mock">
+
+            {/* ── Upper group wrapper: header is a sibling of the blurred div so
+                   CSS filter cannot reach it ── */}
+            <div className="act-active-upper-wrap">
+                <div className={`act-active-upper-group${showBlur ? ' act-active-upper-blurred' : ''}`}>
+                    {/* Progress bar */}
+                    <div className="act-admin-pill-track act-active-pill-track">
+                        <div className="act-admin-pill act-admin-pill-end-inactive-s13">Start</div>
+                        <div className="act-admin-pill act-admin-pill-end-active pill-on-top">End</div>
+                    </div>
+
+                    {/* Overlapping profile row */}
+                    <div className="act-mock-profile-row" style={{ marginTop: '12px' }}>
+                        {visible.map((p, i) => (
+                            <img key={i} src={p.src} alt={p.name}
+                                className="act-mock-profile-icon" style={{ zIndex: i + 1 }} />
+                        ))}
+                        <span className="act-mock-profile-overflow">•••</span>
+                    </div>
+                    <div className="act-mock-profile-label">
+                        People Joined: <strong>15</strong>
+                    </div>
+
+                    {/* Centered timer */}
+                    <div className="act-mock-timer-centered">
+                        <CountdownCircleTimer
+                            isPlaying={false}
+                            duration={480}
+                            initialRemainingTime={415}
+                            colors={['#64B5F6', '#2196F3', '#1976D2']}
+                            colorsTime={[480, 240, 0]}
+                            size={90}
+                            strokeWidth={8}
+                            trailColor="#f0f1f4"
+                            strokeLinecap="round"
+                        >
+                            {() => (
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '1.35rem', color: '#1a1a2e', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>{timerStr}</span>
+                                    <span style={{ fontSize: '0.6rem', color: '#6b7280', fontWeight: 500, marginTop: '2px' }}>time left</span>
+                                </div>
+                            )}
+                        </CountdownCircleTimer>
+                    </div>
+                </div>
+
+                {/* Header lives OUTSIDE the blurred div — filter cannot reach it */}
+                {showBlur && (
+                    <div className="act-active-blur-header">
+                        <p className="act-active-blur-header-text">
+                            The only way to guarantee connections at the beginning of any event!
+                            <span className="act-blur-conf-burst">
+                                <span className="act-bconf act-bconf-1" />
+                                <span className="act-bconf act-bconf-2" />
+                                <span className="act-bconf act-bconf-3" />
+                                <span className="act-bconf act-bconf-4" />
+                                <span className="act-bconf act-bconf-5" />
+                                <span className="act-bconf act-bconf-6" />
+                                <span className="act-bconf act-bconf-7" />
+                                <span className="act-bconf act-bconf-8" />
+                            </span>
+                        </p>
+                    </div>
+                )}
+            </div>
+
+            {/* Paired Players section */}
+            <div className="act-section-header">
+                Paired Players: <span className="act-section-header-count">14</span>
+            </div>
+            <div className="act-player-grid">
+                {MOCK_PAIRS.map(({ p1, p2 }, idx) => (
+                    <div key={idx} className="act-paired-player-card">
+                        <div className="act-matched-pair-badge">Matched</div>
+                        <div className="act-paired-players-row">
+                            <div className="act-paired-player-col">
+                                {/* Kate's avatar — pulse ring when showKatePulse and this is the first card */}
+                                <div className={`act-avatar-pulse-wrap${idx === 0 && showKatePulse ? ' act-avatar-pulsing' : ''}`}>
+                                    <img src={p1.src} alt={p1.name} className="act-paired-avatar" />
+                                    {idx === 0 && showKatePulse && (
+                                        <>
+                                            <span className="act-avatar-ring act-avatar-ring-1" />
+                                            <span className="act-avatar-ring act-avatar-ring-2" />
+                                        </>
+                                    )}
+                                </div>
+                                <span className="act-paired-name">{p1.name}</span>
+                                {tag1 && (
+                                    <div className="act-matched-player-tag">
+                                        <span className="act-matching-tag-pill">{tag1}</span>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="act-paired-player-col">
+                                <img src={p2.src} alt={p2.name} className="act-paired-avatar" />
+                                <span className="act-paired-name">{p2.name}</span>
+                                {tag2 && (
+                                    <div className="act-matched-player-tag">
+                                        <span className="act-matching-tag-pill">{tag2}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+/* Scene 14: Kate's profile icon zooms to fill the screen */
+const MockProfileZoom = ({ zoomed }) => (
+    <div className="act-profile-zoom-wrapper">
+        <img
+            src="/assets/kate_rodriguez.png"
+            alt="Kate Rodriguez"
+            className={`act-profile-zoom-img${zoomed ? ' act-profile-zoom-in' : ''}`}
+        />
+    </div>
+);
+
+/* Kate's lobby view — Go find Tony! — layout matches real lobby.jsx paired state */
+const MockLobbyView = ({ active, customTags, hasTags }) => {
+    const [showCard, setShowCard] = useState(false);
+
+    useEffect(() => {
+        if (!active) { setShowCard(false); return; }
+        const t = setTimeout(() => setShowCard(true), 200);
+        return () => clearTimeout(t);
+    }, [active]);
+
+    return (
+        <div className="act-lobby-mock">
+
+            {/* "Go find!" header — real lobby-pop-burst style */}
+            <h2 className="act-lobby-header">
+                <span className="act-lobby-pop-burst">
+                    Go find Tony Chopper!
+                </span>
+            </h2>
+
+            {/* Timer — counts down at real speed for the duration of the scene */}
+            <div className="act-lobby-timer-wrap">
+                <CountdownCircleTimer
+                    isPlaying={active}
+                    duration={480}
+                    initialRemainingTime={405}
+                    colors={['#64B5F6', '#2196F3', '#1976D2']}
+                    colorsTime={[480, 240, 0]}
+                    size={100}
+                    strokeWidth={8}
+                    trailColor="#f0f1f4"
+                    strokeLinecap="round"
+                >
+                    {({ remainingTime }) => {
+                        const t = typeof remainingTime === 'number' ? remainingTime : 405;
+                        const mins = Math.floor(t / 60);
+                        const secs = Math.floor(t % 60);
+                        return (
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                <span style={{ fontSize: '1.35rem', color: '#1a1a2e', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>{mins}:{String(secs).padStart(2, '0')}</span>
+                                <span style={{ fontSize: '0.6rem', color: '#6b7280', fontWeight: 500, marginTop: '2px' }}>time left</span>
+                            </div>
+                        );
+                    }}
+                </CountdownCircleTimer>
+            </div>
+
+            {/* PlayerCard — matches playerCard.jsx exactly (scaled to fit overlay) */}
+            {showCard && (
+                <div className="act-lobby-player-card-wrap">
+                    <img src="/assets/tony_chopper.jpg" alt="Tony Chopper" className="act-lobby-player-photo" />
+                    <div className="act-lobby-player-name-badge">Tony Chopper</div>
+                </div>
+            )}
+
+            {/* Matched tags — only if hasTags */}
+            {hasTags && customTags && customTags.length >= 2 && (
+                <div className="act-mock-tag-row">
+                    {customTags.slice(0, 2).map((tag, i) => (
+                        <span key={i} className="act-mock-matched-tag">{tag}</span>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
+/* ── Scene 16: Video ending with two header messages ───────────────────── */
+
+const ENDING_HEADERS = [
+    'Turn your event into a connection engine',
+    'No app, just a QR code and passion for conversation',
+];
+
+const MockVideoEnding = ({ active }) => {
+    const [phase, setPhase] = useState(0);
+    // phase 0 = idle, 1 = first header in, 2 = first header out, 3 = second header in, 4 = second header out
+
+    useEffect(() => {
+        if (!active) { setPhase(0); return; }
+        const timers = [
+            setTimeout(() => setPhase(1), 100),
+            setTimeout(() => setPhase(2), 1800),
+            setTimeout(() => setPhase(3), 2200),
+            setTimeout(() => setPhase(4), 3900),
+        ];
+        return () => timers.forEach(clearTimeout);
+    }, [active]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    return (
+        <div className="act-video-ending">
+            <video className="act-video-ending-bg" autoPlay muted playsInline>
+                <source src="/assets/demo_app_home_video_X2_small.mp4" type="video/mp4" />
+            </video>
+            <div className="act-video-ending-scrim" />
+            {(phase === 1 || phase === 2) && (
+                <p className={`act-video-header${phase === 2 ? ' act-video-header-out' : ' act-video-header-in'}`}>
+                    {ENDING_HEADERS[0]}
+                </p>
+            )}
+            {(phase === 3 || phase === 4) && (
+                <p className={`act-video-header${phase === 4 ? ' act-video-header-out' : ' act-video-header-in'}`}>
+                    {ENDING_HEADERS[1]}
+                </p>
+            )}
+        </div>
+    );
+};
+
 /* ── Main component ─────────────────────────────────────────────────────── */
 
 const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
     const [scene, setScene] = useState(0);
     const [fadingOut, setFadingOut] = useState(false);
     const [showReady, setShowReady] = useState(false);
+    const [showAdminPulse, setShowAdminPulse] = useState(false);
+    const [showAdminPress, setShowAdminPress] = useState(false);
+    const [cardZoomed, setCardZoomed] = useState(false);
 
     /* One-time shuffle of tags — computed when tutorial becomes visible */
     const tagSplitRef = useRef(null);
@@ -398,6 +738,9 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
             setScene(0);
             setFadingOut(false);
             setShowReady(false);
+            setShowAdminPulse(false);
+            setShowAdminPress(false);
+            setCardZoomed(false);
             return;
         }
 
@@ -408,6 +751,13 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
         ];
         return () => timers.forEach(clearTimeout);
     }, [isVisible]);
+
+    /* Scene 3 → 4: auto-advance after 3s on scene 3 */
+    useEffect(() => {
+        if (scene !== 3) return;
+        const t = setTimeout(() => setScene(4), 3000);
+        return () => clearTimeout(t);
+    }, [scene]);
 
     /* Scene 4 → 5: after phone zoom completes */
     useEffect(() => {
@@ -423,22 +773,34 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
         return () => clearTimeout(t);
     }, [scene]);
 
-    const handleComplete = () => {
+    /* After "You're ready!" ends → continue to admin-start scenes */
+    const handleAfterReady = () => {
+        setShowReady(false);
+        setScene(11);
+    };
+
+    /* After scene 15 → actually close the tutorial */
+    const handleFinalComplete = () => {
         setFadingOut(true);
         setTimeout(() => onComplete?.(), 400);
     };
 
-    /* Scene 7 → 8 (no-tags branch: volume slide auto-advances after 4000ms) */
+    /* Scene 7 → 8: volume slide auto-advances after 4000ms (both branches) */
     useEffect(() => {
-        if (scene !== 7 || hasTags) return;
+        if (scene !== 7) return;
         const t = setTimeout(() => setScene(8), 4000);
         return () => clearTimeout(t);
-    }, [scene, hasTags]);
+    }, [scene]);
 
-    /* Scene 8 → complete (no-tags branch: pause slide auto-advances after 5000ms) */
+    /* Scene 8 end: pause slide auto-advances after 5000ms.
+       no-tags  → trigger You're Ready directly
+       has-tags → advance to tag selection (scene 9) */
     useEffect(() => {
-        if (scene !== 8 || hasTags) return;
-        const t = setTimeout(handleComplete, 5000);
+        if (scene !== 8) return;
+        const t = setTimeout(() => {
+            if (hasTags) setScene(9);
+            else setShowReady(true);
+        }, 5000);
         return () => clearTimeout(t);
     }, [scene, hasTags]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -448,6 +810,58 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
         setScene(7);
     };
 
+    /* Scene 11: CTA pulse → press → advance to interrim */
+    useEffect(() => {
+        if (scene !== 11) return;
+        setShowAdminPulse(false);
+        setShowAdminPress(false);
+        const timers = [
+            setTimeout(() => setShowAdminPulse(true), 1200),
+            setTimeout(() => setShowAdminPress(true), 2500),
+            setTimeout(() => setScene(12), 4000),
+        ];
+        return () => timers.forEach(clearTimeout);
+    }, [scene]);
+
+    /* Scene 12 → 13 */
+    useEffect(() => {
+        if (scene !== 12) return;
+        const t = setTimeout(() => setScene(13), 1600);
+        return () => clearTimeout(t);
+    }, [scene]);
+
+    /* Scene 13 → 14 */
+    useEffect(() => {
+        if (scene !== 13) return;
+        const t = setTimeout(() => setScene(14), 5500);
+        return () => clearTimeout(t);
+    }, [scene]);
+
+    /* Scene 14: zoom Kate's profile photo → advance to lobby view */
+    useEffect(() => {
+        if (scene !== 14) return;
+        setCardZoomed(false);
+        const timers = [
+            setTimeout(() => setCardZoomed(true), 100),
+            setTimeout(() => setScene(15), 1300),
+        ];
+        return () => timers.forEach(clearTimeout);
+    }, [scene]);
+
+    /* Scene 15 → 16 (video ending) */
+    useEffect(() => {
+        if (scene !== 15) return;
+        const t = setTimeout(() => setScene(16), 4500);
+        return () => clearTimeout(t);
+    }, [scene]);
+
+    /* Scene 16 → final complete */
+    useEffect(() => {
+        if (scene !== 16) return;
+        const t = setTimeout(() => handleFinalComplete(), 4200);
+        return () => clearTimeout(t);
+    }, [scene]); // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!isVisible) return null;
 
     const s = scene;
@@ -455,7 +869,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
 
     return (
         <>
-        <div className={`act-overlay${fadingOut ? ' act-overlay-exit' : ''}${s >= 4 ? ' act-overlay-white' : ''}`}>
+        <div className={`act-overlay${fadingOut ? ' act-overlay-exit' : ''}${s >= 4 ? ' act-overlay-white' : ''}`} style={s === 16 ? { zIndex: 1002 } : undefined}>
 
             {/* ── Scenes 0-1: Scanning illustration ── */}
             <div className={`act-scene${s <= 1 ? ' act-scene-active' : ''}`}>
@@ -524,7 +938,6 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
                                 <span className="act-arrow">&rarr;</span>
                                 <TableWithQR />
                             </div>
-                            <CTAButton onClick={() => setScene(4)} />
                         </div>
                     </>
                 )}
@@ -545,28 +958,50 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
                 {s >= 6 && <MockPhotoStep active={s === 6} onDone={handleAfterPhoto} />}
             </div>
 
-            {/* ── Scene 7: Tag selection – Who are you? ── */}
+            {/* ── Scene 7: Volume slide (both branches) ── */}
+            <div className={`act-scene act-scene-mock act-howto-scene${s === 7 ? ' act-scene-active' : ''}`}>
+                {s >= 7 && (
+                    <div className="tutorial-container act-howto-container">
+                        <div className="tutorial-slide current">
+                            <TutorialSlide2 isActive={s === 7} />
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* ── Scene 8: Pause slide (both branches) ── */}
+            <div className={`act-scene act-scene-mock act-howto-scene${s === 8 ? ' act-scene-active' : ''}`}>
+                {s >= 8 && (
+                    <div className="tutorial-container act-howto-container">
+                        <div className="tutorial-slide current">
+                            <TutorialSlide3 isActive={s === 8} onPauseClicked={null} />
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* ── Scene 9: Tag selection – Who are you? (tags branch only) ── */}
             {hasTags && (
-                <div className={`act-scene act-scene-mock${s === 7 ? ' act-scene-active' : ''}`}>
-                    {s >= 7 && split && (
+                <div className={`act-scene act-scene-mock${s === 9 ? ' act-scene-active' : ''}`}>
+                    {s >= 9 && split && (
                         <MockTagStep
-                            active={s === 7}
+                            active={s === 9}
                             phase="self"
                             allTags={customTags}
                             autoSelected={split.selfTags}
                             selfComplete={false}
-                            onDone={() => setScene(8)}
+                            onDone={() => setScene(10)}
                         />
                     )}
                 </div>
             )}
 
-            {/* ── Scene 8: Tag selection – Who do you want to meet? ── */}
+            {/* ── Scene 10: Tag selection – Who do you want to meet? (tags branch only) ── */}
             {hasTags && (
-                <div className={`act-scene act-scene-mock${s === 8 ? ' act-scene-active' : ''}`}>
-                    {s >= 8 && split && (
+                <div className={`act-scene act-scene-mock${s === 10 ? ' act-scene-active' : ''}`}>
+                    {s >= 10 && split && (
                         <MockTagStep
-                            active={s === 8}
+                            active={s === 10}
                             phase="desiring"
                             allTags={customTags}
                             autoSelected={split.desiringTags}
@@ -577,38 +1012,62 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
                 </div>
             )}
 
-            {/* ── Scene 7 (no-tags): Volume slide ── */}
-            {!hasTags && (
-                <div className={`act-scene act-scene-mock act-howto-scene${s === 7 ? ' act-scene-active' : ''}`}>
-                    {s >= 7 && (
-                        <div className="tutorial-container act-howto-container">
-                            <div className="tutorial-slide current">
-                                <TutorialSlide2 isActive={s === 7} />
-                            </div>
-                        </div>
-                    )}
-                </div>
-            )}
+            {/* ── Scene 11: Isolated Start button with CTA pulse ── */}
+            <div className={`act-scene act-scene-mock${s === 11 ? ' act-scene-active' : ''}`}>
+                {s >= 11 && (
+                    <>
+                        <p className="act-admin-scene-header-text">
+                            I click Start after a few people have joined!
+                        </p>
+                        <MockAdminStart showPulse={showAdminPulse} showPress={showAdminPress} />
+                    </>
+                )}
+            </div>
 
-            {/* ── Scene 8 (no-tags): Pause slide ── */}
-            {!hasTags && (
-                <div className={`act-scene act-scene-mock act-howto-scene${s === 8 ? ' act-scene-active' : ''}`}>
-                    {s >= 8 && (
-                        <div className="tutorial-container act-howto-container">
-                            <div className="tutorial-slide current">
-                                <TutorialSlide3 isActive={s === 8} onPauseClicked={null} />
-                            </div>
-                        </div>
-                    )}
-                </div>
-            )}
+            {/* ── Scene 12: Creating Pairs… interrim ── */}
+            <div className={`act-scene act-scene-mock${s === 12 ? ' act-scene-active' : ''}`}>
+                {s >= 12 && (
+                    <>
+                        <p className="act-admin-scene-header-text">
+                            I click Start after a few people have joined!
+                        </p>
+                        <MockInterrimBar />
+                    </>
+                )}
+            </div>
+
+            {/* ── Scene 13: Active state — profiles + centered timer ── */}
+            <div className={`act-scene act-scene-mock${s === 13 ? ' act-scene-active' : ''}`}>
+                {s >= 13 && <MockActiveState customTags={customTags} active={s === 13} />}
+            </div>
+
+            {/* ── Scene 14: Zoom into Kate's profile photo ── */}
+            <div className={`act-scene act-scene-mock act-scene-profile-zoom${s === 14 ? ' act-scene-active' : ''}`}>
+                {s >= 14 && <MockProfileZoom zoomed={cardZoomed} />}
+            </div>
+
+            {/* ── Scene 15: Kate's lobby view ── */}
+            <div className={`act-scene act-scene-mock${s === 15 ? ' act-scene-active' : ''}`}>
+                {s >= 15 && (
+                    <MockLobbyView
+                        active={s === 15}
+                        customTags={customTags}
+                        hasTags={hasTags}
+                    />
+                )}
+            </div>
+
+            {/* ── Scene 16: Video ending ── */}
+            <div className={`act-scene act-scene-video${s === 16 ? ' act-scene-active' : ''}`}>
+                {s >= 16 && <MockVideoEnding active={s === 16} />}
+            </div>
 
         </div>
 
-        {/* ── "You're ready!" animation — plays after Save in scene 8 ── */}
+        {/* ── "You're ready!" animation — plays after Save in scene 8/10 ── */}
         <UserIsReadyAnimation
             isVisible={showReady}
-            onAnimationEnd={handleComplete}
+            onAnimationEnd={handleAfterReady}
             mainText="You're ready!"
             subText="You will be paired up soon."
         />
