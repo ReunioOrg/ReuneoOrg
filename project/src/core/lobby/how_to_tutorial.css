@@ -488,14 +488,14 @@
   letter-spacing: 0.02em;
   transition: all 0.2s ease;
   color: #ffffff;
-  background: #1a1a2e;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: #64B5F6;
+  box-shadow: 0 2px 8px rgba(100, 181, 246, 0.35);
 }
 
 .slide3-mock-pause:hover {
-  background: #2d2d44;
+  background: #42A5F5;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(100, 181, 246, 0.45);
 }
 
 .slide3-mock-pause:active {

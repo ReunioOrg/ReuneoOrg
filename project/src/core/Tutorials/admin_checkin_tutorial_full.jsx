@@ -406,6 +406,24 @@ const MockAdminStart = ({ showPulse, showPress }) => (
     </div>
 );
 
+/* End lobby mock — Start is now dimmed/used, End pill is active with pulse */
+const MockAdminEnd = ({ showPulse, showPress }) => (
+    <div className="act-admin-start-wrapper">
+        <div className="act-admin-pill-track">
+            <div className="act-admin-pill act-admin-pill-end-inactive-s13">Start</div>
+            <div className={`act-admin-pill act-admin-pill-end-active pill-on-top${showPress ? ' act-admin-pill-press' : ''}`}>
+                End
+                {showPulse && !showPress && (
+                    <>
+                        <span className="act-cta-ring act-cta-ring-1" />
+                        <span className="act-cta-ring act-cta-ring-2" />
+                    </>
+                )}
+            </div>
+        </div>
+    </div>
+);
+
 /* Interrim "Creating Pairs…" — real fill-bar animation matching lobby-progress-interrim */
 const MockInterrimBar = () => (
     <div className="act-admin-start-wrapper">
@@ -423,125 +441,44 @@ const MOCK_PAIRS = [
 ];
 
 const MockActiveState = ({ customTags, active }) => {
-    const visible = MOCK_PROFILES.slice(0, 10);
     const tag1 = customTags && customTags[0] ? customTags[0] : null;
     const tag2 = customTags && customTags[1] ? customTags[1] : null;
 
-    /* Rapid countdown: 6:55 → 6:35 (20s) over 2 real seconds */
-    const [timerSecs, setTimerSecs] = useState(415);
-    const ivRef = useRef(null);
-
-    /* Blur upper section + show header + pulse Kate's avatar */
-    const [showBlur, setShowBlur] = useState(false);
     const [showKatePulse, setShowKatePulse] = useState(false);
 
     useEffect(() => {
         if (!active) {
-            setTimerSecs(415);
-            setShowBlur(false);
             setShowKatePulse(false);
-            if (ivRef.current) { clearInterval(ivRef.current); ivRef.current = null; }
             return;
         }
-        const timers = [];
-
-        /* Start rapid countdown after 250ms */
-        timers.push(setTimeout(() => {
-            let count = 0;
-            ivRef.current = setInterval(() => {
-                count++;
-                setTimerSecs(prev => prev - 1);
-                if (count >= 20) { clearInterval(ivRef.current); ivRef.current = null; }
-            }, 100);
-        }, 250));
-
-        /* Blur + header + Kate pulse kick in after timer finishes (~2.4s) */
-        timers.push(setTimeout(() => {
-            setShowBlur(true);
-            setShowKatePulse(true);
-        }, 2400));
-
-        return () => {
-            timers.forEach(clearTimeout);
-            if (ivRef.current) { clearInterval(ivRef.current); ivRef.current = null; }
-        };
-    }, [active]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const timerMins = Math.floor(timerSecs / 60);
-    const timerSecsPart = timerSecs % 60;
-    const timerStr = `${timerMins}:${String(timerSecsPart).padStart(2, '0')}`;
+        /* Pulse both avatars immediately on entry */
+        const t = setTimeout(() => setShowKatePulse(true), 300);
+        return () => clearTimeout(t);
+    }, [active]);
 
     return (
         <div className="act-active-mock">
 
-            {/* ── Upper group wrapper: header is a sibling of the blurred div so
-                   CSS filter cannot reach it ── */}
-            <div className="act-active-upper-wrap">
-                <div className={`act-active-upper-group${showBlur ? ' act-active-upper-blurred' : ''}`}>
-                    {/* Progress bar */}
-                    <div className="act-admin-pill-track act-active-pill-track">
-                        <div className="act-admin-pill act-admin-pill-end-inactive-s13">Start</div>
-                        <div className="act-admin-pill act-admin-pill-end-active pill-on-top">End</div>
-                    </div>
-
-                    {/* Overlapping profile row */}
-                    <div className="act-mock-profile-row" style={{ marginTop: '12px' }}>
-                        {visible.map((p, i) => (
-                            <img key={i} src={p.src} alt={p.name}
-                                className="act-mock-profile-icon" style={{ zIndex: i + 1 }} />
-                        ))}
-                        <span className="act-mock-profile-overflow">•••</span>
-                    </div>
-                    <div className="act-mock-profile-label">
-                        People Joined: <strong>15</strong>
-                    </div>
-
-                    {/* Centered timer */}
-                    <div className="act-mock-timer-centered">
-                        <CountdownCircleTimer
-                            isPlaying={false}
-                            duration={480}
-                            initialRemainingTime={415}
-                            colors={['#64B5F6', '#2196F3', '#1976D2']}
-                            colorsTime={[480, 240, 0]}
-                            size={90}
-                            strokeWidth={8}
-                            trailColor="#f0f1f4"
-                            strokeLinecap="round"
-                        >
-                            {() => (
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '1.35rem', color: '#1a1a2e', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>{timerStr}</span>
-                                    <span style={{ fontSize: '0.6rem', color: '#6b7280', fontWeight: 500, marginTop: '2px' }}>time left</span>
-                                </div>
-                            )}
-                        </CountdownCircleTimer>
-                    </div>
-                </div>
-
-                {/* Header lives OUTSIDE the blurred div — filter cannot reach it */}
-                {showBlur && (
-                    <div className="act-active-blur-header">
-                        <p className="act-active-blur-header-text">
-                            Everyone will check their phones, find their person, and start chatting!
-                            <span className="act-blur-conf-burst">
-                                <span className="act-bconf act-bconf-1" />
-                                <span className="act-bconf act-bconf-2" />
-                                <span className="act-bconf act-bconf-3" />
-                                <span className="act-bconf act-bconf-4" />
-                                <span className="act-bconf act-bconf-5" />
-                                <span className="act-bconf act-bconf-6" />
-                                <span className="act-bconf act-bconf-7" />
-                                <span className="act-bconf act-bconf-8" />
-                            </span>
-                        </p>
-                    </div>
-                )}
+            {/* Header shown immediately at top of scene */}
+            <div className="act-s13-header">
+                <p className="act-active-blur-header-text">
+                    Everyone will check their phones, find their person, and start chatting!
+                    <span className="act-blur-conf-burst">
+                        <span className="act-bconf act-bconf-1" />
+                        <span className="act-bconf act-bconf-2" />
+                        <span className="act-bconf act-bconf-3" />
+                        <span className="act-bconf act-bconf-4" />
+                        <span className="act-bconf act-bconf-5" />
+                        <span className="act-bconf act-bconf-6" />
+                        <span className="act-bconf act-bconf-7" />
+                        <span className="act-bconf act-bconf-8" />
+                    </span>
+                </p>
             </div>
 
             {/* Paired Players section */}
             <div className="act-section-header">
-                Paired Players: <span className="act-section-header-count">14</span>
+                Paired Players: <span className="act-section-header-count">65</span>
             </div>
             <div className="act-player-grid">
                 {MOCK_PAIRS.map(({ p1, p2 }, idx) => (
@@ -549,7 +486,7 @@ const MockActiveState = ({ customTags, active }) => {
                         <div className="act-matched-pair-badge">Matched</div>
                         <div className="act-paired-players-row">
                             <div className="act-paired-player-col">
-                                {/* Kate's avatar — pulse ring when showKatePulse and this is the first card */}
+                                {/* Kate's avatar — pulse ring on first card */}
                                 <div className={`act-avatar-pulse-wrap${idx === 0 && showKatePulse ? ' act-avatar-pulsing' : ''}`}>
                                     <img src={p1.src} alt={p1.name} className="act-paired-avatar" />
                                     {idx === 0 && showKatePulse && (
@@ -567,7 +504,16 @@ const MockActiveState = ({ customTags, active }) => {
                                 )}
                             </div>
                             <div className="act-paired-player-col">
-                                <img src={p2.src} alt={p2.name} className="act-paired-avatar" />
+                                {/* Tony's avatar — same pulse ring on first card */}
+                                <div className={`act-avatar-pulse-wrap${idx === 0 && showKatePulse ? ' act-avatar-pulsing' : ''}`}>
+                                    <img src={p2.src} alt={p2.name} className="act-paired-avatar" />
+                                    {idx === 0 && showKatePulse && (
+                                        <>
+                                            <span className="act-avatar-ring act-avatar-ring-1" />
+                                            <span className="act-avatar-ring act-avatar-ring-2" />
+                                        </>
+                                    )}
+                                </div>
                                 <span className="act-paired-name">{p2.name}</span>
                                 {tag2 && (
                                     <div className="act-matched-player-tag">
@@ -594,9 +540,15 @@ const MockProfileZoom = ({ zoomed }) => (
     </div>
 );
 
+/* Helper: title-case a tag string */
+const titleCase = str => str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+
 /* Kate's lobby view — Go find Tony! — layout matches real lobby.jsx paired state */
-const MockLobbyView = ({ active, customTags, hasTags }) => {
+const MockLobbyView = ({ active, customTags, hasTags, showTableNumbers }) => {
     const [showCard, setShowCard] = useState(false);
+
+    const tag1 = hasTags && customTags && customTags[0] ? customTags[0] : null;
+    const tag2 = hasTags && customTags && customTags[1] ? customTags[1] : null;
 
     useEffect(() => {
         if (!active) { setShowCard(false); return; }
@@ -607,30 +559,38 @@ const MockLobbyView = ({ active, customTags, hasTags }) => {
     return (
         <div className="act-lobby-mock">
 
-            {/* "Go find!" header — real lobby-pop-burst style */}
+            {/* "Go find!" header */}
             <h2 className="act-lobby-header">
                 <span className="act-lobby-pop-burst">
                     Go find Tony Chopper!
                 </span>
             </h2>
 
-            {/* Timer — counts down at real speed for the duration of the scene */}
+            {/* Table number — only if enabled */}
+            {showTableNumbers && (
+                <div className="act-table-number">
+                    <h3 style={{ color: '#4b73ef' }}>at table: 5</h3>
+                </div>
+            )}
+
+            {/* Timer — 5x speed: duration and initialRemainingTime scaled ÷5,
+                display multiplied ×5 so numbers show real-world values */}
             <div className="act-lobby-timer-wrap">
                 <CountdownCircleTimer
                     isPlaying={active}
-                    duration={480}
-                    initialRemainingTime={405}
+                    duration={96}
+                    initialRemainingTime={81}
                     colors={['#64B5F6', '#2196F3', '#1976D2']}
-                    colorsTime={[480, 240, 0]}
+                    colorsTime={[96, 48, 0]}
                     size={100}
                     strokeWidth={8}
                     trailColor="#f0f1f4"
                     strokeLinecap="round"
                 >
                     {({ remainingTime }) => {
-                        const t = typeof remainingTime === 'number' ? remainingTime : 405;
-                        const mins = Math.floor(t / 60);
-                        const secs = Math.floor(t % 60);
+                        const real = Math.round((typeof remainingTime === 'number' ? remainingTime : 81) * 5);
+                        const mins = Math.floor(real / 60);
+                        const secs = real % 60;
                         return (
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                 <span style={{ fontSize: '1.35rem', color: '#1a1a2e', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>{mins}:{String(secs).padStart(2, '0')}</span>
@@ -641,20 +601,106 @@ const MockLobbyView = ({ active, customTags, hasTags }) => {
                 </CountdownCircleTimer>
             </div>
 
-            {/* PlayerCard — matches playerCard.jsx exactly (scaled to fit overlay) */}
+            {/* Bidirectional match banner — shown when tags exist */}
+            {tag1 && tag2 && (
+                <div className="act-match-banner">
+                    <span className="act-match-tag">
+                        <span className="act-match-tag-text">{titleCase(tag1)}</span>
+                    </span>
+                    <div className="act-match-arrow" />
+                    <span className="act-match-tag">
+                        <span className="act-match-tag-text">{titleCase(tag2)}</span>
+                    </span>
+                </div>
+            )}
+
+            {/* PlayerCard */}
             {showCard && (
                 <div className="act-lobby-player-card-wrap">
                     <img src="/assets/tony_chopper.jpg" alt="Tony Chopper" className="act-lobby-player-photo" />
                     <div className="act-lobby-player-name-badge">Tony Chopper</div>
                 </div>
             )}
+        </div>
+    );
+};
 
-            {/* Matched tags — only if hasTags */}
-            {hasTags && customTags && customTags.length >= 2 && (
-                <div className="act-mock-tag-row">
-                    {customTags.slice(0, 2).map((tag, i) => (
-                        <span key={i} className="act-mock-matched-tag">{tag}</span>
-                    ))}
+/* Tony's lobby view — Go find Kate! — mirror of MockLobbyView from Tony's perspective */
+const MockTonyLobbyView = ({ active, customTags, hasTags, showTableNumbers }) => {
+    const [showCard, setShowCard] = useState(false);
+
+    const tag1 = hasTags && customTags && customTags[0] ? customTags[0] : null;
+    const tag2 = hasTags && customTags && customTags[1] ? customTags[1] : null;
+
+    useEffect(() => {
+        if (!active) { setShowCard(false); return; }
+        const t = setTimeout(() => setShowCard(true), 200);
+        return () => clearTimeout(t);
+    }, [active]);
+
+    return (
+        <div className="act-lobby-mock">
+
+            {/* "Go find!" header */}
+            <h2 className="act-lobby-header">
+                <span className="act-lobby-pop-burst">
+                    Go find Kate Rodriguez!
+                </span>
+            </h2>
+
+            {/* Table number — only if enabled */}
+            {showTableNumbers && (
+                <div className="act-table-number">
+                    <h3 style={{ color: '#4b73ef' }}>at table: 5</h3>
+                </div>
+            )}
+
+            {/* Timer — continues from where Kate's scene ended.
+                Kate ran 4500ms at 5x = 22.5s simulated. 405 − 22.5 = 382.5s real → ÷5 = 76.5 scaled */}
+            <div className="act-lobby-timer-wrap">
+                <CountdownCircleTimer
+                    isPlaying={active}
+                    duration={96}
+                    initialRemainingTime={76.5}
+                    colors={['#64B5F6', '#2196F3', '#1976D2']}
+                    colorsTime={[96, 48, 0]}
+                    size={100}
+                    strokeWidth={8}
+                    trailColor="#f0f1f4"
+                    strokeLinecap="round"
+                >
+                    {({ remainingTime }) => {
+                        const real = Math.round((typeof remainingTime === 'number' ? remainingTime : 76.5) * 5);
+                        const mins = Math.floor(real / 60);
+                        const secs = real % 60;
+                        return (
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                <span style={{ fontSize: '1.35rem', color: '#1a1a2e', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>{mins}:{String(secs).padStart(2, '0')}</span>
+                                <span style={{ fontSize: '0.6rem', color: '#6b7280', fontWeight: 500, marginTop: '2px' }}>time left</span>
+                            </div>
+                        );
+                    }}
+                </CountdownCircleTimer>
+            </div>
+
+            {/* Bidirectional match banner */}
+            {tag1 && tag2 && (
+                <div className="act-match-banner">
+                    <span className="act-match-tag">
+                        <span className="act-match-tag-text">{titleCase(tag2)}</span>
+                    </span>
+                    <div className="act-match-arrow" />
+                    <span className="act-match-tag">
+                        <span className="act-match-tag-text">{titleCase(tag1)}</span>
+                    </span>
+                </div>
+            )}
+
+            {/* PlayerCard — Kate */}
+            {showCard && (
+                <div className="act-lobby-player-card-wrap">
+                    <img src="/assets/kate_rodriguez.png" alt="Kate Rodriguez" className="act-lobby-player-photo" />
+                    <div className="act-lobby-player-name-badge">Kate Rodriguez</div>
                 </div>
             )}
         </div>
@@ -705,7 +751,7 @@ const MockVideoEnding = ({ active }) => {
 
 /* ── Main component ─────────────────────────────────────────────────────── */
 
-const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
+const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTableNumbers }) => {
     const [scene, setScene] = useState(3);
     const [fadingOut, setFadingOut] = useState(false);
     const [showReady, setShowReady] = useState(false);
@@ -713,12 +759,14 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
     const [showAdminPress, setShowAdminPress] = useState(false);
     const [cardZoomed, setCardZoomed] = useState(false);
     const [showCmef, setShowCmef] = useState(false);
+    const [showEndPulse, setShowEndPulse] = useState(false);
+    const [showEndPress, setShowEndPress] = useState(false);
 
     /* Stable callback so CMEF's isVisible effect never re-runs due to a new
        function reference produced by AdminLobbyView's 1-second polling re-renders. */
     const handleCmefComplete = useCallback(() => {
         setShowCmef(false);
-        setScene(16);
+        setScene(17);
     }, []);
 
     /* One-time shuffle of tags — computed when tutorial becomes visible */
@@ -744,6 +792,8 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
             setShowAdminPress(false);
             setCardZoomed(false);
             setShowCmef(false);
+            setShowEndPulse(false);
+            setShowEndPress(false);
         }
     }, [isVisible]);
 
@@ -757,7 +807,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
     /* Scene 4 → 5: after phone zoom completes */
     useEffect(() => {
         if (scene !== 4) return;
-        const t = setTimeout(() => setScene(5), 1400);
+        const t = setTimeout(() => setScene(5), 3600);
         return () => clearTimeout(t);
     }, [scene]);
 
@@ -774,7 +824,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
         setScene(11);
     };
 
-    /* After scene 15 → actually close the tutorial */
+    /* After scene 17 → actually close the tutorial */
     const handleFinalComplete = () => {
         setFadingOut(true);
         setTimeout(() => onComplete?.(), 400);
@@ -828,7 +878,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
     /* Scene 13 → 14 */
     useEffect(() => {
         if (scene !== 13) return;
-        const t = setTimeout(() => setScene(14), 5500);
+        const t = setTimeout(() => setScene(14), 3500);
         return () => clearTimeout(t);
     }, [scene]);
 
@@ -843,16 +893,36 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
         return () => timers.forEach(clearTimeout);
     }, [scene]);
 
-    /* Scene 15 → CMEF section → 16 (video ending) */
+    /* Scene 15 → 16 (Tony's lobby view) */
     useEffect(() => {
         if (scene !== 15) return;
+        const t = setTimeout(() => setScene(16), 4500);
+        return () => clearTimeout(t);
+    }, [scene]);
+
+    /* Scene 16 → CMEF section → 17 (video ending) */
+    useEffect(() => {
+        if (scene !== 16) return;
         const t = setTimeout(() => setShowCmef(true), 4500);
         return () => clearTimeout(t);
     }, [scene]);
 
-    /* Scene 16 → final complete (5000ms covers both video headers) */
+    /* Scene 17: End lobby — CTA pulse → press → advance to video */
     useEffect(() => {
-        if (scene !== 16) return;
+        if (scene !== 17) return;
+        setShowEndPulse(false);
+        setShowEndPress(false);
+        const timers = [
+            setTimeout(() => setShowEndPulse(true), 1200),
+            setTimeout(() => setShowEndPress(true), 2500),
+            setTimeout(() => setScene(18), 4000),
+        ];
+        return () => timers.forEach(clearTimeout);
+    }, [scene]);
+
+    /* Scene 18 → final complete (5000ms covers both video headers) */
+    useEffect(() => {
+        if (scene !== 18) return;
         const t = setTimeout(() => handleFinalComplete(), 5000);
         return () => clearTimeout(t);
     }, [scene]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -864,7 +934,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
 
     return (
         <>
-        <div className={`act-overlay${fadingOut ? ' act-overlay-exit' : ''}${s >= 4 ? ' act-overlay-white' : ''}`} style={s === 16 ? { zIndex: 10002 } : undefined}>
+        <div className={`act-overlay${fadingOut ? ' act-overlay-exit' : ''}${s >= 4 ? ' act-overlay-white' : ''}`} style={s === 18 ? { zIndex: 10002 } : undefined}>
 
             {/* ── Scene 3: Opening scene ── */}
             <div className={`act-scene${s === 3 ? ' act-scene-active' : ''}`}>
@@ -893,7 +963,12 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
 
             {/* ── Scene 4: Phone zoom → white ── */}
             <div className={`act-scene act-scene-zoom${s === 4 ? ' act-scene-active' : ''}`}>
-                {s >= 4 && <PhoneZoom />}
+                {s >= 4 && (
+                    <>
+                        <PhoneZoom />
+                        <p className="act-how-people-join">How People Join</p>
+                    </>
+                )}
             </div>
 
             {/* ── Scene 5: Mock signup – name ── */}
@@ -928,9 +1003,16 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
                 )}
             </div>
 
+            {/* ── Tag sequence persistent header (scenes 9–10) ── */}
+            {hasTags && (s === 9 || s === 10) && (
+                <p className="act-tag-sequence-header">
+                    Pair people by matching interests or roles
+                </p>
+            )}
+
             {/* ── Scene 9: Tag selection – Who are you? (tags branch only) ── */}
             {hasTags && (
-                <div className={`act-scene act-scene-mock${s === 9 ? ' act-scene-active' : ''}`}>
+                <div className={`act-scene act-scene-mock act-scene-tag${s === 9 ? ' act-scene-active' : ''}`}>
                     {s >= 9 && split && (
                         <MockTagStep
                             active={s === 9}
@@ -946,7 +1028,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
 
             {/* ── Scene 10: Tag selection – Who do you want to meet? (tags branch only) ── */}
             {hasTags && (
-                <div className={`act-scene act-scene-mock${s === 10 ? ' act-scene-active' : ''}`}>
+                <div className={`act-scene act-scene-mock act-scene-tag${s === 10 ? ' act-scene-active' : ''}`}>
                     {s >= 10 && split && (
                         <MockTagStep
                             active={s === 10}
@@ -965,7 +1047,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
                 {s >= 11 && (
                     <>
                         <p className="act-admin-scene-header-text">
-                            I click Start after a few people have joined!
+                            Click Start after a few people have joined!
                         </p>
                         <MockAdminStart showPulse={showAdminPulse} showPress={showAdminPress} />
                     </>
@@ -977,7 +1059,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
                 {s >= 12 && (
                     <>
                         <p className="act-admin-scene-header-text">
-                            I click Start after a few people have joined!
+                            Click Start after a few people have joined!
                         </p>
                         <MockInterrimBar />
                     </>
@@ -998,16 +1080,41 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags }) => {
             <div className={`act-scene act-scene-mock${s === 15 ? ' act-scene-active' : ''}`}>
                 {s >= 15 && (
                     <MockLobbyView
-                        active={s === 15 && !showCmef}
+                        active={s === 15}
                         customTags={customTags}
                         hasTags={hasTags}
+                        showTableNumbers={showTableNumbers}
                     />
                 )}
             </div>
 
-            {/* ── Scene 16: Video ending ── */}
-            <div className={`act-scene act-scene-video${s === 16 ? ' act-scene-active' : ''}`}>
-                {s >= 16 && <MockVideoEnding active={s === 16} />}
+            {/* ── Scene 16: Tony's lobby view ── */}
+            <div className={`act-scene act-scene-mock${s === 16 ? ' act-scene-active' : ''}`}>
+                {s >= 16 && (
+                    <MockTonyLobbyView
+                        active={s === 16 && !showCmef}
+                        customTags={customTags}
+                        hasTags={hasTags}
+                        showTableNumbers={showTableNumbers}
+                    />
+                )}
+            </div>
+
+            {/* ── Scene 17: End lobby ── */}
+            <div className={`act-scene act-scene-mock${s === 17 ? ' act-scene-active' : ''}`}>
+                {s >= 17 && (
+                    <>
+                        <p className="act-admin-scene-header-text">
+                            When you&rsquo;re done, click End to close the lobby!
+                        </p>
+                        <MockAdminEnd showPulse={showEndPulse} showPress={showEndPress} />
+                    </>
+                )}
+            </div>
+
+            {/* ── Scene 18: Video ending ── */}
+            <div className={`act-scene act-scene-video${s === 18 ? ' act-scene-active' : ''}`}>
+                {s >= 18 && <MockVideoEnding active={s === 18} />}
             </div>
 
         </div>

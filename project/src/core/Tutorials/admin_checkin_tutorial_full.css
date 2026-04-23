@@ -638,6 +638,33 @@
    Scenes 5-6 – Mock Signup
    ══════════════════════════════════════════════════ */
 
+/* "How People Join" header — slides up after the phone zoom fills the screen */
+.act-how-people-join {
+    position: absolute;
+    top: 42%;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0 32px;
+    text-align: center;
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    letter-spacing: -0.02em;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    opacity: 0;
+    transform: translateY(calc(-50% + 22px));
+    animation: actHowPeopleJoinIn 0.45s cubic-bezier(0.25, 1, 0.5, 1) 1.15s forwards;
+    pointer-events: none;
+}
+
+@keyframes actHowPeopleJoinIn {
+    to {
+        opacity: 1;
+        transform: translateY(-50%);
+    }
+}
+
 /* Scenes 5-6 need extra top clearance so content sits comfortably below the nav bar */
 .act-scene-mock {
     padding-top: max(env(safe-area-inset-top, 0px) + 76px, 120px);
@@ -1023,6 +1050,31 @@
    ══════════════════════════════════════════════════ */
 
 /* Extend the mock signup container to accommodate the tag list */
+/* Persistent header above both tag selection scenes */
+.act-tag-sequence-header {
+    position: absolute;
+    top: 90px;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0 28px;
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    letter-spacing: -0.01em;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.4;
+    pointer-events: none;
+    animation: actFadeIn 0.35s ease both;
+    z-index: 2;
+}
+
+/* Extra top clearance for tag scenes so content sits below the persistent header */
+.act-scene-tag.act-scene-mock {
+    padding-top: max(env(safe-area-inset-top, 0px) + 122px, 165px);
+}
+
 .act-tag-step {
     gap: 0.85rem;
 }
@@ -1363,6 +1415,27 @@
 .act-admin-pill-press {
     transform: scale(0.93) !important;
     box-shadow: 0 2px 6px rgba(34, 197, 94, 0.2) !important;
+}
+
+/* CTA pulse rings on End pill — matches Start intensity, red color */
+.act-admin-pill-end-active .act-cta-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    border: 2px solid rgba(239, 68, 68, 0.5);
+    transform: translate(-50%, -50%) scale(0.85);
+    animation: actRipple 1s ease-out infinite;
+}
+
+.act-admin-pill-end-active .act-cta-ring-2 {
+    animation-delay: 0.5s;
+}
+
+.act-admin-pill-end-active.act-admin-pill-press {
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.2) !important;
 }
 
 /* ── Scene 12: Creating Pairs fill animation ── */
@@ -1744,6 +1817,14 @@
     z-index: 5;
 }
 
+/* ── Scene 13 inline header (replaces the old absolute-overlay version) ── */
+.act-s13-header {
+    width: 100%;
+    padding: 20px 20px 16px;
+    text-align: center;
+    animation: actFadeIn 0.45s ease both;
+}
+
 @keyframes actTextPopBurst {
     0%   { opacity: 0; transform: scale(0.45); }
     55%  { opacity: 1; transform: scale(1.1);  }
@@ -2058,7 +2139,7 @@
 /* Text header */
 .act-video-header {
     position: absolute;
-    bottom: 22%;
+    top: 40%;
     left: 0;
     right: 0;
     padding: 0 28px;
@@ -2090,4 +2171,97 @@
 
 .act-video-header-out {
     animation: actVideoHeaderOut 0.4s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+/* ── Match banner (mirrors lobby.css .match-banner) ── */
+
+@keyframes actSlideUpBanner {
+    0%   { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0);    opacity: 1; }
+}
+
+.act-match-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #b55adb 0%, #5db8ed 100%);
+    padding: 8px 8px;
+    border-radius: 32px;
+    margin: 0 auto 12px;
+    width: 90%;
+    max-width: 300px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    animation: actSlideUpBanner 0.3s ease-out both;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.act-match-tag {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 800;
+    font-size: 0.78rem;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.act-match-tag-text {
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.act-match-arrow {
+    position: relative;
+    width: 30px;
+    height: 2px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 8px;
+    flex-shrink: 0;
+}
+
+.act-match-arrow::before,
+.act-match-arrow::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+}
+
+.act-match-arrow::before {
+    left: -2px;
+    transform: rotate(135deg);
+}
+
+.act-match-arrow::after {
+    right: -2px;
+    transform: rotate(-45deg);
+}
+
+/* ── Table number (mirrors lobby.css .table-number) ── */
+
+.act-table-number {
+    text-align: center;
+    margin-top: -0.25rem;
+    padding-bottom: 0.25rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.act-table-number h3 {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #4b73ef;
 }

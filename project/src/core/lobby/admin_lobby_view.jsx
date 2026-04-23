@@ -1575,6 +1575,7 @@ const AdminLobbyView = () => {
                         isVisible={tutorialMode}
                         onComplete={() => setTutorialMode(false)}
                         customTags={customTags}
+                        showTableNumbers={showTableNumbers}
                     />
                 )}
                 <LobbyProgressBar 
