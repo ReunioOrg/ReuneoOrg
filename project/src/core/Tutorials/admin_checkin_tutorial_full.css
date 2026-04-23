@@ -112,6 +112,31 @@
     pointer-events: none;
 }
 
+/* ── Skip button — contextual tutorial chunks ── */
+.act-skip-btn {
+    position: fixed;
+    bottom: max(env(safe-area-inset-bottom, 0px) + 1.25rem, 1.5rem);
+    right: 1.25rem;
+    z-index: 10010;
+    background: #4b73ef;
+    color: #ffffff;
+    border: 1.5px solid #4b73ef;
+    border-radius: 999px;
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    letter-spacing: 0.02em;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.act-skip-btn:active {
+    transform: scale(0.94);
+}
+
 /* ══════════════════════════════════════════════════
    Scene Container
    ══════════════════════════════════════════════════ */
@@ -510,17 +535,31 @@
    ══════════════════════════════════════════════════ */
 
 @media screen and (min-width: 769px) {
+    /* ── Overlay: centered column so content fills proportionally ── */
+    .act-overlay {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: min(560px, 96vw);
+        box-shadow: -1px 0 0 rgba(0, 0, 0, 0.06), 1px 0 0 rgba(0, 0, 0, 0.06);
+    }
+
+    /* Keep exit transition working with the translateX */
+    .act-overlay-exit {
+        transform: translateX(-50%);
+    }
+
     .act-scene {
-        padding: 0 32px 40px;
+        padding: 0 36px 40px;
         padding-top: max(env(safe-area-inset-top, 0px) + 56px, 92px);
     }
 
     .act-header-area {
-        max-width: 420px;
+        max-width: 460px;
     }
 
     .act-header-text {
-        font-size: 1.15rem;
+        font-size: 1.18rem;
     }
 
     .act-scan-headers {
@@ -528,7 +567,7 @@
     }
 
     .act-stage {
-        max-width: 440px;
+        max-width: 480px;
     }
 
     .act-person-group svg {
@@ -1011,13 +1050,18 @@
 }
 
 @media screen and (min-width: 769px) {
+    /* ── Scenes 5-6: Mock signup ── */
     .act-mock-signup {
-        max-width: 400px;
+        max-width: 460px;
         gap: 1.4rem;
     }
 
     .act-mock-header {
         font-size: 1.6rem;
+    }
+
+    .act-mock-photo-area {
+        min-height: 200px;
     }
 
     .act-phone-zooming {
@@ -1027,6 +1071,82 @@
 
     .act-scene-mock {
         padding-top: max(env(safe-area-inset-top, 0px) + 80px, 124px);
+    }
+
+    /* ── Scenes 9-10: Tag selection ── */
+    .act-tag-sequence-header {
+        top: 96px;
+        font-size: 1.1rem;
+        padding: 0 32px;
+    }
+
+    .act-scene-tag.act-scene-mock {
+        padding-top: max(env(safe-area-inset-top, 0px) + 146px, 184px);
+    }
+
+    .act-tag-list {
+        max-height: 340px;
+    }
+
+    .act-tag-heading {
+        font-size: 1.25rem;
+    }
+
+    .act-tag-tab {
+        font-size: 0.82rem;
+        padding: 11px 10px;
+    }
+
+    .act-tag-item {
+        padding: 13px 15px;
+        font-size: 0.95rem;
+    }
+
+    .act-tag-btn {
+        padding: 16px 24px;
+        font-size: 1.02rem;
+    }
+
+    /* ── Scenes 11, 12, 17: Admin pill + header text ── */
+    .act-admin-scene-header-text {
+        font-size: 1.15rem;
+        max-width: 400px;
+    }
+
+    .act-admin-pill-track {
+        width: 340px;
+    }
+
+    /* ── Scene 13: Active state ── */
+    .act-active-mock {
+        max-width: 480px;
+    }
+
+    .act-s13-header {
+        padding: 20px 24px 16px;
+    }
+
+    .act-active-blur-header-text {
+        font-size: 1.1rem;
+    }
+
+    .act-section-header {
+        font-size: 1rem;
+        padding: 4px 12px 10px;
+    }
+
+    .act-paired-avatar {
+        width: 64px;
+        height: 64px;
+    }
+
+    .act-paired-name {
+        font-size: 0.8rem;
+    }
+
+    .act-matched-pair-badge {
+        font-size: 0.65rem;
+        padding: 4px 16px;
     }
 }
 
@@ -2173,6 +2293,7 @@
     animation: actVideoHeaderOut 0.4s cubic-bezier(0.4, 0, 1, 1) both;
 }
 
+
 /* ── Match banner (mirrors lobby.css .match-banner) ── */
 
 @keyframes actSlideUpBanner {
@@ -2264,4 +2385,63 @@
     font-size: 0.9rem;
     font-weight: 600;
     color: #4b73ef;
+}
+
+/* ══════════════════════════════════════════════════
+   Desktop — Scenes 15-18: Lobby + Video
+   ══════════════════════════════════════════════════ */
+
+@media screen and (min-width: 769px) {
+    /* ── Scenes 15-16: Kate / Tony lobby view ── */
+    .act-lobby-mock {
+        max-width: 480px;
+    }
+
+    .act-lobby-header {
+        margin: -20px 0 0 0;
+    }
+
+    .act-lobby-pop-burst {
+        font-size: 1.6rem;
+    }
+
+    .act-lobby-timer-wrap {
+        margin: 14px 0 22px;
+    }
+
+    .act-lobby-player-card-wrap {
+        width: 300px;
+        height: 385px;
+    }
+
+    .act-lobby-player-photo {
+        width: 300px;
+        height: 385px;
+        border-radius: 24px;
+    }
+
+    .act-lobby-player-name-badge {
+        font-size: 1.15rem;
+        padding: 11px 22px;
+    }
+
+    /* ── Match banner ── */
+    .act-match-banner {
+        max-width: 360px;
+    }
+
+    .act-match-tag {
+        font-size: 0.85rem;
+    }
+
+    /* ── Table number ── */
+    .act-table-number h3 {
+        font-size: 1rem;
+    }
+
+    /* ── Scene 18: Video ending ── */
+    .act-video-header {
+        font-size: 1.65rem;
+        padding: 0 36px;
+    }
 }

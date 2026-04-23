@@ -237,7 +237,7 @@ const generateStyledQRCodeImage = (svgElement, code) => {
 };
 
 // Progress bar component for lobby phases
-const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, currentRound, checkinTriggerRef, suppressCheckinAutoOpen, planInfo }) => {
+const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, currentRound, checkinTriggerRef, suppressCheckinAutoOpen, planInfo, showStartPulse, onStartTutorial, startModalTriggerRef, showEndPulse, onEndTutorial, endModalTriggerRef }) => {
     // Determine states for each arrow
     // Check-in
     const checkinActive = lobbyState === 'checkin';
@@ -274,10 +274,18 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
 
     // Handlers
     const handleStart = () => {
-        setModal('start');
+        if (checkinActive && onStartTutorial) {
+            onStartTutorial();
+        } else {
+            setModal('start');
+        }
     };
     const handleEnd = () => {
-        setModal('end');
+        if (endAvailable && onEndTutorial) {
+            onEndTutorial();
+        } else {
+            setModal('end');
+        }
     };
     const handleCheckin = () => {
         setHasOpenedCheckinModal(true);
@@ -289,6 +297,18 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
             checkinTriggerRef.current = handleCheckin;
         }
     }, [checkinTriggerRef]);
+
+    useEffect(() => {
+        if (startModalTriggerRef) {
+            startModalTriggerRef.current = () => setModal('start');
+        }
+    }, [startModalTriggerRef]);
+
+    useEffect(() => {
+        if (endModalTriggerRef) {
+            endModalTriggerRef.current = () => setModal('end');
+        }
+    }, [endModalTriggerRef]);
 
     const handleConfirm = () => {
         if (modal === 'start') {
@@ -385,6 +405,12 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                             onClick={handleStart}
                         >
                             Start
+                            {showStartPulse && (
+                                <>
+                                    <span className="start-pill-ring start-pill-ring-1" />
+                                    <span className="start-pill-ring start-pill-ring-2" />
+                                </>
+                            )}
                         </button>
                         <button
                             className={`${endBtnClass()}${endOnTop ? ' pill-on-top' : ''}`}
@@ -393,6 +419,12 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                             onClick={handleEnd}
                         >
                             End
+                            {showEndPulse && (
+                                <>
+                                    <span className="end-pill-ring end-pill-ring-1" />
+                                    <span className="end-pill-ring end-pill-ring-2" />
+                                </>
+                            )}
                         </button>
                     </>
                 )}
@@ -1189,6 +1221,11 @@ const AdminLobbyView = () => {
     const [maxActiveRound, setMaxActiveRound] = useState(0);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [tutorialMode, setTutorialMode] = useState(false);
+    const [showCheckinTutorial, setShowCheckinTutorial] = useState(false);
+    const [showStartTutorial, setShowStartTutorial] = useState(false);
+    const startModalTriggerRef = useRef(null);
+    const [showEndTutorial, setShowEndTutorial] = useState(false);
+    const endModalTriggerRef = useRef(null);
     const [inlineQrCopied, setInlineQrCopied] = useState(false);
     const [inlineQrPulsing, setInlineQrPulsing] = useState(false);
 
@@ -1578,6 +1615,43 @@ const AdminLobbyView = () => {
                         showTableNumbers={showTableNumbers}
                     />
                 )}
+                {showCheckinTutorial && (
+                    <AdminCheckinTutorialFull
+                        isVisible={showCheckinTutorial}
+                        onComplete={() => setShowCheckinTutorial(false)}
+                        customTags={customTags}
+                        showTableNumbers={showTableNumbers}
+                        stopAfterReady
+                        showSkip
+                    />
+                )}
+                {showStartTutorial && (
+                    <AdminCheckinTutorialFull
+                        isVisible={showStartTutorial}
+                        onComplete={() => {
+                            setShowStartTutorial(false);
+                            startModalTriggerRef.current?.();
+                        }}
+                        customTags={customTags}
+                        showTableNumbers={showTableNumbers}
+                        startFromScene={11}
+                        stopBeforeEnd
+                        showSkip
+                    />
+                )}
+                {showEndTutorial && (
+                    <AdminCheckinTutorialFull
+                        isVisible={showEndTutorial}
+                        onComplete={() => {
+                            setShowEndTutorial(false);
+                            endModalTriggerRef.current?.();
+                        }}
+                        customTags={customTags}
+                        showTableNumbers={showTableNumbers}
+                        startFromScene={17}
+                        showSkip
+                    />
+                )}
                 <LobbyProgressBar 
                     lobbyState={lobbyState}
                     playerCount={playerCount}
@@ -1588,6 +1662,12 @@ const AdminLobbyView = () => {
                     checkinTriggerRef={checkinTriggerRef}
                     suppressCheckinAutoOpen={false}
                     planInfo={planInfo}
+                    showStartPulse={lobbyState === 'checkin' && playerCount >= 4}
+                    onStartTutorial={() => setShowStartTutorial(true)}
+                    startModalTriggerRef={startModalTriggerRef}
+                    showEndPulse={lobbyState === 'active' && maxActiveRound >= 4}
+                    onEndTutorial={() => setShowEndTutorial(true)}
+                    endModalTriggerRef={endModalTriggerRef}
                 />
                 {/* Overlapping user profile list below progress bar */}
                 <OverlappingProfileList
@@ -1606,10 +1686,11 @@ const AdminLobbyView = () => {
                         <p className="checkin-modal-subtitle">
                             Tell people to scan and listen to the app's instructions. Thats it!
                         </p>
-                        <div className="checkin-modal-qr-wrapper" onClick={() => {
+                        <div className="checkin-modal-qr-wrapper" style={{ marginTop: '0.75rem' }} onClick={() => {
                             setInlineQrPulsing(true);
                             setTimeout(() => setInlineQrPulsing(false), 700);
                             handleInlineQrDownload();
+                            setTimeout(() => setShowCheckinTutorial(true), 100);
                         }}>
                             <div className="inline-qr-pulse-container">
                                 <div className="checkin-modal-qr-card inline-qr-active">
@@ -1631,6 +1712,10 @@ const AdminLobbyView = () => {
                                         <span>{inlineQrCopied ? 'Saved!' : 'Tap to save/print'}</span>
                                     </div>
                                 </div>
+                                {/* ambient always-on pulse rings */}
+                                <span className="inline-qr-ring inline-qr-ambient-ring-1" />
+                                <span className="inline-qr-ring inline-qr-ambient-ring-2" />
+                                {/* click-burst rings */}
                                 {inlineQrPulsing && (
                                     <>
                                         <span className="inline-qr-ring inline-qr-ring-1" />
@@ -1639,9 +1724,6 @@ const AdminLobbyView = () => {
                                 )}
                             </div>
                         </div>
-                        <p className="checkin-modal-hint">
-                            Click Start whenever you want - new arrivals will get paired up immediately.
-                        </p>
                     </div>
                 )}
 
@@ -1675,13 +1757,13 @@ const AdminLobbyView = () => {
                             <span className="dropdown-chevron rotated">▼</span>
                         </>
                     ) : (
-                        <>
-                            Settings
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '8px', opacity: 0.9 }}>
-                                <circle cx="12" cy="12" r="3" />
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                            </svg>
-                        </>
+                            <>
+                                Settings
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '8px', opacity: 0.9 }}>
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                            </>
                     )}
                 </div>
                 {/* Dropdown Content */}

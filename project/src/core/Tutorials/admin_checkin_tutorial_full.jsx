@@ -716,7 +716,7 @@ const ENDING_HEADERS = [
 
 const MockVideoEnding = ({ active }) => {
     const [phase, setPhase] = useState(0);
-    // phases: 0=idle, 1=h1 in, 2=h1 out, 3=h2 in, 4=h2 out
+    // phases: 0=idle, 1=h1 in, 2=h1 out, 3=h2 in
 
     useEffect(() => {
         if (!active) { setPhase(0); return; }
@@ -724,7 +724,6 @@ const MockVideoEnding = ({ active }) => {
             setTimeout(() => setPhase(1), 100),
             setTimeout(() => setPhase(2), 2300),
             setTimeout(() => setPhase(3), 2700),
-            setTimeout(() => setPhase(4), 4500),
         ];
         return () => timers.forEach(clearTimeout);
     }, [active]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -740,8 +739,8 @@ const MockVideoEnding = ({ active }) => {
                     {ENDING_HEADERS[0]}
                 </p>
             )}
-            {(phase === 3 || phase === 4) && (
-                <p className={`act-video-header${phase === 4 ? ' act-video-header-out' : ' act-video-header-in'}`}>
+            {phase === 3 && (
+                <p className="act-video-header act-video-header-in">
                     {ENDING_HEADERS[1]}
                 </p>
             )}
@@ -751,8 +750,8 @@ const MockVideoEnding = ({ active }) => {
 
 /* ── Main component ─────────────────────────────────────────────────────── */
 
-const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTableNumbers }) => {
-    const [scene, setScene] = useState(3);
+const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTableNumbers, stopAfterReady = false, startFromScene = 3, stopBeforeEnd = false, showSkip = false }) => {
+    const [scene, setScene] = useState(startFromScene);
     const [fadingOut, setFadingOut] = useState(false);
     const [showReady, setShowReady] = useState(false);
     const [showAdminPulse, setShowAdminPulse] = useState(false);
@@ -766,8 +765,14 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
        function reference produced by AdminLobbyView's 1-second polling re-renders. */
     const handleCmefComplete = useCallback(() => {
         setShowCmef(false);
-        setScene(17);
-    }, []);
+        if (stopBeforeEnd) {
+            setScene(99);
+            setFadingOut(true);
+            setTimeout(() => onComplete?.(), 400);
+        } else {
+            setScene(17);
+        }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     /* One-time shuffle of tags — computed when tutorial becomes visible */
     const tagSplitRef = useRef(null);
@@ -785,7 +790,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
     /* Reset state when tutorial is hidden */
     useEffect(() => {
         if (!isVisible) {
-            setScene(3);
+            setScene(startFromScene);
             setFadingOut(false);
             setShowReady(false);
             setShowAdminPulse(false);
@@ -818,10 +823,18 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
         return () => clearTimeout(t);
     }, [scene]);
 
-    /* After "You're ready!" ends → continue to admin-start scenes */
+    /* After "You're ready!" ends → continue to admin-start scenes, or close if stopAfterReady */
     const handleAfterReady = () => {
-        setShowReady(false);
-        setScene(11);
+        if (stopAfterReady) {
+            /* Don't setShowReady(false) — UserIsReadyAnimation is already running its own
+               Framer exit internally. Let both it and the act-overlay fade simultaneously. */
+            setScene(99);
+            setFadingOut(true);
+            setTimeout(() => onComplete?.(), 400);
+        } else {
+            setShowReady(false);
+            setScene(11);
+        }
     };
 
     /* After scene 17 → actually close the tutorial */
@@ -920,10 +933,10 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
         return () => timers.forEach(clearTimeout);
     }, [scene]);
 
-    /* Scene 18 → final complete (5000ms covers both video headers) */
+    /* Scene 18 → final complete (6500ms covers both video headers + breathing room) */
     useEffect(() => {
         if (scene !== 18) return;
-        const t = setTimeout(() => handleFinalComplete(), 5000);
+        const t = setTimeout(() => handleFinalComplete(), 6500);
         return () => clearTimeout(t);
     }, [scene]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -966,7 +979,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
                 {s >= 4 && (
                     <>
                         <PhoneZoom />
-                        <p className="act-how-people-join">How People Join</p>
+                        <p className="act-how-people-join">How Attendees Join!</p>
                     </>
                 )}
             </div>
@@ -1139,6 +1152,13 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
             mainText="You're ready!"
             subText="You will be paired up soon."
         />
+
+        {/* ── Skip button — contextual chunks only ── */}
+        {showSkip && !fadingOut && (
+            <button className="act-skip-btn" onClick={handleFinalComplete}>
+                Skip
+            </button>
+        )}
         </>
     );
 };

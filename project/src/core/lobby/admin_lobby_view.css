@@ -1251,6 +1251,7 @@
 .progress-pill-start {
     background: #22c55e;
     color: #fff;
+    overflow: visible;
 }
 
 .progress-pill-start:hover {
@@ -1258,10 +1259,79 @@
     box-shadow: 0 3px 12px rgba(34, 197, 94, 0.35);
 }
 
+/* Ambient pulse rings on Start pill when ≥4 players */
+.start-pill-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border: 3px solid rgba(34, 197, 94, 0.5);
+    border-radius: 999px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes startPillRipple {
+    0% {
+        transform: translate(-50%, -50%) scale(0.88);
+        opacity: 0.5;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.55);
+        opacity: 0;
+    }
+}
+
+.start-pill-ring-1 {
+    animation: startPillRipple 1.6s ease-out 0s infinite;
+}
+
+.start-pill-ring-2 {
+    animation: startPillRipple 1.6s ease-out 0.8s infinite;
+}
+
+/* Ambient pulse rings on End pill when active + ≥4 rounds */
+.end-pill-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border: 3px solid rgba(239, 68, 68, 0.5);
+    border-radius: 999px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes endPillRipple {
+    0% {
+        transform: translate(-50%, -50%) scale(0.88);
+        opacity: 0.5;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.55);
+        opacity: 0;
+    }
+}
+
+.end-pill-ring-1 {
+    animation: endPillRipple 1.6s ease-out 0s infinite;
+}
+
+.end-pill-ring-2 {
+    animation: endPillRipple 1.6s ease-out 0.8s infinite;
+}
+
 /* Active phase: End is red and prominent */
 .progress-pill-end {
     background: #ef4444;
     color: #fff;
+    overflow: visible;
 }
 
 .progress-pill-end:hover {
@@ -1486,7 +1556,7 @@
     left: 50%;
     width: 100%;
     height: 100%;
-    border: 2px solid rgba(75, 115, 239, 0.4);
+    border: 3px solid rgba(75, 115, 239, 0.4);
     border-radius: 16px;
     pointer-events: none;
     opacity: 0;
@@ -1509,6 +1579,26 @@
         transform: translate(-50%, -50%) scale(1.35);
         opacity: 0;
     }
+}
+
+/* Ambient always-on looping pulse rings for the inline QR CTA */
+@keyframes inlineQrAmbient {
+    0% {
+        transform: translate(-50%, -50%) scale(0.9);
+        opacity: 0.45;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.45);
+        opacity: 0;
+    }
+}
+
+.inline-qr-ambient-ring-1 {
+    animation: inlineQrAmbient 2s ease-out 0.4s infinite;
+}
+
+.inline-qr-ambient-ring-2 {
+    animation: inlineQrAmbient 2s ease-out 1.2s infinite;
 }
 
 .inline-checkin-content .checkin-modal-title {
