@@ -146,6 +146,13 @@ const App = () => {
   const [isDesktop] = useState(() => window.innerWidth >= 769);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.state?.openJoinLobby) {
+      setShowQRInstructionModal(true);
+      navigate('/', { replace: true, state: {} });
+    }
+  }, [location.state]);
   useGetLobbyMetadata(setPlayerCount, setLobbyState);
 
   const [organizerPlanInfo, setOrganizerPlanInfo] = useState(null);
@@ -660,8 +667,17 @@ const App = () => {
           {(permissions === 'organizer' && !isLegacyOrganizer) ? 'Plan' : 'Pricing'}
         </button>
         <button onClick={() => navigate('/contact')}>Contact</button>
+        {user && (permissions === 'organizer' || permissions === 'admin') && (
+          <button onClick={() => navigate('/organizer-dashboard')}>Organizer</button>
+        )}
+        {user && (
+          <button onClick={() => navigate('/paired-player-history')}>Matches</button>
+        )}
       </div>
       <div className="site-nav-auth">
+        <button className="site-nav-join" onClick={() => setShowQRInstructionModal(true)}>
+          Join Lobby
+        </button>
         {!user ? (
           <button className="site-nav-login" onClick={() => navigate('/login')}>Login</button>
         ) : (
@@ -762,6 +778,45 @@ const App = () => {
       </div>,
       document.body
     )}
+    {isDesktop && !showQRInstructionModal && createPortal(
+      <>
+        {permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby && (
+          <div className="desktop-create-wrapper" style={{ position: 'absolute', top: '195px', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <BorderGlow borderRadius={18} duration={2000} glowRadius={55} glowIntensity={2.2} coneSpread={45} glowColor="248 90 85" colors={['#a78bfa', '#818cf8', '#c4b5fd']}>
+              <div
+                className="app-dock-item-standalone"
+                onClick={() => navigate('/new_organizer', { state: { showGeneralTutorial: true } })}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/new_organizer', { state: { showGeneralTutorial: true } }); } }}
+                tabIndex={0}
+                role="button"
+                aria-label="Organizer"
+              >
+                <div className="app-dock-icon"><OrganizerIcon /></div>
+                <span className="app-dock-label shiny-text">Create</span>
+              </div>
+            </BorderGlow>
+          </div>
+        )}
+        {activeLobbies.length === 0 && (permissions === 'admin' || permissions === 'organizer') && (
+          <div className="desktop-create-wrapper" style={{ position: 'absolute', top: '195px', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <BorderGlow borderRadius={18} duration={2000} glowRadius={55} glowIntensity={2.2} coneSpread={45} glowColor="248 90 85" colors={['#a78bfa', '#818cf8', '#c4b5fd']}>
+              <div
+                className="app-dock-item-standalone"
+                onClick={handleCreateClick}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCreateClick(); } }}
+                tabIndex={0}
+                role="button"
+                aria-label="Create Lobby"
+              >
+                <div className="app-dock-icon"><OrganizerIcon /></div>
+                <span className="app-dock-label shiny-text">Create</span>
+              </div>
+            </BorderGlow>
+          </div>
+        )}
+      </>,
+      document.body
+    )}
     <div style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden', zIndex: 1 }}>
 
       {isDesktop && <SiteNavBar />}
@@ -779,13 +834,15 @@ const App = () => {
       {/* Main App Content */}
       <div style={{ position: 'relative', zIndex: 1, color: 'white',  height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         
-        <div style={{ position: 'absolute', top: '0', left: '50%', transform: 'translateX(-50%)' }}>
-          <img  
-            src="/assets/reuneo_test_15.png"
-            alt="Logo"
-            style={{width: '120px',height: '120px',objectFit: 'contain'}}
-          />
-        </div>
+        {!isDesktop && (
+          <div style={{ position: 'absolute', top: '0', left: '50%', transform: 'translateX(-50%)' }}>
+            <img  
+              src="/assets/reuneo_test_15.png"
+              alt="Logo"
+              style={{width: '120px',height: '120px',objectFit: 'contain'}}
+            />
+          </div>
+        )}
 
         <div style = {{marginTop: '10%',display: 'flex',flexDirection: 'column'}}>
           <LoginSignupLogoutButton 
@@ -870,10 +927,10 @@ const App = () => {
           />
         )}
 
-        {/* Centered standalone button — Organizer (for non-admin/organizer) or Create Lobby (for admin/organizer with no active lobby) */}
-        {permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby ? (
+        {/* Centered standalone button — mobile only; desktop version is portalled above phone frame */}
+        {!isDesktop && (permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby ? (
           <div style={{
-            position: isDesktop ? 'absolute' : 'fixed',
+            position: 'fixed',
             top: '46%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
@@ -906,7 +963,7 @@ const App = () => {
           </div>
         ) : activeLobbies.length === 0 && (permissions === 'admin' || permissions === 'organizer') ? (
           <div style={{
-            position: isDesktop ? 'absolute' : 'fixed',
+            position: 'fixed',
             top: '46%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
@@ -937,7 +994,7 @@ const App = () => {
               </div>
             </BorderGlow>
           </div>
-        ) : null}
+        ) : null)}
 
         {/* Consolidated header - either "Pair up" or "Welcome" based on user role */}
         <div style={{ 
@@ -1113,7 +1170,7 @@ const App = () => {
                 flexDirection: 'row',
                 alignItems: 'center'
               }}>
-                <div style={{ position: 'relative' }}>
+                {!isDesktop && <div style={{ position: 'relative' }}>
                   <AppDock
                     panelHeight={88}
                     baseItemSize={65}
@@ -1152,7 +1209,7 @@ const App = () => {
                       }] : [])
                     ]}
                   />
-                </div>
+                </div>}
                 {/* Create Lobby button moved to centered standalone position above */}
                 {/* {(permissions === 'admin' || permissions === 'organizer') && (
                   <button 

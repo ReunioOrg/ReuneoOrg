@@ -5,15 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './PageNavBar.css';
 
 const PageNavBar = () => {
-  const { user, permissions } = useContext(AuthContext);
+  const { user, permissions, isLegacyOrganizer } = useContext(AuthContext);
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isDesktop] = useState(() => window.innerWidth >= 769);
 
-  const pricingLabel = (permissions === 'organizer' || permissions === 'admin') ? 'Plan' : 'Pricing';
-  const pricingPath = (permissions === 'organizer' || permissions === 'admin')
-    ? '/organizer-account-details'
-    : '/plan-selection';
+  const isActivePaidOrganizer = permissions === 'organizer' && !isLegacyOrganizer;
+  const pricingLabel = isActivePaidOrganizer ? 'Plan' : 'Pricing';
+  const pricingPath = isActivePaidOrganizer ? '/organizer-account-details' : '/plan-selection';
 
   if (isDesktop) {
     return (
@@ -28,8 +27,17 @@ const PageNavBar = () => {
           <button onClick={() => navigate('/tutorial')}>Tutorial</button>
           <button onClick={() => navigate(pricingPath)}>{pricingLabel}</button>
           <button onClick={() => navigate('/contact')}>Contact</button>
+          {user && (permissions === 'organizer' || permissions === 'admin') && (
+            <button onClick={() => navigate('/organizer-dashboard')}>Organizer</button>
+          )}
+          {user && (
+            <button onClick={() => navigate('/paired-player-history')}>Matches</button>
+          )}
         </div>
         <div className="page-nav-auth">
+          <button className="page-nav-join" onClick={() => navigate('/', { state: { openJoinLobby: true } })}>
+            Join Lobby
+          </button>
           {!user ? (
             <button className="page-nav-login" onClick={() => navigate('/login')}>Login</button>
           ) : (

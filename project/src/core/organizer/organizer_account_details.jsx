@@ -3,6 +3,7 @@ import { AuthContext } from '../Auth/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './organizer_account_details.css';
 import { apiFetch } from '../utils/api';
+import PageNavBar from '../components/PageNavBar/PageNavBar';
 
 const PLAN_TYPE_LABELS = {
     single_use: 'Single Use',
@@ -139,6 +140,7 @@ const OrganizerAccountDetails = () => {
 
     return (
         <div className="account-container">
+            <PageNavBar />
             <button onClick={() => navigate('/')} className="account-home-button">Home</button>
 
             <img
