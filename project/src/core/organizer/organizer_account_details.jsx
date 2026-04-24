@@ -22,6 +22,15 @@ const OrganizerAccountDetails = () => {
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [limitMessage, setLimitMessage] = useState(null);
+    // Live-lobby upgrade context forwarded from admin_lobby_view so that a
+    // subsequent "Change Plan" -> /plan-selection click can carry lobbyCode
+    // through the upgrade flow. Stashed in state because the limitMessage
+    // effect below wipes location.state.
+    const [lobbyContext, setLobbyContext] = useState({
+        lobbyCode: '',
+        fromActiveLobby: false,
+        lobbyState: null,
+    });
 
     useEffect(() => {
         if (permissions !== null) {
@@ -32,6 +41,13 @@ const OrganizerAccountDetails = () => {
     }, [permissions, navigate]);
 
     useEffect(() => {
+        if (location.state?.lobbyCode || location.state?.fromActiveLobby) {
+            setLobbyContext({
+                lobbyCode: location.state.lobbyCode || '',
+                fromActiveLobby: !!location.state.fromActiveLobby,
+                lobbyState: location.state.lobbyState || null,
+            });
+        }
         if (location.state?.limitMessage) {
             setLimitMessage(location.state.limitMessage);
             window.history.replaceState({}, '');
@@ -287,7 +303,13 @@ const OrganizerAccountDetails = () => {
                         {planDetails.subscription_status === 'active' || planDetails.subscription_status === 'trialing' ? (
                             <button
                                 onClick={() => navigate('/plan-selection', {
-                                    state: { isUpgrade: true, currentPlan: planDetails },
+                                    state: {
+                                        isUpgrade: true,
+                                        currentPlan: planDetails,
+                                        lobbyCode: lobbyContext.lobbyCode,
+                                        fromActiveLobby: lobbyContext.fromActiveLobby,
+                                        lobbyState: lobbyContext.lobbyState,
+                                    },
                                 })}
                                 className="account-primary-button"
                             >

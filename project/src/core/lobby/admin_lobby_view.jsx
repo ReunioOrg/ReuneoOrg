@@ -1501,6 +1501,19 @@ const AdminLobbyView = () => {
         handleCloseJoinModal();
     };
 
+    // Forward live-lobby context so /organizer-account-details (and downstream
+    // /plan-selection) can carry lobbyCode through the upgrade flow. This keeps
+    // _update_lobby_max_attendees firing after a mid-lobby plan change.
+    const goToAccountDetails = (extraState = {}) =>
+        navigate('/organizer-account-details', {
+            state: {
+                lobbyCode,
+                fromActiveLobby: true,
+                lobbyState,
+                ...extraState,
+            },
+        });
+
     // Handlers for progress bar actions
     const handleStartRounds = async () => {
         try {
@@ -1515,7 +1528,7 @@ const AdminLobbyView = () => {
                 toast.success('Rounds started!', { position: 'top-center' });
             } else {
                 if (data.reason === 'activations_exhausted' || data.reason === 'monthly_limit_reached' || data.reason === 'no_uses_remaining') {
-                    navigate('/organizer-account-details', { state: { limitMessage: data.message } });
+                    goToAccountDetails({ limitMessage: data.message });
                 } else {
                     toast.error(data.message || 'Failed to start rounds', { position: 'top-center' });
                 }
@@ -1573,7 +1586,7 @@ const AdminLobbyView = () => {
                 attendeeLimit={planInfo?.attendee_limit || 0}
                 onUpgrade={() => {
                     setShowLimitWarningModal(false);
-                    navigate('/organizer-account-details');
+                    goToAccountDetails();
                 }}
             />
             <div className="admin-lobby-container">
@@ -1676,7 +1689,7 @@ const AdminLobbyView = () => {
                     attendeeLimit={planInfo?.attendee_limit || null}
                     lobbyState={lobbyState}
                     planType={planInfo?.plan_type}
-                    onUpgrade={planInfo ? () => navigate('/organizer-account-details') : null}
+                    onUpgrade={planInfo ? () => goToAccountDetails() : null}
                 />
 
                 {/* Inline checkin content when lobby is in checkin and < 2 players */}
@@ -1817,7 +1830,7 @@ const AdminLobbyView = () => {
                         </button>
                         {planInfo && (
                             <button
-                                onClick={() => navigate('/organizer-account-details')}
+                                onClick={() => goToAccountDetails()}
                                 className={`page-control-button ${planInfo.plan_type === 'free_trial' ? 'page-control-join' : 'page-control-secondary'}`}
                             >
                                 {planInfo.plan_type === 'free_trial' ? 'Upgrade Plan' : 'Plan Details'}
