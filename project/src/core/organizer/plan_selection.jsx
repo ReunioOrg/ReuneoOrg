@@ -13,6 +13,8 @@ const bulkDiscount = (n) => {
 
 const PLAN_TYPE_LABELS = { single_use: 'One-Time Use', monthly: 'Monthly', free_trial: 'Free Trial' };
 
+const SHOW_ONE_TIME_OPTION = false;
+
 const INITIAL_VISIBLE_TIERS = 3;
 
 const PlanSelection = () => {
@@ -48,6 +50,12 @@ const PlanSelection = () => {
     const [pendingTier, setPendingTier] = useState(null);
     const [showEmailModal, setShowEmailModal] = useState(false);
     const [checkoutEmail, setCheckoutEmail] = useState('');
+
+    // Education lead capture
+    const [eduShowInput, setEduShowInput] = useState(false);
+    const [eduEmail, setEduEmail] = useState('');
+    const [eduSubmitting, setEduSubmitting] = useState(false);
+    const [eduSubmitted, setEduSubmitted] = useState(false);
 
     // ── Derive page mode ──
     useEffect(() => {
@@ -291,6 +299,28 @@ const PlanSelection = () => {
         executeCheckout(pendingTier, checkoutEmail.trim().toLowerCase());
     };
 
+    const handleEduSubmit = async () => {
+        const email = eduEmail.trim().toLowerCase();
+        if (!email) return;
+        setEduSubmitting(true);
+        try {
+            await apiFetch('/save-organizer-lead', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email,
+                    lobby_data: null,
+                    attendees: 0,
+                    plan_type: 'education',
+                }),
+            });
+        } catch (err) {
+            console.error('Failed to save education lead:', err);
+        }
+        setEduSubmitting(false);
+        setEduSubmitted(true);
+    };
+
     // ── Visible tiers ──
     const visibleTiers = showMoreTiers ? tiers : tiers.slice(0, INITIAL_VISIBLE_TIERS);
     const hasHiddenTiers = tiers.length > INITIAL_VISIBLE_TIERS;
@@ -348,7 +378,8 @@ const PlanSelection = () => {
                 </button>
             )}
 
-            {/* ── Billing Toggle ── */}
+            {/* ── Billing Toggle (hidden when one-time option is disabled) ── */}
+            {SHOW_ONE_TIME_OPTION && (
             <div className="ps-billing-toggle">
                 <button
                     className={`ps-billing-option ${billingMode === 'single' ? 'ps-billing-active' : ''}`}
@@ -368,6 +399,7 @@ const PlanSelection = () => {
                     style={{ transform: billingMode === 'monthly' ? 'translateX(100%)' : 'translateX(0)' }}
                 />
             </div>
+            )}
 
             {/* ── Quantity Selector (One-Time only) ── */}
             {billingMode === 'single' && (
@@ -542,6 +574,48 @@ const PlanSelection = () => {
                 </a>
             </div>
 
+            {/* ── Education Block ── */}
+            <div className="ps-enterprise-banner ps-education-banner">
+                <div className="ps-enterprise-content">
+                    <h3 className="ps-enterprise-title">Education</h3>
+                    <p className="ps-enterprise-subtitle">
+                        Special pricing for universities and schools
+                    </p>
+                </div>
+                {eduSubmitted ? (
+                    <div className="ps-edu-confirmed">
+                        <span className="ps-edu-confirmed-icon">✓</span>
+                        We&apos;ll be in touch!
+                    </div>
+                ) : eduShowInput ? (
+                    <div className="ps-edu-input-group">
+                        <input
+                            type="email"
+                            className="ps-edu-email-input"
+                            placeholder="you@university.edu"
+                            value={eduEmail}
+                            onChange={(e) => setEduEmail(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Enter') handleEduSubmit(); }}
+                            autoFocus
+                        />
+                        <button
+                            className="ps-enterprise-cta ps-edu-submit-btn"
+                            disabled={eduSubmitting || !eduEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eduEmail.trim())}
+                            onClick={handleEduSubmit}
+                        >
+                            {eduSubmitting ? 'Sending...' : 'Submit'}
+                        </button>
+                    </div>
+                ) : (
+                    <button
+                        className="ps-enterprise-cta"
+                        onClick={() => setEduShowInput(true)}
+                    >
+                        Get Started
+                    </button>
+                )}
+            </div>
+
             {/* ── Compare Table (plan-type columns) ── */}
             {!isLoading && (() => {
                 const selectedTier = visibleTiers.length > 0 ? visibleTiers[0] : null;
@@ -556,7 +630,9 @@ const PlanSelection = () => {
                                 <thead>
                                     <tr>
                                         <th></th>
+                                        {SHOW_ONE_TIME_OPTION && (
                                         <th className={billingMode === 'single' ? 'ps-compare-highlight' : ''}>One-Time</th>
+                                        )}
                                         <th className={billingMode === 'monthly' ? 'ps-compare-highlight' : ''}>Monthly</th>
                                         <th>Custom</th>
                                     </tr>
@@ -564,49 +640,65 @@ const PlanSelection = () => {
                                 <tbody>
                                     <tr>
                                         <td>Attendees per session</td>
+                                        {SHOW_ONE_TIME_OPTION && (
                                         <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}>{attendeeLabel}</td>
+                                        )}
                                         <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}>{attendeeLabel}</td>
                                         <td>Custom</td>
                                     </tr>
                                     <tr>
                                         <td>Activations</td>
+                                        {SHOW_ONE_TIME_OPTION && (
                                         <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}>{activationsLabel}</td>
+                                        )}
                                         <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}>3 / month</td>
                                         <td>Custom</td>
                                     </tr>
                                     <tr>
                                         <td>Interest &amp; Random pairing</td>
+                                        {SHOW_ONE_TIME_OPTION && (
                                         <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
+                                        )}
                                         <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
                                         <td><span className="ps-compare-check">✓</span></td>
                                     </tr>
                                     <tr>
                                         <td>Sponsor logo</td>
+                                        {SHOW_ONE_TIME_OPTION && (
                                         <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
+                                        )}
                                         <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
                                         <td><span className="ps-compare-check">✓</span></td>
                                     </tr>
                                     <tr>
                                         <td>Match history</td>
+                                        {SHOW_ONE_TIME_OPTION && (
                                         <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
+                                        )}
                                         <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
                                         <td><span className="ps-compare-check">✓</span></td>
                                     </tr>
                                     <tr>
                                         <td>Attendee analytics</td>
+                                        {SHOW_ONE_TIME_OPTION && (
                                         <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-x">—</span></td>
+                                        )}
                                         <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
                                         <td><span className="ps-compare-check">✓</span></td>
                                     </tr>
                                     <tr>
                                         <td>Discounted attendee upgrades</td>
+                                        {SHOW_ONE_TIME_OPTION && (
                                         <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-x">—</span></td>
+                                        )}
                                         <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
                                         <td><span className="ps-compare-check">✓</span></td>
                                     </tr>
                                     <tr>
                                         <td>Dedicated support</td>
+                                        {SHOW_ONE_TIME_OPTION && (
                                         <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-x">—</span></td>
+                                        )}
                                         <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-x">—</span></td>
                                         <td><span className="ps-compare-check">✓</span></td>
                                     </tr>

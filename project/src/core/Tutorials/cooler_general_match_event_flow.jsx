@@ -431,7 +431,7 @@ const CoolerGeneralMatchEventFlow = ({
                             className={`cmef-header-text cmef-act4-header ${s >= 19 ? 'cmef-header-fade-out' : ''}`}
                             key="act4-header"
                         >
-                            It works best at open networking sessions!
+                            Turn your event into a community building experience!
                         </span>
                     )}
                     {blueHeaderText && (

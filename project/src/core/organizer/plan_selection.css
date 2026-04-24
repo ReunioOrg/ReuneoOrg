@@ -593,6 +593,69 @@
     transform: translateY(-2px);
 }
 
+/* ── Education Banner ────────────────────────── */
+
+.ps-education-banner {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.97) 0%, rgba(236, 245, 255, 0.97) 100%);
+    border: 1.5px solid rgba(59, 130, 246, 0.18);
+}
+
+.ps-edu-input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.ps-edu-email-input {
+    padding: 10px 14px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #0f1729;
+    outline: none;
+    width: 220px;
+    transition: border-color 0.2s;
+}
+
+.ps-edu-email-input:focus {
+    border-color: #4b73ef;
+    box-shadow: 0 0 0 3px rgba(75, 115, 239, 0.1);
+}
+
+.ps-edu-email-input::placeholder {
+    color: #9ca3af;
+}
+
+.ps-edu-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.ps-edu-confirmed {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #16a34a;
+    flex-shrink: 0;
+}
+
+.ps-edu-confirmed-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(22, 163, 74, 0.1);
+    font-size: 14px;
+}
+
 /* ── Free Trial Pill (top position) ─────────── */
 
 .ps-free-trial-pill {
@@ -967,6 +1030,15 @@
 
     .ps-enterprise-features li {
         justify-content: center;
+    }
+
+    .ps-edu-input-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .ps-edu-email-input {
+        width: 100%;
     }
 
     .ps-compare-section {

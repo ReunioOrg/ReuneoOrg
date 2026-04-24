@@ -653,11 +653,11 @@ const App = () => {
       <div className="site-nav-links">
         <button onClick={() => navigate('/tutorial')}>Tutorial</button>
         <button onClick={() => navigate(
-          (permissions === 'organizer' || permissions === 'admin')
+          (permissions === 'organizer' && !isLegacyOrganizer)
             ? '/organizer-account-details'
             : '/plan-selection'
         )}>
-          {(permissions === 'organizer' || permissions === 'admin') ? 'Plan' : 'Pricing'}
+          {(permissions === 'organizer' && !isLegacyOrganizer) ? 'Plan' : 'Pricing'}
         </button>
         <button onClick={() => navigate('/contact')}>Contact</button>
       </div>
@@ -722,10 +722,10 @@ const App = () => {
                 </button>
               )}
               <button className="mobile-menu-link" onClick={() => {
-                navigate((permissions === 'organizer' || permissions === 'admin') ? '/organizer-account-details' : '/plan-selection');
+                navigate((permissions === 'organizer' && !isLegacyOrganizer) ? '/organizer-account-details' : '/plan-selection');
                 setMenuOpen(false);
               }}>
-                {(permissions === 'organizer' || permissions === 'admin') ? 'Plan' : 'Pricing'}
+                {(permissions === 'organizer' && !isLegacyOrganizer) ? 'Plan' : 'Pricing'}
               </button>
               <button className="mobile-menu-link" onClick={() => { navigate('/contact'); setMenuOpen(false); }}>
                 Contact

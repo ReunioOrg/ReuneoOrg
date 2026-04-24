@@ -699,7 +699,6 @@ const NewOrganizerView = () => {
             <CoolerGeneralMatchEventFlow
                 isVisible={showGeneralTutorial}
                 onComplete={handleGeneralTutorialComplete}
-                variant="compact"
             />
         </div>
     );
