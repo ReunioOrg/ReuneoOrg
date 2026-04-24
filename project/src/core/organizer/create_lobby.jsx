@@ -19,6 +19,7 @@ const CreateLobbyView = () => {
     const { user, permissions, isLegacyOrganizer } = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
+    const fromTutorial = location.state?.fromTutorial;
 
     // ── Step Navigation ──
     const [currentStep, setCurrentStep] = useState(1);
@@ -119,7 +120,7 @@ const CreateLobbyView = () => {
         }
 
         if (!user) {
-            setShowGeneralTutorial(true);
+            if (!fromTutorial) setShowGeneralTutorial(true);
             return;
         }
 
@@ -129,17 +130,17 @@ const CreateLobbyView = () => {
             try {
                 const res = await apiFetch('/organizer-lobby-data');
                 if (!res.ok) {
-                    setShowGeneralTutorial(true);
+                    if (!fromTutorial) setShowGeneralTutorial(true);
                     return;
                 }
                 const json = await res.json();
                 if (json.lobby_data) {
                     hydrate(json.lobby_data);
                 } else {
-                    setShowGeneralTutorial(true);
+                    if (!fromTutorial) setShowGeneralTutorial(true);
                 }
             } catch {
-                setShowGeneralTutorial(true);
+                if (!fromTutorial) setShowGeneralTutorial(true);
             } finally {
                 setIsHydrating(false);
                 hydratedRef.current = true;
