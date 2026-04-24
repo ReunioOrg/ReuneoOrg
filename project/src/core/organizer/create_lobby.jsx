@@ -9,7 +9,6 @@ import { apiFetch } from '../utils/api';
 import FloatingLinesBackground from './FloatingLinesBackground';
 import TutorialMatching from '../Tutorials/tutorial-matching';
 import AttendeesHistoryTutorial from '../Tutorials/attendees_history_tutorial';
-import CoolerGeneralMatchEventFlow from '../Tutorials/cooler_general_match_event_flow';
 import TutorialAttendeesPhone from '../Tutorials/tutorial-attendees-phone';
 import RoundDurationTutorial from '../Tutorials/round_duration_tutorial';
 import SponsorLogoTutorial from '../Tutorials/sponsor_logo_tutorial';
@@ -65,8 +64,6 @@ const CreateLobbyView = () => {
     const [showTableModal, setShowTableModal] = useState(false);
     const [isEditingReview, setIsEditingReview] = useState(false);
 
-    const [showGeneralTutorial, setShowGeneralTutorial] = useState(false);
-
     // ── Plan Limit ──
     const [planLimit, setPlanLimit] = useState(null);
     const [isFreeTrial, setIsFreeTrial] = useState(false);
@@ -120,7 +117,6 @@ const CreateLobbyView = () => {
         }
 
         if (!user) {
-            if (!fromTutorial) setShowGeneralTutorial(true);
             return;
         }
 
@@ -130,17 +126,14 @@ const CreateLobbyView = () => {
             try {
                 const res = await apiFetch('/organizer-lobby-data');
                 if (!res.ok) {
-                    if (!fromTutorial) setShowGeneralTutorial(true);
                     return;
                 }
                 const json = await res.json();
                 if (json.lobby_data) {
                     hydrate(json.lobby_data);
-                } else {
-                    if (!fromTutorial) setShowGeneralTutorial(true);
                 }
             } catch {
-                if (!fromTutorial) setShowGeneralTutorial(true);
+                // silently fail
             } finally {
                 setIsHydrating(false);
                 hydratedRef.current = true;
@@ -214,8 +207,6 @@ const CreateLobbyView = () => {
         if (num <= 65) return 6;
         return 7;
     };
-
-    const handleGeneralTutorialComplete = () => setShowGeneralTutorial(false);
 
     // ── Navigation ──
     const goToStep = (step, direction) => {
@@ -1275,10 +1266,6 @@ const CreateLobbyView = () => {
                 </div>
             )}
 
-            <CoolerGeneralMatchEventFlow
-                isVisible={showGeneralTutorial}
-                onComplete={handleGeneralTutorialComplete}
-            />
         </div>
     );
 };

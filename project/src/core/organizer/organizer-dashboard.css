@@ -22,6 +22,18 @@ body:has(.organizer-dashboard) {
     padding-right: 32px;
 }
 
+/* ── Floating Lines WebGL Background ──────────── */
+
+/* Dim the animation so it doesn't distract from the dashboard */
+.organizer-dashboard .floating-lines-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0.35;
+}
+
 /* Ambient mesh gradient blobs */
 .organizer-dashboard::before,
 .organizer-dashboard::after {
