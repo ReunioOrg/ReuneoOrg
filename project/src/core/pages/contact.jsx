@@ -156,34 +156,8 @@ const ContactPage = () => {
         <p className="contact-hero-sub">We respond to every inquiry - usually within 24 hours.</p>
       </section>
 
-      {/* ── Info cards + Form ── */}
+      {/* ── Form ── */}
       <section className="contact-main">
-        <div className="contact-info-col">
-          <div className="contact-info-card">
-            <span className="contact-info-icon">✉</span>
-            <div>
-              <div className="contact-info-label">Email us</div>
-              <a className="contact-info-value" href="mailto:julian.reuneo@gmail.com">
-                julian.reuneo@gmail.com
-              </a>
-            </div>
-          </div>
-          <div className="contact-info-card">
-            <span className="contact-info-icon">📍</span>
-            <div>
-              <div className="contact-info-label">Location</div>
-              <div className="contact-info-value">Austin, TX</div>
-            </div>
-          </div>
-          <div className="contact-info-card">
-            <span className="contact-info-icon">⚡</span>
-            <div>
-              <div className="contact-info-label">Response time</div>
-              <div className="contact-info-value">Within 24 hours</div>
-            </div>
-          </div>
-        </div>
-
         <div className="contact-form-col">
           <div className="contact-form-card">
             <h2 className="contact-form-heading">Send us a message</h2>
@@ -298,6 +272,33 @@ const ContactPage = () => {
                 </button>
               </form>
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Info strip ── */}
+      <section className="contact-info-strip">
+        <div className="contact-info-card">
+          <span className="contact-info-icon">✉</span>
+          <div>
+            <div className="contact-info-label">Email us</div>
+            <a className="contact-info-value" href="mailto:julian.reuneo@gmail.com">
+              julian.reuneo@gmail.com
+            </a>
+          </div>
+        </div>
+        <div className="contact-info-card">
+          <span className="contact-info-icon">📍</span>
+          <div>
+            <div className="contact-info-label">Location</div>
+            <div className="contact-info-value">Austin, TX</div>
+          </div>
+        </div>
+        <div className="contact-info-card">
+          <span className="contact-info-icon">⚡</span>
+          <div>
+            <div className="contact-info-label">Response time</div>
+            <div className="contact-info-value">Within 24 hours</div>
           </div>
         </div>
       </section>

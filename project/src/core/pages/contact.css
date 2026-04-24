@@ -30,33 +30,35 @@
   font-weight: 450;
 }
 
-/* ─── Main two-column section ─────────────────────────────── */
+/* ─── Main form section ───────────────────────────────────── */
 .contact-main {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 28px;
-  max-width: 960px;
+  max-width: 720px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 24px 72px;
+  padding: 0 24px 40px;
   box-sizing: border-box;
-  align-items: start;
 }
 
-/* ─── Info column ─────────────────────────────────────────── */
-.contact-info-col {
+/* ─── Info strip ──────────────────────────────────────────── */
+.contact-info-strip {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 16px;
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px 64px;
+  box-sizing: border-box;
 }
 
 .contact-info-card {
+  flex: 1;
   background: #ffffff;
   border-radius: 14px;
-  padding: 20px 22px;
+  padding: 18px 20px;
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 12px;
   box-shadow: 0 1px 4px rgba(0, 100, 220, 0.06), 0 4px 16px rgba(0, 80, 180, 0.06);
   border: 1px solid rgba(30, 120, 220, 0.08);
 }
@@ -92,7 +94,7 @@ a.contact-info-value:hover {
 
 /* ─── Form card ───────────────────────────────────────────── */
 .contact-form-col {
-  min-width: 0;
+  width: 100%;
 }
 
 .contact-form-card {
@@ -368,19 +370,13 @@ a.contact-info-value:hover {
   }
 
   .contact-main {
-    grid-template-columns: 1fr;
-    padding: 0 16px 56px;
+    padding: 0 16px 32px;
   }
 
-  .contact-info-col {
-    flex-direction: row;
-    flex-wrap: wrap;
+  .contact-info-strip {
+    flex-direction: column;
+    padding: 0 16px 48px;
     gap: 12px;
-  }
-
-  .contact-info-card {
-    flex: 1 1 180px;
-    min-width: 0;
   }
 
   .contact-form-card {
