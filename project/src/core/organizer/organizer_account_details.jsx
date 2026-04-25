@@ -3,7 +3,6 @@ import { AuthContext } from '../Auth/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './organizer_account_details.css';
 import { apiFetch } from '../utils/api';
-import PageNavBar from '../components/PageNavBar/PageNavBar';
 
 const PLAN_TYPE_LABELS = {
     single_use: 'Single Use',
@@ -156,8 +155,15 @@ const OrganizerAccountDetails = () => {
 
     return (
         <div className="account-container">
-            <PageNavBar />
             <button onClick={() => navigate('/')} className="account-home-button">Home</button>
+            {lobbyContext.fromActiveLobby && (
+                <button
+                    onClick={() => navigate(`/admin_lobby_view?code=${lobbyContext.lobbyCode}`)}
+                    className="account-return-lobby-button"
+                >
+                    Return to Lobby
+                </button>
+            )}
 
             <img
                 src="/assets/reuneo_test_11.png"
