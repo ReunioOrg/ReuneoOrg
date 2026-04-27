@@ -346,14 +346,20 @@ const OrganizerAccountDetails = () => {
                 <div className="account-modal-overlay" onClick={(e) => e.stopPropagation()}>
                     <div className="account-modal-content" onClick={(e) => e.stopPropagation()}>
                         <h3>Cancel Subscription</h3>
-                        <p>Are you sure you want to cancel? You'll still have access until the end of your current billing period.</p>
+                        <p className="account-modal-lead">Heads up &mdash; canceling will:</p>
+                        <ul className="account-modal-list">
+                            <li>End your access to organizer features immediately</li>
+                            <li>Stop all future charges</li>
+                            <li>Not refund the current billing period</li>
+                        </ul>
+                        <p className="account-modal-trailing">You can re-subscribe at any time.</p>
                         <div className="account-modal-buttons">
                             <button
                                 className="account-modal-button account-modal-confirm"
                                 onClick={handleCancelSubscription}
                                 disabled={isCanceling}
                             >
-                                {isCanceling ? 'Processing...' : 'Yes, Cancel'}
+                                {isCanceling ? 'Processing...' : 'Cancel Now'}
                             </button>
                             <button
                                 className="account-modal-button account-modal-keep"

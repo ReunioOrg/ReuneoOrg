@@ -15,6 +15,7 @@ import { CommunityPageButton } from './core/community/mycf';
 import FloatingLinesBackground from './core/organizer/FloatingLinesBackground';
 import BorderGlow from './core/components/BorderGlow/BorderGlow';
 import AnimatedText from './core/components/AnimatedText/AnimatedText';
+import DesktopPhoneMockups from './core/components/DesktopPhoneMockups/DesktopPhoneMockups';
 
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
 import { getStoredLobbyCode, shouldValidateLobby, markLobbyValidated, clearLobbyStorage } from './core/utils/lobbyStorage';
@@ -675,6 +676,11 @@ const App = () => {
         )}
       </div>
       <div className="site-nav-auth">
+        {(permissions === 'admin' || permissions === 'organizer') && user === 'topaz' && (
+          <button className="site-nav-lobbies" onClick={() => navigate('/master_lobby_view')}>
+            Lobbies
+          </button>
+        )}
         <button className="site-nav-join" onClick={() => setShowQRInstructionModal(true)}>
           Join Lobby
         </button>
@@ -761,6 +767,11 @@ const App = () => {
     {isDesktop && createPortal(<FloatingLinesBackground />, document.body)}
     {isDesktop && createPortal(
       <div className="desktop-hero-header">
+        <img
+          src="/assets/reuneo_test_14.png"
+          alt="Reuneo"
+          className="desktop-hero-logo"
+        />
         <AnimatedText
           text="Real Connections. Real Engagement. Real Results."
           className="desktop-hero-heading"
@@ -781,8 +792,8 @@ const App = () => {
     {isDesktop && !showQRInstructionModal && createPortal(
       <>
         {permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby && (
-          <div className="desktop-create-wrapper" style={{ position: 'absolute', top: '225px', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <BorderGlow borderRadius={18} duration={2000} glowRadius={55} glowIntensity={2.2} coneSpread={45} glowColor="248 90 85" colors={['#a78bfa', '#818cf8', '#c4b5fd']}>
+          <div className="desktop-create-wrapper" style={{ position: 'absolute', top: '305px', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <BorderGlow borderRadius={18} duration={2000} glowRadius={28} glowIntensity={1.0} coneSpread={45} glowColor="248 90 85" colors={['#a78bfa', '#818cf8', '#c4b5fd']}>
               <div
                 className="app-dock-item-standalone"
                 onClick={() => navigate('/new_organizer', { state: { showGeneralTutorial: true } })}
@@ -798,8 +809,8 @@ const App = () => {
           </div>
         )}
         {activeLobbies.length === 0 && (permissions === 'admin' || permissions === 'organizer') && (
-          <div className="desktop-create-wrapper" style={{ position: 'absolute', top: '225px', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <BorderGlow borderRadius={18} duration={2000} glowRadius={55} glowIntensity={2.2} coneSpread={45} glowColor="248 90 85" colors={['#a78bfa', '#818cf8', '#c4b5fd']}>
+          <div className="desktop-create-wrapper" style={{ position: 'absolute', top: '305px', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <BorderGlow borderRadius={18} duration={2000} glowRadius={28} glowIntensity={1.0} coneSpread={45} glowColor="248 90 85" colors={['#a78bfa', '#818cf8', '#c4b5fd']}>
               <div
                 className="app-dock-item-standalone"
                 onClick={handleCreateClick}
@@ -816,7 +827,7 @@ const App = () => {
         )}
         {(permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0 && (
           <div style={{
-            position: 'absolute', top: '225px', left: 0, right: 0, zIndex: 10,
+            position: 'absolute', top: '305px', left: 0, right: 0, zIndex: 10,
             display: 'flex', justifyContent: 'center', alignItems: 'center'
           }}>
           <div style={{ width: '85%', maxWidth: '280px' }}>
@@ -868,6 +879,7 @@ const App = () => {
       </>,
       document.body
     )}
+    {isDesktop && createPortal(<DesktopPhoneMockups />, document.body)}
     <div style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden', zIndex: 1 }}>
 
       {isDesktop && <SiteNavBar />}
@@ -951,8 +963,8 @@ const App = () => {
           )}
         </div>
 
-        {/* Master Lobbies Button - Temporary Feature */}
-        {(permissions === 'admin' || permissions === 'organizer') && user === 'topaz' && (
+        {/* Master Lobbies Button - mobile only; desktop version is in SiteNavBar */}
+        {!isDesktop && (permissions === 'admin' || permissions === 'organizer') && user === 'topaz' && (
           <div style={{ 
             position: 'absolute', 
             top: '120px', 
@@ -1078,7 +1090,7 @@ const App = () => {
                 />
               </h2>
             ) : null
-          ) : (
+          ) : !isDesktop ? (
             <h2 className="welcome-header" style={{ 
               color: '#ffffff',
               fontSize: '1rem',
@@ -1155,7 +1167,7 @@ const App = () => {
                 })()
               )}
             </h2>
-          )}
+          ) : null}
         </div>
 
         {/* Matches button moved into the dock */}

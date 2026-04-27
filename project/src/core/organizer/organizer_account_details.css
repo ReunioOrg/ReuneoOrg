@@ -541,6 +541,34 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+.account-modal-content .account-modal-lead {
+    margin: 0 0 12px 0;
+}
+
+.account-modal-content .account-modal-list {
+    list-style: disc;
+    text-align: left;
+    color: #6b7280;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0 auto 16px;
+    padding: 0 0 0 22px;
+    max-width: 280px;
+}
+
+.account-modal-content .account-modal-list li {
+    margin-bottom: 6px;
+}
+
+.account-modal-content .account-modal-list li:last-child {
+    margin-bottom: 0;
+}
+
+.account-modal-content .account-modal-trailing {
+    margin: 0 0 28px 0;
+}
+
 .account-modal-buttons {
     display: flex;
     gap: 12px;

@@ -169,6 +169,27 @@ button:focus-visible {
   z-index: -1;
 }
 
+/* Temporarily hidden on desktop — will be reintroduced when desktop video treatment is finalized */
+@media (min-width: 769px) {
+  .background-video {
+    display: none;
+  }
+
+  /* Strip phone chrome decoration on desktop — the #root.phone-frame class stays but goes invisible */
+  #root.phone-frame {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    margin-top: 0;
+  }
+
+  /* Welcome header is a mobile-only text element */
+  .welcome-header {
+    display: none;
+  }
+}
+
 .homepage-content {
   position: relative;
   z-index: 1;
