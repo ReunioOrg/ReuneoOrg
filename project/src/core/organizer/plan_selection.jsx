@@ -13,9 +13,33 @@ const bulkDiscount = (n) => {
 
 const PLAN_TYPE_LABELS = { single_use: 'One-Time Use', monthly: 'Monthly', free_trial: 'Free Trial' };
 
+const PLAN_NAMES = { 50: 'Basic', 100: 'Plus', 150: 'Pro', 200: 'Ultra' };
+const getPlanName = (tier) => PLAN_NAMES[tier.upper] ?? `Up to ${tier.upper}`;
+
 const SHOW_ONE_TIME_OPTION = false;
 
 const INITIAL_VISIBLE_TIERS = 3;
+
+const CancelIcon = () => (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+        <path d="M10 6A4 4 0 1 1 8.5 2.8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+        <polyline points="7,1 8.7,2.7 7,4.3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
+const CheckIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <circle cx="8" cy="8" r="7.5" fill="currentColor" fillOpacity="0.12" stroke="currentColor" strokeWidth="1" />
+        <path d="M5 8l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
+const DashIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <circle cx="8" cy="8" r="7.5" fill="none" stroke="currentColor" strokeWidth="1" />
+        <path d="M5.5 8h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+);
 
 const PlanSelection = () => {
     const navigate = useNavigate();
@@ -444,7 +468,7 @@ const PlanSelection = () => {
             ) : (
                 <>
                     <div className="ps-tier-grid">
-                        {visibleTiers.map((tier) => {
+                        {visibleTiers.map((tier, index) => {
                             const price = getTierPrice(tier);
                             const undiscounted = getUndiscountedPrice(tier);
                             const qty = getQty();
@@ -453,6 +477,7 @@ const PlanSelection = () => {
                             const disabled = isCtaDisabled(tier);
                             const loading = checkoutLoadingTier === tier.lower;
                             const label = loading ? 'Processing...' : getCtaLabel(tier);
+                            const isMostPopular = !current && index === 1;
 
                             const sharedFeatures = [
                                 `Up to ${tier.upper} attendees per session`,
@@ -479,13 +504,19 @@ const PlanSelection = () => {
                                     className={[
                                         'ps-tier-card',
                                         current ? 'ps-tier-current' : '',
+                                        isMostPopular ? 'ps-tier-popular' : '',
                                     ].filter(Boolean).join(' ')}
                                 >
                                     {current && !isBuyMore(tier) && (
                                         <div className="ps-tier-current-badge">Your Plan</div>
                                     )}
+                                    {isMostPopular && (
+                                        <div className="ps-tier-popular-badge">Most Popular</div>
+                                    )}
 
-                                    <div className="ps-tier-banner">
+                                    <div className="ps-tier-plan-name">{getPlanName(tier)}</div>
+
+                                    <div className="ps-tier-attendee-label">
                                         Up to {tier.upper} attendees
                                     </div>
 
@@ -507,6 +538,12 @@ const PlanSelection = () => {
                                         )}
                                     </div>
 
+                                    {billingMode === 'monthly' && (
+                                        <p className="ps-tier-cancel-note">
+                                            <CancelIcon /> Cancel anytime
+                                        </p>
+                                    )}
+
                                     <div className="ps-tier-activations">
                                         {billingMode === 'single'
                                             ? `${qty} activation${qty === 1 ? '' : 's'}`
@@ -517,12 +554,12 @@ const PlanSelection = () => {
                                     <ul className="ps-tier-features">
                                         {sharedFeatures.map((f) => (
                                             <li key={f} className="ps-feature-included">
-                                                <span className="ps-feature-icon">✓</span>{f}
+                                                <span className="ps-feature-icon"><CheckIcon /></span>{f}
                                             </li>
                                         ))}
                                         {planFeatures.map((f) => (
                                             <li key={f.text} className={f.included ? 'ps-feature-included' : 'ps-feature-excluded'}>
-                                                <span className="ps-feature-icon">{f.included ? '✓' : '—'}</span>{f.text}
+                                                <span className="ps-feature-icon">{f.included ? <CheckIcon /> : <DashIcon />}</span>{f.text}
                                             </li>
                                         ))}
                                     </ul>

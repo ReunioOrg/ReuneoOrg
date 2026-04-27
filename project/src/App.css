@@ -1321,3 +1321,366 @@
   overflow: hidden;
   pointer-events: none;
 }
+
+/* ============================================
+   Landing Page — Features Section (Desktop)
+   ============================================ */
+
+@keyframes lpFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lp-features-section {
+  width: 100%;
+  padding: 90px 40px 100px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+}
+
+.lp-features-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+/* ── Header ── */
+.lp-features-header {
+  margin-bottom: 56px;
+  opacity: 0;
+}
+
+.lp-animate-in .lp-features-header {
+  animation: lpFadeInUp 0.8s ease-out 0.2s forwards;
+}
+
+.lp-features-title {
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 14px;
+  color: #1a1a1a !important;
+  text-shadow: none;
+}
+
+.lp-features-subtitle {
+  font-size: 17px;
+  color: #555;
+  max-width: 580px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── 2-column card grid ── */
+.lp-features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.lp-feature-card {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 18px;
+  padding: 40px 32px;
+  text-align: center;
+  opacity: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.lp-animate-in .lp-feature-card:nth-child(1),
+.lp-animate-in .lp-feature-card:nth-child(2) {
+  animation: lpFadeInUp 0.8s ease-out 0.3s forwards;
+}
+
+.lp-animate-in .lp-feature-card:nth-child(3),
+.lp-animate-in .lp-feature-card:nth-child(4) {
+  animation: lpFadeInUp 0.8s ease-out 0.45s forwards;
+}
+
+.lp-feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+}
+
+.lp-feature-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 10px;
+  color: #1a1a1a !important;
+  text-shadow: none;
+}
+
+.lp-feature-description {
+  font-size: 15px;
+  line-height: 1.65;
+  color: #555;
+  margin: 0;
+}
+
+/* ============================================
+   Landing Page — Steps Section (Desktop)
+   ============================================ */
+
+.lp-steps-section {
+  width: 100%;
+  padding: 80px 40px 110px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+}
+
+.lp-steps-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+/* ── Header ── */
+.lp-steps-header {
+  margin-bottom: 56px;
+  opacity: 0;
+}
+
+.lp-steps-animate-in .lp-steps-header {
+  animation: lpFadeInUp 0.8s ease-out 0.2s forwards;
+}
+
+.lp-steps-title {
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 14px;
+  color: #1a1a1a !important;
+  text-shadow: none;
+}
+
+.lp-steps-subtitle {
+  font-size: 17px;
+  color: #555;
+  margin: 0 auto;
+  max-width: 560px;
+  line-height: 1.6;
+}
+
+/* ── Step items ── */
+.lp-steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.lp-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  text-align: left;
+  opacity: 0;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 18px;
+  padding: 28px 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lp-step-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.09);
+}
+
+.lp-steps-animate-in .lp-step-item--1 {
+  animation: lpFadeInUp 0.8s ease-out 0.35s forwards;
+}
+.lp-steps-animate-in .lp-step-item--2 {
+  animation: lpFadeInUp 0.8s ease-out 0.52s forwards;
+}
+.lp-steps-animate-in .lp-step-item--3 {
+  animation: lpFadeInUp 0.8s ease-out 0.69s forwards;
+}
+
+/* ── Number circle ── */
+.lp-step-number {
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  background: #144dff;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  font-weight: 700;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  box-shadow: 0 4px 12px rgba(20, 77, 255, 0.3);
+}
+
+/* ── Step text ── */
+.lp-step-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: #1a1a1a !important;
+  text-shadow: none;
+}
+
+.lp-step-description {
+  font-size: 15px;
+  color: #555;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ============================================
+   Landing Page — Testimonials Section (Desktop)
+   ============================================ */
+
+.lp-testimonials-section {
+  width: 100%;
+  padding: 80px 0 110px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border-top: 1px solid rgba(255, 255, 255, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+/* ── Header ── */
+.lp-testimonials-header {
+  text-align: center;
+  padding: 0 40px;
+  margin-bottom: 52px;
+  opacity: 0;
+}
+
+.lp-t-header-in {
+  animation: lpFadeInUp 0.8s ease-out 0.2s forwards;
+}
+
+.lp-t-title {
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 14px;
+  color: #1a1a1a !important;
+  text-shadow: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+.lp-t-subtitle {
+  font-size: 17px;
+  color: #555;
+  margin: 0 auto;
+  max-width: 580px;
+  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+/* ── Carousel ── */
+.lp-t-carousel {
+  overflow-x: hidden;
+  overflow-y: visible;
+  cursor: grab;
+}
+
+.lp-t-carousel:active {
+  cursor: grabbing;
+}
+
+.lp-t-track {
+  display: flex;
+  gap: 28px;
+  padding: 16px 40px 24px;
+  width: max-content;
+}
+
+/* ── Individual card ── */
+.lp-t-card {
+  flex: 0 0 420px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(230, 232, 240, 0.8);
+  border-radius: 18px;
+  padding: 30px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
+  opacity: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lp-t-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.11);
+}
+
+/* Staggered entrance — only first 4 (original set) animate; duplicates skip */
+.lp-t-animate-in .lp-t-card--1 { animation: lpFadeInUp 0.8s ease-out 0.35s forwards; }
+.lp-t-animate-in .lp-t-card--2 { animation: lpFadeInUp 0.8s ease-out 0.52s forwards; }
+.lp-t-animate-in .lp-t-card--3 { animation: lpFadeInUp 0.8s ease-out 0.69s forwards; }
+.lp-t-animate-in .lp-t-card--4 { animation: lpFadeInUp 0.8s ease-out 0.86s forwards; }
+
+/* ── Avatar ── */
+.lp-t-avatar {
+  flex-shrink: 0;
+}
+
+.lp-t-avatar-img {
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
+  object-fit: cover;
+  display: block;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Quote ── */
+.lp-t-quote {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.65;
+  color: #1a1a1a;
+  margin: 0;
+  flex: 1;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+/* ── Author ── */
+.lp-t-author {
+  margin-top: auto;
+}
+
+.lp-t-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 3px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+.lp-t-org {
+  font-size: 13px;
+  color: #888;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}

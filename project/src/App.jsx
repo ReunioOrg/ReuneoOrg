@@ -62,6 +62,267 @@ const MenuIcon = () => (
   </svg>
 );
 
+/* ─── Landing Page: Features Section ─────────────────────────────────────── */
+const FEATURE_CARDS = [
+  {
+    title: '10 x Connections',
+    description: 'Guarantees attendees can meet as many people as they want. You can customize pairing duration, interest matching, and much more!',
+  },
+  {
+    title: '0% Curation Work',
+    description: 'The first networking tool that lets the host take a breather. Just hit "Start" and watch the room light up.',
+  },
+  {
+    title: '0% Friction',
+    description: 'No app download, no authentication required. Attendees scan a QR to join, insert a name & picture — that\'s it.',
+  },
+  {
+    title: 'Social Bonding',
+    description: 'Pairs people into quality 1-1 conversations; forming bonds and real connections. Structured networking that strengthens community.',
+  },
+];
+
+function FeaturesSection() {
+  const sectionRef = useRef(null);
+  const [animateIn, setAnimateIn] = useState(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setAnimateIn(true);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section
+      ref={sectionRef}
+      className={`lp-features-section${animateIn ? ' lp-animate-in' : ''}`}
+    >
+      <div className="lp-features-inner">
+        <div className="lp-features-header">
+          <h2 className="lp-features-title">What We Provide.</h2>
+          <p className="lp-features-subtitle">
+            Everyone is paired into quality, 1-1 connections; similar to &ldquo;speed networking&rdquo; but much smoother and simpler.
+          </p>
+        </div>
+        <div className="lp-features-grid">
+          {FEATURE_CARDS.map((card) => (
+            <div key={card.title} className="lp-feature-card">
+              <h3 className="lp-feature-title">{card.title}</h3>
+              <p className="lp-feature-description">{card.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+/* ─── Landing Page: Steps Section ────────────────────────────────────────── */
+const JOIN_STEPS = [
+  {
+    number: '1',
+    title: 'Scan the QR code',
+    description: 'Guests point their phone camera at the room\'s QR code — no app download, no sign-up.',
+  },
+  {
+    number: '2',
+    title: 'Enter a name',
+    description: 'Any name they choose, typed in seconds. That\'s the only info required.',
+  },
+  {
+    number: '3',
+    title: 'Upload a selfie',
+    description: 'So their paired match can spot them across the room. Done — they\'re in.',
+  },
+];
+
+function StepsSection() {
+  const sectionRef = useRef(null);
+  const [animateIn, setAnimateIn] = useState(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setAnimateIn(true);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section
+      ref={sectionRef}
+      className={`lp-steps-section${animateIn ? ' lp-steps-animate-in' : ''}`}
+    >
+      <div className="lp-steps-inner">
+        <div className="lp-steps-header">
+          <h2 className="lp-steps-title">Attendees join in 3 simple steps.</h2>
+          <p className="lp-steps-subtitle">
+            Turn a room full of strangers into a community of connected, engaged members.
+          </p>
+        </div>
+        <div className="lp-steps-container">
+          {JOIN_STEPS.map((step, i) => (
+            <div key={step.number} className={`lp-step-item lp-step-item--${i + 1}`}>
+              <div className="lp-step-number">{step.number}</div>
+              <div className="lp-step-content">
+                <h3 className="lp-step-title">{step.title}</h3>
+                <p className="lp-step-description">{step.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+/* ─── Landing Page: Testimonials Section ─────────────────────────────────── */
+const TESTIMONIALS = [
+  {
+    img: 'https://dl.dropboxusercontent.com/scl/fi/7vu0tjapuvp1y7tqi2yrq/alana-strong-image.jpg?rlkey=v4iwoaqaqi9pikku0zh1ho5py&st=egydhle6&dl=0',
+    quote: '"When I first tried it, I only intended on using it for 20 min — we ran it for the whole event. It\'s a 10/10."',
+    name: 'Alana S.',
+    org: 'The Woodlands Womens Collective',
+  },
+  {
+    img: 'https://dl.dropboxusercontent.com/scl/fi/hdu8amnbdo861l78vev8i/terrance-txstate-image.jpg?rlkey=19sr0dicibg4e0i6jdzzjcgyc&st=yvpo6sq8&dl=0',
+    quote: '"I wish this was used for all networking events — it helps new people get plugged in right away."',
+    name: 'Terrance M.',
+    org: 'Texas State University',
+  },
+  {
+    img: 'https://dl.dropboxusercontent.com/scl/fi/o8ve4n1thxhdkhw4h50rx/jodie-profile-image.jpg?rlkey=9rh3lvruiwvewchwfxa6p9b2j&st=7hlte795&dl=0',
+    quote: '"It\'s contagious — in the best way possible. It\'s the highlight for most of my socials."',
+    name: 'Jodie R.',
+    org: 'ATX GirlHangouts',
+  },
+  {
+    img: 'https://dl.dropboxusercontent.com/scl/fi/tf0h5aszqedhj3q4un5ln/kristinagarza-utrgv-image.jpg?rlkey=mmtzg0sttjxy3xv6l0c4tqi38&st=slzh36p2&dl=0',
+    quote: '"It\'s one of the best networking tools I\'ve ever used."',
+    name: 'Kristina G.',
+    org: 'Leadership McAllen',
+  },
+];
+
+function TestimonialsSection() {
+  const sectionRef = useRef(null);
+  const carouselRef = useRef(null);
+  const rafRef = useRef(null);
+  const isPausedRef = useRef(false);
+  const scrollPosRef = useRef(0);
+  const [animateIn, setAnimateIn] = useState(false);
+
+  /* Scroll-triggered fade-in */
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setAnimateIn(true);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  /* Auto-scroll — starts 1.8 s after mount to let animations settle */
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+
+    const SPEED = 0.8; // px per frame
+
+    const tick = () => {
+      if (!isPausedRef.current && carousel) {
+        scrollPosRef.current += SPEED;
+        /* Seamless infinite loop: reset to 0 when halfway through the doubled list */
+        const half = carousel.scrollWidth / 2;
+        if (scrollPosRef.current >= half) {
+          scrollPosRef.current = 0;
+        }
+        carousel.scrollLeft = scrollPosRef.current;
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    const timer = setTimeout(() => {
+      rafRef.current = requestAnimationFrame(tick);
+    }, 1800);
+
+    return () => {
+      clearTimeout(timer);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  const doubled = [...TESTIMONIALS, ...TESTIMONIALS];
+
+  return (
+    <section
+      ref={sectionRef}
+      className={`lp-testimonials-section${animateIn ? ' lp-t-animate-in' : ''}`}
+    >
+      <div className={`lp-testimonials-header${animateIn ? ' lp-t-header-in' : ''}`}>
+        <h2 className="lp-t-title">What our clients are saying.</h2>
+        <p className="lp-t-subtitle">
+          Outsource the time, focus, and energy needed to run quality networking at your events.
+        </p>
+      </div>
+      <div
+        ref={carouselRef}
+        className="lp-t-carousel"
+        onMouseEnter={() => { isPausedRef.current = true; }}
+        onMouseLeave={() => { isPausedRef.current = false; }}
+      >
+        <div className="lp-t-track">
+          {doubled.map((t, i) => (
+            <div
+              key={i}
+              className={`lp-t-card${animateIn ? ` lp-t-card--${(i % TESTIMONIALS.length) + 1}` : ''}`}
+            >
+              <div className="lp-t-avatar">
+                <img src={t.img} alt={t.name} className="lp-t-avatar-img" />
+              </div>
+              <p className="lp-t-quote">{t.quote}</p>
+              <div className="lp-t-author">
+                <p className="lp-t-name">{t.name}</p>
+                <p className="lp-t-org">{t.org}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+/* ─────────────────────────────────────────────────────────────────────────── */
+
 function AppDockItem({ children, onClick, disabled, mouseX, spring, distance, magnification, baseItemSize, ariaLabel, title }) {
   const ref = useRef(null);
   const mouseDistance = useTransform(mouseX, (val) => {
@@ -1539,6 +1800,7 @@ const App = () => {
       <QRInstructionModal />
       <LobbyFullModal />
     </div>
+    {isDesktop && createPortal(<><FeaturesSection /><StepsSection /><TestimonialsSection /></>, document.body)}
     </>
   );
 

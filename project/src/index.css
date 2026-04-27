@@ -130,6 +130,25 @@ button:focus-visible {
   }
 }
 
+/* Home page: make body the scroll container so portalled elements (phone mockups) scroll naturally */
+@media (min-width: 769px) {
+  body.home-scroll {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    overflow-y: auto;
+    min-height: 100vh;
+  }
+
+  /* Remove scroll from #root on home page — body handles it now.
+     min-height: 100vh ensures the hero fills the viewport before the
+     features section begins (hero's height:100% needs a resolved parent height). */
+  #root.phone-frame {
+    overflow-y: visible;
+    min-height: 100vh;
+  }
+}
+
 /* Dashboard: Full-width layout override for desktop - MUST come after mobile viewport simulation */
 @media (min-width: 769px) {
   body.dashboard-view {

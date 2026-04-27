@@ -29,14 +29,17 @@ function RouteLayoutHandler() {
 
     if (isHomeRoute) {
       rootElement?.classList.add('phone-frame');
+      bodyElement?.classList.add('home-scroll');
     } else {
       rootElement?.classList.remove('phone-frame');
+      bodyElement?.classList.remove('home-scroll');
     }
     
     return () => {
       rootElement?.classList.remove('dashboard-view');
       bodyElement?.classList.remove('dashboard-view');
       rootElement?.classList.remove('phone-frame');
+      bodyElement?.classList.remove('home-scroll');
     };
   }, [pathname, isDashboardRoute, isHomeRoute]);
 
