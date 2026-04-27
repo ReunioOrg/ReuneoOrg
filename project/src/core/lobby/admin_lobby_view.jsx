@@ -2046,11 +2046,20 @@ const AdminLobbyView = () => {
                                                 className="paired-player"
                                                 onClick={() => handleOpenKickModal(pair[0])}
                                             >
-                                                <img 
-                                                    src={pair[0].pfp_data} 
-                                                    alt={pair[0].name} 
-                                                    className="paired-player-avatar"
-                                                />
+                                                <div className="player-avatar-wrap">
+                                                    <img 
+                                                        src={pair[0].pfp_data} 
+                                                        alt={pair[0].name} 
+                                                        className="paired-player-avatar"
+                                                    />
+                                                    <span className="player-dots-badge">
+                                                        <svg width="14" height="4" viewBox="0 0 14 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <circle cx="2" cy="2" r="1.5" fill="#6b7280"/>
+                                                            <circle cx="7" cy="2" r="1.5" fill="#6b7280"/>
+                                                            <circle cx="12" cy="2" r="1.5" fill="#6b7280"/>
+                                                        </svg>
+                                                    </span>
+                                                </div>
                                                 <h3 className="paired-player-name">{pair[0].name}</h3>
                                                 {pair[0].eligible_for_pairing === false && (
                                                     <span className="eligibility-badge not-eligible">Not ready</span>
@@ -2071,11 +2080,20 @@ const AdminLobbyView = () => {
                                                 className="paired-player"
                                                 onClick={() => handleOpenKickModal(pair[1])}
                                             >
-                                                <img 
-                                                    src={pair[1].pfp_data} 
-                                                    alt={pair[1].name}
-                                                    className="paired-player-avatar"
-                                                />
+                                                <div className="player-avatar-wrap">
+                                                    <img 
+                                                        src={pair[1].pfp_data} 
+                                                        alt={pair[1].name}
+                                                        className="paired-player-avatar"
+                                                    />
+                                                    <span className="player-dots-badge">
+                                                        <svg width="14" height="4" viewBox="0 0 14 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <circle cx="2" cy="2" r="1.5" fill="#6b7280"/>
+                                                            <circle cx="7" cy="2" r="1.5" fill="#6b7280"/>
+                                                            <circle cx="12" cy="2" r="1.5" fill="#6b7280"/>
+                                                        </svg>
+                                                    </span>
+                                                </div>
                                                 <h3 className="paired-player-name">{pair[1].name}</h3>
                                                 {pair[1].eligible_for_pairing === false && (
                                                     <span className="eligibility-badge not-eligible">Not ready</span>
@@ -2119,11 +2137,20 @@ const AdminLobbyView = () => {
                                         className="player-card"
                                         onClick={() => handleOpenKickModal(player)}
                                     >
-                                        <img 
-                                            src={player.pfp_data} 
-                                            alt={player.name} 
-                                            className="player-avatar"
-                                        />
+                                        <div className="player-avatar-wrap">
+                                            <img 
+                                                src={player.pfp_data} 
+                                                alt={player.name} 
+                                                className="player-avatar"
+                                            />
+                                            <span className="player-dots-badge">
+                                                <svg width="14" height="4" viewBox="0 0 14 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <circle cx="2" cy="2" r="1.5" fill="#6b7280"/>
+                                                    <circle cx="7" cy="2" r="1.5" fill="#6b7280"/>
+                                                    <circle cx="12" cy="2" r="1.5" fill="#6b7280"/>
+                                                </svg>
+                                            </span>
+                                        </div>
                                         <h3 className="player-name">{player.name}</h3>
                                         {player.eligible_for_pairing === false && (
                                             <span className="eligibility-badge not-eligible">Not ready</span>
