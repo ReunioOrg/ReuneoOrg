@@ -544,7 +544,7 @@ const PlanSelection = () => {
                             className="ps-see-more-btn"
                             onClick={() => setShowMoreTiers((v) => !v)}
                         >
-                            {showMoreTiers ? 'Show less' : 'Up to 120+ attendees'}
+                            {showMoreTiers ? 'Show less' : 'Up to 200 attendees'}
                         </button>
                     )}
                 </>
