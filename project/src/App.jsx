@@ -781,7 +781,7 @@ const App = () => {
     {isDesktop && !showQRInstructionModal && createPortal(
       <>
         {permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby && (
-          <div className="desktop-create-wrapper" style={{ position: 'absolute', top: '195px', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div className="desktop-create-wrapper" style={{ position: 'absolute', top: '225px', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <BorderGlow borderRadius={18} duration={2000} glowRadius={55} glowIntensity={2.2} coneSpread={45} glowColor="248 90 85" colors={['#a78bfa', '#818cf8', '#c4b5fd']}>
               <div
                 className="app-dock-item-standalone"
@@ -798,7 +798,7 @@ const App = () => {
           </div>
         )}
         {activeLobbies.length === 0 && (permissions === 'admin' || permissions === 'organizer') && (
-          <div className="desktop-create-wrapper" style={{ position: 'absolute', top: '195px', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div className="desktop-create-wrapper" style={{ position: 'absolute', top: '225px', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <BorderGlow borderRadius={18} duration={2000} glowRadius={55} glowIntensity={2.2} coneSpread={45} glowColor="248 90 85" colors={['#a78bfa', '#818cf8', '#c4b5fd']}>
               <div
                 className="app-dock-item-standalone"
@@ -812,6 +812,57 @@ const App = () => {
                 <span className="app-dock-label shiny-text">Create</span>
               </div>
             </BorderGlow>
+          </div>
+        )}
+        {(permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0 && (
+          <div style={{
+            position: 'absolute', top: '225px', left: 0, right: 0, zIndex: 10,
+            display: 'flex', justifyContent: 'center', alignItems: 'center'
+          }}>
+          <div style={{ width: '85%', maxWidth: '280px' }}>
+            <BorderGlow
+              borderRadius={24}
+              duration={1800}
+              glowRadius={70}
+              glowIntensity={3.2}
+              coneSpread={50}
+              glowColor="270 85 80"
+              colors={['#a855f7', '#ec4899', '#6366f1']}
+              style={{ width: '100%' }}
+            >
+              <div
+                className="admin-lobby-tile"
+                onClick={() => navigateToAdminLobby(activeLobbies[0])}
+                style={{
+                  background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.72), rgba(245, 240, 255, 0.58))',
+                  backdropFilter: 'blur(28px)',
+                  WebkitBackdropFilter: 'blur(28px)',
+                  border: '1px solid rgba(139, 92, 246, 0.2)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.10), 0 2px 12px rgba(124, 58, 237, 0.12)',
+                }}
+              >
+                <div className="admin-lobby-tile-icon">
+                  <div className="admin-lobby-tile-icon-circle">
+                    <span>
+                      {activeLobbies[0] && activeLobbies[0].length > 0 ? activeLobbies[0].charAt(0).toUpperCase() : '?'}
+                    </span>
+                  </div>
+                  <div className="admin-lobby-tile-live-dot" />
+                </div>
+                <div className="admin-lobby-tile-content">
+                  <span className="admin-lobby-tile-subtitle" style={{ color: 'rgba(109, 40, 217, 0.72)' }}>Manage your active lobby</span>
+                  <span className="admin-lobby-tile-title" style={{ color: '#1a1040', textShadow: 'none' }}>
+                    {activeLobbies[0] && activeLobbies[0].length > 15 ? activeLobbies[0].slice(0, 15) + '...' : activeLobbies[0]}
+                  </span>
+                </div>
+                <div className="admin-lobby-tile-arrow" style={{ background: 'rgba(109, 40, 217, 0.1)' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </div>
+              </div>
+            </BorderGlow>
+          </div>
           </div>
         )}
       </>,
@@ -1395,8 +1446,8 @@ const App = () => {
           </div>
         )}
 
-        {/* Active Lobbies Section */}
-        {(permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0 && (
+        {/* Active Lobbies Section — mobile only; desktop handled by portal above phone frame */}
+        {!isDesktop && (permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0 && (
           <div style={{ 
             position: 'absolute',
             top: 'calc(32% + 80px)',

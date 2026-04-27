@@ -1232,6 +1232,7 @@ const AdminLobbyView = () => {
     // Add playerCount and lobbyState for progress bar
     const playerCount = (lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0);
     const totalAttendeeCount = playerCount + inactivePlayerCount;
+    const isQrState = lobbyState === 'checkin' && playerCount < 2;
 
     // 90% attendee limit warning -- show once per lobby via sessionStorage
     useEffect(() => {
@@ -1589,7 +1590,7 @@ const AdminLobbyView = () => {
                     goToAccountDetails();
                 }}
             />
-            <div className="admin-lobby-container">
+            <div className={`admin-lobby-container${isQrState ? ' admin-lobby-qr-state' : ''}`}>
                 {DEVMODE && (
                     <button onClick={resetLobbyTimer}>
                         Reset Lobby Timer
@@ -1665,79 +1666,111 @@ const AdminLobbyView = () => {
                         showSkip
                     />
                 )}
-                <LobbyProgressBar 
-                    lobbyState={lobbyState}
-                    playerCount={playerCount}
-                    onStart={handleStartRounds}
-                    onEnd={handleEndRounds}
-                    lobbyCode={lobbyCode}
-                    currentRound={maxActiveRound}
-                    checkinTriggerRef={checkinTriggerRef}
-                    suppressCheckinAutoOpen={false}
-                    planInfo={planInfo}
-                    showStartPulse={lobbyState === 'checkin' && playerCount >= 4}
-                    onStartTutorial={() => setShowStartTutorial(true)}
-                    startModalTriggerRef={startModalTriggerRef}
-                    showEndPulse={lobbyState === 'active' && maxActiveRound >= 4}
-                    onEndTutorial={() => setShowEndTutorial(true)}
-                    endModalTriggerRef={endModalTriggerRef}
-                />
-                {/* Overlapping user profile list below progress bar */}
-                <OverlappingProfileList
-                    players={{ pairedPlayers, lobbyData }}
-                    totalAttendeeCount={playerCount}
-                    attendeeLimit={planInfo?.attendee_limit || null}
-                    lobbyState={lobbyState}
-                    planType={planInfo?.plan_type}
-                    onUpgrade={planInfo ? () => goToAccountDetails() : null}
-                />
-
-                {/* Inline checkin content when lobby is in checkin and < 2 players */}
-                {lobbyState === 'checkin' && playerCount < 2 && (
-                    <div className="inline-checkin-content">
-                        <h2 className="checkin-modal-title">Real People. Real Connections.</h2>
-                        <p className="checkin-modal-subtitle">
-                            Tell people to scan and listen to the app's instructions. Thats it!
-                        </p>
-                        <div className="checkin-modal-qr-wrapper" style={{ marginTop: '0.75rem' }} onClick={() => {
-                            setInlineQrPulsing(true);
-                            setTimeout(() => setInlineQrPulsing(false), 700);
-                            handleInlineQrDownload();
-                            setTimeout(() => setShowCheckinTutorial(true), 100);
-                        }}>
-                            <div className="inline-qr-pulse-container">
-                                <div className="checkin-modal-qr-card inline-qr-active">
-                                    <QRCodeSVG
-                                        value={`${window.location.origin}/lobby?code=${lobbyCode}`}
-                                        size={180}
-                                        level="H"
-                                        includeMargin={false}
-                                        bgColor="#ffffff"
-                                        fgColor="#1a1a2e"
-                                        id="inline-qr-svg"
-                                    />
-                                    <div className="checkin-modal-qr-download-hint inline-qr-hint-active">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                            <polyline points="7 10 12 15 17 10" />
-                                            <line x1="12" y1="15" x2="12" y2="3" />
-                                        </svg>
-                                        <span>{inlineQrCopied ? 'Saved!' : 'Tap to save/print'}</span>
+                {isQrState ? (
+                    <>
+                        {/* QR state: QR section first, then profile list, then progress bar */}
+                        <div className="inline-checkin-content">
+                            <h2 className="checkin-modal-title">Real People. Real Connections.</h2>
+                            <p className="checkin-modal-subtitle">
+                                Tell people to scan and listen to the app's instructions. Thats it!
+                            </p>
+                            <div className="checkin-modal-qr-wrapper" style={{ marginTop: '0.75rem' }} onClick={() => {
+                                setInlineQrPulsing(true);
+                                setTimeout(() => setInlineQrPulsing(false), 700);
+                                handleInlineQrDownload();
+                                setTimeout(() => setShowCheckinTutorial(true), 100);
+                            }}>
+                                <div className="inline-qr-pulse-container">
+                                    <div className="checkin-modal-qr-card inline-qr-active">
+                                        <QRCodeSVG
+                                            value={`${window.location.origin}/lobby?code=${lobbyCode}`}
+                                            size={180}
+                                            level="H"
+                                            includeMargin={false}
+                                            bgColor="#ffffff"
+                                            fgColor="#1a1a2e"
+                                            id="inline-qr-svg"
+                                        />
+                                        <div className="checkin-modal-qr-download-hint inline-qr-hint-active">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                <polyline points="7 10 12 15 17 10" />
+                                                <line x1="12" y1="15" x2="12" y2="3" />
+                                            </svg>
+                                            <span>{inlineQrCopied ? 'Saved!' : 'Tap to save/print'}</span>
+                                        </div>
                                     </div>
+                                    {/* ambient always-on pulse rings */}
+                                    <span className="inline-qr-ring inline-qr-ambient-ring-1" />
+                                    <span className="inline-qr-ring inline-qr-ambient-ring-2" />
+                                    {/* click-burst rings */}
+                                    {inlineQrPulsing && (
+                                        <>
+                                            <span className="inline-qr-ring inline-qr-ring-1" />
+                                            <span className="inline-qr-ring inline-qr-ring-2" />
+                                        </>
+                                    )}
                                 </div>
-                                {/* ambient always-on pulse rings */}
-                                <span className="inline-qr-ring inline-qr-ambient-ring-1" />
-                                <span className="inline-qr-ring inline-qr-ambient-ring-2" />
-                                {/* click-burst rings */}
-                                {inlineQrPulsing && (
-                                    <>
-                                        <span className="inline-qr-ring inline-qr-ring-1" />
-                                        <span className="inline-qr-ring inline-qr-ring-2" />
-                                    </>
-                                )}
                             </div>
                         </div>
-                    </div>
+
+                        <OverlappingProfileList
+                            players={{ pairedPlayers, lobbyData }}
+                            totalAttendeeCount={playerCount}
+                            attendeeLimit={planInfo?.attendee_limit || null}
+                            lobbyState={lobbyState}
+                            planType={planInfo?.plan_type}
+                            onUpgrade={planInfo ? () => goToAccountDetails() : null}
+                        />
+
+                        <LobbyProgressBar
+                            lobbyState={lobbyState}
+                            playerCount={playerCount}
+                            onStart={handleStartRounds}
+                            onEnd={handleEndRounds}
+                            lobbyCode={lobbyCode}
+                            currentRound={maxActiveRound}
+                            checkinTriggerRef={checkinTriggerRef}
+                            suppressCheckinAutoOpen={false}
+                            planInfo={planInfo}
+                            showStartPulse={lobbyState === 'checkin' && playerCount >= 2}
+                            onStartTutorial={() => setShowStartTutorial(true)}
+                            startModalTriggerRef={startModalTriggerRef}
+                            showEndPulse={lobbyState === 'active' && maxActiveRound >= 4}
+                            onEndTutorial={() => setShowEndTutorial(true)}
+                            endModalTriggerRef={endModalTriggerRef}
+                        />
+                    </>
+                ) : (
+                    <>
+                        {/* Default order: progress bar then profile list */}
+                        <LobbyProgressBar
+                            lobbyState={lobbyState}
+                            playerCount={playerCount}
+                            onStart={handleStartRounds}
+                            onEnd={handleEndRounds}
+                            lobbyCode={lobbyCode}
+                            currentRound={maxActiveRound}
+                            checkinTriggerRef={checkinTriggerRef}
+                            suppressCheckinAutoOpen={false}
+                            planInfo={planInfo}
+                            showStartPulse={lobbyState === 'checkin' && playerCount >= 2}
+                            onStartTutorial={() => setShowStartTutorial(true)}
+                            startModalTriggerRef={startModalTriggerRef}
+                            showEndPulse={lobbyState === 'active' && maxActiveRound >= 4}
+                            onEndTutorial={() => setShowEndTutorial(true)}
+                            endModalTriggerRef={endModalTriggerRef}
+                        />
+
+                        <OverlappingProfileList
+                            players={{ pairedPlayers, lobbyData }}
+                            totalAttendeeCount={playerCount}
+                            attendeeLimit={planInfo?.attendee_limit || null}
+                            lobbyState={lobbyState}
+                            planType={planInfo?.plan_type}
+                            onUpgrade={planInfo ? () => goToAccountDetails() : null}
+                        />
+                    </>
                 )}
 
                 {/* Attendee QR button — hidden only when inline QR is visible (checkin + <2 players) */}
