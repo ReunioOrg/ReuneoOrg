@@ -10,6 +10,8 @@ import CoolerGeneralMatchEventFlow from '../Tutorials/cooler_general_match_event
 import TutorialAttendeesPhone from '../Tutorials/tutorial-attendees-phone';
 import RoundDurationTutorial from '../Tutorials/round_duration_tutorial';
 
+const SHOW_INTEREST_PAIRING = false;
+
 const NewOrganizerView = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -135,11 +137,17 @@ const NewOrganizerView = () => {
         } else {
             const prevStep = currentStep - 1;
             if (prevStep === 3) {
-                if (selectedTab === 'custom' && customTags.length > 0) {
-                    setStep3View('tags');
+                if (!SHOW_INTEREST_PAIRING) {
+                    goToStep(2, 'back');
                 } else {
-                    setStep3View('prompt');
+                    if (selectedTab === 'custom' && customTags.length > 0) {
+                        setStep3View('tags');
+                    } else {
+                        setStep3View('prompt');
+                    }
+                    goToStep(3, 'back');
                 }
+                return;
             }
             goToStep(prevStep, 'back');
         }
@@ -179,6 +187,13 @@ const NewOrganizerView = () => {
 
     // ── Step 2: Duration ──
     const handleStep2Submit = () => {
+        if (!SHOW_INTEREST_PAIRING) {
+            setSelectedTab('icebreaker');
+            setCustomTags([]);
+            setVisitedSteps(prev => new Set([...prev, 3, 4]));
+            goToStep(4, 'forward');
+            return;
+        }
         setVisitedSteps(prev => new Set([...prev, 3]));
         goToStep(3, 'forward');
     };

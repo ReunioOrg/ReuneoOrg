@@ -81,7 +81,7 @@ const OrganizerSignupSuccess = () => {
     useEffect(() => {
         if (phase !== 'check-email') return;
 
-        const delay = isFreeTrial ? 5000 : 30000;
+        const delay = isFreeTrial ? 2000 : 30000;
         timerRef.current = setTimeout(() => {
             navigate('/create_lobby', { state: { lobbyData } });
         }, delay);
@@ -160,18 +160,29 @@ const OrganizerSignupSuccess = () => {
             <AnimatePresence>
                 <motion.div
                     className="oss-check-email"
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
                 >
-                    <h1 className="oss-header">
-                        Check all your inboxes:
-                    </h1>
+                    <img src="/assets/reuneo_test_14.png" alt="Reuneo" className="oss-logo" />
+
+                    <div className="oss-icon-wrap">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" strokeWidth="1.8"
+                            strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="2" y="4" width="20" height="16" rx="3" />
+                            <path d="M2 7l10 7 10-7" />
+                        </svg>
+                    </div>
+
+                    <h1 className="oss-header">Check all your inboxes</h1>
                     <p className="oss-email">{email}</p>
-                    <p className="oss-subheader">You're almost done!</p>
+                    <p className="oss-subheader">You&apos;re almost done!</p>
+
+                    <div className="oss-divider" />
 
                     <div className="oss-spinner-area">
-                        <LoadingSpinner size={50} />
+                        <LoadingSpinner size={44} />
                         <p className="oss-spinner-text">
                             We sent a verification email to set your password
                         </p>
