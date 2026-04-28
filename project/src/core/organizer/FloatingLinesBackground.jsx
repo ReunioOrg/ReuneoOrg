@@ -173,13 +173,9 @@ void main() {
   vec4 color = vec4(0.0);
   mainImage(color, gl_FragCoord.xy);
 
-  // Composite directly onto the page background — no alpha needed
-  vec3 bg = vec3(0.973, 0.976, 0.988); // #f8f9fc
-
-  // Boost line colors so they read well on the light background
+  vec3 bg = vec3(0.973, 0.976, 0.988);
   vec3 lineCol = color.rgb * 1.43;
 
-  // Intensity mask — high threshold kills all shadow/haze around lines
   float peak = max(lineCol.r, max(lineCol.g, lineCol.b));
   float mask = smoothstep(0.7, 1.1, peak);
 
@@ -206,9 +202,9 @@ export default function FloatingLinesBackground() {
 
   const [isMobile] = useState(() => window.innerWidth < 769);
 
-  const MOBILE_LINE_COUNT = 4;
-  const DESKTOP_LINE_COUNT = 7;
-  const LINE_DISTANCE = 5;
+  const MOBILE_LINE_COUNT = 3;
+  const DESKTOP_LINE_COUNT = 5;
+  const LINE_DISTANCE = 10;
 
   const lineCount = isMobile ? MOBILE_LINE_COUNT : DESKTOP_LINE_COUNT;
   const lineDist = LINE_DISTANCE * 0.01;

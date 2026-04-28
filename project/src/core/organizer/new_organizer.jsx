@@ -37,7 +37,7 @@ const NewOrganizerView = () => {
     const [enableMatchHistory, setEnableMatchHistory] = useState(returnData?.enable_match_history ?? true);
     const [organizerName, setOrganizerName] = useState('');
     const [email, setEmail] = useState(returnData?.email || '');
-    const [showEmailToast, setShowEmailToast] = useState(false);
+    const [showEmailConfirmModal, setShowEmailConfirmModal] = useState(false);
 
     // ── AI Tag Generation ──
     const [aiDescription, setAiDescription] = useState('');
@@ -52,8 +52,6 @@ const NewOrganizerView = () => {
     const [showGeneralTutorial, setShowGeneralTutorial] = useState(false);
 
     const MaxMinutes = 8;
-    const toastTimerRef = useRef(null);
-    const hasShownEmailToast = useRef(false);
     const isSubmittingRef = useRef(false);
 
     useEffect(() => {
@@ -74,12 +72,6 @@ const NewOrganizerView = () => {
     }, []);
 
     useEffect(() => {
-        return () => {
-            if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-        };
-    }, []);
-
-    useEffect(() => {
         if (
             !returnData &&
             !fromTutorial &&
@@ -90,6 +82,16 @@ const NewOrganizerView = () => {
             setShowGeneralTutorial(true);
         }
     }, []);
+
+    // Lock body scroll while the confirmation modal is open
+    useEffect(() => {
+        if (showEmailConfirmModal) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [showEmailConfirmModal]);
 
     const handleTutorialComplete = () => {
         setShowTutorial(false);
@@ -110,19 +112,11 @@ const NewOrganizerView = () => {
     const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
     const handleEmailChange = (e) => {
-        const value = e.target.value;
-        setEmail(value);
-        if (value.length > 0 && !hasShownEmailToast.current) {
-            hasShownEmailToast.current = true;
-            setShowEmailToast(true);
-            if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-            toastTimerRef.current = setTimeout(() => setShowEmailToast(false), 3000);
-        }
+        setEmail(e.target.value);
     };
 
     // ── Navigation ──
     const goToStep = (step, direction) => {
-        if (currentStep === 5 && step !== 5) hasShownEmailToast.current = false;
         setNavDirection(direction);
         setCurrentStep(step);
         window.scrollTo(0, 0);
@@ -605,12 +599,6 @@ const NewOrganizerView = () => {
         <div className="step-container review-step">
             <h1 className="step-title">Get Started for Free</h1>
 
-            {showEmailToast && (
-                <div className="email-toast">
-                    Make sure this email is valid, this will be used to authenticate your organizer access
-                </div>
-            )}
-
             {error && <div className="error-message">{error}</div>}
 
             <input
@@ -631,17 +619,12 @@ const NewOrganizerView = () => {
                     className="form-input email-input"
                     autoComplete="email"
                 />
-                <button className="step-cta create-cta" onClick={handleSubmit}
+                <button className="step-cta create-cta" onClick={() => setShowEmailConfirmModal(true)}
                     disabled={isLoading || !organizerName.trim() || !isValidEmail(email)}>
                     {isLoading ? 'Creating...' : 'Create'}
                     {!isLoading && <SparkleIcon />}
                 </button>
             </div>
-            {!isLoading && !isValidEmail(email) && email.length > 0 && (
-                <p className="input-hint" style={{ color: '#dc2626', textAlign: 'center', marginTop: '4px', fontSize: '13px' }}>
-                    Enter a valid email address
-                </p>
-            )}
         </div>
     );
 
@@ -702,6 +685,36 @@ const NewOrganizerView = () => {
                 isVisible={showGeneralTutorial}
                 onComplete={handleGeneralTutorialComplete}
             />
+
+            {/* ── Email Confirmation Modal ── */}
+            {showEmailConfirmModal && (
+                <div className="email-confirm-overlay" onClick={() => setShowEmailConfirmModal(false)}>
+                    <div className="email-confirm-modal" onClick={(e) => e.stopPropagation()}>
+                        <h3 className="email-confirm-title">Confirm your email</h3>
+                        <p className="email-confirm-message">
+                            This email will be used to authenticate your organizer access.
+                            Make sure it&apos;s correct — you won&apos;t be able to change it later.
+                        </p>
+                        <div className="email-confirm-display">{email}</div>
+                        <div className="email-confirm-buttons">
+                            <button
+                                className="email-confirm-cancel"
+                                onClick={() => setShowEmailConfirmModal(false)}
+                                disabled={isLoading}
+                            >
+                                Edit
+                            </button>
+                            <button
+                                className="email-confirm-proceed"
+                                onClick={() => { setShowEmailConfirmModal(false); handleSubmit(); }}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Creating...' : 'Confirm & Create'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
