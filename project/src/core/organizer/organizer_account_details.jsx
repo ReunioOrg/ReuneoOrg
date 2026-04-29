@@ -246,181 +246,200 @@ const OrganizerAccountDetails = () => {
             <div className="account-form-container">
                 <div className="account-details-content">
 
-                    {/* Next Plan Upgrade Tile */}
+                    {/* Upgrade tile: mobile position (above plan header) */}
                     {nextTier && (
-                        <div className="account-next-plan-tile account-next-plan-tile--top">
-                            <div className="account-next-plan-badge">Next Step</div>
-                            <div className="account-next-plan-name">
-                                {PLAN_NAMES[nextTier.upper] ?? `Up to ${nextTier.upper}`}
+                        <div className="account-tile-slot account-tile-slot--mobile">
+                            <div className="account-next-plan-tile">
+                                <div className="account-next-plan-badge">Next Step</div>
+                                <div className="account-next-plan-name">
+                                    {PLAN_NAMES[nextTier.upper] ?? `Up to ${nextTier.upper}`}
+                                </div>
+                                <div className="account-next-plan-meta">
+                                    Up to {nextTier.upper} attendees &nbsp;·&nbsp; <strong>${nextTier.monthly_price}/mo</strong>
+                                </div>
+                                <button
+                                    className="account-next-plan-cta"
+                                    onClick={() => handleTileUpgrade(nextTier)}
+                                    disabled={isTileCheckingOut}
+                                >
+                                    {isTileCheckingOut ? 'Processing...' : 'Upgrade →'}
+                                </button>
                             </div>
-                            <div className="account-next-plan-meta">
-                                Up to {nextTier.upper} attendees &nbsp;·&nbsp; <strong>${nextTier.monthly_price}/mo</strong>
-                            </div>
-                            <button
-                                className="account-next-plan-cta"
-                                onClick={() => handleTileUpgrade(nextTier)}
-                                disabled={isTileCheckingOut}
-                            >
-                                {isTileCheckingOut ? 'Processing...' : 'Upgrade →'}
-                            </button>
                         </div>
                     )}
 
-                    {/* Plan Header with Status */}
+                    {/* Plan Header — full-width hero */}
                     <div className="account-plan-header">
-                        <div className="account-plan-type">Your Plan</div>
-                        <div className="account-plan-name">
-                            {PLAN_TYPE_LABELS[planType] || planType}
-                        </div>
-                        {planDetails.subscription_status && (
-                            <div className="account-plan-status">
-                                <div className={`account-plan-status-dot ${planDetails.subscription_status !== 'active' ? 'status-' + planDetails.subscription_status : ''}`} 
-                                     style={planDetails.subscription_status !== 'active' ? { background: planDetails.subscription_status === 'trialing' ? '#3b82f6' : planDetails.subscription_status === 'past_due' ? '#f59e0b' : '#ef4444', boxShadow: 'none' } : {}}
-                                />
-                                <span className="account-plan-status-text">
-                                    {planDetails.subscription_status.charAt(0).toUpperCase() + planDetails.subscription_status.slice(1)}
-                                </span>
+                        <div className="account-plan-header-inner">
+                            <div>
+                                <div className="account-plan-type">Your Plan</div>
+                                <div className="account-plan-name">
+                                    {PLAN_TYPE_LABELS[planType] || planType}
+                                </div>
                             </div>
-                        )}
+                            {planDetails.subscription_status && (
+                                <div className="account-plan-status">
+                                    <div className={`account-plan-status-dot ${planDetails.subscription_status !== 'active' ? 'status-' + planDetails.subscription_status : ''}`}
+                                         style={planDetails.subscription_status !== 'active' ? { background: planDetails.subscription_status === 'trialing' ? '#3b82f6' : planDetails.subscription_status === 'past_due' ? '#f59e0b' : '#ef4444', boxShadow: 'none' } : {}}
+                                    />
+                                    <span className="account-plan-status-text">
+                                        {planDetails.subscription_status.charAt(0).toUpperCase() + planDetails.subscription_status.slice(1)}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {error && (
-                        <div className="account-error-message">
-                            {error}
-                        </div>
+                        <div className="account-error-message">{error}</div>
                     )}
 
-                    {/* Basic Details */}
-                    <div className="account-details-section">
-                        {planDetails.email && (
-                            <div className="detail-row">
-                                <span className="detail-label">Email</span>
-                                <span className="detail-value">{planDetails.email}</span>
-                            </div>
-                        )}
+                    {/* Body Grid — single column mobile, two columns desktop */}
+                    <div className="account-body-grid">
 
-                        {planDetails.attendee_limit != null && (
-                            <div className="detail-row">
-                                <span className="detail-label">Attendee Limit</span>
-                                <span className="detail-value">{planDetails.attendee_limit} per event</span>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Monthly: Usage Card */}
-                    {isMonthly && (
-                        <div className="account-usage-section">
-                            <div className="account-usage-card">
-                                <div className="account-usage-label">Monthly Usage</div>
-                                <div className="account-usage-bar-container">
-                                    <div 
-                                        className="account-usage-bar" 
-                                        style={{ width: `${usagePercent}%` }}
-                                    />
-                                </div>
-                                <div className="account-usage-text">
-                                    {planDetails.uses_this_month} of {planDetails.uses_per_month} events used
-                                </div>
-                                {planDetails.current_period_end && formatDate(planDetails.current_period_end) && (
-                                    <div className="account-usage-reset">
-                                        Resets {formatDate(planDetails.current_period_end)}
+                        {/* Left column: details + usage + billing */}
+                        <div className="account-col-left">
+                            <div className="account-details-section">
+                                {planDetails.email && (
+                                    <div className="detail-row">
+                                        <span className="detail-label">Email</span>
+                                        <span className="detail-value">{planDetails.email}</span>
+                                    </div>
+                                )}
+                                {planDetails.attendee_limit != null && (
+                                    <div className="detail-row">
+                                        <span className="detail-label">Attendee Limit</span>
+                                        <span className="detail-value">{planDetails.attendee_limit} per event</span>
                                     </div>
                                 )}
                             </div>
-                        </div>
-                    )}
 
-                    {/* Free Trial: Trial Uses Card */}
-                    {planType === 'free_trial' && (
-                        <div className="account-activations-card">
-                            <div className="account-activations-label">Trial Activations</div>
-                            <div className="account-activations-value">{planDetails.trial_uses_remaining ?? 0}</div>
-                            <div className="account-activations-subtext">
-                                of 3 per month
+                            {isMonthly && (
+                                <div className="account-usage-section">
+                                    <div className="account-usage-card">
+                                        <div className="account-usage-label">Monthly Usage</div>
+                                        <div className="account-usage-bar-container">
+                                            <div className="account-usage-bar" style={{ width: `${usagePercent}%` }} />
+                                        </div>
+                                        <div className="account-usage-text">
+                                            {planDetails.uses_this_month} of {planDetails.uses_per_month} events used
+                                        </div>
+                                        {planDetails.current_period_end && formatDate(planDetails.current_period_end) && (
+                                            <div className="account-usage-reset">
+                                                Resets {formatDate(planDetails.current_period_end)}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {planType === 'free_trial' && (
+                                <div className="account-activations-card">
+                                    <div className="account-activations-label">Trial Activations</div>
+                                    <div className="account-activations-value">{planDetails.trial_uses_remaining ?? 0}</div>
+                                    <div className="account-activations-subtext">of 3 per month</div>
+                                    <div className="account-usage-reset">Resets monthly</div>
+                                </div>
+                            )}
+
+                            {planType === 'single_use' && (
+                                <div className="account-activations-card">
+                                    <div className="account-activations-label">Activations Remaining</div>
+                                    <div className="account-activations-value">{planDetails.activations_remaining}</div>
+                                    {planDetails.activations_purchased && (
+                                        <div className="account-activations-subtext">
+                                            of {planDetails.activations_purchased} purchased
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {isMonthly && (planDetails.amount != null || planDetails.current_period_end) && (
+                                <div className="account-billing-card">
+                                    {planDetails.current_period_end && formatDate(planDetails.current_period_end) && (
+                                        <div className="account-billing-row">
+                                            <span className="account-billing-label">Next billing & reset</span>
+                                            <span className="account-billing-value">{formatDate(planDetails.current_period_end)}</span>
+                                        </div>
+                                    )}
+                                    {planDetails.amount != null && (
+                                        <div className="account-billing-row">
+                                            <span className="account-billing-label">Amount</span>
+                                            <span className="account-billing-value account-billing-amount">
+                                                ${planDetails.amount}/{planDetails.billing_period || 'month'}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {planDetails.cancel_at_period_end && (
+                                        <div className="account-billing-row">
+                                            <span className="account-billing-label">Status</span>
+                                            <span className="account-billing-value" style={{ color: '#f59e0b' }}>
+                                                Cancels at period end
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Right column: upgrade tile (desktop) + action buttons */}
+                        <div className="account-col-right">
+                            {nextTier && (
+                                <div className="account-tile-slot account-tile-slot--desktop">
+                                    <div className="account-next-plan-tile">
+                                        <div className="account-next-plan-badge">Next Step</div>
+                                        <div className="account-next-plan-name">
+                                            {PLAN_NAMES[nextTier.upper] ?? `Up to ${nextTier.upper}`}
+                                        </div>
+                                        <div className="account-next-plan-meta">
+                                            Up to {nextTier.upper} attendees &nbsp;·&nbsp; <strong>${nextTier.monthly_price}/mo</strong>
+                                        </div>
+                                        <button
+                                            className="account-next-plan-cta"
+                                            onClick={() => handleTileUpgrade(nextTier)}
+                                            disabled={isTileCheckingOut}
+                                        >
+                                            {isTileCheckingOut ? 'Processing...' : 'Upgrade →'}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="account-button-group">
+                                {planDetails.subscription_status === 'active' || planDetails.subscription_status === 'trialing' ? (
+                                    <button
+                                        onClick={() => navigate('/plan-selection', {
+                                            state: {
+                                                isUpgrade: true,
+                                                currentPlan: planDetails,
+                                                lobbyCode: lobbyContext.lobbyCode,
+                                                fromActiveLobby: lobbyContext.fromActiveLobby,
+                                                lobbyState: lobbyContext.lobbyState,
+                                            },
+                                        })}
+                                        className="account-primary-button"
+                                    >
+                                        Change Plan
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => navigate('/new_organizer')}
+                                        className="account-primary-button"
+                                    >
+                                        Purchase a New Plan
+                                    </button>
+                                )}
+                                {isMonthly && planDetails.subscription_status === 'active' && !planDetails.cancel_at_period_end && (
+                                    <button
+                                        onClick={() => setShowCancelModal(true)}
+                                        className="account-primary-button account-cancel-button"
+                                    >
+                                        Cancel Subscription
+                                    </button>
+                                )}
                             </div>
-                            <div className="account-usage-reset">
-                                Resets monthly
-                            </div>
                         </div>
-                    )}
 
-                    {/* Single Use: Activations Card */}
-                    {planType === 'single_use' && (
-                        <div className="account-activations-card">
-                            <div className="account-activations-label">Activations Remaining</div>
-                            <div className="account-activations-value">{planDetails.activations_remaining}</div>
-                            {planDetails.activations_purchased && (
-                                <div className="account-activations-subtext">
-                                    of {planDetails.activations_purchased} purchased
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Monthly: Billing Info */}
-                    {isMonthly && (planDetails.amount != null || planDetails.current_period_end) && (
-                        <div className="account-billing-card">
-                            {planDetails.current_period_end && formatDate(planDetails.current_period_end) && (
-                                <div className="account-billing-row">
-                                    <span className="account-billing-label">Next billing & reset</span>
-                                    <span className="account-billing-value">
-                                        {formatDate(planDetails.current_period_end)}
-                                    </span>
-                                </div>
-                            )}
-                            {planDetails.amount != null && (
-                                <div className="account-billing-row">
-                                    <span className="account-billing-label">Amount</span>
-                                    <span className="account-billing-value account-billing-amount">
-                                        ${planDetails.amount}/{planDetails.billing_period || 'month'}
-                                    </span>
-                                </div>
-                            )}
-                            {planDetails.cancel_at_period_end && (
-                                <div className="account-billing-row">
-                                    <span className="account-billing-label">Status</span>
-                                    <span className="account-billing-value" style={{ color: '#f59e0b' }}>
-                                        Cancels at period end
-                                    </span>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Action Buttons */}
-                    <div className="account-button-group">
-                        {planDetails.subscription_status === 'active' || planDetails.subscription_status === 'trialing' ? (
-                            <button
-                                onClick={() => navigate('/plan-selection', {
-                                    state: {
-                                        isUpgrade: true,
-                                        currentPlan: planDetails,
-                                        lobbyCode: lobbyContext.lobbyCode,
-                                        fromActiveLobby: lobbyContext.fromActiveLobby,
-                                        lobbyState: lobbyContext.lobbyState,
-                                    },
-                                })}
-                                className="account-primary-button"
-                            >
-                                Change Plan
-                            </button>
-                        ) : (
-                            <button
-                                onClick={() => navigate('/new_organizer')}
-                                className="account-primary-button"
-                            >
-                                Purchase a New Plan
-                            </button>
-                        )}
-
-                        {isMonthly && planDetails.subscription_status === 'active' && !planDetails.cancel_at_period_end && (
-                            <button
-                                onClick={() => setShowCancelModal(true)}
-                                className="account-primary-button account-cancel-button"
-                            >
-                                Cancel Subscription
-                            </button>
-                        )}
                     </div>
                 </div>
             </div>

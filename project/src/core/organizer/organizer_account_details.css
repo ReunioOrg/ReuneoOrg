@@ -488,6 +488,13 @@
 
 .account-next-plan-tile--top { margin-top: 20px; }
 
+/* Upgrade tile visibility: mobile shows the top slot, desktop shows the sidebar slot */
+.account-tile-slot--mobile {
+    display: block;
+    padding: 20px 20px 0;
+}
+.account-tile-slot--desktop { display: none; }
+
 .account-next-plan-badge {
     display: inline-flex;
     align-items: center;
@@ -885,5 +892,224 @@
     .account-limit-banner {
         margin: 0 0 12px;
         max-width: 100%;
+    }
+}
+
+/* ── Desktop ── */
+@media (min-width: 769px) {
+
+    /* ---- Page shell ---- */
+    .account-container {
+        padding: 0 3rem 5rem;
+        justify-content: center;
+    }
+
+    .account-container::before {
+        width: 720px;
+        height: 720px;
+        top: -240px;
+        left: -240px;
+    }
+
+    .account-container::after {
+        width: 640px;
+        height: 640px;
+        bottom: -200px;
+        right: -200px;
+    }
+
+    /* ---- Top nav ---- */
+    .account-nav-row {
+        max-width: 860px;
+        width: 100%;
+        padding: 28px 0 16px;
+    }
+
+    .account-logo {
+        width: 90px;
+    }
+
+    .account-home-button,
+    .account-return-lobby-button {
+        min-width: 116px;
+        height: 44px;
+        font-size: 0.9rem;
+        padding: 0 28px;
+    }
+
+    .account-nav-placeholder {
+        min-width: 116px;
+        height: 44px;
+    }
+
+    /* ---- Page title ---- */
+    .account-header {
+        font-size: 2rem;
+        letter-spacing: -0.02em;
+        margin-bottom: 20px;
+    }
+
+    .account-limit-banner {
+        max-width: 860px;
+    }
+
+    /* ---- Main card ---- */
+    .account-form-container {
+        max-width: 860px;
+        width: 100%;
+        border-radius: 28px;
+        overflow: visible;
+        box-shadow:
+            0 32px 100px rgba(20, 77, 255, 0.14),
+            0 6px 20px rgba(0, 0, 0, 0.07);
+    }
+
+    .account-details-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* ---- Plan hero header ---- */
+    .account-plan-header {
+        padding: 44px 48px 40px;
+        border-radius: 28px 28px 0 0;
+        text-align: left;
+    }
+
+    .account-plan-header-inner {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .account-plan-type {
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        margin-bottom: 10px;
+    }
+
+    .account-plan-name {
+        font-size: 2.5rem;
+        letter-spacing: -0.03em;
+        line-height: 1;
+    }
+
+    .account-plan-status {
+        margin-top: 0;
+        flex-shrink: 0;
+        align-self: flex-end;
+        padding: 8px 18px;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 999px;
+        backdrop-filter: blur(8px);
+    }
+
+    .account-plan-status-text {
+        font-size: 0.82rem;
+        letter-spacing: 0.04em;
+    }
+
+    /* Swap upgrade tile: hide mobile slot, show desktop sidebar slot */
+    .account-tile-slot--mobile { display: none; }
+    .account-tile-slot--desktop { display: contents; }
+
+    /* ---- Two-column body grid ---- */
+    .account-body-grid {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        align-items: start;
+    }
+
+    .account-col-left {
+        padding: 36px 36px 40px 48px;
+        border-right: 1px solid rgba(20, 77, 255, 0.08);
+        border-radius: 0 0 0 28px;
+    }
+
+    .account-col-right {
+        padding: 36px 48px 40px 36px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        border-radius: 0 0 28px 0;
+    }
+
+    /* ---- Left column element resets ---- */
+    .account-col-left .account-details-section {
+        padding: 0 0 28px;
+        border-bottom: 1px solid rgba(20, 77, 255, 0.07);
+        margin: 0;
+    }
+
+    .account-col-left .detail-row {
+        padding: 12px 0;
+    }
+
+    .account-col-left .account-usage-section {
+        padding: 24px 0 0;
+    }
+
+    .account-col-left .account-usage-card {
+        margin: 0;
+    }
+
+    .account-col-left .account-billing-card {
+        margin: 20px 0 0;
+    }
+
+    .account-col-left .account-activations-card {
+        margin: 20px 0 0;
+    }
+
+    /* ---- Right column element resets ---- */
+    .account-col-right .account-next-plan-tile {
+        margin: 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .account-col-right .account-next-plan-name {
+        font-size: 1.35rem;
+    }
+
+    .account-col-right .account-next-plan-meta {
+        font-size: 0.88rem;
+    }
+
+    .account-col-right .account-next-plan-cta {
+        padding: 11px 22px;
+        font-size: 0.9rem;
+        width: 100%;
+        text-align: center;
+    }
+
+    .account-col-right .account-button-group {
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        border-top: none;
+        gap: 10px;
+        flex: 1;
+        justify-content: flex-start;
+        align-items: stretch;
+    }
+
+    .account-col-right .account-primary-button {
+        width: 100%;
+        padding: 14px 20px;
+        font-size: 0.9rem;
+        text-align: center;
+    }
+
+    /* ---- Error banner ---- */
+    .account-error-message {
+        margin: 0 48px 16px;
+    }
+
+    /* ---- Stats ---- */
+    .account-activations-value {
+        font-size: 3.4rem;
     }
 }

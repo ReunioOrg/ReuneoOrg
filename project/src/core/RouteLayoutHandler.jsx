@@ -6,6 +6,7 @@ function RouteLayoutHandler() {
   
   // Detect if we're on a full-width organizer route
   const isDashboardRoute = pathname.startsWith('/organizer-dashboard')
+    || pathname.startsWith('/organizer-account-details')
     || pathname.startsWith('/create_lobby')
     || pathname.startsWith('/new_organizer')
     || pathname.startsWith('/plan-selection')
