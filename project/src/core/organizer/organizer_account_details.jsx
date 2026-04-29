@@ -3,11 +3,25 @@ import { AuthContext } from '../Auth/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './organizer_account_details.css';
 import { apiFetch } from '../utils/api';
+import FloatingLinesBackground from './FloatingLinesBackground';
 
 const PLAN_TYPE_LABELS = {
     single_use: 'Single Use',
     monthly: 'Monthly',
     free_trial: 'Free Trial',
+};
+
+const PLAN_NAMES = { 50: 'Basic', 100: 'Plus', 150: 'Pro', 200: 'Ultra' };
+
+const getNextTier = (planDetails, tiers) => {
+    if (!planDetails || !tiers.length) return null;
+    const status = planDetails.subscription_status;
+    if (status !== 'active' && status !== 'trialing') return null;
+    if (planDetails.plan_type === 'free_trial') return tiers[0];
+    if (planDetails.plan_type === 'monthly') {
+        return tiers.find(t => t.lower > planDetails.attendee_limit) ?? null;
+    }
+    return null;
 };
 
 const OrganizerAccountDetails = () => {
@@ -18,6 +32,8 @@ const OrganizerAccountDetails = () => {
     const [isLoadingDetails, setIsLoadingDetails] = useState(true);
     const [isCanceling, setIsCanceling] = useState(false);
     const [error, setError] = useState('');
+    const [tiers, setTiers] = useState([]);
+    const [isTileCheckingOut, setIsTileCheckingOut] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [limitMessage, setLimitMessage] = useState(null);
@@ -82,6 +98,48 @@ const OrganizerAccountDetails = () => {
 
         if (user) fetchDetails();
     }, [user, navigate]);
+
+    // Fetch pricing tiers independently (public endpoint, no user dependency)
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await apiFetch('/pricing/tiers');
+                if (!res.ok) return;
+                const data = await res.json();
+                setTiers(data.tiers || []);
+            } catch {}
+        })();
+    }, []);
+
+    const handleTileUpgrade = async (tier) => {
+        setIsTileCheckingOut(true);
+        setError('');
+        try {
+            const body = {
+                plan_type: 'monthly',
+                attendees: tier.upper,
+                quantity: 1,
+            };
+            if (lobbyContext.fromActiveLobby && lobbyContext.lobbyCode) {
+                body.lobby_code = lobbyContext.lobbyCode;
+            }
+            const res = await apiFetch('/upgrade-plan-checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+            const data = await res.json();
+            if (data.checkout_url) {
+                window.location.href = data.checkout_url;
+                return;
+            }
+            setError(data.message || data.error || 'Checkout failed. Please try again.');
+        } catch {
+            setError('Something went wrong. Please check your connection and try again.');
+        } finally {
+            setIsTileCheckingOut(false);
+        }
+    };
 
     useEffect(() => {
         if (showCancelModal) {
@@ -152,24 +210,29 @@ const OrganizerAccountDetails = () => {
     const usagePercent = isMonthly && planDetails.uses_per_month 
         ? Math.min((planDetails.uses_this_month / planDetails.uses_per_month) * 100, 100) 
         : 0;
+    const nextTier = getNextTier(planDetails, tiers);
 
     return (
         <div className="account-container">
-            <button onClick={() => navigate('/')} className="account-home-button">Home</button>
-            {lobbyContext.fromActiveLobby && (
-                <button
-                    onClick={() => navigate(`/admin_lobby_view?code=${lobbyContext.lobbyCode}`)}
-                    className="account-return-lobby-button"
-                >
-                    Return to Lobby
-                </button>
-            )}
-
-            <img
-                src="/assets/reuneo_test_11.png"
-                alt="Reuneo Logo"
-                className="account-logo"
-            />
+            <FloatingLinesBackground />
+            <div className="account-nav-row">
+                <button onClick={() => navigate('/')} className="account-home-button">Home</button>
+                <img
+                    src="/assets/reuneo_test_14.png"
+                    alt="Reuneo Logo"
+                    className="account-logo"
+                />
+                {lobbyContext.fromActiveLobby ? (
+                    <button
+                        onClick={() => navigate(`/admin_lobby_view?code=${lobbyContext.lobbyCode}`)}
+                        className="account-return-lobby-button"
+                    >
+                        Your Lobby
+                    </button>
+                ) : (
+                    <div className="account-nav-placeholder" />
+                )}
+            </div>
 
             <h1 className="account-header">Account Details</h1>
 
@@ -182,7 +245,27 @@ const OrganizerAccountDetails = () => {
 
             <div className="account-form-container">
                 <div className="account-details-content">
-                    
+
+                    {/* Next Plan Upgrade Tile */}
+                    {nextTier && (
+                        <div className="account-next-plan-tile account-next-plan-tile--top">
+                            <div className="account-next-plan-badge">Next Step</div>
+                            <div className="account-next-plan-name">
+                                {PLAN_NAMES[nextTier.upper] ?? `Up to ${nextTier.upper}`}
+                            </div>
+                            <div className="account-next-plan-meta">
+                                Up to {nextTier.upper} attendees &nbsp;·&nbsp; <strong>${nextTier.monthly_price}/mo</strong>
+                            </div>
+                            <button
+                                className="account-next-plan-cta"
+                                onClick={() => handleTileUpgrade(nextTier)}
+                                disabled={isTileCheckingOut}
+                            >
+                                {isTileCheckingOut ? 'Processing...' : 'Upgrade →'}
+                            </button>
+                        </div>
+                    )}
+
                     {/* Plan Header with Status */}
                     <div className="account-plan-header">
                         <div className="account-plan-type">Your Plan</div>
