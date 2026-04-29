@@ -641,7 +641,7 @@ const OverlappingProfileList = ({ players, totalAttendeeCount, attendeeLimit, on
                     <span className={`lobby-capacity-fraction${displayCount >= Math.round(attendeeLimit * 0.9) ? ' lobby-capacity-fraction-warning' : ''}`}>
                         {displayCount} / {attendeeLimit}
                     </span>
-                    {planType === 'free_trial' && onUpgrade && (
+                    {onUpgrade && (
                         <button className="upgrade-pill" onClick={onUpgrade}>
                             <span className="upgrade-pill-text">UPGRADE</span>
                         </button>
