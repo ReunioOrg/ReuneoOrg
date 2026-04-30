@@ -79,3 +79,89 @@ export const refreshLobbyTimestamp = () => {
     localStorage.setItem(LOBBY_TIMESTAMP_KEY, Date.now().toString());
   }
 };
+
+// ─── QR animation "played once" flag ──────────────────────────────────────────
+// Tracks whether the checkin tutorial animation has already played for a given
+// lobby so subsequent QR taps skip straight to the download.
+const QR_ANIM_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days safety-net TTL
+
+const qrAnimKey = (lobbyCode) => `qr_anim_played_${lobbyCode}`;
+
+/**
+ * Returns true if the QR animation has already been played for this lobby
+ * and the stored flag is within the 30-day TTL.
+ */
+export const hasPlayedQrAnimation = (lobbyCode) => {
+  if (!lobbyCode) return false;
+  try {
+    const raw = localStorage.getItem(qrAnimKey(lobbyCode));
+    if (!raw) return false;
+    const { ts } = JSON.parse(raw);
+    if (Date.now() - ts > QR_ANIM_TTL) {
+      localStorage.removeItem(qrAnimKey(lobbyCode));
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Marks the QR animation as played for this lobby (sets timestamp).
+ */
+export const markQrAnimationPlayed = (lobbyCode) => {
+  if (!lobbyCode) return;
+  localStorage.setItem(qrAnimKey(lobbyCode), JSON.stringify({ ts: Date.now() }));
+};
+
+/**
+ * Clears the QR animation flag for this lobby (call when lobby is ended).
+ */
+export const clearQrAnimation = (lobbyCode) => {
+  if (!lobbyCode) return;
+  localStorage.removeItem(qrAnimKey(lobbyCode));
+};
+
+// ─── Start animation "played once" flag ───────────────────────────────────────
+// Tracks whether the Start tutorial animation has already played for a given
+// lobby so subsequent Start taps skip straight to the modal.
+const START_ANIM_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days safety-net TTL
+
+const startAnimKey = (lobbyCode) => `start_anim_played_${lobbyCode}`;
+
+/**
+ * Returns true if the Start animation has already been played for this lobby
+ * and the stored flag is within the 30-day TTL.
+ */
+export const hasPlayedStartAnimation = (lobbyCode) => {
+  if (!lobbyCode) return false;
+  try {
+    const raw = localStorage.getItem(startAnimKey(lobbyCode));
+    if (!raw) return false;
+    const { ts } = JSON.parse(raw);
+    if (Date.now() - ts > START_ANIM_TTL) {
+      localStorage.removeItem(startAnimKey(lobbyCode));
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Marks the Start animation as played for this lobby (sets timestamp).
+ */
+export const markStartAnimationPlayed = (lobbyCode) => {
+  if (!lobbyCode) return;
+  localStorage.setItem(startAnimKey(lobbyCode), JSON.stringify({ ts: Date.now() }));
+};
+
+/**
+ * Clears the Start animation flag for this lobby (call when lobby is ended).
+ */
+export const clearStartAnimation = (lobbyCode) => {
+  if (!lobbyCode) return;
+  localStorage.removeItem(startAnimKey(lobbyCode));
+};

@@ -10,6 +10,7 @@ import toast, { Toaster } from 'react-hot-toast';
 
 import { apiFetch } from '../utils/api';
 import { isInAppBrowser, shareImageBlob, downloadBlobAsFile } from '../utils/browserUtils';
+import { hasPlayedQrAnimation, markQrAnimationPlayed, clearQrAnimation, hasPlayedStartAnimation, markStartAnimationPlayed, clearStartAnimation } from '../utils/lobbyStorage';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../cropImage';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -1232,6 +1233,8 @@ const AdminLobbyView = () => {
     const endModalTriggerRef = useRef(null);
     const [inlineQrCopied, setInlineQrCopied] = useState(false);
     const [inlineQrPulsing, setInlineQrPulsing] = useState(false);
+    // True once the organizer taps the QR card in this page session (resets on refresh)
+    const [qrTappedThisSession, setQrTappedThisSession] = useState(false);
 
     // Add playerCount and lobbyState for progress bar
     const playerCount = (lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0);
@@ -1552,6 +1555,8 @@ const AdminLobbyView = () => {
             }
         });
         if (response.ok) {
+            clearQrAnimation(lobbyCode);
+            clearStartAnimation(lobbyCode);
             navigate('/organizer-dashboard');
         }
     };
@@ -1633,7 +1638,11 @@ const AdminLobbyView = () => {
                 {showCheckinTutorial && (
                     <AdminCheckinTutorialFull
                         isVisible={showCheckinTutorial}
-                        onComplete={() => setShowCheckinTutorial(false)}
+                        onComplete={() => {
+                            setShowCheckinTutorial(false);
+                            markQrAnimationPlayed(lobbyCode);
+                            handleInlineQrDownload();
+                        }}
                         customTags={customTags}
                         showTableNumbers={showTableNumbers}
                         stopAfterReady
@@ -1645,6 +1654,7 @@ const AdminLobbyView = () => {
                         isVisible={showStartTutorial}
                         onComplete={() => {
                             setShowStartTutorial(false);
+                            markStartAnimationPlayed(lobbyCode);
                             startModalTriggerRef.current?.();
                         }}
                         customTags={customTags}
@@ -1678,8 +1688,14 @@ const AdminLobbyView = () => {
                             <div className="checkin-modal-qr-wrapper" style={{ marginTop: '0.75rem' }} onClick={() => {
                                 setInlineQrPulsing(true);
                                 setTimeout(() => setInlineQrPulsing(false), 700);
-                                handleInlineQrDownload();
-                                setTimeout(() => setShowCheckinTutorial(true), 100);
+                                setQrTappedThisSession(true);
+                                if (hasPlayedQrAnimation(lobbyCode)) {
+                                    // Animation already played for this lobby — go straight to download
+                                    handleInlineQrDownload();
+                                } else {
+                                    // First tap: play animation; download fires in onComplete
+                                    setShowCheckinTutorial(true);
+                                }
                             }}>
                                 <div className="inline-qr-pulse-container">
                                     <div className="checkin-modal-qr-card inline-qr-active">
@@ -1701,9 +1717,13 @@ const AdminLobbyView = () => {
                                             <span>{inlineQrCopied ? 'Saved!' : 'Tap to save/print'}</span>
                                         </div>
                                     </div>
-                                    {/* ambient always-on pulse rings */}
-                                    <span className="inline-qr-ring inline-qr-ambient-ring-1" />
-                                    <span className="inline-qr-ring inline-qr-ambient-ring-2" />
+                                    {/* ambient always-on pulse rings — hidden once QR tapped (Start pulse takes over) */}
+                                    {!qrTappedThisSession && (
+                                        <>
+                                            <span className="inline-qr-ring inline-qr-ambient-ring-1" />
+                                            <span className="inline-qr-ring inline-qr-ambient-ring-2" />
+                                        </>
+                                    )}
                                     {/* click-burst rings */}
                                     {inlineQrPulsing && (
                                         <>
@@ -1734,8 +1754,14 @@ const AdminLobbyView = () => {
                             checkinTriggerRef={checkinTriggerRef}
                             suppressCheckinAutoOpen={false}
                             planInfo={planInfo}
-                            showStartPulse={lobbyState === 'checkin' && playerCount >= 2}
-                            onStartTutorial={() => setShowStartTutorial(true)}
+                            showStartPulse={lobbyState === 'checkin' && (playerCount >= 2 || (playerCount < 2 && qrTappedThisSession))}
+                            onStartTutorial={() => {
+                                if (hasPlayedStartAnimation(lobbyCode)) {
+                                    startModalTriggerRef.current?.();
+                                } else {
+                                    setShowStartTutorial(true);
+                                }
+                            }}
                             startModalTriggerRef={startModalTriggerRef}
                             showEndPulse={lobbyState === 'active' && maxActiveRound >= 4}
                             onEndTutorial={() => setShowEndTutorial(true)}
@@ -1755,8 +1781,14 @@ const AdminLobbyView = () => {
                             checkinTriggerRef={checkinTriggerRef}
                             suppressCheckinAutoOpen={false}
                             planInfo={planInfo}
-                            showStartPulse={lobbyState === 'checkin' && playerCount >= 2}
-                            onStartTutorial={() => setShowStartTutorial(true)}
+                            showStartPulse={lobbyState === 'checkin' && (playerCount >= 2 || (playerCount < 2 && qrTappedThisSession))}
+                            onStartTutorial={() => {
+                                if (hasPlayedStartAnimation(lobbyCode)) {
+                                    startModalTriggerRef.current?.();
+                                } else {
+                                    setShowStartTutorial(true);
+                                }
+                            }}
                             startModalTriggerRef={startModalTriggerRef}
                             showEndPulse={lobbyState === 'active' && maxActiveRound >= 4}
                             onEndTutorial={() => setShowEndTutorial(true)}

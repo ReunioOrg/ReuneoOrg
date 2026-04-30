@@ -20,7 +20,6 @@ import DesktopPhoneMockups from './core/components/DesktopPhoneMockups/DesktopPh
 
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
 import { getStoredLobbyCode, shouldValidateLobby, markLobbyValidated, clearLobbyStorage } from './core/utils/lobbyStorage';
-import { isInAppBrowser } from './core/utils/browserUtils';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
@@ -408,8 +407,6 @@ const App = () => {
   const [showQRInstructionModal, setShowQRInstructionModal] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isDesktop] = useState(() => window.innerWidth >= 769);
-  const [iabBannerVisible, setIabBannerVisible] = useState(() => isInAppBrowser());
-  const [iabUrlCopied, setIabUrlCopied] = useState(false);
 
   const navigate = useNavigate();
 
@@ -1029,31 +1026,6 @@ const App = () => {
 
   return (
     <>
-    {iabBannerVisible && (
-      <div className="iab-banner">
-        <span className="iab-banner-text">
-          Open in your browser for the full experience.
-        </span>
-        <button
-          className="iab-banner-open-btn"
-          onClick={() => {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-              navigator.clipboard.writeText(window.location.href).then(() => {
-                setIabUrlCopied(true);
-                setTimeout(() => setIabUrlCopied(false), 2000);
-              }).catch(() => {});
-            }
-          }}
-        >
-          {iabUrlCopied ? 'Copied!' : 'Copy link'}
-        </button>
-        <button className="iab-banner-dismiss" onClick={() => setIabBannerVisible(false)} aria-label="Dismiss">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-      </div>
-    )}
     {isDesktop && createPortal(<FloatingLinesBackground />, document.body)}
     {isDesktop && createPortal(
       <div className="desktop-hero-header">

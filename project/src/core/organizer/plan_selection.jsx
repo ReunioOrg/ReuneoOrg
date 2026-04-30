@@ -273,6 +273,7 @@ const PlanSelection = () => {
                         quantity,
                         email,
                         lobby_data: null,
+                        cancel_url: window.location.href,
                     }),
                 });
                 const data = await res.json();
