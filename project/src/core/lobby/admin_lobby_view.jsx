@@ -356,10 +356,14 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                 if (inIAB) {
                     // In IAB: render the composed image inline so the user can long-press to save.
                     // Also try the Web Share sheet — some IABs (e.g. newer Instagram) support it.
+                    // If share is dismissed, also trigger the native download dialog as a fallback.
                     const reader = new FileReader();
                     reader.onload = (e) => setModalQrPreviewUrl(e.target.result);
                     reader.readAsDataURL(blob);
-                    await shareImageBlob(blob, filename);
+                    const shared = await shareImageBlob(blob, filename);
+                    if (!shared) {
+                        downloadBlobAsFile(blob, filename);
+                    }
                     setModalCopied((prev) => ({ ...prev, qr: true }));
                     setTimeout(() => setModalCopied((prev) => ({ ...prev, qr: false })), 800);
                     return;
@@ -1568,7 +1572,7 @@ const AdminLobbyView = () => {
         generateStyledQRCodeImage(svg, lobbyCode)
             .then(async (blob) => {
                 const shared = await shareImageBlob(blob, filename);
-                if (!shared && !isInAppBrowser()) {
+                if (!shared) {
                     downloadBlobAsFile(blob, filename);
                     if (navigator.clipboard && navigator.clipboard.write) {
                         navigator.clipboard.write([
