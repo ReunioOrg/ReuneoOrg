@@ -1092,10 +1092,10 @@ const App = () => {
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/new_organizer', { state: { showGeneralTutorial: true } }); } }}
                 tabIndex={0}
                 role="button"
-                aria-label="Organizer"
+                aria-label="Get Started"
               >
                 <div className="app-dock-icon"><OrganizerIcon /></div>
-                <span className="app-dock-label shiny-text">Create</span>
+                <span className="app-dock-label shiny-text">Get Started</span>
               </div>
             </HoverBorderGlow>
           </div>
@@ -1109,10 +1109,10 @@ const App = () => {
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCreateClick(); } }}
                 tabIndex={0}
                 role="button"
-                aria-label="Create Lobby"
+                aria-label="Get Started"
               >
                 <div className="app-dock-icon"><OrganizerIcon /></div>
-                <span className="app-dock-label shiny-text">Create</span>
+                <span className="app-dock-label shiny-text">Get Started</span>
               </div>
             </HoverBorderGlow>
           </div>
@@ -1309,10 +1309,10 @@ const App = () => {
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/new_organizer', { state: { showGeneralTutorial: true } }); } }}
                 tabIndex={0}
                 role="button"
-                aria-label="Organizer"
+                aria-label="Get Started"
               >
                 <div className="app-dock-icon"><OrganizerIcon /></div>
-                <span className="app-dock-label shiny-text">Create</span>
+                <span className="app-dock-label shiny-text">Get Started</span>
               </div>
             </BorderGlow>
           </div>
@@ -1342,10 +1342,10 @@ const App = () => {
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCreateClick(); } }}
                 tabIndex={0}
                 role="button"
-                aria-label="Create Lobby"
+                aria-label="Get Started"
               >
                 <div className="app-dock-icon"><OrganizerIcon /></div>
-                <span className="app-dock-label shiny-text">Create</span>
+                <span className="app-dock-label shiny-text">Get Started</span>
               </div>
             </BorderGlow>
           </div>

@@ -907,7 +907,7 @@
     0 8px 28px rgba(20, 77, 255, 0.45),
     0 2px 8px rgba(124, 58, 237, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  padding: 0.55rem 2.6rem;
+  padding: 0.55rem 1.8rem;
 }
 
 .desktop-create-wrapper .app-dock-item-standalone:hover {
