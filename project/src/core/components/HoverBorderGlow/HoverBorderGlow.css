@@ -1,0 +1,114 @@
+/* =====================================================
+   HoverBorderGlow — hbg- prefix
+   A "comet" of color orbits the border continuously.
+   Driven by a CSS-animated angle (no JS animation loop).
+   ===================================================== */
+
+/* Register --hbg-angle as an animatable angle so keyframes can tween it.
+   Without @property, browsers can't interpolate custom-property values. */
+@property --hbg-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: true;
+}
+
+.hbg-card {
+  --hbg-angle: 0deg;
+  --hbg-radius: 18px;
+  --hbg-border-width: 2px;
+  --hbg-bloom-blur: 18px;
+  --hbg-bloom-inset: 4px;
+  --hbg-duration: 3000ms;
+  --hbg-spread: 60deg;
+  --hbg-color-1: #ffffff;
+  --hbg-color-2: #a5b4fc;
+  --hbg-color-3: #7c3aed;
+
+  position: relative;
+  display: inline-flex;
+  border-radius: var(--hbg-radius);
+
+  /* Drive the orbit from the parent so children inherit the angle */
+  animation: hbg-orbit var(--hbg-duration) linear infinite;
+}
+
+@keyframes hbg-orbit {
+  to { --hbg-angle: 360deg; }
+}
+
+/* ── Inner ring: bright comet that orbits the border ──
+   conic-gradient anchored to --hbg-angle; mask-composite carves the
+   interior so only the 2px padding ring along the edge is painted. */
+.hbg-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: var(--hbg-border-width);
+  background: conic-gradient(
+    from calc(var(--hbg-angle) - var(--hbg-spread) / 2),
+    transparent 0deg,
+    var(--hbg-color-3) calc(var(--hbg-spread) * 0.15),
+    var(--hbg-color-2) calc(var(--hbg-spread) * 0.40),
+    var(--hbg-color-1) calc(var(--hbg-spread) * 0.50),
+    var(--hbg-color-2) calc(var(--hbg-spread) * 0.60),
+    var(--hbg-color-3) calc(var(--hbg-spread) * 0.85),
+    transparent var(--hbg-spread),
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+          mask-composite: exclude;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Outer bloom: blurred halo radiating from the orbiting comet ──
+   Same conic-gradient anchor but with heavy blur for ambient glow. */
+.hbg-bloom {
+  position: absolute;
+  inset: calc(var(--hbg-bloom-inset) * -1);
+  border-radius: calc(var(--hbg-radius) + var(--hbg-bloom-inset));
+  background: conic-gradient(
+    from calc(var(--hbg-angle) - var(--hbg-spread) / 2),
+    transparent 0deg,
+    var(--hbg-color-3) calc(var(--hbg-spread) * 0.20),
+    var(--hbg-color-2) calc(var(--hbg-spread) * 0.45),
+    var(--hbg-color-1) calc(var(--hbg-spread) * 0.50),
+    var(--hbg-color-2) calc(var(--hbg-spread) * 0.55),
+    var(--hbg-color-3) calc(var(--hbg-spread) * 0.80),
+    transparent var(--hbg-spread),
+    transparent 360deg
+  );
+  filter: blur(var(--hbg-bloom-blur));
+  pointer-events: none;
+  opacity: 0.85;
+  z-index: 0;
+}
+
+/* Children sit between the bloom (behind) and the ring (in front) */
+.hbg-content {
+  position: relative;
+  border-radius: inherit;
+  z-index: 1;
+  display: contents;
+}
+
+/* Respect reduced-motion: stop the orbit, fade to a soft static glow */
+@media (prefers-reduced-motion: reduce) {
+  .hbg-card {
+    animation: none;
+  }
+  .hbg-ring,
+  .hbg-bloom {
+    background: linear-gradient(
+      135deg,
+      var(--hbg-color-2),
+      var(--hbg-color-3)
+    );
+  }
+}

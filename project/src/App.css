@@ -898,30 +898,53 @@
   100% { background-position: -200% center; }
 }
 
-/* Desktop Create button — dark theme overrides (portalled above phone frame) */
+/* Desktop Create button — vivid gradient CTA (portalled above phone frame) */
 .desktop-create-wrapper .app-dock-item-standalone {
-  border: 1px solid rgba(75, 115, 239, 0.35);
+  background: linear-gradient(135deg, #144dff 0%, #7c3aed 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 0 0 1px rgba(124, 58, 237, 0.4),
+    0 8px 28px rgba(20, 77, 255, 0.45),
+    0 2px 8px rgba(124, 58, 237, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  padding: 0.55rem 2.6rem;
+}
+
+.desktop-create-wrapper .app-dock-item-standalone:hover {
+  background: linear-gradient(135deg, #2a5fff 0%, #8b46ff 100%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow:
+    0 0 0 1px rgba(139, 70, 255, 0.5),
+    0 12px 36px rgba(20, 77, 255, 0.55),
+    0 4px 14px rgba(124, 58, 237, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  transform: scale(1.06) translateY(-1px);
 }
 
 .desktop-create-wrapper .app-dock-icon {
-  color: #333;
+  color: rgba(255, 255, 255, 0.95);
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
 }
 
-/* Dark-grey shimmer — keeps the animation but in dark tones matching the hero heading */
+/* White shimmer for the Create label on desktop */
 .desktop-create-wrapper .app-dock-label.shiny-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   background: linear-gradient(
     120deg,
-    #2e2e2e 0%,
-    #2e2e2e 35%,
-    #6b6b6b 50%,
-    #2e2e2e 65%,
-    #2e2e2e 100%
+    rgba(255, 255, 255, 0.75) 0%,
+    rgba(255, 255, 255, 0.75) 30%,
+    #ffffff 50%,
+    rgba(255, 255, 255, 0.75) 70%,
+    rgba(255, 255, 255, 0.75) 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: shimmer-text 1.65s linear infinite;
+  text-shadow: none;
+  animation: shimmer-text 2s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1342,7 +1365,6 @@
   padding: 90px 40px 100px;
   box-sizing: border-box;
   position: relative;
-  z-index: 1;
 }
 
 .lp-features-inner {
@@ -1440,7 +1462,6 @@
   padding: 80px 40px 110px;
   box-sizing: border-box;
   position: relative;
-  z-index: 1;
 }
 
 .lp-steps-inner {
@@ -1557,7 +1578,6 @@
   padding: 80px 0 110px;
   box-sizing: border-box;
   position: relative;
-  z-index: 1;
   background: rgba(255, 255, 255, 0.55);
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
@@ -1683,4 +1703,55 @@
   color: #888;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+/* ─── In-App Browser warning banner ───────────────────────────────────────── */
+.iab-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #1a1a2e;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+.iab-banner-text {
+  flex: 1;
+  font-size: 13px;
+  color: #e0e0e0;
+  line-height: 1.4;
+}
+
+.iab-banner-open-btn {
+  flex-shrink: 0;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: none;
+  background: #4f6ef7;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  min-width: 80px;
+  text-align: center;
+}
+
+.iab-banner-dismiss {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
 }

@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CoolerGeneralMatchEventFlow from '../Tutorials/cooler_general_match_event_flow';
 import PageNavBar from '../components/PageNavBar/PageNavBar';
+import FloatingLinesBackground from '../organizer/FloatingLinesBackground';
 import { AuthContext } from '../Auth/AuthContext';
 import './tutorial.css';
 
@@ -25,6 +26,7 @@ const TutorialPage = () => {
 
   return (
     <div className="tutorial-page">
+      <FloatingLinesBackground />
       <PageNavBar />
       <div className="tutorial-body">
         <h1 className="tutorial-heading">Real Community Building</h1>

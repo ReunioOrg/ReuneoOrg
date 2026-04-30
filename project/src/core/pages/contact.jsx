@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PageNavBar from '../components/PageNavBar/PageNavBar';
+import FloatingLinesBackground from '../organizer/FloatingLinesBackground';
 import './contact.css';
 
 const PRIVACY_SECTIONS = [
@@ -148,6 +149,7 @@ const ContactPage = () => {
 
   return (
     <div className="contact-page">
+      <FloatingLinesBackground />
       <PageNavBar />
 
       {/* ── Hero ── */}

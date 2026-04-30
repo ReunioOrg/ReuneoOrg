@@ -14,11 +14,13 @@ import PureSignupPage from './core/Auth/PureSignupPage';
 import { CommunityPageButton } from './core/community/mycf';
 import FloatingLinesBackground from './core/organizer/FloatingLinesBackground';
 import BorderGlow from './core/components/BorderGlow/BorderGlow';
+import HoverBorderGlow from './core/components/HoverBorderGlow/HoverBorderGlow';
 import AnimatedText from './core/components/AnimatedText/AnimatedText';
 import DesktopPhoneMockups from './core/components/DesktopPhoneMockups/DesktopPhoneMockups';
 
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
 import { getStoredLobbyCode, shouldValidateLobby, markLobbyValidated, clearLobbyStorage } from './core/utils/lobbyStorage';
+import { isInAppBrowser } from './core/utils/browserUtils';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
@@ -406,6 +408,8 @@ const App = () => {
   const [showQRInstructionModal, setShowQRInstructionModal] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isDesktop] = useState(() => window.innerWidth >= 769);
+  const [iabBannerVisible, setIabBannerVisible] = useState(() => isInAppBrowser());
+  const [iabUrlCopied, setIabUrlCopied] = useState(false);
 
   const navigate = useNavigate();
 
@@ -1025,6 +1029,31 @@ const App = () => {
 
   return (
     <>
+    {iabBannerVisible && (
+      <div className="iab-banner">
+        <span className="iab-banner-text">
+          Open in your browser for the full experience.
+        </span>
+        <button
+          className="iab-banner-open-btn"
+          onClick={() => {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(window.location.href).then(() => {
+                setIabUrlCopied(true);
+                setTimeout(() => setIabUrlCopied(false), 2000);
+              }).catch(() => {});
+            }
+          }}
+        >
+          {iabUrlCopied ? 'Copied!' : 'Copy link'}
+        </button>
+        <button className="iab-banner-dismiss" onClick={() => setIabBannerVisible(false)} aria-label="Dismiss">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+    )}
     {isDesktop && createPortal(<FloatingLinesBackground />, document.body)}
     {isDesktop && createPortal(
       <div className="desktop-hero-header">
@@ -1054,7 +1083,7 @@ const App = () => {
       <>
         {permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby && (
           <div className="desktop-create-wrapper" style={{ position: 'absolute', top: '305px', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <BorderGlow borderRadius={18} duration={2000} glowRadius={28} glowIntensity={1.0} coneSpread={45} glowColor="248 90 85" colors={['#a78bfa', '#818cf8', '#c4b5fd']}>
+            <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
               <div
                 className="app-dock-item-standalone"
                 onClick={() => navigate('/new_organizer', { state: { showGeneralTutorial: true } })}
@@ -1066,12 +1095,12 @@ const App = () => {
                 <div className="app-dock-icon"><OrganizerIcon /></div>
                 <span className="app-dock-label shiny-text">Create</span>
               </div>
-            </BorderGlow>
+            </HoverBorderGlow>
           </div>
         )}
         {activeLobbies.length === 0 && (permissions === 'admin' || permissions === 'organizer') && (
           <div className="desktop-create-wrapper" style={{ position: 'absolute', top: '305px', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <BorderGlow borderRadius={18} duration={2000} glowRadius={28} glowIntensity={1.0} coneSpread={45} glowColor="248 90 85" colors={['#a78bfa', '#818cf8', '#c4b5fd']}>
+            <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
               <div
                 className="app-dock-item-standalone"
                 onClick={handleCreateClick}
@@ -1083,7 +1112,7 @@ const App = () => {
                 <div className="app-dock-icon"><OrganizerIcon /></div>
                 <span className="app-dock-label shiny-text">Create</span>
               </div>
-            </BorderGlow>
+            </HoverBorderGlow>
           </div>
         )}
         {(permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0 && (
@@ -1141,9 +1170,9 @@ const App = () => {
       document.body
     )}
     {isDesktop && createPortal(<DesktopPhoneMockups />, document.body)}
-    <div style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden', zIndex: 1 }}>
+    <div style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden', zIndex: 2 }}>
 
-      {isDesktop && <SiteNavBar />}
+      {isDesktop && createPortal(<SiteNavBar />, document.body)}
       <MobileMenuOverlay />
 
       {/* Background Video */}
@@ -1796,9 +1825,9 @@ const App = () => {
         )}
       </div>
       
-      <LobbyCodeModal />
-      <QRInstructionModal />
-      <LobbyFullModal />
+      {createPortal(<LobbyCodeModal />, document.body)}
+      {createPortal(<QRInstructionModal />, document.body)}
+      {createPortal(<LobbyFullModal />, document.body)}
     </div>
     {isDesktop && createPortal(<><FeaturesSection /><StepsSection /><TestimonialsSection /></>, document.body)}
     </>

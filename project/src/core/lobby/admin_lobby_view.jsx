@@ -9,6 +9,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import toast, { Toaster } from 'react-hot-toast';
 
 import { apiFetch } from '../utils/api';
+import { isInAppBrowser, shareImageBlob, downloadBlobAsFile } from '../utils/browserUtils';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../cropImage';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -337,52 +338,44 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
     const endOnTop = lobbyState === 'active' || lobbyState === 'terminated';
    
 
-    // Helper function to download QR code
-    function downloadQRCode(blob, options = {}) {
-        const { silent = false } = options;
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `reuneo-lobby-${lobbyCode}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        if (!silent) {
-            setModalCopied((prev) => ({ ...prev, qr: true }));
-            setTimeout(() => setModalCopied((prev) => ({ ...prev, qr: false })), 800);
-        }
-    }
+    const inIAB = isInAppBrowser();
 
-    // Copy QR code as PNG (for modal only)
+    // [modalQrPreviewUrl] holds a data URL shown as an inline image in IAB environments
+    const [modalQrPreviewUrl, setModalQrPreviewUrl] = useState(null);
+
+    // Tap handler for the QR card in the check-in modal
     const handleModalCopyQrPng = () => {
         const svg = document.getElementById('modal-qr-svg');
         if (!svg) return;
 
-        generateStyledQRCodeImage(svg, lobbyCode)
-            .then((blob) => {
-                // Always download first (silent - no feedback yet)
-                downloadQRCode(blob, { silent: true });
+        const filename = `reuneo-lobby-${lobbyCode}.png`;
 
-                // Try clipboard (bonus feature)
-                if (navigator.clipboard && navigator.clipboard.write) {
-                    navigator.clipboard.write([
-                        new window.ClipboardItem({ "image/png": blob })
-                    ]).then(() => {
-                        // Clipboard succeeded - show unified feedback
-                        setModalCopied((prev) => ({ ...prev, qr: true }));
-                        setTimeout(() => setModalCopied((prev) => ({ ...prev, qr: false })), 800);
-                    }).catch(() => {
-                        // Clipboard failed, but download already happened - show feedback
-                        setModalCopied((prev) => ({ ...prev, qr: true }));
-                        setTimeout(() => setModalCopied((prev) => ({ ...prev, qr: false })), 800);
-                    });
-                } else {
-                    // No clipboard API - download already happened, show feedback
+        generateStyledQRCodeImage(svg, lobbyCode)
+            .then(async (blob) => {
+                if (inIAB) {
+                    // In IAB: render the composed image inline so the user can long-press to save.
+                    // Also try the Web Share sheet — some IABs (e.g. newer Instagram) support it.
+                    const reader = new FileReader();
+                    reader.onload = (e) => setModalQrPreviewUrl(e.target.result);
+                    reader.readAsDataURL(blob);
+                    await shareImageBlob(blob, filename);
                     setModalCopied((prev) => ({ ...prev, qr: true }));
                     setTimeout(() => setModalCopied((prev) => ({ ...prev, qr: false })), 800);
+                    return;
                 }
+
+                // Real browser: try Web Share sheet first (best on mobile), then anchor download
+                const shared = await shareImageBlob(blob, filename);
+                if (!shared) {
+                    downloadBlobAsFile(blob, filename);
+                    if (navigator.clipboard && navigator.clipboard.write) {
+                        navigator.clipboard.write([
+                            new window.ClipboardItem({ "image/png": blob })
+                        ]).catch(() => {});
+                    }
+                }
+                setModalCopied((prev) => ({ ...prev, qr: true }));
+                setTimeout(() => setModalCopied((prev) => ({ ...prev, qr: false })), 800);
             })
             .catch((error) => {
                 console.error('Error generating QR code image:', error);
@@ -463,6 +456,17 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                                         </div>
                                     </div>
                                 </div>
+                                {inIAB && modalQrPreviewUrl && (
+                                    <div className="checkin-modal-iab-preview">
+                                        <p className="checkin-modal-iab-hint">Hold the image below and tap "Save to Photos"</p>
+                                        <img
+                                            src={modalQrPreviewUrl}
+                                            alt="QR Code — long press to save"
+                                            className="checkin-modal-iab-img"
+                                            draggable={false}
+                                        />
+                                    </div>
+                                )}
                                 <div className="checkin-modal-code-badge">
                                     <span className="checkin-modal-code-label">BACKUP CODE</span>
                                     <span className="checkin-modal-code-value">{lobbyCode}</span>
@@ -1555,23 +1559,20 @@ const AdminLobbyView = () => {
     const handleInlineQrDownload = () => {
         const svg = document.getElementById('inline-qr-svg');
         if (!svg) return;
+        const filename = `reuneo-lobby-${lobbyCode}.png`;
         generateStyledQRCodeImage(svg, lobbyCode)
-            .then((blob) => {
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `reuneo-lobby-${lobbyCode}.png`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
+            .then(async (blob) => {
+                const shared = await shareImageBlob(blob, filename);
+                if (!shared && !isInAppBrowser()) {
+                    downloadBlobAsFile(blob, filename);
+                    if (navigator.clipboard && navigator.clipboard.write) {
+                        navigator.clipboard.write([
+                            new window.ClipboardItem({ "image/png": blob })
+                        ]).catch(() => {});
+                    }
+                }
                 setInlineQrCopied(true);
                 setTimeout(() => setInlineQrCopied(false), 800);
-                if (navigator.clipboard && navigator.clipboard.write) {
-                    navigator.clipboard.write([
-                        new window.ClipboardItem({ "image/png": blob })
-                    ]).catch(() => {});
-                }
             })
             .catch((err) => console.error('Error generating QR code image:', err));
     };

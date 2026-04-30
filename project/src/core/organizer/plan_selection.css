@@ -1144,6 +1144,11 @@
         width: 72px;
         height: 72px;
     }
+
+    /* Push sticky pill below the 60px PageNavBar so it never hides behind it */
+    .ps-free-trial-pill {
+        top: 76px;
+    }
 }
 
 @media (min-width: 769px) and (max-width: 960px) {
