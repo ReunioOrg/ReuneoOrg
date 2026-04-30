@@ -407,8 +407,38 @@ const App = () => {
   const [showQRInstructionModal, setShowQRInstructionModal] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isDesktop] = useState(() => window.innerWidth >= 769);
+  const [scrollY, setScrollY] = useState(0);
 
   const navigate = useNavigate();
+
+  // Track window scroll on desktop so the Create button can float right below
+  // the fixed top nav bar (60px) as the user scrolls down the landing page.
+  useEffect(() => {
+    if (!isDesktop) return;
+    let rafId = null;
+    const handleScroll = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        setScrollY(window.scrollY);
+        rafId = null;
+      });
+    };
+    setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
+  }, [isDesktop]);
+
+  // Initial Create-button position (305px below top of document) and the floor
+  // it sticks to (76px = 60px nav bar height + 16px breathing room), mirroring
+  // the Free Trial pill on /plan-selection.
+  const CREATE_BTN_INITIAL_TOP = 305;
+  const CREATE_BTN_FLOATING_TOP = 76;
+  const createButtonTop = isDesktop
+    ? Math.max(CREATE_BTN_FLOATING_TOP, CREATE_BTN_INITIAL_TOP - scrollY)
+    : CREATE_BTN_INITIAL_TOP;
 
   useEffect(() => {
     if (location.state?.openJoinLobby) {
@@ -1054,7 +1084,7 @@ const App = () => {
     {isDesktop && !showQRInstructionModal && createPortal(
       <>
         {permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby && (
-          <div className="desktop-create-wrapper" style={{ position: 'absolute', top: '305px', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div className="desktop-create-wrapper" style={{ position: 'fixed', top: `${createButtonTop}px`, left: '50%', transform: 'translateX(-50%)', zIndex: 40, display: 'flex', justifyContent: 'center', alignItems: 'center', willChange: 'top' }}>
             <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
               <div
                 className="app-dock-item-standalone"
@@ -1071,7 +1101,7 @@ const App = () => {
           </div>
         )}
         {activeLobbies.length === 0 && (permissions === 'admin' || permissions === 'organizer') && (
-          <div className="desktop-create-wrapper" style={{ position: 'absolute', top: '305px', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div className="desktop-create-wrapper" style={{ position: 'fixed', top: `${createButtonTop}px`, left: '50%', transform: 'translateX(-50%)', zIndex: 40, display: 'flex', justifyContent: 'center', alignItems: 'center', willChange: 'top' }}>
             <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
               <div
                 className="app-dock-item-standalone"
