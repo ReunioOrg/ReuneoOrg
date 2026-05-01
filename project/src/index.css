@@ -87,11 +87,11 @@ button:focus-visible {
   margin: 0 auto;
 }
 
-/* Mobile: Natural full screen */
+/* Mobile: Natural full screen — min-height so root grows with content below the hero */
 @media (max-width: 768px) {
   #root {
     max-width: 100%;
-    height: var(--viewport-height);
+    min-height: var(--viewport-height);
   }
 }
 

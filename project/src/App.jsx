@@ -455,11 +455,11 @@ const App = () => {
     const handleScroll = () => {
       if (rafId !== null) return;
       rafId = requestAnimationFrame(() => {
-        setScrollY(window.scrollY);
+        setScrollY(window.scrollY || document.documentElement.scrollTop || 0);
         rafId = null;
       });
     };
-    setScrollY(window.scrollY);
+    setScrollY(window.scrollY || document.documentElement.scrollTop || 0);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -1323,8 +1323,8 @@ const App = () => {
           document.body
         )}
 
-        {/* Centered standalone button — mobile only; desktop version is portalled above phone frame */}
-        {!isDesktop && (permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby ? (
+        {/* Mobile floating CTA — portalled to body so position:fixed tracks the viewport (avoid iOS bug: fixed inside ancestor overflow:hidden) */}
+        {!isDesktop && (permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby ? createPortal(
           <div
             className={mobileCtaPastVideoHero ? 'desktop-create-wrapper' : undefined}
             style={{
@@ -1353,8 +1353,9 @@ const App = () => {
                 <span className="app-dock-label shiny-text">Get Started</span>
               </div>
             </MobileLandingCtaShell>
-          </div>
-        ) : activeLobbies.length === 0 && (permissions === 'admin' || permissions === 'organizer') ? (
+          </div>,
+          document.body
+        ) : activeLobbies.length === 0 && (permissions === 'admin' || permissions === 'organizer') ? createPortal(
           <div
             className={mobileCtaPastVideoHero ? 'desktop-create-wrapper' : undefined}
             style={{
@@ -1383,7 +1384,8 @@ const App = () => {
                 <span className="app-dock-label shiny-text">Create</span>
               </div>
             </MobileLandingCtaShell>
-          </div>
+          </div>,
+          document.body
         ) : null)}
 
         {/* Consolidated header - either "Pair up" or "Welcome" based on user role */}
