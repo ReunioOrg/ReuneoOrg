@@ -133,17 +133,17 @@ function FeaturesSection() {
 const JOIN_STEPS = [
   {
     number: '1',
-    title: 'Scan the QR code',
+    title: 'Attendees scan your QR code',
     description: 'Guests point their phone camera at the room\'s QR code — no app download, no sign-up.',
   },
   {
     number: '2',
-    title: 'Enter a name',
+    title: 'Name',
     description: 'Any name they choose, typed in seconds. That\'s the only info required.',
   },
   {
     number: '3',
-    title: 'Upload a selfie',
+    title: 'Selfie photo',
     description: 'So their paired match can spot them across the room. Done — they\'re in.',
   },
 ];
@@ -177,9 +177,9 @@ function StepsSection() {
     >
       <div className="lp-steps-inner">
         <div className="lp-steps-header">
-          <h2 className="lp-steps-title">Attendees join in 3 simple steps.</h2>
+          <h2 className="lp-steps-title">People join in 3 simple steps</h2>
           <p className="lp-steps-subtitle">
-            Turn a room full of strangers into a community of connected, engaged members.
+          Convert a room of strangers into a community of engaged, loyal members
           </p>
         </div>
         <div className="lp-steps-container">
@@ -252,17 +252,19 @@ function TestimonialsSection() {
     return () => observer.disconnect();
   }, []);
 
-  /* Auto-scroll — starts 1.8 s after mount to let animations settle */
+  /* Auto-scroll — starts only when the section enters the viewport */
   useEffect(() => {
+    const section = sectionRef.current;
     const carousel = carouselRef.current;
-    if (!carousel) return;
+    if (!section || !carousel) return;
+
+    let started = false;
 
     const SPEED = 0.8; // px per frame
 
     const tick = () => {
       if (!isPausedRef.current && carousel) {
         scrollPosRef.current += SPEED;
-        /* Seamless infinite loop: reset to 0 when halfway through the doubled list */
         const half = carousel.scrollWidth / 2;
         if (scrollPosRef.current >= half) {
           scrollPosRef.current = 0;
@@ -272,12 +274,23 @@ function TestimonialsSection() {
       rafRef.current = requestAnimationFrame(tick);
     };
 
-    const timer = setTimeout(() => {
-      rafRef.current = requestAnimationFrame(tick);
-    }, 1800);
+    const visibilityObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !started) {
+            started = true;
+            rafRef.current = requestAnimationFrame(tick);
+            visibilityObserver.unobserve(section);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    visibilityObserver.observe(section);
 
     return () => {
-      clearTimeout(timer);
+      visibilityObserver.disconnect();
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, []);
@@ -387,6 +400,30 @@ function AppDock({ items, panelHeight = 68, baseItemSize = 50, magnification = 5
   );
 }
 
+/** Mobile home CTAs: BorderGlow over video vs same HoverBorderGlow + gradients as desktop over grey sections */
+function MobileLandingCtaShell({ matchDesktopVisual, children }) {
+  if (matchDesktopVisual) {
+    return (
+      <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
+        {children}
+      </HoverBorderGlow>
+    );
+  }
+  return (
+    <BorderGlow
+      borderRadius={18}
+      duration={2000}
+      glowRadius={50}
+      glowIntensity={2}
+      coneSpread={40}
+      glowColor="270 85 80"
+      colors={['#c084fc', '#f472b6', '#38bdf8']}
+    >
+      {children}
+    </BorderGlow>
+  );
+}
+
 const App = () => {
   const [showProfileCreation, setShowProfileCreation] = useState(false);
   const [showLobbyCodeModal, setShowLobbyCodeModal] = useState(false);
@@ -411,10 +448,9 @@ const App = () => {
 
   const navigate = useNavigate();
 
-  // Track window scroll on desktop so the Create button can float right below
-  // the fixed top nav bar (60px) as the user scrolls down the landing page.
+  // Track window scroll so the Create/Get-Started button can float right below
+  // the nav bar on desktop (76px) or lock near the top of the screen on mobile (20px).
   useEffect(() => {
-    if (!isDesktop) return;
     let rafId = null;
     const handleScroll = () => {
       if (rafId !== null) return;
@@ -431,14 +467,18 @@ const App = () => {
     };
   }, [isDesktop]);
 
-  // Initial Create-button position (305px below top of document) and the floor
-  // it sticks to (76px = 60px nav bar height + 16px breathing room), mirroring
-  // the Free Trial pill on /plan-selection.
+  // Desktop: button starts 305px from top, locks at 76px (below 60px nav).
+  // Mobile:  button starts at ~46% of viewport height (matching current fixed
+  //          position), then smoothly glides up and locks at 20px from top.
   const CREATE_BTN_INITIAL_TOP = 305;
   const CREATE_BTN_FLOATING_TOP = 76;
+  const MOBILE_BTN_LOCK_TOP = 20;
   const createButtonTop = isDesktop
     ? Math.max(CREATE_BTN_FLOATING_TOP, CREATE_BTN_INITIAL_TOP - scrollY)
-    : CREATE_BTN_INITIAL_TOP;
+    : Math.max(MOBILE_BTN_LOCK_TOP, Math.round(window.innerHeight * 0.46) - scrollY);
+
+  // Match desktop CTA visuals once scrolled past full-viewport hero (same threshold as landing sections entry)
+  const mobileCtaPastVideoHero = !isDesktop && scrollY >= window.innerHeight;
 
   useEffect(() => {
     if (location.state?.openJoinLobby) {
@@ -1285,25 +1325,22 @@ const App = () => {
 
         {/* Centered standalone button — mobile only; desktop version is portalled above phone frame */}
         {!isDesktop && (permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby ? (
-          <div style={{
-            position: 'fixed',
-            top: '46%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 10,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center'
-          }}>
-            <BorderGlow
-              borderRadius={18}
-              duration={2000}
-              glowRadius={50}
-              glowIntensity={2}
-              coneSpread={40}
-              glowColor="270 85 80"
-              colors={['#c084fc', '#f472b6', '#38bdf8']}
-            >
+          <div
+            className={mobileCtaPastVideoHero ? 'desktop-create-wrapper' : undefined}
+            style={{
+              position: 'fixed',
+              top: `${createButtonTop}px`,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: mobileCtaPastVideoHero ? 40 : 10,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              willChange: 'top',
+              transition: 'top 0.15s ease-out'
+            }}
+          >
+            <MobileLandingCtaShell matchDesktopVisual={mobileCtaPastVideoHero}>
               <div
                 className="app-dock-item-standalone"
                 onClick={() => navigate('/new_organizer', { state: { showGeneralTutorial: true } })}
@@ -1315,28 +1352,25 @@ const App = () => {
                 <div className="app-dock-icon"><OrganizerIcon /></div>
                 <span className="app-dock-label shiny-text">Get Started</span>
               </div>
-            </BorderGlow>
+            </MobileLandingCtaShell>
           </div>
         ) : activeLobbies.length === 0 && (permissions === 'admin' || permissions === 'organizer') ? (
-          <div style={{
-            position: 'fixed',
-            top: '46%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 10,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center'
-          }}>
-            <BorderGlow
-              borderRadius={18}
-              duration={2000}
-              glowRadius={50}
-              glowIntensity={2}
-              coneSpread={40}
-              glowColor="270 85 80"
-              colors={['#c084fc', '#f472b6', '#38bdf8']}
-            >
+          <div
+            className={mobileCtaPastVideoHero ? 'desktop-create-wrapper' : undefined}
+            style={{
+              position: 'fixed',
+              top: `${createButtonTop}px`,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: mobileCtaPastVideoHero ? 40 : 10,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              willChange: 'top',
+              transition: 'top 0.15s ease-out'
+            }}
+          >
+            <MobileLandingCtaShell matchDesktopVisual={mobileCtaPastVideoHero}>
               <div
                 className="app-dock-item-standalone"
                 onClick={handleCreateClick}
@@ -1348,7 +1382,7 @@ const App = () => {
                 <div className="app-dock-icon"><OrganizerIcon /></div>
                 <span className="app-dock-label shiny-text">Create</span>
               </div>
-            </BorderGlow>
+            </MobileLandingCtaShell>
           </div>
         ) : null)}
 
@@ -1833,6 +1867,13 @@ const App = () => {
       {createPortal(<LobbyFullModal />, document.body)}
     </div>
     {isDesktop && createPortal(<><FeaturesSection /><StepsSection /><TestimonialsSection /></>, document.body)}
+    {!isDesktop && (
+      <div className="mobile-sections-wrapper">
+        <FeaturesSection />
+        <StepsSection />
+        <TestimonialsSection />
+      </div>
+    )}
     </>
   );
 
