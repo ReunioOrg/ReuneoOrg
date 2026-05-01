@@ -17,36 +17,22 @@ import BorderGlow from './core/components/BorderGlow/BorderGlow';
 import HoverBorderGlow from './core/components/HoverBorderGlow/HoverBorderGlow';
 import AnimatedText from './core/components/AnimatedText/AnimatedText';
 import DesktopPhoneMockups from './core/components/DesktopPhoneMockups/DesktopPhoneMockups';
+import PageNavBar from './core/components/PageNavBar/PageNavBar.jsx';
 
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
 import { getStoredLobbyCode, shouldValidateLobby, markLobbyValidated, clearLobbyStorage } from './core/utils/lobbyStorage';
 
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 // import CreateLobbyButton from './core/lobby/CreateLobbyButton';
 // import CreateLobby from './core/lobby/create_lobby';
 // import './core/lobby/create_lobby.css';
 
-/* Inline icons for dock (Join Lobby: people/high-five, Login: arrow into line) */
-const JoinLobbyIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <circle cx="9" cy="8" r="3.5" />
-    <path d="M2 21v-1.5a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5V21" />
-    <line x1="19" y1="8" x2="19" y2="14" />
-    <line x1="16" y1="11" x2="22" y2="11" />
-  </svg>
-);
 const Sparkle4pt = ({ cx, cy, r, className }) => (
   <path
     className={className}
     d={`M${cx} ${cy - r} C${cx + r * 0.1} ${cy - r * 0.1} ${cx + r * 0.1} ${cy - r * 0.1} ${cx + r} ${cy} C${cx + r * 0.1} ${cy + r * 0.1} ${cx + r * 0.1} ${cy + r * 0.1} ${cx} ${cy + r} C${cx - r * 0.1} ${cy + r * 0.1} ${cx - r * 0.1} ${cy + r * 0.1} ${cx - r} ${cy} C${cx - r * 0.1} ${cy - r * 0.1} ${cx - r * 0.1} ${cy - r * 0.1} ${cx} ${cy - r}Z`}
   />
-);
-const MatchesIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <path d="M12 22c-4.97 0-9-3.58-9-8 0-3.07 2.25-6.34 4.36-8.74C9.03 3.42 11 2 12 2c1 0 2.97 1.42 4.64 3.26C18.75 7.66 21 10.93 21 14c0 4.42-4.03 8-9 8z" />
-    <path d="M12 22c-1.66 0-3-1.79-3-4 0-1.48.84-3.2 1.7-4.3.5-.64 1.1-1.2 1.3-1.2s.8.56 1.3 1.2c.86 1.1 1.7 2.82 1.7 4.3 0 2.21-1.34 4-3 4z" />
-  </svg>
 );
 const OrganizerIcon = () => (
   <svg width="24" height="24" viewBox="0 0 32 32" fill="currentColor" aria-hidden>
@@ -55,13 +41,9 @@ const OrganizerIcon = () => (
     <Sparkle4pt cx={27} cy={6} r={4} />
   </svg>
 );
-const MenuIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <line x1="3" y1="6" x2="21" y2="6" />
-    <line x1="3" y1="12" x2="21" y2="12" />
-    <line x1="3" y1="18" x2="21" y2="18" />
-  </svg>
-);
+
+/** Base height pairing fixed home bar (~68px): safe-area merged in JS probe + PageNavBar.css `--page-nav-mobile-home-inset-top`. */
+const MOBILE_PAGE_NAV_BODY_RESERVE_PX = 68;
 
 /* ─── Landing Page: Features Section ─────────────────────────────────────── */
 const FEATURE_CARDS = [
@@ -335,70 +317,6 @@ function TestimonialsSection() {
     </section>
   );
 }
-/* ─────────────────────────────────────────────────────────────────────────── */
-
-function AppDockItem({ children, onClick, disabled, mouseX, spring, distance, magnification, baseItemSize, ariaLabel, title }) {
-  const ref = useRef(null);
-  const mouseDistance = useTransform(mouseX, (val) => {
-    const rect = ref.current?.getBoundingClientRect();
-    if (!rect) return distance + 1; /* map to baseItemSize when ref not ready */
-    return val - rect.x - rect.width / 2;
-  });
-  const targetSize = useTransform(mouseDistance, [-distance, 0, distance], [baseItemSize, magnification, baseItemSize]);
-  const size = useSpring(targetSize, spring);
-  return (
-    <motion.div
-      ref={ref}
-      style={{ width: size, height: size, minWidth: baseItemSize, minHeight: baseItemSize }}
-      onClick={disabled ? undefined : onClick}
-      onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !disabled) { e.preventDefault(); onClick?.(); } }}
-      className="app-dock-item"
-      tabIndex={disabled ? -1 : 0}
-      role="button"
-      aria-disabled={!!disabled}
-      aria-label={ariaLabel}
-      title={title}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-const DOCK_SPRING = { mass: 0.1, stiffness: 1400, damping: 30 };
-
-function AppDock({ items, panelHeight = 68, baseItemSize = 50, magnification = 58, distance = 200 }) {
-  const mouseX = useMotionValue(Infinity);
-  return (
-    <div className="app-dock-outer">
-      <motion.div
-        className="app-dock-panel"
-        style={{ minHeight: panelHeight }}
-        role="toolbar"
-        aria-label="Application dock"
-        onMouseMove={({ pageX }) => mouseX.set(pageX)}
-        onMouseLeave={() => mouseX.set(Infinity)}
-      >
-        {items.map((item, index) => (
-          <AppDockItem
-            key={index}
-            onClick={item.onClick}
-            disabled={item.disabled}
-            mouseX={mouseX}
-            spring={DOCK_SPRING}
-            distance={distance}
-            magnification={magnification}
-            baseItemSize={baseItemSize}
-            ariaLabel={item.label}
-            title={item.title}
-          >
-            <div className="app-dock-icon">{item.icon}</div>
-            <span className="app-dock-label">{item.label}</span>
-          </AppDockItem>
-        ))}
-      </motion.div>
-    </div>
-  );
-}
 
 /** Mobile home CTAs: BorderGlow over video vs same HoverBorderGlow + gradients as desktop over grey sections */
 function MobileLandingCtaShell({ matchDesktopVisual, children }) {
@@ -445,11 +363,23 @@ const App = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isDesktop] = useState(() => window.innerWidth >= 769);
   const [scrollY, setScrollY] = useState(0);
+  const [mobileHomeNavReservePx, setMobileHomeNavReservePx] = useState(MOBILE_PAGE_NAV_BODY_RESERVE_PX);
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (typeof document === 'undefined' || isDesktop) return undefined;
+    const probe = document.createElement('div');
+    probe.style.cssText = 'position:absolute;visibility:hidden;width:0;height:0;padding-top:env(safe-area-inset-top,0px);';
+    document.body.appendChild(probe);
+    const safe = parseFloat(getComputedStyle(probe).paddingTop) || 0;
+    probe.remove();
+    setMobileHomeNavReservePx(MOBILE_PAGE_NAV_BODY_RESERVE_PX + safe);
+    return undefined;
+  }, [isDesktop]);
+
   // Track window scroll so the Create/Get-Started button can float right below
-  // the nav bar on desktop (76px) or lock near the top of the screen on mobile (20px).
+  // the nav bar on desktop (76px), or on mobile locks below PageNavBar + safe-area.
   useEffect(() => {
     let rafId = null;
     const handleScroll = () => {
@@ -512,14 +442,12 @@ const App = () => {
   }, [menuOpen, isDesktop]);
 
   // Desktop: button starts 305px from top, locks at 76px (below 60px nav).
-  // Mobile:  button starts at ~46% of viewport height (matching current fixed
-  //          position), then smoothly glides up and locks at 20px from top.
+  // Mobile: starts at ~46% viewport, glides up and locks below fixed PageNavBar + notch inset.
   const CREATE_BTN_INITIAL_TOP = 305;
   const CREATE_BTN_FLOATING_TOP = 76;
-  const MOBILE_BTN_LOCK_TOP = 20;
   const createButtonTop = isDesktop
     ? Math.max(CREATE_BTN_FLOATING_TOP, CREATE_BTN_INITIAL_TOP - scrollY)
-    : Math.max(MOBILE_BTN_LOCK_TOP, Math.round(window.innerHeight * 0.46) - scrollY);
+    : Math.max(mobileHomeNavReservePx, Math.round(window.innerHeight * 0.46) - scrollY);
 
   // Match desktop CTA visuals once scrolled past full-viewport hero (same threshold as landing sections entry)
   const mobileCtaPastVideoHero = !isDesktop && scrollY >= window.innerHeight;
@@ -1052,7 +980,7 @@ const App = () => {
         )}
       </div>
       <div className="site-nav-auth">
-        {(permissions === 'admin' || permissions === 'organizer') && user === 'topaz' && (
+        {permissions === 'admin' && (
           <button className="site-nav-lobbies" onClick={() => navigate('/master_lobby_view')}>
             Lobbies
           </button>
@@ -1072,72 +1000,6 @@ const App = () => {
     </nav>
   );
 
-  // MobileMenuOverlay — full-screen overlay for mobile nav
-  const MobileMenuOverlay = () => (
-    <AnimatePresence>
-      {menuOpen && (
-        <motion.div
-          className="mobile-menu-overlay"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          <motion.div
-            className="mobile-menu-content"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 30 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
-          >
-            <div className="mobile-menu-header">
-              <img
-                src="/assets/reuneo_test_14.png"
-                alt="Reuneo Logo"
-                className="mobile-menu-logo"
-                onClick={() => { navigate('/'); setMenuOpen(false); }}
-              />
-              <button className="mobile-menu-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            </div>
-            <div className="mobile-menu-links">
-              {user && (
-                <button className="mobile-menu-link" onClick={() => { setShowProfileCreation(true); setMenuOpen(false); }}>
-                  Profile
-                </button>
-              )}
-              {!user ? (
-                <button className="mobile-menu-link" onClick={() => { navigate('/login'); setMenuOpen(false); }}>
-                  Login
-                </button>
-              ) : (
-                <button className="mobile-menu-link" onClick={() => { navigate('/logout'); setMenuOpen(false); }}>
-                  Logout
-                </button>
-              )}
-              <button className="mobile-menu-link" onClick={() => {
-                navigate((permissions === 'organizer' && !isLegacyOrganizer) ? '/organizer-account-details' : '/plan-selection');
-                setMenuOpen(false);
-              }}>
-                {(permissions === 'organizer' && !isLegacyOrganizer) ? 'Plan' : 'Pricing'}
-              </button>
-              <button className="mobile-menu-link" onClick={() => { navigate('/contact'); setMenuOpen(false); }}>
-                Contact
-              </button>
-              <button className="mobile-menu-link" onClick={() => { navigate('/tutorial'); setMenuOpen(false); }}>
-                Tutorial
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-
   return (
     <>
     {isDesktop && createPortal(<FloatingLinesBackground />, document.body)}
@@ -1149,7 +1011,7 @@ const App = () => {
           className="desktop-hero-logo"
         />
         <AnimatedText
-          text="Real Connections. Real Engagement. Real Results."
+          text="Real Connections. Real Engagement."
           className="desktop-hero-heading"
           stagger={0.03}
           duration={0.7}
@@ -1256,10 +1118,27 @@ const App = () => {
       document.body
     )}
     {isDesktop && createPortal(<DesktopPhoneMockups />, document.body)}
+    {!isDesktop && (
+      <PageNavBar
+        variant="home"
+        pastVideoHero={mobileCtaPastVideoHero}
+        menuOpen={menuOpen}
+        onMenuOpenChange={setMenuOpen}
+        onJoinLobby={() => setShowQRInstructionModal(true)}
+        onProfileClick={() => setShowProfileCreation(true)}
+        joinLobbyDisabled={player_count === null || lobby_state === 'terminate'}
+        joinLobbyTitle={
+          lobby_state === 'terminate'
+            ? 'Lobby closed'
+            : player_count === null
+              ? 'Lobby loading…'
+              : undefined
+        }
+      />
+    )}
     <div style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden', zIndex: 2 }}>
 
       {isDesktop && createPortal(<SiteNavBar />, document.body)}
-      <MobileMenuOverlay />
 
       {/* Background Video */}
       <video className="background-video" autoPlay loop muted playsInline poster="/assets/demo_app_home_video_cover.jpg">
@@ -1271,19 +1150,9 @@ const App = () => {
       </video>
       
       {/* Main App Content */}
-      <div style={{ position: 'relative', zIndex: 1, color: 'white',  height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-        
-        {!isDesktop && (
-          <div style={{ position: 'absolute', top: '0', left: '50%', transform: 'translateX(-50%)' }}>
-            <img  
-              src="/assets/reuneo_test_15.png"
-              alt="Logo"
-              style={{width: '120px',height: '120px',objectFit: 'contain'}}
-            />
-          </div>
-        )}
+      <div style={{ position: 'relative', zIndex: 1, color: 'white', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', ...(!isDesktop ? { paddingTop: 'var(--page-nav-mobile-home-inset-top)', boxSizing: 'border-box' } : {}) }}>
 
-        <div style = {{marginTop: '10%',display: 'flex',flexDirection: 'column'}}>
+        <div style={{ marginTop: !isDesktop ? '6%' : '10%', display: 'flex', flexDirection: 'column' }}>
           <LoginSignupLogoutButton 
             user={user} 
             onProfileClick={() => setShowProfileCreation(true)}
@@ -1339,23 +1208,6 @@ const App = () => {
           )}
         </div>
 
-        {/* Master Lobbies Button - mobile only; desktop version is in SiteNavBar */}
-        {!isDesktop && (permissions === 'admin' || permissions === 'organizer') && user === 'topaz' && (
-          <div style={{ 
-            position: 'absolute', 
-            top: '120px', 
-            right: '20px',
-            zIndex: 10
-          }}>
-            <button 
-              className="master-lobbies-button"
-              onClick={() => navigate('/master_lobby_view')}
-            >
-              Lobbies
-            </button>
-          </div>
-        )}
-        
         {showProfileCreation && createPortal(
           <ProfileCreation
             onSubmit={(data) => {
@@ -1367,7 +1219,7 @@ const App = () => {
           document.body
         )}
 
-        {/* Mobile floating CTA — portalled to body; hidden while hamburger menu is open (menu lives in lower z-index stacking context) */}
+        {/* Mobile floating CTA — portalled to body; hidden while full-screen PageNav menu is open */}
         {!isDesktop && !menuOpen && (permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby ? createPortal(
           <div
             className={mobileCtaPastVideoHero ? 'desktop-create-wrapper' : undefined}
@@ -1442,36 +1294,33 @@ const App = () => {
           marginLeft: 'auto',
           marginRight: 'auto',
           zIndex: 1,
-          // Always right below the logo
-          top: '130px',
+          top: isDesktop ? '130px' : 'calc(102px + env(safe-area-inset-top, 0px))',
           transform: 'translateX(-50%)'
         }}>
           {!user ? (
             !isDesktop ? (
-              <h2 className="welcome-header" style={{
-                color: '#ffffff',
-                fontSize: '0.8rem',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                textShadow: '4px 4px 8px rgba(0,0,0,0.9)',
-                margin: 0
-              }}>
+              <h2
+                className="welcome-header-mobile"
+                aria-label="Real Connections. Real Engagement."
+              >
                 <AnimatedText
-                  text="Real people. Real connections."
+                  text="Real Connections"
+                  suppressHeadingSemantics
                   stagger={0.04}
                   duration={0.6}
+                />
+                <br />
+                <AnimatedText
+                  text="Real Engagement"
+                  suppressHeadingSemantics
+                  stagger={0.04}
+                  duration={0.6}
+                  delay={16 * 0.04}
                 />
               </h2>
             ) : null
           ) : !isDesktop ? (
-            <h2 className="welcome-header" style={{ 
-              color: '#ffffff',
-              fontSize: '1rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              textShadow: '4px 4px 8px rgba(0,0,0,0.9)',
-              margin: 0
-            }}>
+            <h2 className="welcome-header-mobile welcome-header-mobile--letters">
               {user && userProfile && (permissions === "admin" || permissions === "organizer") ? (
                 (() => {
                   const mainText = `Create a Lobby`;
@@ -1542,140 +1391,6 @@ const App = () => {
             </h2>
           ) : null}
         </div>
-
-        {/* Matches button moved into the dock */}
-
-        {/* Event items, the big div */}
-        <div style={{ 
-            position: 'absolute',
-            bottom: '40px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '94%', 
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'center',
-            gap: '1.5rem',
-          }}>
-            {/* Event item */}
-            <div
-              className="event-item"
-              style={{
-                width: 'auto',
-                maxWidth: 'none',
-                margin: '0',
-                padding: '10px 20px',
-                borderRadius: '16px',
-                marginBottom: '20px',
-                cursor: 'pointer',
-                opacity: 1,
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: '1.5rem',
-                ':hover': {
-                  transform: 'translateY(-5px)'
-                }
-              }}
-            >
-              {/* Keep the commented lobby count code */}
-              {/* <p
-                style={{
-                  margin: '0 0 15px 0',
-                  color: '#4299e1',
-                  fontWeight: '500',
-                  fontSize: '0.9em',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '5px'
-                }}
-              >
-                <span style={{
-                  display: 'inline-block',
-                  width: '8px',
-                  height: '8px',
-                  backgroundColor: '#4299e1',
-                  borderRadius: '50%',
-                  marginRight: '5px'
-                }}></span>
-                {lobby_state === 'terminate' ? 'Lobby closed' : `${player_count} in lobby`}
-              </p> */}
-              <div style={{ 
-                display: 'flex', 
-                gap: '1.5rem', 
-                flexDirection: 'row',
-                alignItems: 'center'
-              }}>
-                {!isDesktop && <div style={{ position: 'relative' }}>
-                  <AppDock
-                    panelHeight={88}
-                    baseItemSize={65}
-                    magnification={75}
-                    distance={200}
-                    items={[
-                      {
-                        icon: <JoinLobbyIcon />,
-                        label: 'Join Lobby',
-                        onClick: () => setShowQRInstructionModal(true),
-                        disabled: player_count === null || lobby_state === 'terminate',
-                        title: (player_count === null || lobby_state === 'terminate')
-                          ? (lobby_state === 'terminate' ? 'Lobby closed' : 'Lobby loading…')
-                          : undefined
-                      },
-                      ...(!user ? [] :
-                        (permissions === 'organizer' || permissions === 'admin')
-                          ? [{
-                              icon: <OrganizerIcon />,
-                              label: 'Organizer',
-                              onClick: () => navigate('/organizer-dashboard'),
-                              disabled: false
-                            }]
-                          : [{
-                              icon: <MatchesIcon />,
-                              label: 'Matches',
-                              onClick: () => navigate('/paired-player-history'),
-                              disabled: false
-                            }]
-                      ),
-                      ...(!isDesktop ? [{
-                        icon: <MenuIcon />,
-                        label: 'Menu',
-                        onClick: () => setMenuOpen(true),
-                        disabled: false
-                      }] : [])
-                    ]}
-                  />
-                </div>}
-                {/* Create Lobby button moved to centered standalone position above */}
-                {/* {(permissions === 'admin' || permissions === 'organizer') && (
-                  <button 
-                    className="primary-button" 
-                    onClick={redirectToAdminLobby}
-                    style={{
-                      padding: '12px 24px',
-                      backgroundColor: '#2d3748',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '14px',
-                      fontWeight: '800',
-                      transition: 'all 0.2s ease',
-                      ':hover': {
-                        backgroundColor: '#1a202c',
-                        transform: 'scale(1.02)'
-                      }
-                    }}
-                  >
-                    <span style={{
-                      textShadow: '0 0 1px rgba(58, 53, 53, 0.5)',
-                      color: 'inherit'
-                    }}>
-                      Admin Lobby View
-                    </span>
-                  </button>
-                )} */}
-              </div>
-            </div>
-          </div>
 
         {/* User's Current Lobby Section */}
         {userCurrentLobby && !((permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0) && (

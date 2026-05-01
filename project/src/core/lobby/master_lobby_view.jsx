@@ -7,7 +7,7 @@ import { apiFetch } from '../utils/api';
 const POLL_INTERVAL = 5000;
 
 const MasterLobbyView = () => {
-    const { checkAuth, permissions, user } = useContext(AuthContext);
+    const { checkAuth, permissions, isAuthLoading } = useContext(AuthContext);
     const navigate = useNavigate();
     const [lobbies, setLobbies] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -18,13 +18,15 @@ const MasterLobbyView = () => {
         checkAuth();
     }, [checkAuth]);
 
+    // Admin-only route. No username-based checks — rely on `permissions` (+ backend on `/admin_all_lobbies`).
     useEffect(() => {
-        if (permissions === "admin") {
+        if (isAuthLoading) return;
+        if (permissions === 'admin') {
             setIsInitialized(true);
-        } else if (permissions !== null && user !== null) {
-            navigate('/');
+            return;
         }
-    }, [permissions, user, navigate]);
+        navigate('/');
+    }, [permissions, isAuthLoading, navigate]);
 
     useEffect(() => {
         if (!isInitialized) return;

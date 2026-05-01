@@ -10,7 +10,9 @@ function AnimatedText({
   stagger = 0.05,
   duration = 0.8,
   ease = CHAR_EASE,
-  onComplete
+  onComplete,
+  /** Omit role / aria-label so parent (e.g. h2) can own the announcement */
+  suppressHeadingSemantics = false,
 }) {
   const chars = text.split('');
   const lastIndex = chars.length - 1;
@@ -22,9 +24,9 @@ function AnimatedText({
   return (
     <span
       className={className}
-      aria-label={text}
-      role="heading"
-      aria-level="2"
+      aria-label={suppressHeadingSemantics ? undefined : text}
+      role={suppressHeadingSemantics ? undefined : 'heading'}
+      aria-level={suppressHeadingSemantics ? undefined : 2}
     >
       {chars.map((char, i) => (
         <motion.span

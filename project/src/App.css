@@ -82,6 +82,47 @@
   background-clip: text;
 }
 
+/* `/` hero taglines — mobile only: Inter / dock CTA feel, sentence case (guest + logged-in) */
+@media (max-width: 768px) {
+  .welcome-header-mobile {
+    background: none;
+    background-size: unset;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    font-family:
+      Inter,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.42;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.97);
+    text-transform: none;
+    letter-spacing: 0.02em;
+    text-shadow:
+      4px 4px 8px rgba(0, 0, 0, 0.92),
+      0 2px 4px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Logged-in per-character reveal — not used for guest AnimatedText */
+  .welcome-header-mobile--letters span {
+    display: inline-block;
+    transform: translateY(100%);
+    opacity: 0;
+    animation: flowUp 0.4s ease forwards;
+    animation-delay: calc(0.02s * var(--i));
+    margin-right: 1px;
+  }
+}
+
 /* Each letter uses a shared animation, offset by --i */
 .welcome-header span {
   display: inline-block;
