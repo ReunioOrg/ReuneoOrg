@@ -1,0 +1,117 @@
+.admin-settings-dropdown {
+    position: absolute;
+    right: 12px;
+}
+
+.admin-settings-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    background: #3b3b3b;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    color: #ffffff;
+    transition: all 0.2s ease;
+    min-height: 36px;
+}
+
+.admin-settings-btn:hover {
+    background: #2d2d2d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.admin-settings-btn:active {
+    transform: translateY(0);
+    background: #3b3b3b;
+}
+
+.admin-settings-btn.active {
+    background: #2d2d2d;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.admin-settings-chevron {
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.admin-settings-chevron.rotated {
+    transform: rotate(180deg);
+}
+
+.admin-settings-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 180px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.12),
+        0 8px 48px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    padding: 6px;
+    z-index: 200;
+}
+
+.admin-settings-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1a1a2e;
+    text-align: left;
+    transition: all 0.15s ease;
+}
+
+.admin-settings-item:hover {
+    background: #f5f7fa;
+}
+
+.admin-settings-item:active {
+    background: #eef1f5;
+    transform: scale(0.98);
+}
+
+.admin-settings-item svg {
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.admin-settings-item:hover svg {
+    color: #144dff;
+}
+
+.admin-settings-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 4px 8px;
+}
+
+@media (max-width: 480px) {
+    .admin-settings-btn {
+        padding: 6px 10px;
+        min-height: 32px;
+    }
+
+    .admin-settings-menu {
+        min-width: 160px;
+        border-radius: 14px;
+    }
+
+    .admin-settings-item {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+}

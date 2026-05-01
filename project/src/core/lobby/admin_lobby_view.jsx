@@ -15,6 +15,7 @@ import Cropper from 'react-easy-crop';
 import getCroppedImg from '../cropImage';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AdminCheckinTutorialFull from '../Tutorials/admin_checkin_tutorial_full';
+import AdminSettingsDropdown from './AdminSettingsDropdown';
 
 //load asset image earthart.jpg
 import { returnBase64TestImg } from '../misc/misc';
@@ -617,7 +618,7 @@ const OverlappingProfileList = ({ players, totalAttendeeCount, attendeeLimit, on
     }, [lobbyState, visiblePlayers.length]);
 
     return (
-        <div className="overlapping-profile-list-wrapper" style={{ marginTop: '3rem' }}>
+        <div className="overlapping-profile-list-wrapper" style={{ marginTop: '0.75rem' }}>
             <div className="overlapping-profile-list">
                 {visiblePlayers.map((player, idx) => (
                     <img
@@ -631,9 +632,6 @@ const OverlappingProfileList = ({ players, totalAttendeeCount, attendeeLimit, on
                 {overflowCount > 0 && (
                     <span className="overlapping-profile-overflow">•••</span>
                 )}
-            </div>
-            <div className="overlapping-profile-list-label" style={{ marginTop: '0.5rem' }}>
-                People Joined: <span className="overlapping-profile-count">{displayCount}</span>
             </div>
             {attendeeLimit && (
                 <div className="lobby-capacity-bar-wrapper">
@@ -1254,8 +1252,6 @@ const AdminLobbyView = () => {
         }
     }, [playerCount, planInfo, lobbyCode, showLimitWarningModal]);
 
-    const [showLobbyDetails, setShowLobbyDetails] = useState(false);
-
     const CreateLobby = async () => {
         const response = await apiFetch('/create_lobby', {
             method: 'POST',
@@ -1603,10 +1599,11 @@ const AdminLobbyView = () => {
                     </button>
                 )}
                 <div className="admin-view-nav-bar" style={tutorialMode ? { zIndex: 10001, background: '#f8f9fb' } : undefined}>
-                    <button className="admin-nav-back" onClick={() => navigate('/')} aria-label="Back">
-                        <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
-                            <circle cx="18" cy="18" r="17" stroke="#374151" strokeWidth="1.5" fill="rgba(255,255,255,0.8)"/>
-                            <path d="M21 12L15 18L21 24" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <button className="admin-nav-back" onClick={() => navigate('/')} aria-label="Home">
+                        <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
+                            <circle cx="18" cy="18" r="17" fill="#3b3b3b"/>
+                            <path d="M11 19.5L18 13L25 19.5" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M13 18V25H16.5V21.5H19.5V25H23V18" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                     </button>
                     <img 
@@ -1614,18 +1611,26 @@ const AdminLobbyView = () => {
                         alt="Reuneo Logo"
                         className="admin-view-logo-img"
                     />
-                    <div
-                        className={`tutorial-toggle ${tutorialMode ? 'tutorial-toggle-on' : ''}`}
-                        onClick={() => setTutorialMode(prev => !prev)}
-                        role="switch"
-                        aria-checked={tutorialMode}
-                        aria-label="Tutorial mode"
-                    >
-                        <span className="tutorial-toggle-knob" />
-                        <span className="tutorial-toggle-label">
-                            {tutorialMode ? 'Tutorial On' : 'Tutorial Off'}
-                        </span>
-                    </div>
+                    {tutorialMode ? (
+                        <div
+                            className="tutorial-toggle tutorial-toggle-on"
+                            onClick={() => setTutorialMode(false)}  
+                            role="switch"
+                            aria-checked={true}
+                            aria-label="Tutorial mode"
+                        >
+                            <span className="tutorial-toggle-knob" />
+                            <span className="tutorial-toggle-label">Tutorial On</span>
+                        </div>
+                    ) : (
+                        <AdminSettingsDropdown
+                            onTutorial={() => setTutorialMode(true)}
+                            onPlanDetails={() => goToAccountDetails()}
+                            onEditLobby={() => setIsEditModalOpen(true)}
+                            onJoinLobby={handleOpenJoinModal}
+                            showPlanDetails={!(permissions === 'admin' || isLegacyOrganizer)}
+                        />
+                    )}
                 </div>
                 {tutorialMode && (
                     <AdminCheckinTutorialFull
@@ -1677,134 +1682,104 @@ const AdminLobbyView = () => {
                         showSkip
                     />
                 )}
-                {isQrState ? (
-                    <>
-                        {/* QR state: QR section first, then profile list, then progress bar */}
-                        <div className="inline-checkin-content">
-                            <h2 className="checkin-modal-title">Real People. Real Connections.</h2>
-                            <p className="checkin-modal-subtitle">
-                                Tell people to scan and listen to the app's instructions. Thats it!
-                            </p>
-                            <div className="checkin-modal-qr-wrapper" style={{ marginTop: '0.75rem' }} onClick={() => {
-                                setInlineQrPulsing(true);
-                                setTimeout(() => setInlineQrPulsing(false), 700);
-                                setQrTappedThisSession(true);
-                                if (hasPlayedQrAnimation(lobbyCode)) {
-                                    // Animation already played for this lobby — go straight to download
-                                    handleInlineQrDownload();
-                                } else {
-                                    // First tap: play animation; download fires in onComplete
-                                    setShowCheckinTutorial(true);
-                                }
-                            }}>
-                                <div className="inline-qr-pulse-container">
-                                    <div className="checkin-modal-qr-card inline-qr-active">
-                                        <QRCodeSVG
-                                            value={`${window.location.origin}/lobby?code=${lobbyCode}`}
-                                            size={180}
-                                            level="H"
-                                            includeMargin={false}
-                                            bgColor="#ffffff"
-                                            fgColor="#1a1a2e"
-                                            id="inline-qr-svg"
-                                        />
-                                        <div className="checkin-modal-qr-download-hint inline-qr-hint-active">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                                <polyline points="7 10 12 15 17 10" />
-                                                <line x1="12" y1="15" x2="12" y2="3" />
-                                            </svg>
-                                            <span>{inlineQrCopied ? 'Saved!' : 'Tap to save/print'}</span>
-                                        </div>
+                {/* Profile list + capacity bar — pinned below nav bar, always visible except interrim */}
+                {lobbyState !== 'interrim' && (
+                    <OverlappingProfileList
+                        players={{ pairedPlayers, lobbyData }}
+                        totalAttendeeCount={playerCount}
+                        attendeeLimit={planInfo?.attendee_limit || null}
+                        lobbyState={lobbyState}
+                        planType={planInfo?.plan_type}
+                        onUpgrade={planInfo ? () => goToAccountDetails() : null}
+                    />
+                )}
+                {isQrState && (
+                    <div className="inline-checkin-content">
+                        <h2 className="checkin-modal-title">1. People Scan to Join</h2>
+                        <p className="checkin-modal-subtitle">
+                            Tell people to scan and listen to the app's instructions. Thats it!
+                        </p>
+                        <div className="checkin-modal-qr-wrapper" style={{ marginTop: '0.75rem' }} onClick={() => {
+                            setInlineQrPulsing(true);
+                            setTimeout(() => setInlineQrPulsing(false), 700);
+                            setQrTappedThisSession(true);
+                            if (hasPlayedQrAnimation(lobbyCode)) {
+                                // Animation already played for this lobby — go straight to download
+                                handleInlineQrDownload();
+                            } else {
+                                // First tap: play animation; download fires in onComplete
+                                setShowCheckinTutorial(true);
+                            }
+                        }}>
+                            <div className="inline-qr-pulse-container">
+                                <div className="checkin-modal-qr-card inline-qr-active">
+                                    <QRCodeSVG
+                                        value={`${window.location.origin}/lobby?code=${lobbyCode}`}
+                                        size={180}
+                                        level="H"
+                                        includeMargin={false}
+                                        bgColor="#ffffff"
+                                        fgColor="#1a1a2e"
+                                        id="inline-qr-svg"
+                                    />
+                                    <div className="checkin-modal-qr-download-hint inline-qr-hint-active">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                            <polyline points="7 10 12 15 17 10" />
+                                            <line x1="12" y1="15" x2="12" y2="3" />
+                                        </svg>
+                                        <span>{inlineQrCopied ? 'Saved!' : 'Tap to save/print'}</span>
                                     </div>
-                                    {/* ambient always-on pulse rings — hidden once QR tapped (Start pulse takes over) */}
-                                    {!qrTappedThisSession && (
-                                        <>
-                                            <span className="inline-qr-ring inline-qr-ambient-ring-1" />
-                                            <span className="inline-qr-ring inline-qr-ambient-ring-2" />
-                                        </>
-                                    )}
-                                    {/* click-burst rings */}
-                                    {inlineQrPulsing && (
-                                        <>
-                                            <span className="inline-qr-ring inline-qr-ring-1" />
-                                            <span className="inline-qr-ring inline-qr-ring-2" />
-                                        </>
-                                    )}
                                 </div>
+                                {/* ambient always-on pulse rings — hidden once QR tapped (Start pulse takes over) */}
+                                {!qrTappedThisSession && (
+                                    <>
+                                        <span className="inline-qr-ring inline-qr-ambient-ring-1" />
+                                        <span className="inline-qr-ring inline-qr-ambient-ring-2" />
+                                    </>
+                                )}
+                                {/* click-burst rings */}
+                                {inlineQrPulsing && (
+                                    <>
+                                        <span className="inline-qr-ring inline-qr-ring-1" />
+                                        <span className="inline-qr-ring inline-qr-ring-2" />
+                                    </>
+                                )}
                             </div>
                         </div>
-
-                        <OverlappingProfileList
-                            players={{ pairedPlayers, lobbyData }}
-                            totalAttendeeCount={playerCount}
-                            attendeeLimit={planInfo?.attendee_limit || null}
-                            lobbyState={lobbyState}
-                            planType={planInfo?.plan_type}
-                            onUpgrade={planInfo ? () => goToAccountDetails() : null}
-                        />
-
-                        <LobbyProgressBar
-                            lobbyState={lobbyState}
-                            playerCount={playerCount}
-                            onStart={handleStartRounds}
-                            onEnd={handleEndRounds}
-                            lobbyCode={lobbyCode}
-                            currentRound={maxActiveRound}
-                            checkinTriggerRef={checkinTriggerRef}
-                            suppressCheckinAutoOpen={false}
-                            planInfo={planInfo}
-                            showStartPulse={lobbyState === 'checkin' && (playerCount >= 2 || (playerCount < 2 && qrTappedThisSession))}
-                            onStartTutorial={() => {
-                                if (hasPlayedStartAnimation(lobbyCode)) {
-                                    startModalTriggerRef.current?.();
-                                } else {
-                                    setShowStartTutorial(true);
-                                }
-                            }}
-                            startModalTriggerRef={startModalTriggerRef}
-                            showEndPulse={lobbyState === 'active' && maxActiveRound >= 4}
-                            onEndTutorial={() => setShowEndTutorial(true)}
-                            endModalTriggerRef={endModalTriggerRef}
-                        />
-                    </>
-                ) : (
-                    <>
-                        {/* Default order: progress bar then profile list */}
-                        <LobbyProgressBar
-                            lobbyState={lobbyState}
-                            playerCount={playerCount}
-                            onStart={handleStartRounds}
-                            onEnd={handleEndRounds}
-                            lobbyCode={lobbyCode}
-                            currentRound={maxActiveRound}
-                            checkinTriggerRef={checkinTriggerRef}
-                            suppressCheckinAutoOpen={false}
-                            planInfo={planInfo}
-                            showStartPulse={lobbyState === 'checkin' && (playerCount >= 2 || (playerCount < 2 && qrTappedThisSession))}
-                            onStartTutorial={() => {
-                                if (hasPlayedStartAnimation(lobbyCode)) {
-                                    startModalTriggerRef.current?.();
-                                } else {
-                                    setShowStartTutorial(true);
-                                }
-                            }}
-                            startModalTriggerRef={startModalTriggerRef}
-                            showEndPulse={lobbyState === 'active' && maxActiveRound >= 4}
-                            onEndTutorial={() => setShowEndTutorial(true)}
-                            endModalTriggerRef={endModalTriggerRef}
-                        />
-
-                        <OverlappingProfileList
-                            players={{ pairedPlayers, lobbyData }}
-                            totalAttendeeCount={playerCount}
-                            attendeeLimit={planInfo?.attendee_limit || null}
-                            lobbyState={lobbyState}
-                            planType={planInfo?.plan_type}
-                            onUpgrade={planInfo ? () => goToAccountDetails() : null}
-                        />
-                    </>
+                    </div>
                 )}
+
+                {lobbyState === 'checkin' && (
+                    <div className="start-experience-header">
+                        <h2 className="checkin-modal-title">2. Start the Experience</h2>
+                        <p className="checkin-modal-subtitle">It's a pairing machine - everyone joined will start getting paired up with each other!</p>
+                    </div>
+                )}
+
+                <LobbyProgressBar
+                    lobbyState={lobbyState}
+                    playerCount={playerCount}
+                    onStart={handleStartRounds}
+                    onEnd={handleEndRounds}
+                    lobbyCode={lobbyCode}
+                    currentRound={maxActiveRound}
+                    checkinTriggerRef={checkinTriggerRef}
+                    suppressCheckinAutoOpen={false}
+                    planInfo={planInfo}
+                    showStartPulse={lobbyState === 'checkin' && (playerCount >= 2 || (playerCount < 2 && qrTappedThisSession))}
+                    onStartTutorial={() => {
+                        if (hasPlayedStartAnimation(lobbyCode)) {
+                            startModalTriggerRef.current?.();
+                        } else {
+                            setShowStartTutorial(true);
+                        }
+                    }}
+                    startModalTriggerRef={startModalTriggerRef}
+                    showEndPulse={lobbyState === 'active' && maxActiveRound >= 4}
+                    onEndTutorial={() => setShowEndTutorial(true)}
+                    endModalTriggerRef={endModalTriggerRef}
+                />
 
                 {/* Attendee QR button — hidden only when inline QR is visible (checkin + <2 players) */}
                 {!(lobbyState === 'checkin' && playerCount < 2) && (
@@ -1825,182 +1800,6 @@ const AdminLobbyView = () => {
                     </div>
                 )}
                 
-                {/* Dropdown Toggle Bar/Header */}
-                <div
-                    className={`admin-lobby-dropdown-toggle ${showLobbyDetails ? 'expanded' : ''}`}
-                    onClick={() => setShowLobbyDetails((prev) => !prev)}
-                >
-                    {showLobbyDetails ? (
-                        <>
-                            Hide Controls
-                            <span className="dropdown-chevron rotated">▼</span>
-                        </>
-                    ) : (
-                            <>
-                                Settings
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '8px', opacity: 0.9 }}>
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                </svg>
-                            </>
-                    )}
-                </div>
-                {/* Dropdown Content */}
-                <div
-                    className="admin-lobby-body"
-                    style={{
-                        maxHeight: showLobbyDetails ? 1000 : 0,
-                        overflow: 'hidden',
-                        transition: 'max-height 0.5s cubic-bezier(0.4,0,0.2,1)',
-                        opacity: showLobbyDetails ? 1 : 0,
-                        pointerEvents: showLobbyDetails ? 'auto' : 'none',
-                        marginBottom: showLobbyDetails ? '2rem' : 0,
-                        
-                        
-                    }}
-                >
-                    <div className="admin-lobby-event-settings">
-                        
-                        <div className="admin-profile">
-                            <img 
-                                src={userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` : "/assets/player_icon_trans.png"} 
-                                alt="Your Profile" 
-                                className="admin-profile-picture"
-                            />
-                            <div className="admin-profile-name-group">
-                                <span className="admin-profile-name">
-                                    {userProfile?.name ? userProfile.name.slice(0, 20) : user?.slice(0, 20)}
-                                </span>
-                                <span className="admin-profile-role">(organizer)</span>
-                            </div>
-                        </div>
-                        <span className="settings-section-label">Lobby Details:</span>
-                        <div className="setting-item">
-                            <span className="setting-label">Round Duration: <span className="setting-value">{Math.floor(roundDuration / 60)} min</span></span>
-                            <span className="setting-label">Tags: <span className="setting-value">{customTags?.length || 0}</span></span>
-
-                            {customTags && customTags.length > 0 && (
-                                <AdminTagsScrollList tags={customTags} />
-                            )}
-                        </div>
-                        <button
-                            onClick={() => setIsEditModalOpen(true)}
-                            className="page-control-button page-control-join"
-                        >
-                            Edit Lobby
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '6px', flexShrink: 0 }}>
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                            </svg>
-                        </button>
-                        {planInfo && (
-                            <button
-                                onClick={() => goToAccountDetails()}
-                                className={`page-control-button ${planInfo.plan_type === 'free_trial' ? 'page-control-join' : 'page-control-secondary'}`}
-                            >
-                                {planInfo.plan_type === 'free_trial' ? 'Upgrade Plan' : 'Plan Details'}
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '6px', flexShrink: 0 }}>
-                                    <path d="M12 19V5"/>
-                                    <path d="M5 12l7-7 7 7"/>
-                                </svg>
-                            </button>
-                        )}
-                        <button
-                            onClick={handleOpenJoinModal}
-                            className="page-control-button page-control-secondary"
-                        >
-                            Join Lobby
-                        </button>
-                        
-                    </div>
-                    
-                    <div className="admin-lobby-actions">
-                        {/* <button 
-                            onClick={() => {
-                                if (window.confirm('Are you sure you want to reset the lobby timer?')) {
-                                    fetch(window.server_url + '/reset_lobby_timer', {
-                                        method: 'GET',
-                                        headers: {
-                                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                                            'lobby_code': lobbyCode
-                                        }
-                                    })
-                                }
-                            }} 
-                            className="admin-button admin-button-warning"
-                        >
-                            Reset Lobby Timer
-                        </button> */}
-
-                        {/* <button 
-                            onClick={CreateLobby} 
-                            className="admin-button admin-button-primary"
-                        >
-                            Create Lobby
-                        </button> */}
-
-                        {/* <button 
-                            onClick={() => {
-                                if (window.confirm('Are you sure you want to reset the entire lobby?')) {
-                                    fetch(window.server_url + '/reset_lobby', {
-                                        method: 'GET',
-                                        headers: {
-                                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                                            'lobby_code': lobbyCode
-                                        }
-                                    })
-                                }
-                            }} 
-                            className="admin-button admin-button-warning"
-                        >
-                            Reset Lobby
-                        </button> */}
-
-                        {/* <button 
-                            onClick={() => {
-                                if (window.confirm('Are you sure you want to start the rounds?')) {
-                                    fetch(window.server_url + '/start_rounds', {
-                                        method: 'GET',
-                                        headers: {
-                                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                                            'lobby_code': lobbyCode
-                                        }
-                                    })
-                                }
-                            }} 
-                            className="admin-lobby-event-controls admin-lobby-event-start"
-                            style={{ backgroundColor: '#28a745' }}
-                        >
-                            Start
-                        </button> */}
-
-                        {/* <button 
-                            onClick={async () => {
-                                if (window.confirm('Are you sure you want to terminate the rounds?')) {
-                                    const response = await fetch(window.server_url + '/terminate_lobby', {
-                                        method: 'GET',
-                                        headers: {
-                                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                                            'lobby_code': lobbyCode
-                                        }
-                                    })
-                                    if (response.ok) {
-                                        console.log("Lobby terminated successfully");
-                                        navigate('/');
-                                    } else {
-                                        console.error("Failed to terminate lobby");
-                                    }
-                                }
-                            }} 
-                            className="admin-lobby-event-controls admin-lobby-event-end"
-                        >
-                            End
-                        </button> */}
-                        
-                    </div>
-                </div>
                 {lobbyState !== 'checkin' && (
                     <div className="admin-stats-timer-row">
                         {lobbyState !== 'interrim' && (

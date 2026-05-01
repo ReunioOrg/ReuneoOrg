@@ -57,6 +57,36 @@
     height: 28px;
 }
 
+/* Tutorial mode active close button — shown in nav bar when tutorial is running */
+.tutorial-active-close {
+    position: absolute;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 6px 12px;
+    background: #E91E63;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: 0.03em;
+    min-height: 32px;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.tutorial-active-close:hover {
+    background: #c2185b;
+    transform: translateY(-1px);
+}
+
+.tutorial-active-close:active {
+    transform: translateY(0);
+}
+
 /* Tutorial Mode Toggle */
 .tutorial-toggle {
     position: absolute;
@@ -971,7 +1001,16 @@
 
 .admin-lobby-dropdown-toggle.attendee-qr-btn {
     margin-bottom: 1.25rem;
-    margin-top: 1.75rem;
+    margin-top: 3.75rem;
+    background: transparent;
+    color: #4b73ef;
+    border: 1.5px solid #4b73ef;
+    box-shadow: none;
+}
+
+.admin-lobby-dropdown-toggle.attendee-qr-btn:hover {
+    background: rgba(75, 115, 239, 0.06);
+    box-shadow: 0 2px 8px rgba(75, 115, 239, 0.15);
 }
 
 .admin-lobby-dropdown-toggle {
@@ -1559,6 +1598,15 @@
     animation: fadeInCheckin 0.4s ease-out;
 }
 
+.start-experience-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem 1.5rem 0.25rem;
+    animation: fadeInCheckin 0.4s ease-out;
+}
+
 @keyframes fadeInCheckin {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
@@ -1633,7 +1681,8 @@
     animation: inlineQrAmbient 2s ease-out 1.2s infinite;
 }
 
-.inline-checkin-content .checkin-modal-title {
+.inline-checkin-content .checkin-modal-title,
+.start-experience-header .checkin-modal-title {
     background: linear-gradient(
         120deg,
         #4b73ef 0%,
@@ -1656,7 +1705,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .inline-checkin-content .checkin-modal-title {
+    .inline-checkin-content .checkin-modal-title,
+    .start-experience-header .checkin-modal-title {
         animation: none;
         background: none;
         -webkit-text-fill-color: #4b73ef;

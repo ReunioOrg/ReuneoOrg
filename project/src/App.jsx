@@ -1109,10 +1109,10 @@ const App = () => {
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCreateClick(); } }}
                 tabIndex={0}
                 role="button"
-                aria-label="Get Started"
+                aria-label="Create"
               >
                 <div className="app-dock-icon"><OrganizerIcon /></div>
-                <span className="app-dock-label shiny-text">Get Started</span>
+                <span className="app-dock-label shiny-text">Create</span>
               </div>
             </HoverBorderGlow>
           </div>
@@ -1342,10 +1342,10 @@ const App = () => {
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCreateClick(); } }}
                 tabIndex={0}
                 role="button"
-                aria-label="Get Started"
+                aria-label="Create"
               >
                 <div className="app-dock-icon"><OrganizerIcon /></div>
-                <span className="app-dock-label shiny-text">Get Started</span>
+                <span className="app-dock-label shiny-text">Create</span>
               </div>
             </BorderGlow>
           </div>
