@@ -326,6 +326,7 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
     // Auto-open disabled — inline QR on page makes it redundant
 
     const startBtnClass = () => {
+        if (checkinActive && playerCount < 2) return 'progress-pill-btn progress-pill-start-waiting';
         if (checkinActive) return 'progress-pill-btn progress-pill-start';
         return 'progress-pill-btn progress-pill-inactive';
     };
@@ -1961,7 +1962,7 @@ const AdminLobbyView = () => {
                                 </div>
                             ) : (
                             <>
-                            <div className="section-header">{lobbyState === 'checkin' ? 'People Checked In' : 'Unpaired Players'}: <span className="section-header-count">{lobbyData?.length || 0}</span></div>
+                            <div className="section-header">{lobbyState === 'checkin' ? 'People Joined' : 'Unpaired Players'}: <span className="section-header-count">{lobbyData?.length || 0}</span></div>
                             <div className="player-grid">
                                 {[...lobbyData].sort((a, b) => (a.eligible_for_pairing === false ? 0 : 1) - (b.eligible_for_pairing === false ? 0 : 1)).map((player, index) => (
                                     <div 

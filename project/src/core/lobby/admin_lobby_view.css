@@ -503,7 +503,8 @@
     color: #4b73ef;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: -0.01em;
     text-align: center;
     margin-top: -1.5rem;
 }
@@ -1328,6 +1329,17 @@
 .progress-pill-start:hover {
     background: #16a34a;
     box-shadow: 0 3px 12px rgba(34, 197, 94, 0.35);
+}
+
+.progress-pill-start-waiting {
+    background: #4b73ef;
+    color: #fff;
+    overflow: visible;
+}
+
+.progress-pill-start-waiting:hover {
+    background: #3a5ecc;
+    box-shadow: 0 3px 12px rgba(75, 115, 239, 0.35);
 }
 
 /* Ambient pulse rings on Start pill when ≥4 players */

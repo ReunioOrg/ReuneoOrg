@@ -1272,14 +1272,15 @@ const App = () => {
           </div>
         )}
         
-        {showProfileCreation && (
+        {showProfileCreation && createPortal(
           <ProfileCreation
             onSubmit={(data) => {
               setShowProfileCreation(false);
             }}
             onClose={() => setShowProfileCreation(false)}
             existingProfile={userProfile}
-          />
+          />,
+          document.body
         )}
 
         {/* Centered standalone button — mobile only; desktop version is portalled above phone frame */}
