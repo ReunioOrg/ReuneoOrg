@@ -467,6 +467,50 @@ const App = () => {
     };
   }, [isDesktop]);
 
+  // Lock background scroll while mobile menu is open (prevents jitter / flashing through translucent backdrop).
+  useEffect(() => {
+    if (isDesktop || !menuOpen) return undefined;
+
+    const html = document.documentElement;
+    const body = document.body;
+    const y = window.scrollY || html.scrollTop || 0;
+
+    const prev = {
+      htmlOverflow: html.style.overflow,
+      bodyOverflow: body.style.overflow,
+      htmlOverscroll: html.style.overscrollBehavior,
+      bodyOverscroll: body.style.overscrollBehavior,
+      bodyPosition: body.style.position,
+      bodyTop: body.style.top,
+      bodyLeft: body.style.left,
+      bodyRight: body.style.right,
+      bodyWidth: body.style.width,
+    };
+
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    html.style.overscrollBehavior = 'none';
+    body.style.overscrollBehavior = 'none';
+    body.style.position = 'fixed';
+    body.style.top = `-${y}px`;
+    body.style.left = '0';
+    body.style.right = '0';
+    body.style.width = '100%';
+
+    return () => {
+      html.style.overflow = prev.htmlOverflow;
+      body.style.overflow = prev.bodyOverflow;
+      html.style.overscrollBehavior = prev.htmlOverscroll;
+      body.style.overscrollBehavior = prev.bodyOverscroll;
+      body.style.position = prev.bodyPosition;
+      body.style.top = prev.bodyTop;
+      body.style.left = prev.bodyLeft;
+      body.style.right = prev.bodyRight;
+      body.style.width = prev.bodyWidth;
+      window.scrollTo(0, y);
+    };
+  }, [menuOpen, isDesktop]);
+
   // Desktop: button starts 305px from top, locks at 76px (below 60px nav).
   // Mobile:  button starts at ~46% of viewport height (matching current fixed
   //          position), then smoothly glides up and locks at 20px from top.
@@ -1323,8 +1367,8 @@ const App = () => {
           document.body
         )}
 
-        {/* Mobile floating CTA — portalled to body so position:fixed tracks the viewport (avoid iOS bug: fixed inside ancestor overflow:hidden) */}
-        {!isDesktop && (permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby ? createPortal(
+        {/* Mobile floating CTA — portalled to body; hidden while hamburger menu is open (menu lives in lower z-index stacking context) */}
+        {!isDesktop && !menuOpen && (permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby ? createPortal(
           <div
             className={mobileCtaPastVideoHero ? 'desktop-create-wrapper' : undefined}
             style={{
