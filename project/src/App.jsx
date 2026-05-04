@@ -19,6 +19,7 @@ import AnimatedText from './core/components/AnimatedText/AnimatedText';
 import DesktopPhoneMockups from './core/components/DesktopPhoneMockups/DesktopPhoneMockups';
 import MobileHeroPhonePair from './core/components/MobileHeroPhonePair/MobileHeroPhonePair.jsx';
 import PageNavBar from './core/components/PageNavBar/PageNavBar.jsx';
+import SiteSocialFooter from './core/components/SiteSocialFooter/SiteSocialFooter.jsx';
 
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
 import { getStoredLobbyCode, shouldValidateLobby, markLobbyValidated, clearLobbyStorage } from './core/utils/lobbyStorage';
@@ -1669,12 +1670,21 @@ const App = () => {
       {createPortal(<QRInstructionModal />, document.body)}
       {createPortal(<LobbyFullModal />, document.body)}
     </div>
-    {isDesktop && createPortal(<><FeaturesSection /><StepsSection /><TestimonialsSection /></>, document.body)}
+    {isDesktop && createPortal(
+      <>
+        <FeaturesSection />
+        <StepsSection />
+        <TestimonialsSection />
+        <SiteSocialFooter />
+      </>,
+      document.body
+    )}
     {!isDesktop && (
       <div className="mobile-sections-wrapper landing-mobile-sections">
         <FeaturesSection />
         <StepsSection />
         <TestimonialsSection />
+        <SiteSocialFooter />
       </div>
     )}
     </>

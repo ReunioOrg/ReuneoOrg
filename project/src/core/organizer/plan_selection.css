@@ -25,6 +25,11 @@
     padding-right: 32px;
 }
 
+.plan-selection-background > .site-social-footer {
+    margin-left: -24px;
+    margin-right: -24px;
+}
+
 /* Dim the FloatingLinesBackground on the pricing page */
 .ps-pricing-page .floating-lines-bg {
     opacity: 0.35;

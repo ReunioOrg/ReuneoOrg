@@ -5,6 +5,7 @@ import { apiFetch } from '../utils/api';
 import { AuthContext } from '../Auth/AuthContext';
 import FloatingLinesBackground from './FloatingLinesBackground';
 import PageNavBar from '../components/PageNavBar/PageNavBar';
+import SiteSocialFooter from '../components/SiteSocialFooter/SiteSocialFooter';
 
 const bulkDiscount = (n) => {
     if (n <= 1) return 1;
@@ -810,6 +811,8 @@ const PlanSelection = () => {
                     </div>
                 </div>
             )}
+
+            <SiteSocialFooter />
         </div>
     );
 };

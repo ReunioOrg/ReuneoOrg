@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import './organizer_account_details.css';
 import { apiFetch } from '../utils/api';
 import FloatingLinesBackground from './FloatingLinesBackground';
+import SiteSocialFooter from '../components/SiteSocialFooter/SiteSocialFooter';
 
 const PLAN_TYPE_LABELS = {
     single_use: 'Single Use',
@@ -192,6 +193,7 @@ const OrganizerAccountDetails = () => {
         return (
             <div className="account-container">
                 <div className="account-loading">Loading account details...</div>
+                <SiteSocialFooter />
             </div>
         );
     }
@@ -201,6 +203,7 @@ const OrganizerAccountDetails = () => {
             <div className="account-container">
                 <button onClick={() => navigate('/')} className="account-home-button">Home</button>
                 <div className="account-error-message">{error || 'No account details found'}</div>
+                <SiteSocialFooter />
             </div>
         );
     }
@@ -482,6 +485,8 @@ const OrganizerAccountDetails = () => {
                     </div>
                 </div>
             )}
+
+            <SiteSocialFooter />
         </div>
     );
 };

@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import './LoginSignupPage.css';
 import { apiFetch } from '../utils/api';
 import PageNavBar from '../components/PageNavBar/PageNavBar';
+import SiteSocialFooter from '../components/SiteSocialFooter/SiteSocialFooter';
 
 const LoginSignupPage = () => {
     const { login, signup, user, logout, checkAuth } = useContext(AuthContext);
@@ -212,6 +213,7 @@ const LoginSignupPage = () => {
                 )}
             </div>
         </div>
+        <SiteSocialFooter />
         </div>
     );
 };

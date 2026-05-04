@@ -5,6 +5,7 @@ import './organizer-dashboard.css';
 import { apiFetch } from '../utils/api';
 import FloatingLinesBackground from './FloatingLinesBackground';
 import PageNavBar from '../components/PageNavBar/PageNavBar';
+import SiteSocialFooter from '../components/SiteSocialFooter/SiteSocialFooter';
 import { FaInstagram, FaFacebookF, FaLinkedinIn, FaEnvelope, FaPhone, FaGlobe, FaTiktok, FaSnapchatGhost, FaCopy } from 'react-icons/fa';
 
 const SOCIAL_PLATFORM_ORDER = ['phone', 'email', 'website', 'instagram', 'facebook', 'linkedin', 'tiktok', 'snapchat'];
@@ -868,6 +869,8 @@ const OrganizerDashboard = () => {
             ) : (
                 <CommunityAttendeesCarousel attendees={attendees} navigate={navigate} />
             )}
+
+            <SiteSocialFooter />
         </div>
     );
 };

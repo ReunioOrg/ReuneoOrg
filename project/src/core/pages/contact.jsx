@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PageNavBar from '../components/PageNavBar/PageNavBar';
+import SiteSocialFooter from '../components/SiteSocialFooter/SiteSocialFooter';
 import FloatingLinesBackground from '../organizer/FloatingLinesBackground';
 import './contact.css';
 
@@ -323,6 +324,8 @@ const ContactPage = () => {
           </div>
         </div>
       </section>
+
+      <SiteSocialFooter />
     </div>
   );
 };
