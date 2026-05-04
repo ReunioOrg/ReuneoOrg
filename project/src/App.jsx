@@ -46,6 +46,9 @@ const OrganizerIcon = () => (
 /** Base height pairing fixed home bar (~68px): safe-area merged in JS probe + PageNavBar.css `--page-nav-mobile-home-inset-top`. */
 const MOBILE_PAGE_NAV_BODY_RESERVE_PX = 68;
 
+const GUEST_HEADLINE_PAN_INITIAL = { opacity: 0, x: -36 };
+const GUEST_HEADLINE_PAN_TRANSITION = { duration: 0.26, ease: [0.25, 0.46, 0.45, 0.94] };
+
 /* ─── Landing Page: Features Section ─────────────────────────────────────── */
 const FEATURE_CARDS = [
   {
@@ -341,8 +344,17 @@ const App = () => {
   const [isDesktop] = useState(() => window.innerWidth >= 769);
   const [scrollY, setScrollY] = useState(0);
   const [mobileHomeNavReservePx, setMobileHomeNavReservePx] = useState(MOBILE_PAGE_NAV_BODY_RESERVE_PX);
+  const [guestHeroShowLine2, setGuestHeroShowLine2] = useState(false);
+  const [guestHeroShowSubheader, setGuestHeroShowSubheader] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) {
+      setGuestHeroShowLine2(false);
+      setGuestHeroShowSubheader(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (typeof document === 'undefined' || isDesktop) return undefined;
@@ -1304,97 +1316,121 @@ const App = () => {
             !isDesktop ? (
               <>
                 <h2
-                  className="welcome-header-mobile"
+                  className="welcome-header-mobile welcome-header-mobile--guest"
                   aria-label="Real Connections. Real Engagement."
                 >
-                  <AnimatedText
-                    text="Real Connections"
-                    suppressHeadingSemantics
-                    stagger={0.04}
-                    duration={0.6}
-                  />
+                  <span className="welcome-header-mobile__guest-line welcome-header-mobile__pan-mask">
+                    <motion.span
+                      className="welcome-header-mobile__pan-inner"
+                      initial={GUEST_HEADLINE_PAN_INITIAL}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={GUEST_HEADLINE_PAN_TRANSITION}
+                      onAnimationComplete={() => setGuestHeroShowLine2(true)}
+                    >
+                      <span className="welcome-header-mobile__accent">Real</span>
+                      {' '}
+                      Connections
+                    </motion.span>
+                  </span>
                   <br />
-                  <AnimatedText
-                    text="Real Engagement"
-                    suppressHeadingSemantics
-                    stagger={0.04}
-                    duration={0.6}
-                    delay={16 * 0.04}
-                  />
+                  {guestHeroShowLine2 && (
+                    <span className="welcome-header-mobile__guest-line welcome-header-mobile__guest-line--2 welcome-header-mobile__pan-mask">
+                      <motion.span
+                        className="welcome-header-mobile__pan-inner"
+                        initial={GUEST_HEADLINE_PAN_INITIAL}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={GUEST_HEADLINE_PAN_TRANSITION}
+                        onAnimationComplete={() => setGuestHeroShowSubheader(true)}
+                      >
+                        <span className="welcome-header-mobile__accent">Real</span>
+                        {' '}
+                        Engagement
+                      </motion.span>
+                    </span>
+                  )}
                 </h2>
-                <p className="welcome-subheader-mobile">Turn your events into a success!</p>
+                {guestHeroShowSubheader && (
+                  <motion.p
+                    className="welcome-subheader-mobile welcome-subheader-mobile--cursive"
+                    initial={{ clipPath: 'inset(0 100% 0 0)' }}
+                    animate={{ clipPath: 'inset(0 0% 0 0)' }}
+                    transition={{ duration: 1.35, ease: 'easeOut' }}
+                  >
+                    Turn your events into a success!
+                  </motion.p>
+                )}
               </>
             ) : null
           ) : !isDesktop ? (
-            <h2 className="welcome-header-mobile welcome-header-mobile--letters">
-              {user && userProfile && (permissions === "admin" || permissions === "organizer") ? (
-                (() => {
-                  const mainText = `Create a Lobby`;
-                  const nameText = userProfile ? userProfile.name.slice(0, 15) : "";
-                  
-                  return (
-                    <>
-                      {mainText.split("").map((char, index) => (
-                        <span 
-                          key={`main-${index}`} 
-                          style={{ 
-                            "--i": index + 1,
-                            marginRight: char === " " ? "0.5em" : "1px"
-                          }}
-                        >
-                          {char}
-                        </span>
-                      ))}
-                      <br />
-                      {nameText && nameText.split("").map((char, index) => (
-                        <span 
-                          key={`name-${index}`} 
-                          style={{ 
-                            "--i": index + 1,
-                            marginRight: char === " " ? "0.5em" : "1px"
-                          }}
-                        >
-                          {char}
-                        </span>
-                      ))}
-                    </>
-                  );
-                })()
-              ) : (
-                (() => {
-                  const mainText = "Join the Experience";
-                  const nameText = userProfile ? userProfile.name.slice(0, 15) : "";
-                  
-                  return (
-                    <>
-                      {mainText.split("").map((char, index) => (
-                        <span 
-                          key={`main-${index}`} 
-                          style={{ 
-                            "--i": index + 1,
-                            marginRight: char === " " ? "0.5em" : "1px"
-                          }}
-                        >
-                          {char}
-                        </span>
-                      ))}
-                      <br />
-                      {nameText && nameText.split("").map((char, index) => (
-                        <span 
-                          key={`name-${index}`} 
-                          style={{ 
-                            "--i": index + 1,
-                            marginRight: char === " " ? "0.5em" : "1px"
-                          }}
-                        >
-                          {char}
-                        </span>
-                      ))}
-                    </>
-                  );
-                })()
-              )}
-            </h2>
+                <h2 className="welcome-header-mobile welcome-header-mobile--letters">
+                  {user && userProfile && (permissions === "admin" || permissions === "organizer") ? (
+                    (() => {
+                      const mainText = `Create a Lobby`;
+                      const nameText = userProfile ? userProfile.name.slice(0, 15) : "";
+                      
+                      return (
+                        <>
+                          {mainText.split("").map((char, index) => (
+                            <span 
+                              key={`main-${index}`} 
+                              style={{ 
+                                "--i": index + 1,
+                                marginRight: char === " " ? "0.5em" : "1px"
+                              }}
+                            >
+                              {char}
+                            </span>
+                          ))}
+                          <br />
+                          {nameText && nameText.split("").map((char, index) => (
+                            <span 
+                              key={`name-${index}`} 
+                              style={{ 
+                                "--i": index + 1,
+                                marginRight: char === " " ? "0.5em" : "1px"
+                              }}
+                            >
+                              {char}
+                            </span>
+                          ))}
+                        </>
+                      );
+                    })()
+                  ) : (
+                    (() => {
+                      const mainText = "Join the Experience";
+                      const nameText = userProfile ? userProfile.name.slice(0, 15) : "";
+                      
+                      return (
+                        <>
+                          {mainText.split("").map((char, index) => (
+                            <span 
+                              key={`main-${index}`} 
+                              style={{ 
+                                "--i": index + 1,
+                                marginRight: char === " " ? "0.5em" : "1px"
+                              }}
+                            >
+                              {char}
+                            </span>
+                          ))}
+                          <br />
+                          {nameText && nameText.split("").map((char, index) => (
+                            <span 
+                              key={`name-${index}`} 
+                              style={{ 
+                                "--i": index + 1,
+                                marginRight: char === " " ? "0.5em" : "1px"
+                              }}
+                            >
+                              {char}
+                            </span>
+                          ))}
+                        </>
+                      );
+                    })()
+                  )}
+                </h2>
           ) : null}
         </div>
 

@@ -4,6 +4,9 @@ import '../DesktopPhoneMockups/DesktopPhoneMockups.css';
 import './MobileHeroPhonePair.css';
 
 const MHPP_GAP_PX = 14;
+/** Below this hero-strip height we extra-crop vertically so tops clear the fixed landing CTA on SE-class layouts. */
+const MHPP_UNDER_CTA_STRIP_MAX_PX = 320;
+const MHPP_UNDER_CTA_TRIM_TIGHT = 0.88;
 
 /**
  * Fraction of each mockup’s height to show — scales with strip height so XR-class screens
@@ -82,7 +85,8 @@ export default function MobileHeroPhonePair() {
     const clipW = (pw * 2) / 3;
     const nw = clipW + MHPP_GAP_PX + clipW;
     const frac = mhppVerticalFraction(stripH);
-    const nh = ph * frac;
+    const underCtaTrim = stripH <= MHPP_UNDER_CTA_STRIP_MAX_PX ? MHPP_UNDER_CTA_TRIM_TIGHT : 1;
+    const nh = ph * frac * underCtaTrim;
 
     /** Uniform scale so the whole cropped band fits — avoids SE chopping when width-only scale exceeds strip height */
     const scale = Math.min(stripW / nw, stripH / nh);
