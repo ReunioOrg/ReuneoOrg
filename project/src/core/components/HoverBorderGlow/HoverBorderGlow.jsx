@@ -39,7 +39,9 @@ const HoverBorderGlow = ({
         ...userStyle,
       }}
     >
-      <span className="hbg-bloom" aria-hidden="true" />
+      <div className="hbg-bloom-clip" aria-hidden="true">
+        <span className="hbg-bloom" />
+      </div>
       <div className="hbg-content">{children}</div>
       <span className="hbg-ring" aria-hidden="true" />
     </div>

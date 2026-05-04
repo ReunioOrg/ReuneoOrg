@@ -1238,7 +1238,6 @@ const App = () => {
               justifyContent: 'center',
               alignItems: 'center',
               willChange: 'top',
-              transition: 'top 0.15s ease-out'
             }}
           >
             <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={12} bloomInset={3} duration={2800} spread={54} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
@@ -1269,7 +1268,6 @@ const App = () => {
               justifyContent: 'center',
               alignItems: 'center',
               willChange: 'top',
-              transition: 'top 0.15s ease-out'
             }}
           >
             <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={12} bloomInset={3} duration={2800} spread={54} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>

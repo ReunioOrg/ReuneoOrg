@@ -27,6 +27,7 @@
   position: relative;
   display: inline-flex;
   border-radius: var(--hbg-radius);
+  isolation: isolate;
 
   /* Drive the orbit from the parent so children inherit the angle */
   animation: hbg-orbit var(--hbg-duration) linear infinite;
@@ -65,6 +66,16 @@
           mask-composite: exclude;
   pointer-events: none;
   z-index: 2;
+}
+
+/* Clip blur compositing to pill — avoids square AABB at corners without clipping button shadow */
+.hbg-bloom-clip {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ── Outer bloom: blurred halo radiating from the orbiting comet ──
