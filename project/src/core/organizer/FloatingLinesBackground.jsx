@@ -195,7 +195,7 @@ function hexToVec3(hex) {
   );
 }
 
-export default function FloatingLinesBackground() {
+export default function FloatingLinesBackground({ fullQuality = false }) {
   const containerRef = useRef(null);
   const rafRef = useRef(0);
   const pausedRef = useRef(false);
@@ -206,9 +206,12 @@ export default function FloatingLinesBackground() {
   const DESKTOP_LINE_COUNT = 5;
   const LINE_DISTANCE = 10;
 
+  /* Mobile always uses fewer lines; fullQuality only bumps DPR / GPU tier on mobile */
   const lineCount = isMobile ? MOBILE_LINE_COUNT : DESKTOP_LINE_COUNT;
+  const useRichRenderer = !isMobile || fullQuality;
   const lineDist = LINE_DISTANCE * 0.01;
-  const pixelRatioCap = isMobile ? 1.0 : 1.5;
+  const pixelRatioCap = useRichRenderer ? 1.5 : 1.0;
+  const powerPreference = useRichRenderer ? 'default' : 'low-power';
 
   const handleVisibilityChange = useCallback(() => {
     pausedRef.current = document.hidden;
@@ -224,7 +227,7 @@ export default function FloatingLinesBackground() {
     const renderer = new WebGLRenderer({
       antialias: false,
       alpha: false,
-      powerPreference: isMobile ? 'low-power' : 'default'
+      powerPreference,
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, pixelRatioCap));
     renderer.domElement.style.width = '100%';
@@ -313,7 +316,7 @@ export default function FloatingLinesBackground() {
         renderer.domElement.parentElement.removeChild(renderer.domElement);
       }
     };
-  }, [isMobile, lineCount, lineDist, pixelRatioCap, handleVisibilityChange]);
+  }, [lineCount, lineDist, pixelRatioCap, powerPreference, handleVisibilityChange]);
 
   return <div ref={containerRef} className="floating-lines-bg" />;
 }

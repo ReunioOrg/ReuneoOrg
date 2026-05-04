@@ -1113,10 +1113,15 @@ const App = () => {
       className={!isDesktop ? 'landing-hero-shell landing-hero-shell--mobile' : undefined}
       style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden', zIndex: 2 }}
     >
+      {!isDesktop && (
+        <div className="landing-hero-shell--mobile-lines" aria-hidden="true">
+          <FloatingLinesBackground fullQuality />
+        </div>
+      )}
 
       {isDesktop && createPortal(<SiteNavBar />, document.body)}
 
-      {/* Background video — mobile landing uses solid hero instead */}
+      {/* Background video — mobile landing uses gradient hero + contained floating lines */}
       {isDesktop && (
         <video className="background-video" autoPlay loop muted playsInline poster="/assets/demo_app_home_video_cover.jpg">
           <source src="/assets/demo_app_home_video_X2_small.mp4" type="video/mp4" />

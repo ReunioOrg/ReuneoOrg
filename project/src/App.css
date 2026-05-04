@@ -988,6 +988,30 @@
   transform: scale(1.06) translateY(-1px);
 }
 
+/* Mobile home only — Get Started: light blues (lobby timers / name-badge family), not indigo–violet */
+@media (max-width: 768px) {
+  .desktop-create-wrapper--mobile-get-started .app-dock-item-standalone {
+    background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 50%, #2196f3 100%);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow:
+      0 0 0 1px rgba(33, 150, 243, 0.38),
+      0 8px 28px rgba(33, 150, 243, 0.38),
+      0 2px 8px rgba(25, 118, 210, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  .desktop-create-wrapper--mobile-get-started .app-dock-item-standalone:hover {
+    background: linear-gradient(135deg, #81c7f7 0%, #4dabf5 50%, #1e88e5 100%);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    box-shadow:
+      0 0 0 1px rgba(30, 136, 229, 0.48),
+      0 12px 36px rgba(33, 150, 243, 0.42),
+      0 4px 14px rgba(25, 118, 210, 0.32),
+      inset 0 1px 0 rgba(255, 255, 255, 0.24);
+    transform: scale(1.06) translateY(-1px);
+  }
+}
+
 .desktop-create-wrapper .app-dock-icon {
   color: rgba(255, 255, 255, 0.95);
   filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
@@ -1401,7 +1425,8 @@
 }
 
 /* ============================================
-   Floating Lines WebGL Background (Desktop)
+   Floating Lines WebGL Background (desktop full-viewport;
+   mobile: contained in .landing-hero-shell--mobile-lines only)
    ============================================ */
 
 .floating-lines-bg {
@@ -1784,9 +1809,34 @@
   overflow-x: hidden;
 }
 
-/* Solid mobile `/` hero + curved overlap into landing sections */
+/* Mobile `/` hero: gradient + downward curve into .mobile-sections-wrapper (overlap below) */
 .landing-hero-shell--mobile {
-  background: #fafbfc;
+  border-bottom-left-radius: 42px;
+  border-bottom-right-radius: 42px;
+  background: linear-gradient(
+    180deg,
+    #eef2ff 0%,
+    #f5f3ff 26%,
+    #f0f2f8 58%,
+    #f3f4f6 100%
+  );
+}
+
+/* WebGL lines sit above the gradient; canvas is opaque so opacity 1 hid the indigo wash */
+.landing-hero-shell--mobile-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.76;
+}
+
+.landing-hero-shell--mobile-lines .floating-lines-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .landing-mobile-hero-fill {
@@ -1797,12 +1847,12 @@
   padding-top: 0;
 }
 
+/* Tucks under hero’s bottom curve; z-index below hero so the rounded lip shows on top */
 .mobile-sections-wrapper.landing-mobile-sections {
-  border-radius: 42px 42px 0 0;
   margin-top: -28px;
   padding-top: 28px;
   position: relative;
-  z-index: 3;
+  z-index: 1;
 }
 
 @media (max-width: 768px) {

@@ -7,16 +7,16 @@ const MHPP_GAP_PX = 14;
 
 /**
  * Fraction of each mockup’s height to show — scales with strip height so XR-class screens
- * reveal ~70%, compact phones stay nearer ~63%. Still trims badge-heavy bottoms.
+ * reveal ~78%, compact phones stay nearer ~70%. Higher = lower crop line so the hero’s
+ * rounded bottom clips chrome instead of leaving a flat band above the curve.
  */
 function mhppVerticalFraction(stripH) {
-  if (!Number.isFinite(stripH) || stripH < 80) return 0.62;
-  if (stripH >= 420) return 0.72;
-  if (stripH >= 340) return 0.69;
-  if (stripH >= 260) return 0.66;
-  /* Very short strips (SE-class): slightly tighter crop so uniform scale still fits cleanly */
-  if (stripH >= 200) return 0.62;
-  return 0.58;
+  if (!Number.isFinite(stripH) || stripH < 80) return 0.7;
+  if (stripH >= 420) return 0.82;
+  if (stripH >= 340) return 0.78;
+  if (stripH >= 260) return 0.74;
+  if (stripH >= 200) return 0.7;
+  return 0.66;
 }
 
 /** Outer two phones from the desktop trio (indices 0 & 2), cropped + scaled for mobile hero */

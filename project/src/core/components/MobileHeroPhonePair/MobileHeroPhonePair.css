@@ -44,26 +44,20 @@
 }
 
 /*
- * Clips are rectangular; .dpm-phone is a rounded rect. Without matching radius
- * on the outer corners of each clip, the rect corners sit in the “wedge” outside
- * the bezel arc and show a light triangle (screen/page color bleeding through).
- * Radii match DesktopPhoneMockups.css .dpm-phone border-radius.
- *
- * A 1px inset from the top avoids a scaled subpixel seam that reads as a dark
- * horizontal line across the pair (overflow + border-radius + transform: scale).
+ * Clips vs .dpm-phone rounded rect: radius on the top outer corners (toward the
+ * pair gap) removes light wedges. Bottom inner corners stay square so the bezel
+ * meets the horizontal crop / divider without an extra arc.
  */
 .mhpp-row .mhpp-clip:first-child {
   border-top-right-radius: 35px;
-  border-bottom-right-radius: 35px;
-  -webkit-clip-path: inset(1px 0 0 0 round 0 35px 35px 0);
-  clip-path: inset(1px 0 0 0 round 0 35px 35px 0);
+  -webkit-clip-path: inset(1px 0 0 0 round 0 35px 0 0);
+  clip-path: inset(1px 0 0 0 round 0 35px 0 0);
 }
 
 .mhpp-row .mhpp-clip:last-child {
   border-top-left-radius: 35px;
-  border-bottom-left-radius: 35px;
-  -webkit-clip-path: inset(1px 0 0 0 round 35px 0 0 35px);
-  clip-path: inset(1px 0 0 0 round 35px 0 0 35px);
+  -webkit-clip-path: inset(1px 0 0 0 round 35px 0 0 0);
+  clip-path: inset(1px 0 0 0 round 35px 0 0 0);
 }
 
 /* Hide outer third on the inward-facing edge of each mockup */
