@@ -17,6 +17,7 @@ import BorderGlow from './core/components/BorderGlow/BorderGlow';
 import HoverBorderGlow from './core/components/HoverBorderGlow/HoverBorderGlow';
 import AnimatedText from './core/components/AnimatedText/AnimatedText';
 import DesktopPhoneMockups from './core/components/DesktopPhoneMockups/DesktopPhoneMockups';
+import MobileHeroPhonePair from './core/components/MobileHeroPhonePair/MobileHeroPhonePair.jsx';
 import PageNavBar from './core/components/PageNavBar/PageNavBar.jsx';
 
 import useGetLobbyMetadata from './core/lobby/get_lobby_metadata';
@@ -318,30 +319,6 @@ function TestimonialsSection() {
   );
 }
 
-/** Mobile home CTAs: BorderGlow over video vs same HoverBorderGlow + gradients as desktop over grey sections */
-function MobileLandingCtaShell({ matchDesktopVisual, children }) {
-  if (matchDesktopVisual) {
-    return (
-      <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
-        {children}
-      </HoverBorderGlow>
-    );
-  }
-  return (
-    <BorderGlow
-      borderRadius={18}
-      duration={2000}
-      glowRadius={50}
-      glowIntensity={2}
-      coneSpread={40}
-      glowColor="270 85 80"
-      colors={['#c084fc', '#f472b6', '#38bdf8']}
-    >
-      {children}
-    </BorderGlow>
-  );
-}
-
 const App = () => {
   const [showProfileCreation, setShowProfileCreation] = useState(false);
   const [showLobbyCodeModal, setShowLobbyCodeModal] = useState(false);
@@ -442,15 +419,12 @@ const App = () => {
   }, [menuOpen, isDesktop]);
 
   // Desktop: button starts 305px from top, locks at 76px (below 60px nav).
-  // Mobile: starts at ~46% viewport, glides up and locks below fixed PageNavBar + notch inset.
+  // Mobile: floating CTA anchor (~33% viewport); locks at nav when scrolling.
   const CREATE_BTN_INITIAL_TOP = 305;
   const CREATE_BTN_FLOATING_TOP = 76;
   const createButtonTop = isDesktop
     ? Math.max(CREATE_BTN_FLOATING_TOP, CREATE_BTN_INITIAL_TOP - scrollY)
-    : Math.max(mobileHomeNavReservePx, Math.round(window.innerHeight * 0.46) - scrollY);
-
-  // Match desktop CTA visuals once scrolled past full-viewport hero (same threshold as landing sections entry)
-  const mobileCtaPastVideoHero = !isDesktop && scrollY >= window.innerHeight;
+    : Math.max(mobileHomeNavReservePx, Math.round(window.innerHeight * 0.33) - scrollY);
 
   useEffect(() => {
     if (location.state?.openJoinLobby) {
@@ -507,7 +481,6 @@ const App = () => {
   };
 
   const [isScanning, setIsScanning] = useState(false);
-  const videoRef = useRef(null);
   const scannerRef = useRef(null);
 
   // Function to fetch and redirect to admin's active lobby
@@ -1121,7 +1094,7 @@ const App = () => {
     {!isDesktop && (
       <PageNavBar
         variant="home"
-        pastVideoHero={mobileCtaPastVideoHero}
+        pastVideoHero={true}
         menuOpen={menuOpen}
         onMenuOpenChange={setMenuOpen}
         onJoinLobby={() => setShowQRInstructionModal(true)}
@@ -1136,29 +1109,56 @@ const App = () => {
         }
       />
     )}
-    <div style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden', zIndex: 2 }}>
+    <div
+      className={!isDesktop ? 'landing-hero-shell landing-hero-shell--mobile' : undefined}
+      style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden', zIndex: 2 }}
+    >
 
       {isDesktop && createPortal(<SiteNavBar />, document.body)}
 
-      {/* Background Video */}
-      <video className="background-video" autoPlay loop muted playsInline poster="/assets/demo_app_home_video_cover.jpg">
-        <source src="/assets/demo_app_home_video_X2_small.mp4" type="video/mp4" />
-        <source src="/assets/app_home_video_2.webm" type="video/webm" />
-        {/* Fallback for browsers that don't support video at all */}
-        <img src="/assets/demo_app_home_video_cover.jpg" alt="Background fallback" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        Your browser does not support the video tag.
-      </video>
+      {/* Background video — mobile landing uses solid hero instead */}
+      {isDesktop && (
+        <video className="background-video" autoPlay loop muted playsInline poster="/assets/demo_app_home_video_cover.jpg">
+          <source src="/assets/demo_app_home_video_X2_small.mp4" type="video/mp4" />
+          <source src="/assets/app_home_video_2.webm" type="video/webm" />
+          <img src="/assets/demo_app_home_video_cover.jpg" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          Your browser does not support the video tag.
+        </video>
+      )}
       
       {/* Main App Content */}
-      <div style={{ position: 'relative', zIndex: 1, color: 'white', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', ...(!isDesktop ? { paddingTop: 'var(--page-nav-mobile-home-inset-top)', boxSizing: 'border-box' } : {}) }}>
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          color: isDesktop ? 'white' : '#1a1a2e',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          ...(isDesktop
+            ? { justifyContent: 'center', alignItems: 'center' }
+            : {
+                justifyContent: 'flex-start',
+                alignItems: 'stretch',
+                paddingTop: 'var(--page-nav-mobile-home-inset-top)',
+                boxSizing: 'border-box',
+              }),
+        }}
+      >
 
-        <div style={{ marginTop: !isDesktop ? '6%' : '10%', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ marginTop: !isDesktop ? '3%' : '10%', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
           <LoginSignupLogoutButton 
             user={user} 
             onProfileClick={() => setShowProfileCreation(true)}
           />
           
         </div>
+
+        {!isDesktop && (
+          <div className="landing-mobile-hero-fill">
+            <MobileHeroPhonePair />
+          </div>
+        )}
 
         {/* Settings Button - Hidden for now */}
         <div style={{ 
@@ -1222,13 +1222,13 @@ const App = () => {
         {/* Mobile floating CTA — portalled to body; hidden while full-screen PageNav menu is open */}
         {!isDesktop && !menuOpen && (permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby ? createPortal(
           <div
-            className={mobileCtaPastVideoHero ? 'desktop-create-wrapper' : undefined}
+            className="desktop-create-wrapper"
             style={{
               position: 'fixed',
               top: `${createButtonTop}px`,
               left: '50%',
               transform: 'translateX(-50%)',
-              zIndex: mobileCtaPastVideoHero ? 40 : 10,
+              zIndex: 40,
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
@@ -1236,7 +1236,7 @@ const App = () => {
               transition: 'top 0.15s ease-out'
             }}
           >
-            <MobileLandingCtaShell matchDesktopVisual={mobileCtaPastVideoHero}>
+            <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={12} bloomInset={3} duration={2800} spread={54} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
               <div
                 className="app-dock-item-standalone"
                 onClick={() => navigate('/new_organizer', { state: { showGeneralTutorial: true } })}
@@ -1248,18 +1248,18 @@ const App = () => {
                 <div className="app-dock-icon"><OrganizerIcon /></div>
                 <span className="app-dock-label shiny-text">Get Started</span>
               </div>
-            </MobileLandingCtaShell>
+            </HoverBorderGlow>
           </div>,
           document.body
         ) : activeLobbies.length === 0 && (permissions === 'admin' || permissions === 'organizer') ? createPortal(
           <div
-            className={mobileCtaPastVideoHero ? 'desktop-create-wrapper' : undefined}
+            className="desktop-create-wrapper"
             style={{
               position: 'fixed',
               top: `${createButtonTop}px`,
               left: '50%',
               transform: 'translateX(-50%)',
-              zIndex: mobileCtaPastVideoHero ? 40 : 10,
+              zIndex: 40,
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
@@ -1267,7 +1267,7 @@ const App = () => {
               transition: 'top 0.15s ease-out'
             }}
           >
-            <MobileLandingCtaShell matchDesktopVisual={mobileCtaPastVideoHero}>
+            <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={12} bloomInset={3} duration={2800} spread={54} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
               <div
                 className="app-dock-item-standalone"
                 onClick={handleCreateClick}
@@ -1279,7 +1279,7 @@ const App = () => {
                 <div className="app-dock-icon"><OrganizerIcon /></div>
                 <span className="app-dock-label shiny-text">Create</span>
               </div>
-            </MobileLandingCtaShell>
+            </HoverBorderGlow>
           </div>,
           document.body
         ) : null)}
@@ -1293,31 +1293,34 @@ const App = () => {
           textAlign: 'center',
           marginLeft: 'auto',
           marginRight: 'auto',
-          zIndex: 1,
-          top: isDesktop ? '130px' : 'calc(102px + env(safe-area-inset-top, 0px))',
+          zIndex: 8,
+          top: isDesktop ? '130px' : 'calc(94px + env(safe-area-inset-top, 0px))',
           transform: 'translateX(-50%)'
         }}>
           {!user ? (
             !isDesktop ? (
-              <h2
-                className="welcome-header-mobile"
-                aria-label="Real Connections. Real Engagement."
-              >
-                <AnimatedText
-                  text="Real Connections"
-                  suppressHeadingSemantics
-                  stagger={0.04}
-                  duration={0.6}
-                />
-                <br />
-                <AnimatedText
-                  text="Real Engagement"
-                  suppressHeadingSemantics
-                  stagger={0.04}
-                  duration={0.6}
-                  delay={16 * 0.04}
-                />
-              </h2>
+              <>
+                <h2
+                  className="welcome-header-mobile"
+                  aria-label="Real Connections. Real Engagement."
+                >
+                  <AnimatedText
+                    text="Real Connections"
+                    suppressHeadingSemantics
+                    stagger={0.04}
+                    duration={0.6}
+                  />
+                  <br />
+                  <AnimatedText
+                    text="Real Engagement"
+                    suppressHeadingSemantics
+                    stagger={0.04}
+                    duration={0.6}
+                    delay={16 * 0.04}
+                  />
+                </h2>
+                <p className="welcome-subheader-mobile">Turn your events into a success!</p>
+              </>
             ) : null
           ) : !isDesktop ? (
             <h2 className="welcome-header-mobile welcome-header-mobile--letters">
@@ -1562,7 +1565,7 @@ const App = () => {
             transition: 'all 0.3s ease'
           }}>
             {isLoadingLobbies ? (
-              <div style={{ textAlign: 'center', color: 'white' }}>
+              <div style={{ textAlign: 'center', color: '#374151' }}>
                 <p>Loading your lobbies...</p>
               </div>
             ) : activeLobbies.length > 0 ? (
@@ -1629,7 +1632,7 @@ const App = () => {
     </div>
     {isDesktop && createPortal(<><FeaturesSection /><StepsSection /><TestimonialsSection /></>, document.body)}
     {!isDesktop && (
-      <div className="mobile-sections-wrapper">
+      <div className="mobile-sections-wrapper landing-mobile-sections">
         <FeaturesSection />
         <StepsSection />
         <TestimonialsSection />
