@@ -1,5 +1,12 @@
 // const asset_path="project/dist/assets/";
-import React, { useState, useRef, useEffect, useContext } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+  useContext,
+} from 'react';
 import { createPortal } from 'react-dom';
 import ProfileCreation from './core/profile_creation';
 import usePlaySound from './core/playsound';
@@ -46,6 +53,11 @@ const OrganizerIcon = () => (
 
 /** Base height pairing fixed home bar (~68px): safe-area merged in JS probe + PageNavBar.css `--page-nav-mobile-home-inset-top`. */
 const MOBILE_PAGE_NAV_BODY_RESERVE_PX = 68;
+
+/** Mobile hero CTA: layout-driven anchor below header/subheader and above phone strip (fallback until measure). */
+const MOBILE_HERO_CTA_GAP_BELOW_HEADER_PX = 12;
+const MOBILE_HERO_CTA_GAP_ABOVE_PHONES_PX = 14;
+const MOBILE_HERO_CTA_APPROX_BTN_HEIGHT_PX = 56;
 
 const GUEST_HEADLINE_PAN_INITIAL = { opacity: 0, x: -36 };
 const GUEST_HEADLINE_PAN_TRANSITION = { duration: 0.26, ease: [0.25, 0.46, 0.45, 0.94] };
@@ -347,15 +359,84 @@ const App = () => {
   const [mobileHomeNavReservePx, setMobileHomeNavReservePx] = useState(MOBILE_PAGE_NAV_BODY_RESERVE_PX);
   const [guestHeroShowLine2, setGuestHeroShowLine2] = useState(false);
   const [guestHeroShowSubheader, setGuestHeroShowSubheader] = useState(false);
+  /** Viewport px: desired fixed `top` for mobile CTA at scrollY === 0; updated via layout measures. */
+  const [mobileHeroCtaAnchorPx, setMobileHeroCtaAnchorPx] = useState(() =>
+    typeof window !== 'undefined' ? Math.round(window.innerHeight * 0.33) : 296,
+  );
+
+  const mobileHeroHeaderWrapRef = useRef(null);
+  const mobileHeroPhonesFillRef = useRef(null);
+  const measureMobileHeroCtaAnchorRafRef = useRef(null);
 
   const navigate = useNavigate();
+  /** Latest user for RAF measure gate (avoid stale closures). */
+  const userRef = useRef(user);
+  userRef.current = user;
+
+  /** Guest hero: subheader is mounted so layout rects include it — sync ref for RAF `canReveal` gate. */
+  const guestHeroSubheaderMountedRef = useRef(false);
+
+  /** Mobile floating CTA: avoid showing at fallback anchor then jumping after layout/subheader settle. */
+  const [mobileHeroCtaPlacementReady, setMobileHeroCtaPlacementReady] = useState(false);
+  const scheduleMobileHeroCtaAnchorMeasure = useCallback(() => {
+    if (isDesktop || typeof window === 'undefined') return;
+    const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+    if (scrollTop > 32) return;
+
+    if (measureMobileHeroCtaAnchorRafRef.current != null) {
+      cancelAnimationFrame(measureMobileHeroCtaAnchorRafRef.current);
+    }
+
+    measureMobileHeroCtaAnchorRafRef.current = requestAnimationFrame(() => {
+      measureMobileHeroCtaAnchorRafRef.current = null;
+      const headerEl = mobileHeroHeaderWrapRef.current;
+      const phonesEl = mobileHeroPhonesFillRef.current;
+      if (!headerEl || !phonesEl) return;
+
+      const headerRect = headerEl.getBoundingClientRect();
+      const phonesRect = phonesEl.getBoundingClientRect();
+
+      const minTop = headerRect.bottom + MOBILE_HERO_CTA_GAP_BELOW_HEADER_PX;
+      const maxTop =
+        phonesRect.top -
+        MOBILE_HERO_CTA_GAP_ABOVE_PHONES_PX -
+        MOBILE_HERO_CTA_APPROX_BTN_HEIGHT_PX;
+
+      let anchorPx;
+      if (Number.isFinite(maxTop) && maxTop >= minTop) {
+        anchorPx = minTop + (maxTop - minTop) / 2;
+      } else {
+        anchorPx = minTop;
+      }
+
+      const nextAnchor = Math.round(Math.max(0, anchorPx));
+      setMobileHeroCtaAnchorPx(nextAnchor);
+
+      const canReveal =
+        !!userRef.current || guestHeroSubheaderMountedRef.current;
+      if (canReveal) setMobileHeroCtaPlacementReady(true);
+    });
+  }, [isDesktop]);
 
   useEffect(() => {
     if (!user) {
+      guestHeroSubheaderMountedRef.current = false;
+      setMobileHeroCtaPlacementReady(false);
       setGuestHeroShowLine2(false);
       setGuestHeroShowSubheader(false);
     }
   }, [user]);
+
+  /** Guest mobile: allow CTA as soon as the subheader mounts (same frame as layout includes its box), not after the clip animation finishes. */
+  useLayoutEffect(() => {
+    if (isDesktop || user) return;
+    if (!guestHeroShowSubheader) {
+      guestHeroSubheaderMountedRef.current = false;
+      return;
+    }
+    guestHeroSubheaderMountedRef.current = true;
+    scheduleMobileHeroCtaAnchorMeasure();
+  }, [isDesktop, user, guestHeroShowSubheader, scheduleMobileHeroCtaAnchorMeasure]);
 
   useEffect(() => {
     if (typeof document === 'undefined' || isDesktop) return undefined;
@@ -368,6 +449,49 @@ const App = () => {
     return undefined;
   }, [isDesktop]);
 
+  /** Remeasure hero CTA anchor when headline/subheader animate or auth mode changes (mobile only). */
+  useEffect(() => {
+    if (isDesktop) return undefined;
+    scheduleMobileHeroCtaAnchorMeasure();
+    return undefined;
+  }, [isDesktop, scheduleMobileHeroCtaAnchorMeasure, user, guestHeroShowLine2, guestHeroShowSubheader]);
+
+  useLayoutEffect(() => {
+    if (isDesktop) return undefined;
+
+    scheduleMobileHeroCtaAnchorMeasure();
+
+    const hdr = mobileHeroHeaderWrapRef.current;
+    const ph = mobileHeroPhonesFillRef.current;
+
+    let ro = null;
+    if (typeof ResizeObserver !== 'undefined' && hdr && ph) {
+      ro = new ResizeObserver(() => scheduleMobileHeroCtaAnchorMeasure());
+      ro.observe(hdr);
+      ro.observe(ph);
+    }
+
+    const onResize = () => scheduleMobileHeroCtaAnchorMeasure();
+    window.addEventListener('resize', onResize, { passive: true });
+
+    return () => {
+      window.removeEventListener('resize', onResize);
+      if (ro != null && hdr != null && ph != null) {
+        try {
+          ro.unobserve(hdr);
+          ro.unobserve(ph);
+        } catch (_) {
+          /* ignore */
+        }
+        ro.disconnect();
+      }
+      if (measureMobileHeroCtaAnchorRafRef.current != null) {
+        cancelAnimationFrame(measureMobileHeroCtaAnchorRafRef.current);
+        measureMobileHeroCtaAnchorRafRef.current = null;
+      }
+    };
+  }, [isDesktop, scheduleMobileHeroCtaAnchorMeasure]);
+
   // Track window scroll so the Create/Get-Started button can float right below
   // the nav bar on desktop (76px), or on mobile locks below PageNavBar + safe-area.
   useEffect(() => {
@@ -375,7 +499,9 @@ const App = () => {
     const handleScroll = () => {
       if (rafId !== null) return;
       rafId = requestAnimationFrame(() => {
-        setScrollY(window.scrollY || document.documentElement.scrollTop || 0);
+        const nextY = window.scrollY || document.documentElement.scrollTop || 0;
+        setScrollY(nextY);
+        if (!isDesktop && nextY <= 24) scheduleMobileHeroCtaAnchorMeasure();
         rafId = null;
       });
     };
@@ -385,7 +511,7 @@ const App = () => {
       window.removeEventListener('scroll', handleScroll);
       if (rafId !== null) cancelAnimationFrame(rafId);
     };
-  }, [isDesktop]);
+  }, [isDesktop, scheduleMobileHeroCtaAnchorMeasure]);
 
   // Lock background scroll while mobile menu is open (prevents jitter / flashing through translucent backdrop).
   useEffect(() => {
@@ -432,12 +558,12 @@ const App = () => {
   }, [menuOpen, isDesktop]);
 
   // Desktop: button starts 305px from top, locks at 76px (below 60px nav).
-  // Mobile: floating CTA anchor (~33% viewport); locks at nav when scrolling.
+  // Mobile: CTA anchor from measured gap between headline block and phone hero strip (~scroll 0), then subtract scrollY until nav clamp.
   const CREATE_BTN_INITIAL_TOP = 305;
   const CREATE_BTN_FLOATING_TOP = 76;
   const createButtonTop = isDesktop
     ? Math.max(CREATE_BTN_FLOATING_TOP, CREATE_BTN_INITIAL_TOP - scrollY)
-    : Math.max(mobileHomeNavReservePx, Math.round(window.innerHeight * 0.33) - scrollY);
+    : Math.max(mobileHomeNavReservePx, mobileHeroCtaAnchorPx - scrollY);
 
   useEffect(() => {
     if (location.state?.openJoinLobby) {
@@ -1173,7 +1299,7 @@ const App = () => {
         </div>
 
         {!isDesktop && (
-          <div className="landing-mobile-hero-fill">
+          <div ref={mobileHeroPhonesFillRef} className="landing-mobile-hero-fill">
             <MobileHeroPhonePair />
           </div>
         )}
@@ -1250,7 +1376,10 @@ const App = () => {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              willChange: 'top',
+              opacity: mobileHeroCtaPlacementReady ? 1 : 0,
+              transition: 'opacity 220ms ease-out',
+              pointerEvents: mobileHeroCtaPlacementReady ? 'auto' : 'none',
+              willChange: mobileHeroCtaPlacementReady ? 'top' : 'opacity',
             }}
           >
             <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={12} bloomInset={3} duration={2800} spread={54} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
@@ -1280,7 +1409,10 @@ const App = () => {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              willChange: 'top',
+              opacity: mobileHeroCtaPlacementReady ? 1 : 0,
+              transition: 'opacity 220ms ease-out',
+              pointerEvents: mobileHeroCtaPlacementReady ? 'auto' : 'none',
+              willChange: mobileHeroCtaPlacementReady ? 'top' : 'opacity',
             }}
           >
             <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={12} bloomInset={3} duration={2800} spread={54} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
@@ -1301,7 +1433,9 @@ const App = () => {
         ) : null)}
 
         {/* Consolidated header - either "Pair up" or "Welcome" based on user role */}
-        <div style={{ 
+        <div
+          ref={mobileHeroHeaderWrapRef}
+          style={{ 
           position: 'absolute', 
           left: '50%', 
           width: '90%',
@@ -1318,7 +1452,7 @@ const App = () => {
               <>
                 <h2
                   className="welcome-header-mobile welcome-header-mobile--guest"
-                  aria-label="Real Connections. Real Engagement."
+                  aria-label="Real Connections. Real Engagement. Host events that guarantee relationship building."
                 >
                   <span className="welcome-header-mobile__guest-line welcome-header-mobile__pan-mask">
                     <motion.span
@@ -1357,7 +1491,7 @@ const App = () => {
                     animate={{ clipPath: 'inset(0 0% 0 0)' }}
                     transition={{ duration: 1.35, ease: 'easeOut' }}
                   >
-                    Turn your events into a success!
+                    Host events that guarantee relationship building
                   </motion.p>
                 )}
               </>

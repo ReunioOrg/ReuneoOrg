@@ -192,7 +192,8 @@
     padding: 0 14px;
     font-family: 'Satisfy', cursive;
     font-size: clamp(1.2rem, 4.4vw, 1.5rem);
-    font-weight: 900;
+    /* Satisfy only ships one weight — heavier look via micro-shadow (font-weight has no effect). */
+    font-weight: 400;
     line-height: 1.35;
     color: #4b5563;
     letter-spacing: 0.02em;
@@ -200,6 +201,13 @@
     max-width: 22rem;
     margin-left: auto;
     margin-right: auto;
+    -webkit-text-stroke: 0.25px #4b5563;
+    paint-order: stroke fill;
+    text-shadow:
+      0.4px 0 0 #4b5563,
+      -0.4px 0 0 #4b5563,
+      0 0.35px 0 #4b5563,
+      0 -0.35px 0 #4b5563;
   }
 
   /* Logged-in per-character reveal — not used for guest AnimatedText */
