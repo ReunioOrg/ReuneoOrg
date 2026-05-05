@@ -1127,6 +1127,43 @@
     color: #144dff;
 }
 
+/* ── Step 3 tags screen (categories + selected pills + demo) ── */
+
+.step3-tags-screen .step-subtitle {
+    margin-top: 0;
+    max-width: 340px;
+}
+
+.step3-tags-input-section {
+    margin-top: -4px;
+}
+
+.step3-selected-tags-section {
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.step3-selected-tags-heading {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.tag-list-step3 {
+    margin-top: 0;
+}
+
 /* ── Custom Matching Animation ────────────────── */
 
 .custom-matching-section {

@@ -810,14 +810,12 @@ const CreateLobbyView = () => {
 
         if (step3View === 'tags') {
             return (
-                <div className="step-container">
-                    <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>What are your matching categories?</p>
-                    <TutorialMatching
-                        mode="inline"
-                        isVisible={currentStep === 3 && step3View === 'tags'}
-                        tags={animationTags}
-                    />
-                    <div className="custom-matching-section">
+                <div className="step-container step3-tags-screen">
+                    <h1 className="step-title">What are your matching categories?</h1>
+                    <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
+                        Attendees choose what they are and who they want to meet—we optimize to pair them when their interests fit together.
+                    </p>
+                    <div className="custom-matching-section step3-tags-input-section">
                         <div className="tag-input-container">
                             <input
                                 type="text"
@@ -830,8 +828,11 @@ const CreateLobbyView = () => {
                             />
                             <button type="button" onClick={handleAddTag} className="tag-add-button">+</button>
                         </div>
+                    </div>
+                    <div className="step3-selected-tags-section">
+                        <h2 className="step3-selected-tags-heading">Selected tags</h2>
                         {customTags.length > 0 && (
-                            <div className="tag-list">
+                            <div className="tag-list tag-list-step3">
                                 {customTags.map((tag, index) => (
                                     <div key={index} className="tag-item">
                                         {tag}
@@ -842,6 +843,11 @@ const CreateLobbyView = () => {
                             </div>
                         )}
                     </div>
+                    <TutorialMatching
+                        mode="inline"
+                        isVisible={currentStep === 3 && step3View === 'tags'}
+                        tags={animationTags}
+                    />
                     {tagsFromAI && (
                         <button type="button" className="regenerate-button" onClick={handleRegenerate}>
                             <SparkleIcon /> Regenerate
