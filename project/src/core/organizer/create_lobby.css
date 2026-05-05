@@ -1031,10 +1031,12 @@
     justify-content: center;
 }
 
-.tag-item {
-    background: #ffffff;
-    border: 1px solid rgba(20, 77, 255, 0.15);
-    color: #144dff;
+/* Scoped to create-lobby root — beats global .tag-item if lobby.css is still loaded (e.g. after client nav). */
+.create-lobby-background .tag-item {
+    background: #144dff;
+    background-color: #144dff;
+    border: 1px solid rgba(15, 61, 212, 0.85);
+    color: #ffffff;
     padding: 6px 14px;
     border-radius: 100px;
     font-size: 13px;
@@ -1043,17 +1045,21 @@
     align-items: center;
     gap: 6px;
     transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(20, 77, 255, 0.25);
 }
 
-.tag-item:hover {
-    background: #f0f4ff;
-    border-color: rgba(20, 77, 255, 0.25);
+.create-lobby-background .tag-item:hover {
+    background: #2963ff;
+    background-color: #2963ff;
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(20, 77, 255, 0.35);
 }
 
-.tag-remove-button {
+.create-lobby-background .tag-remove-button {
     background: none;
     border: none;
-    color: #144dff;
+    color: #ffffff;
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
@@ -1065,11 +1071,12 @@
     height: 18px;
     border-radius: 50%;
     transition: all 0.2s ease;
-    opacity: 0.6;
+    opacity: 0.85;
 }
 
-.tag-remove-button:hover {
-    background: rgba(20, 77, 255, 0.15);
+.create-lobby-background .tag-remove-button:hover {
+    background: rgba(255, 255, 255, 0.22);
+    color: #ffffff;
     opacity: 1;
     transform: rotate(90deg);
 }
