@@ -159,6 +159,7 @@ button:focus-visible {
     width: 100%;
     max-width: 100%;
     min-height: 100vh;
+    min-height: 100dvh;
     margin: 0;
     overflow-y: visible;
   }

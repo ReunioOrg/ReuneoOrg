@@ -479,9 +479,12 @@ const CommunityAttendeesCarousel = ({ attendees = [], navigate }) => {
             aria-label="Your Community"
         >
             <div className="attendees-card">
-                <div className="attendees-lifetime-header">
-                    Lifetime Attendees: <strong>{normalizedAttendees.length}</strong>
-                </div>
+                <header className="attendees-card-top">
+                    <div className="attendees-lifetime-header">
+                        <span className="attendees-lifetime-label">Lifetime attendees</span>
+                        <span className="attendees-lifetime-count">{normalizedAttendees.length}</span>
+                    </div>
+                </header>
                 <div className="attendees-carouselWrap">
                     <button
                         type="button"
@@ -847,28 +850,43 @@ const OrganizerDashboard = () => {
                 </div>
             )}
 
-            <h1 className="dashboard-title">
-                {(userProfile?.name || user || 'Your')}&apos;s Dashboard
-            </h1>
+            <main className="dashboard-main">
+                <header className="dashboard-hero">
+                    <span className="dashboard-hero-eyebrow">Organizer workspace</span>
+                    <h1 className="dashboard-title">
+                        {(userProfile?.name || user || 'Your')}&apos;s dashboard
+                    </h1>
+                    <p className="dashboard-hero-lede">
+                        Your community lifetime — browse by event date, tap a profile on mobile to open details, or hover on desktop.
+                    </p>
+                </header>
 
-            {isLoading ? (
-                <div className="attendees-loading-container">
-                    <LoadingSpinner size={60} />
-                </div>
-            ) : error ? (
-                <div className="attendees-error-container">
-                    <div className="attendees-error-message">{error}</div>
-                    <button className="attendees-retry-button" onClick={fetchAttendees}>
-                        Retry
-                    </button>
-                </div>
-            ) : attendees.length === 0 ? (
-                <div className="attendees-empty-container">
-                    <div className="attendees-empty-message">No attendees yet</div>
-                </div>
-            ) : (
-                <CommunityAttendeesCarousel attendees={attendees} navigate={navigate} />
-            )}
+                {isLoading ? (
+                    <div className="attendees-loading-container dashboard-state-panel">
+                        <LoadingSpinner size={60} />
+                        <span className="dashboard-state-caption">Gathering attendee history…</span>
+                    </div>
+                ) : error ? (
+                    <div className="attendees-error-container dashboard-state-panel">
+                        <div className="attendees-error-message">{error}</div>
+                        <button className="attendees-retry-button" onClick={fetchAttendees}>
+                            Retry
+                        </button>
+                    </div>
+                ) : attendees.length === 0 ? (
+                    <div className="attendees-empty-container dashboard-state-panel">
+                        <div className="dashboard-empty-visual" aria-hidden="true">
+                            <span className="dashboard-empty-visual-ring" />
+                            <span className="dashboard-empty-visual-dot" />
+                        </div>
+                        <div className="attendees-empty-message">
+                            No lifetime attendees yet. When people join your lobbies, they&apos;ll show up here grouped by visit.
+                        </div>
+                    </div>
+                ) : (
+                    <CommunityAttendeesCarousel attendees={attendees} navigate={navigate} />
+                )}
+            </main>
 
             <SiteSocialFooter />
         </div>
