@@ -116,10 +116,13 @@ const OrganizerAccountDetails = () => {
         setIsTileCheckingOut(true);
         setError('');
         try {
+            // Rewardful affiliate referral (null when no affiliate cookie present).
+            const referral = window.Rewardful?.referral || null;
             const body = {
                 plan_type: 'monthly',
                 attendees: tier.upper,
                 quantity: 1,
+                referral,
             };
             if (lobbyContext.fromActiveLobby && lobbyContext.lobbyCode) {
                 body.lobby_code = lobbyContext.lobbyCode;

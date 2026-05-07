@@ -262,6 +262,11 @@ const PlanSelection = () => {
         setCheckoutError(null);
         const planType = billingMode === 'single' ? 'single_use' : 'monthly';
         const quantity = getQty();
+        // Rewardful sets window.Rewardful.referral when the visitor has an
+        // affiliate cookie. Optional chaining handles the (rare) race where
+        // rw.js hasn't finished loading yet; backend treats null as "no
+        // referral" and skips attribution gracefully.
+        const referral = window.Rewardful?.referral || null;
 
         try {
             if (pageMode === 'browse') {
@@ -275,6 +280,7 @@ const PlanSelection = () => {
                         email,
                         lobby_data: null,
                         cancel_url: window.location.href,
+                        referral,
                     }),
                 });
                 const data = await res.json();
@@ -288,6 +294,7 @@ const PlanSelection = () => {
                     plan_type: planType,
                     attendees: tier.upper,
                     quantity,
+                    referral,
                 };
                 if (fromActiveLobby && lobbyCode) {
                     body.lobby_code = lobbyCode;

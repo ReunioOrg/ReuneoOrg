@@ -337,6 +337,10 @@ const NewOrganizerView = () => {
         } catch {}
 
         try {
+            // Rewardful affiliate referral. Persisted on the trial plan so a
+            // future paid upgrade can credit the same affiliate even if the
+            // visitor's cookie has since expired.
+            const referral = window.Rewardful?.referral || null;
             const res = await apiFetch('/create-free-trial', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -344,6 +348,7 @@ const NewOrganizerView = () => {
                     email,
                     name: organizerName.trim(),
                     lobby_data: lobbyData,
+                    referral,
                 }),
             });
 
