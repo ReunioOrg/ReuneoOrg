@@ -21,6 +21,9 @@ const SHOW_ONE_TIME_OPTION = false;
 
 const INITIAL_VISIBLE_TIERS = 3;
 
+/** When false, hide the “Up to 200 attendees” toggle; only first N tiers stay visible (temporary cap at Pro). */
+const SHOW_EXPAND_TIERS_BUTTON = false;
+
 const CancelIcon = () => (
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
         <path d="M10 6A4 4 0 1 1 8.5 2.8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
@@ -585,7 +588,7 @@ const PlanSelection = () => {
                         })}
                     </div>
 
-                    {hasHiddenTiers && (
+                    {SHOW_EXPAND_TIERS_BUTTON && hasHiddenTiers && (
                         <button
                             className="ps-see-more-btn"
                             onClick={() => setShowMoreTiers((v) => !v)}
@@ -604,7 +607,7 @@ const PlanSelection = () => {
                         Let&apos;s build a tailored plan for your organization
                     </p>
                     <ul className="ps-enterprise-features">
-                        <li><span className="ps-feature-icon">✓</span>200+ attendees</li>
+                        <li><span className="ps-feature-icon">✓</span>150+ attendees</li>
                         <li><span className="ps-feature-icon">✓</span>Enterprise features and integrations</li>
                         <li><span className="ps-feature-icon">✓</span>Dedicated onboarding support</li>
                         <li><span className="ps-feature-icon">✓</span>Partnerships</li>
