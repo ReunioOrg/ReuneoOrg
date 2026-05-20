@@ -1160,10 +1160,9 @@
     width: 100%;
     max-width: 320px;
     text-align: center;
-    font-size: 12px;
+    font-size: 15px;
+    line-height: 1.45;
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: #64748b;
 }
 

@@ -830,7 +830,7 @@ const CreateLobbyView = () => {
                         </div>
                     </div>
                     <div className="step3-selected-tags-section">
-                        <h2 className="step3-selected-tags-heading">Selected tags</h2>
+                        <h2 className="step3-selected-tags-heading">The list of categories your attendees will select from:</h2>
                         {customTags.length > 0 && (
                             <div className="tag-list tag-list-step3">
                                 {customTags.map((tag, index) => (
