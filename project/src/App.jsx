@@ -1194,13 +1194,6 @@ const App = () => {
               <div
                 className="admin-lobby-tile"
                 onClick={() => navigateToAdminLobby(activeLobbies[0])}
-                style={{
-                  background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.72), rgba(245, 240, 255, 0.58))',
-                  backdropFilter: 'blur(28px)',
-                  WebkitBackdropFilter: 'blur(28px)',
-                  border: '1px solid rgba(139, 92, 246, 0.2)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.10), 0 2px 12px rgba(124, 58, 237, 0.12)',
-                }}
               >
                 <div className="admin-lobby-tile-icon">
                   <div className="admin-lobby-tile-icon-circle">
@@ -1211,13 +1204,13 @@ const App = () => {
                   <div className="admin-lobby-tile-live-dot" />
                 </div>
                 <div className="admin-lobby-tile-content">
-                  <span className="admin-lobby-tile-subtitle" style={{ color: 'rgba(109, 40, 217, 0.72)' }}>Manage your active lobby</span>
-                  <span className="admin-lobby-tile-title" style={{ color: '#1a1040', textShadow: 'none' }}>
+                  <span className="admin-lobby-tile-subtitle">Manage your active lobby</span>
+                  <span className="admin-lobby-tile-title">
                     {activeLobbies[0] && activeLobbies[0].length > 15 ? activeLobbies[0].slice(0, 15) + '...' : activeLobbies[0]}
                   </span>
                 </div>
-                <div className="admin-lobby-tile-arrow" style={{ background: 'rgba(109, 40, 217, 0.1)' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <div className="admin-lobby-tile-arrow">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 12h14M12 5l7 7-7 7"/>
                   </svg>
                 </div>
@@ -1595,124 +1588,30 @@ const App = () => {
               style={{ width: '100%' }}
             >
             <div
+              className="admin-lobby-tile"
               onClick={() => navigate(`/lobby?code=${userCurrentLobby}`)}
-              style={{
-                width: '100%',
-                background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05))',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                borderRadius: '24px',
-                border: '1px solid rgba(255, 255, 255, 0.25)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-                padding: '16px 20px',
-                cursor: 'pointer',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: '14px',
-                overflow: 'hidden'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.02)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
-                e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)';
-                e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.25)';
-              }}
             >
-              {/* Animated pulse indicator */}
-              <div style={{
-                position: 'relative',
-                flexShrink: 0
-              }}>
-                <div style={{
-                  width: '44px',
-                  height: '44px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #144dff 0%, #8b5cf6 50%, #ec4899 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 15px rgba(20, 77, 255, 0.4)',
-                  animation: 'pulse-glow 2s ease-in-out infinite'
-                }}>
-                  <span style={{
-                    color: 'white',
-                    fontWeight: '800',
-                    fontSize: '1.1rem',
-                    textTransform: 'uppercase'
-                  }}>
-                    {userCurrentLobby.charAt(0).toUpperCase()}
-                  </span>
+              <div className="admin-lobby-tile-icon">
+                <div className="admin-lobby-tile-icon-circle">
+                  <span>{userCurrentLobby.charAt(0).toUpperCase()}</span>
                 </div>
-                {/* Live indicator dot */}
-                <div style={{
-                  position: 'absolute',
-                  top: '-2px',
-                  right: '-2px',
-                  width: '14px',
-                  height: '14px',
-                  borderRadius: '50%',
-                  background: '#22c55e',
-                  border: '2px solid rgba(255, 255, 255, 0.9)',
-                  boxShadow: '0 0 8px rgba(34, 197, 94, 0.6)',
-                  animation: 'pulse-dot 1.5s ease-in-out infinite'
-                }} />
+                <div className="admin-lobby-tile-live-dot" />
               </div>
-              
-              {/* Text content with wrapping */}
-              <div style={{
-                flex: 1,
-                minWidth: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '2px'
-              }}>
-                <span style={{
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  fontSize: '0.65rem',
-                  fontWeight: '600',
-                  letterSpacing: '0.02em'
-                }}>
-                  Return to your active lobby
-                </span>
-                <span style={{
-                  color: 'white',
-                  fontWeight: '700',
-                  fontSize: '1rem',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
-                }}>
+              <div className="admin-lobby-tile-content">
+                <span className="admin-lobby-tile-subtitle">Return to your active lobby</span>
+                <span className="admin-lobby-tile-title">
                   {userCurrentLobby.length > 15 ? userCurrentLobby.slice(0, 15) + '...' : userCurrentLobby}
                 </span>
               </div>
-              
-              {/* Arrow indicator */}
-              <div style={{
-                flexShrink: 0,
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.3s ease'
-              }}>
-                <svg 
-                  width="16" 
-                  height="16" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="white" 
-                  strokeWidth="2.5" 
-                  strokeLinecap="round" 
+              <div className="admin-lobby-tile-arrow">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
                   strokeLinejoin="round"
                 >
                   <path d="M5 12h14M12 5l7 7-7 7"/>
