@@ -1113,3 +1113,209 @@
         font-size: 3.4rem;
     }
 }
+
+/* ════════════════════════════════════════════════
+   Payment History
+   ════════════════════════════════════════════════ */
+
+.account-invoices-section {
+    max-width: 720px;
+    margin: 24px auto 0;
+    padding: 0 24px;
+    box-sizing: border-box;
+}
+
+.account-invoices-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.account-invoices-header:hover {
+    background: #f8f9fa;
+    border-color: #d1d5db;
+}
+
+.account-invoices-chevron {
+    color: #6b7280;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.account-invoices-chevron--open {
+    transform: rotate(180deg);
+}
+
+.account-invoices-body {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.account-invoices-loading,
+.account-invoices-empty {
+    font-size: 0.88rem;
+    color: #9ca3af;
+    text-align: center;
+    padding: 24px 0;
+}
+
+/* ── Invoice tile ── */
+
+.account-invoice-tile {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.account-invoice-tile:hover {
+    border-color: #c7d2fe;
+    box-shadow: 0 2px 8px rgba(75, 115, 239, 0.1);
+}
+
+.account-invoice-tile--expanded {
+    border-color: #a5b4fc;
+}
+
+.account-invoice-tile-summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+}
+
+.account-invoice-month {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    flex: 1;
+}
+
+.account-invoice-amount {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.account-invoice-tile-chevron {
+    color: #9ca3af;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.account-invoice-tile-chevron--open {
+    transform: rotate(180deg);
+}
+
+/* ── Status badges ── */
+
+.account-invoice-status-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 999px;
+    letter-spacing: 0.02em;
+    text-transform: capitalize;
+}
+
+.account-invoice-status-badge--paid {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.account-invoice-status-badge--open {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.account-invoice-status-badge--void,
+.account-invoice-status-badge--uncollectible,
+.account-invoice-status-badge--unknown {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* ── Expanded detail block ── */
+
+.account-invoice-tile-detail {
+    border-top: 1px solid #f3f4f6;
+    padding: 16px 18px;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.account-invoice-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.account-invoice-detail-label {
+    font-size: 0.83rem;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.account-invoice-detail-value {
+    font-size: 0.83rem;
+    color: #1a1a2e;
+    font-weight: 500;
+    text-align: right;
+}
+
+.account-invoice-download-btn {
+    display: inline-block;
+    margin-top: 6px;
+    align-self: flex-start;
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: #4b73ef;
+    text-decoration: none;
+    padding: 7px 14px;
+    border: 1px solid #c7d2fe;
+    border-radius: 8px;
+    background: #ffffff;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.account-invoice-download-btn:hover {
+    background: #eef2ff;
+    border-color: #a5b4fc;
+}
+
+@media (max-width: 768px) {
+    .account-invoices-section {
+        padding: 0 16px;
+        margin-top: 20px;
+    }
+
+    .account-invoice-tile-summary {
+        padding: 12px 14px;
+        gap: 8px;
+    }
+
+    .account-invoice-tile-detail {
+        padding: 14px;
+    }
+}

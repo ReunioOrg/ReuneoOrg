@@ -37,6 +37,12 @@ const OrganizerAccountDetails = () => {
     const [isTileCheckingOut, setIsTileCheckingOut] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [showToast, setShowToast] = useState(false);
+
+    const [invoicesOpen, setInvoicesOpen] = useState(false);
+    const [invoices, setInvoices] = useState([]);
+    const [invoicesLoading, setInvoicesLoading] = useState(false);
+    const [invoicesError, setInvoicesError] = useState('');
+    const [expandedInvoiceId, setExpandedInvoiceId] = useState(null);
     const [limitMessage, setLimitMessage] = useState(null);
     // Live-lobby upgrade context forwarded from admin_lobby_view so that a
     // subsequent "Change Plan" -> /plan-selection click can carry lobbyCode
@@ -162,6 +168,43 @@ const OrganizerAccountDetails = () => {
             day: 'numeric',
         });
     };
+
+    const formatInvoiceMonth = (timestamp) => {
+        if (!timestamp) return '';
+        return new Date(timestamp * 1000).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+        });
+    };
+
+    const formatInvoicePeriod = (start, end) => {
+        if (!start || !end) return '';
+        const s = new Date(start * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const e = new Date(end * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        return `${s} – ${e}`;
+    };
+
+    const formatCents = (cents) => {
+        if (cents == null) return '$0.00';
+        return `$${(cents / 100).toFixed(2)}`;
+    };
+
+    useEffect(() => {
+        if (!invoicesOpen || invoices.length > 0 || invoicesLoading) return;
+        setInvoicesLoading(true);
+        (async () => {
+            try {
+                const res = await apiFetch('/organizer-invoices');
+                const data = await res.json();
+                setInvoices(data.invoices || []);
+                if (data.error) setInvoicesError(data.error);
+            } catch {
+                setInvoicesError('Failed to load payment history.');
+            } finally {
+                setInvoicesLoading(false);
+            }
+        })();
+    }, [invoicesOpen]);
 
     const handleCancelSubscription = async () => {
         setIsCanceling(true);
@@ -486,6 +529,103 @@ const OrganizerAccountDetails = () => {
                     <div className="account-toast-message">
                         Subscription canceled successfully
                     </div>
+                </div>
+            )}
+
+            {/* ── Payment History (monthly plans only) ── */}
+            {planType === 'monthly' && (
+                <div className="account-invoices-section">
+                    <button
+                        className="account-invoices-header"
+                        onClick={() => setInvoicesOpen((v) => !v)}
+                        aria-expanded={invoicesOpen}
+                    >
+                        <span>Payment History</span>
+                        <svg
+                            className={`account-invoices-chevron ${invoicesOpen ? 'account-invoices-chevron--open' : ''}`}
+                            width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
+                        >
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+
+                    {invoicesOpen && (
+                        <div className="account-invoices-body">
+                            {invoicesLoading && (
+                                <p className="account-invoices-loading">Loading payment history...</p>
+                            )}
+                            {invoicesError && !invoicesLoading && (
+                                <p className="account-invoices-empty">{invoicesError}</p>
+                            )}
+                            {!invoicesLoading && !invoicesError && invoices.length === 0 && (
+                                <p className="account-invoices-empty">No payment history found.</p>
+                            )}
+                            {!invoicesLoading && invoices.map((inv) => {
+                                const isExpanded = expandedInvoiceId === inv.id;
+                                return (
+                                    <div
+                                        key={inv.id}
+                                        className={`account-invoice-tile ${isExpanded ? 'account-invoice-tile--expanded' : ''}`}
+                                        onClick={() => setExpandedInvoiceId((prev) => prev === inv.id ? null : inv.id)}
+                                    >
+                                        <div className="account-invoice-tile-summary">
+                                            <span className="account-invoice-month">{formatInvoiceMonth(inv.created)}</span>
+                                            <span className="account-invoice-amount">{formatCents(inv.amount_paid)}</span>
+                                            <span className={`account-invoice-status-badge account-invoice-status-badge--${inv.status}`}>
+                                                {inv.status.charAt(0).toUpperCase() + inv.status.slice(1)}
+                                            </span>
+                                            <svg
+                                                className={`account-invoice-tile-chevron ${isExpanded ? 'account-invoice-tile-chevron--open' : ''}`}
+                                                width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
+                                            >
+                                                <polyline points="6 9 12 15 18 9" />
+                                            </svg>
+                                        </div>
+
+                                        {isExpanded && (
+                                            <div
+                                                className="account-invoice-tile-detail"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                {inv.number && (
+                                                    <div className="account-invoice-detail-row">
+                                                        <span className="account-invoice-detail-label">Invoice #</span>
+                                                        <span className="account-invoice-detail-value">{inv.number}</span>
+                                                    </div>
+                                                )}
+                                                {(inv.period_start || inv.period_end) && (
+                                                    <div className="account-invoice-detail-row">
+                                                        <span className="account-invoice-detail-label">Billing period</span>
+                                                        <span className="account-invoice-detail-value">{formatInvoicePeriod(inv.period_start, inv.period_end)}</span>
+                                                    </div>
+                                                )}
+                                                <div className="account-invoice-detail-row">
+                                                    <span className="account-invoice-detail-label">Amount</span>
+                                                    <span className="account-invoice-detail-value">{formatCents(inv.amount_paid)}</span>
+                                                </div>
+                                                <div className="account-invoice-detail-row">
+                                                    <span className="account-invoice-detail-label">Status</span>
+                                                    <span className="account-invoice-detail-value">{inv.status.charAt(0).toUpperCase() + inv.status.slice(1)}</span>
+                                                </div>
+                                                {inv.invoice_pdf && (
+                                                    <a
+                                                        href={inv.invoice_pdf}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="account-invoice-download-btn"
+                                                    >
+                                                        ↓ Download PDF
+                                                    </a>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
             )}
 
