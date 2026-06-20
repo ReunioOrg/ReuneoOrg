@@ -10,7 +10,8 @@ import CoolerGeneralMatchEventFlow from '../Tutorials/cooler_general_match_event
 import TutorialAttendeesPhone from '../Tutorials/tutorial-attendees-phone';
 import RoundDurationTutorial from '../Tutorials/round_duration_tutorial';
 
-const SHOW_INTEREST_PAIRING = false;
+const SHOW_INTEREST_PAIRING = true;
+const PLACEHOLDER_ANIMATION_TAGS = ['Content Creator', 'Plumber', 'Investor', 'Capricorn'];
 
 const NewOrganizerView = () => {
     const navigate = useNavigate();
@@ -202,6 +203,12 @@ const NewOrganizerView = () => {
     const handleTryItOut = () => {
         setNavDirection('forward');
         setStep3View('description');
+    };
+
+    const handleGoToTagsEmpty = () => {
+        setError('');
+        setNavDirection('forward');
+        setStep3View('tags');
     };
 
     const handleStep3Skip = () => {
@@ -520,7 +527,7 @@ const NewOrganizerView = () => {
                     )}
                     {error && <div className="error-message">{error}</div>}
                     <button className={`step-cta ${aiDescription.trim().split(/\s+/).filter(Boolean).length <= 1 ? 'step-cta-secondary' : ''}`}
-                        onClick={aiDescription.trim().length >= 2 ? handleGenerateTags : handleStep3Skip}
+                        onClick={aiDescription.trim().length >= 2 ? handleGenerateTags : handleGoToTagsEmpty}
                         disabled={isGeneratingTags}>
                         Continue <ArrowRight />
                     </button>
@@ -531,11 +538,11 @@ const NewOrganizerView = () => {
         if (step3View === 'tags') {
             return (
                 <div className="step-container">
-                    <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>What are your matching categories?</p>
+                    <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>Add or edit the matching categories for your event</p>
                     <TutorialMatching
                         mode="inline"
                         isVisible={currentStep === 3 && step3View === 'tags'}
-                        tags={animationTags}
+                        tags={customTags.length >= 2 ? customTags.slice(0, 4) : PLACEHOLDER_ANIMATION_TAGS}
                     />
                     <div className="custom-matching-section">
                         <div className="tag-input-container">
@@ -567,9 +574,26 @@ const NewOrganizerView = () => {
                             <SparkleIcon /> Regenerate
                         </button>
                     )}
-                    <button className={`step-cta ${customTags.length < 2 ? 'step-cta-secondary' : ''}`} onClick={handleStep3Continue}>
-                        Continue <ArrowRight />
-                    </button>
+                    {customTags.length === 0 && (
+                        <button className="step-cta step-cta-secondary" onClick={handleStep3Skip}>
+                            Skip <ArrowRight />
+                        </button>
+                    )}
+                    {customTags.length === 1 && (
+                        <>
+                            <button className="step-cta step-cta-secondary" disabled>
+                                Continue <ArrowRight />
+                            </button>
+                            <p style={{ fontSize: '0.8rem', color: '#888', textAlign: 'center', marginTop: '8px' }}>
+                                Add at least 2 categories to enable interest matching
+                            </p>
+                        </>
+                    )}
+                    {customTags.length >= 2 && (
+                        <button className="step-cta" onClick={handleStep3Continue}>
+                            Continue <ArrowRight />
+                        </button>
+                    )}
                 </div>
             );
         }
@@ -584,7 +608,7 @@ const NewOrganizerView = () => {
                     Try it Out <ArrowRight />
                 </button>
                 <button className="step-cta step-cta-secondary" onClick={handleStep3Skip}>
-                    Skip
+                    Quick Pairing
                 </button>
                 <TutorialMatching
                     mode="inline"
