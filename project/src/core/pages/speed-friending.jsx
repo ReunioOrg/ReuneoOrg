@@ -143,77 +143,72 @@ function ActivityIcon({ type }) {
   };
 
   switch (type) {
-    case 'interest':
+    case 'girls':
       return (
         <svg {...props}>
-          <path d="M7 7h.01" />
-          <path d="M12 7h.01" />
-          <path d="M17 7h.01" />
-          <path d="M7 12h.01" />
-          <path d="M12 12h.01" />
-          <path d="M17 12h.01" />
-          <path d="M7 17h.01" />
-          <path d="M12 17h.01" />
-          <path d="M17 17h.01" />
-          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <circle cx="8.5" cy="7" r="2.5" />
+          <path d="M5.5 19v-1.5a3 3 0 0 1 3-3h0a3 3 0 0 1 3 3V19" />
+          <circle cx="15.5" cy="7" r="2.5" />
+          <path d="M12.5 19v-1.5a3 3 0 0 1 3-3h0a3 3 0 0 1 3 3V19" />
         </svg>
       );
-    case 'hobby':
+    case 'pet':
       return (
         <svg {...props}>
-          <circle cx="13.5" cy="6.5" r="2.5" />
-          <path d="M13.5 9 8 20" />
-          <path d="M8 14h11" />
-          <path d="M8 17h8" />
+          <ellipse cx="12" cy="16" rx="3.2" ry="2.8" />
+          <circle cx="7.5" cy="11" r="1.6" />
+          <circle cx="10.5" cy="8.5" r="1.6" />
+          <circle cx="13.5" cy="8.5" r="1.6" />
+          <circle cx="16.5" cy="11" r="1.6" />
         </svg>
       );
-    case 'recurring':
+    case 'moms':
       return (
         <svg {...props}>
-          <rect x="3" y="4" width="18" height="18" rx="2" />
-          <path d="M16 2v4" />
-          <path d="M8 2v4" />
-          <path d="M3 10h18" />
-          <path d="M17 14h-5" />
-          <path d="M17 18h-5" />
-          <path d="M9.5 16.5 8 18l1.5 1.5" />
+          <circle cx="7.5" cy="8" r="2.2" />
+          <path d="M5 18.5v-1.2a2.5 2.5 0 0 1 2.5-2.5h0" />
+          <circle cx="16.5" cy="8" r="2.2" />
+          <path d="M19 18.5v-1.2a2.5 2.5 0 0 0-2.5-2.5h0" />
+          <path d="M12 14.8c-1.45 0-2.55-.73-3.1-1.78.35-.5.95-.82 1.55-.82.65 0 1.2.32 1.55.82.35-.5.9-.82 1.55-.82.6 0 1.2.27 1.55.72-.55 1.05-1.65 1.78-3.1 1.78z" />
         </svg>
       );
-    case 'odd-numbers':
+    case 'fitness':
       return (
         <svg {...props}>
-          <circle cx="9" cy="8" r="2.5" />
-          <path d="M6.5 18v-1.5a2.5 2.5 0 0 1 2.5-2.5h0" />
-          <circle cx="16" cy="9" r="2" />
-          <path d="M14 18v-1a2 2 0 0 1 2-2h.5" />
-          <path d="M19 12v6" />
-          <path d="M16.5 14.5H21.5" />
+          <path d="M6 10v4" />
+          <path d="M18 10v4" />
+          <rect x="4" y="9" width="3" height="6" rx="1" />
+          <rect x="17" y="9" width="3" height="6" rx="1" />
+          <path d="M7 12h10" />
         </svg>
       );
-    case 'open-social':
+    case 'happy-hour':
       return (
         <svg {...props}>
-          <circle cx="12" cy="12" r="9" />
-          <path d="M12 7v5l3 2" />
-          <path d="M8 16.5c1.2 1 2.7 1.5 4 1.5s2.8-.5 4-1.5" />
+          <path d="M9 4h6l-2.2 8H11.2L9 4z" />
+          <path d="M11.2 12h1.6" />
+          <path d="M12 12v5.5" />
+          <path d="M9.5 17.5h5" />
         </svg>
       );
-    case 'speed-dating':
+    case 'astrology':
       return (
         <svg {...props}>
-          <path d="M12 20.5c4.5-3.2 7-6.4 7-9.8a4.8 4.8 0 0 0-9.6 0c0 3.4 2.5 6.6 7 9.8z" />
-          <path d="M12 11.5v-1.5" />
+          <path d="M16.5 6.5a6.5 6.5 0 1 0-2.2 4.8" />
+          <path d="M16.5 6.5 19 4" />
+          <path d="M16.5 6.5V4" />
+          <path d="M16.5 6.5H19" />
         </svg>
       );
-    case 'networking':
+    case 'book':
       return (
         <svg {...props}>
-          <rect x="2" y="7" width="20" height="14" rx="2" />
-          <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
-          <path d="M12 12v2" />
-          <circle cx="8.5" cy="13.5" r="1.5" />
-          <circle cx="15.5" cy="13.5" r="1.5" />
-          <path d="M8.5 13.5h7" />
+          <path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H12v18H7.5A2.5 2.5 0 0 1 5 18.5V5.5z" />
+          <path d="M12 3h4.5A2.5 2.5 0 0 1 19 5.5v13A2.5 2.5 0 0 1 16.5 21H12V3z" />
+          <path d="M8 7h2.5" />
+          <path d="M8 10h2.5" />
+          <path d="M13.5 7H16" />
+          <path d="M13.5 10H16" />
         </svg>
       );
     default:
@@ -223,39 +218,39 @@ function ActivityIcon({ type }) {
 
 const ACTIVITIES = [
   {
-    title: 'Interest-Based Speed Friending',
-    copy: 'Ask attendees a few questions before the event. Reuneo pairs them around shared interests instead of defaulting to random pairs. The conversations are better before anyone says a word.',
-    icon: 'interest',
+    title: 'Girls Speed Friending',
+    copy: "Women meet women they've never talked to - on purpose, not by chance. Quick rounds, easy conversation, no awkward standing around waiting for someone to approach. The kind of event people tell their friends about.",
+    icon: 'girls',
   },
   {
-    title: 'Hobby-Matched Speed Friending',
-    copy: "Pair people around what they're actually into. Reading, fitness, travel, food - whatever fits your crowd. Shared context turns a two-minute round into a real conversation.",
-    icon: 'hobby',
+    title: 'Pet Parent Speed Friending',
+    copy: 'Dog people meet dog people. Cat people meet cat people. Set light interest matching in Reuneo and attendees show up already knowing they have something in common. Easy theme, high repeat attendance.',
+    icon: 'pet',
   },
   {
-    title: 'Monthly Recurring Format',
-    copy: 'Same platform, different theme every month. Run it once, learn the setup, and repeat it. Your events get easier to run the more you do them.',
-    icon: 'recurring',
+    title: 'Moms Speed Friending',
+    copy: 'Parents at the same stage of life meet each other on purpose. The connections feel relevant because they are. The kind of event that builds a loyal recurring audience fast.',
+    icon: 'moms',
   },
   {
-    title: 'Odd Numbers and Late Arrivals - Handled',
-    copy: "Reuneo manages odd numbers dynamically. Late arrivals get added mid-session. People who step out come back in. You don't intervene - the system adjusts.",
-    icon: 'odd-numbers',
+    title: 'Fitness Pal Speed Friending',
+    copy: 'Pair people around gym, running, yoga, or wellness interests. A natural fit if your community already has an active crowd. Reuneo handles the matching - you just pick the theme and show up.',
+    icon: 'fitness',
   },
   {
-    title: 'Speed Friending + Open Social',
-    copy: 'Run 20-30 minutes of structured rounds to open, then cut people loose. Mingling lands different when everyone already knows someone in the room.',
-    icon: 'open-social',
+    title: 'Happy Hour Speed Friending',
+    copy: 'Run 20-30 minutes of structured rounds to open, then cut people loose. Mingling lands different when everyone already knows someone in the room. Works as a standalone event or bolted onto something you already run.',
+    icon: 'happy-hour',
   },
   {
-    title: 'Speed Dating Format',
-    copy: 'Same Reuneo platform, different matching logic. Pair by compatibility instead of shared interests. The rotation handles itself either way.',
-    icon: 'speed-dating',
+    title: 'Astrology Speed Friending',
+    copy: 'Low-stakes, high-personality theme night. Quick rounds before the group opens up. The kind of event that gets shared on Instagram before people even leave. Signs optional, vibes required.',
+    icon: 'astrology',
   },
   {
-    title: 'Speed Networking Format',
-    copy: 'Role and industry-based matching for professional communities. Same QR-code setup, same automatic rotations - the questions just change.',
-    icon: 'networking',
+    title: 'Book Worm Speed Friending',
+    copy: "Match attendees by genre or what they're into right now. A quieter format that still delivers real connections. People leave with a name, a recommendation, and a reason to come back next month.",
+    icon: 'book',
   },
 ];
 
@@ -420,7 +415,7 @@ const SpeedFriendingPage = () => {
         <section className="sf-solution">
           <div className="sf-section-inner sf-section-inner--wide">
             <ScrollReveal as="h2" className="sf-section-title sf-section-title--right">
-              Automated rounds. Real connections - on purpose.
+              Automated rounds. Zero manual work.
             </ScrollReveal>
             <ScrollReveal className="sf-solution-cta">
               <div ref={getStartedAnchorRef} className="sf-solution-cta-anchor">
