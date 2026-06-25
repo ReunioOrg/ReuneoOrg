@@ -147,6 +147,22 @@ const CONVO_TEXTS_R3 = [
     { text: 'Really?', x: 82, y: 26 },
 ];
 
+/** Residential hero: one blurb on the left + one on the right of the circle only. */
+const CONVO_PAIR_ONLY_R1 = [
+    { text: 'Hi!', x: 14, y: 50 },
+    { text: 'What brings you here?', x: 84, y: 50 },
+];
+
+const CONVO_PAIR_ONLY_R2 = [
+    { text: 'Hey!', x: 14, y: 50 },
+    { text: 'What are you into?', x: 84, y: 50 },
+];
+
+const CONVO_PAIR_ONLY_R3 = [
+    { text: 'Hello!', x: 14, y: 50 },
+    { text: 'Who do you know here?', x: 84, y: 50 },
+];
+
 function pairSetToCircles(pairSet) {
     const result = [];
     pairSet.forEach((pair, i) => {
@@ -164,6 +180,7 @@ const CoolerGeneralMatchEventFlow = ({
     stopAfterScene,
     hideSkip = false,
     embedded = false,
+    convoPairOnly = false,
 }) => {
     const isCompact = variant === 'compact';
     const startIdx = startSceneProp !== undefined ? startSceneProp : (isCompact ? 15 : 0);
@@ -318,7 +335,8 @@ const CoolerGeneralMatchEventFlow = ({
             }
         } else if (currentScene === 20) {
             setConvoTextFading(false);
-            for (let i = 0; i < 7; i++) {
+            const r1Texts = convoPairOnly ? CONVO_PAIR_ONLY_R1 : CONVO_TEXTS_R1;
+            for (let i = 0; i < r1Texts.length; i++) {
                 timers.push(setTimeout(() => setConvoRevealCount(i + 1), i * 180));
             }
             timers.push(setTimeout(() => setConvoTextFading(true), 1300));
@@ -413,6 +431,10 @@ const CoolerGeneralMatchEventFlow = ({
             ? 'Creating real connections and increasing engagement!'
         : null;
     const blueHeaderFading = (s === 25 && !round3HeaderReady) || s === 26;
+
+    const convoR1 = convoPairOnly ? CONVO_PAIR_ONLY_R1 : CONVO_TEXTS_R1;
+    const convoR2 = convoPairOnly ? CONVO_PAIR_ONLY_R2 : CONVO_TEXTS_R2;
+    const convoR3 = convoPairOnly ? CONVO_PAIR_ONLY_R3 : CONVO_TEXTS_R3;
 
     return (
         <div className={`cmef-overlay ${isCompact ? 'cmef-compact' : ''} ${embedded ? 'cmef-embedded' : ''} ${fadingOut ? 'cmef-fade-out' : ''}`}>
@@ -630,7 +652,7 @@ const CoolerGeneralMatchEventFlow = ({
                                 <>
                                     <div className={`cmef-convo-overlay ${convoFading || convoTextFading ? 'cmef-convo-fade' : ''}`} />
                                     <div className={`cmef-convo-text-layer ${convoFading || convoTextFading ? 'cmef-convo-fade' : ''}`}>
-                                        {CONVO_TEXTS_R1.map((item, i) => (
+                                        {convoR1.map((item, i) => (
                                             i < convoRevealCount && (
                                                 <div
                                                     key={`convo-${i}`}
@@ -653,7 +675,7 @@ const CoolerGeneralMatchEventFlow = ({
                                 <>
                                     <div className={`cmef-convo-overlay cmef-convo-light ${convoTextFading ? 'cmef-convo-fade' : ''}`} />
                                     <div className={`cmef-convo-text-layer cmef-convo-glow ${convoTextFading ? 'cmef-convo-fade' : ''}`}>
-                                        {CONVO_TEXTS_R2.map((item, i) => (
+                                        {convoR2.map((item, i) => (
                                             <div
                                                 key={`r2convo-${i}`}
                                                 className="cmef-convo-text"
@@ -674,7 +696,7 @@ const CoolerGeneralMatchEventFlow = ({
                                 <>
                                     <div className={`cmef-convo-overlay cmef-convo-light ${convoTextFading ? 'cmef-convo-fade' : ''}`} />
                                     <div className={`cmef-convo-text-layer cmef-convo-glow ${convoTextFading ? 'cmef-convo-fade' : ''}`}>
-                                        {CONVO_TEXTS_R3.map((item, i) => (
+                                        {convoR3.map((item, i) => (
                                             <div
                                                 key={`r3convo-${i}`}
                                                 className="cmef-convo-text"

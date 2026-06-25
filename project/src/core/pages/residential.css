@@ -12,8 +12,9 @@
 
 .residential-page > .page-nav-bar {
   align-self: stretch;
-  position: relative;
-  z-index: 1;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 .residential-page > .site-social-footer,
@@ -281,11 +282,34 @@
   margin: 72px 0 64px;
 }
 
-.res-solution-cta .hbg-bloom {
+.res-solution-cta-anchor {
+  display: flex;
+  justify-content: center;
+}
+
+.res-solution-cta-placeholder {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.res-get-started-float {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  will-change: top;
+}
+
+.res-solution-cta .hbg-bloom,
+.res-get-started-float .hbg-bloom {
   opacity: 0.45;
 }
 
-.res-solution-cta .hbg-ring {
+.res-solution-cta .hbg-ring,
+.res-get-started-float .hbg-ring {
   opacity: 0.75;
 }
 
@@ -339,17 +363,17 @@
   white-space: nowrap;
   background: linear-gradient(
     120deg,
-    rgba(255, 255, 255, 0.75) 0%,
-    rgba(255, 255, 255, 0.75) 30%,
+    rgba(255, 255, 255, 0.94) 0%,
+    rgba(255, 255, 255, 0.94) 40%,
     #ffffff 50%,
-    rgba(255, 255, 255, 0.75) 70%,
-    rgba(255, 255, 255, 0.75) 100%
+    rgba(255, 255, 255, 0.94) 60%,
+    rgba(255, 255, 255, 0.94) 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: resShimmerText 2s linear infinite;
+  animation: resShimmerText 2.4s linear infinite;
 }
 
 @keyframes resShimmerText {

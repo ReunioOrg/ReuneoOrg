@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import PageNavBar from '../components/PageNavBar/PageNavBar';
 import SiteSocialFooter from '../components/SiteSocialFooter/SiteSocialFooter';
@@ -278,6 +279,87 @@ const FAQ_ITEMS = [
   },
 ];
 
+const GET_STARTED_GLOW_PROPS = {
+  borderRadius: 18,
+  borderWidth: 1.5,
+  bloomBlur: 10,
+  bloomInset: 2,
+  duration: 2800,
+  spread: 42,
+  colors: ['#ffffff', '#a5b4fc', '#7c3aed'],
+};
+
+function GetStartedButton({ onClick, className = '' }) {
+  return (
+    <HoverBorderGlow {...GET_STARTED_GLOW_PROPS}>
+      <button
+        type="button"
+        className={`res-get-started-btn${className ? ` ${className}` : ''}`}
+        onClick={onClick}
+      >
+        <span className="res-get-started-label">Get Started</span>
+      </button>
+    </HoverBorderGlow>
+  );
+}
+
+/** Desktop: lock below 60px PageNavBar — same as App.jsx CREATE_BTN_FLOATING_TOP. */
+const DESKTOP_GET_STARTED_FLOAT_TOP_PX = 76;
+
+function getGetStartedFloatTopPx() {
+  if (window.innerWidth >= 769) {
+    return DESKTOP_GET_STARTED_FLOAT_TOP_PX;
+  }
+
+  const navEl = document.querySelector('.residential-page .page-nav-bar-mobile');
+  return (navEl?.getBoundingClientRect().bottom ?? 68) + 16;
+}
+
+function useFloatingGetStartedTop(anchorRef) {
+  const [topPx, setTopPx] = useState(null);
+
+  const measure = useCallback(() => {
+    const anchor = anchorRef.current;
+    if (!anchor) return;
+
+    const floatTop = getGetStartedFloatTopPx();
+    const naturalTop = anchor.getBoundingClientRect().top;
+    setTopPx(Math.max(floatTop, naturalTop));
+  }, [anchorRef]);
+
+  useEffect(() => {
+    let rafId = null;
+
+    const scheduleMeasure = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        measure();
+        rafId = null;
+      });
+    };
+
+    measure();
+    window.addEventListener('scroll', scheduleMeasure, { passive: true });
+    window.addEventListener('resize', scheduleMeasure, { passive: true });
+
+    const anchor = anchorRef.current;
+    let ro = null;
+    if (anchor && typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(scheduleMeasure);
+      ro.observe(anchor);
+    }
+
+    return () => {
+      window.removeEventListener('scroll', scheduleMeasure);
+      window.removeEventListener('resize', scheduleMeasure);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      ro?.disconnect();
+    };
+  }, [anchorRef, measure]);
+
+  return topPx;
+}
+
 const FAQ_JSON_LD = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -294,6 +376,8 @@ const FAQ_JSON_LD = {
 const ResidentialPage = () => {
   const navigate = useNavigate();
   useResidentialPageMeta();
+  const getStartedAnchorRef = useRef(null);
+  const floatingGetStartedTopPx = useFloatingGetStartedTop(getStartedAnchorRef);
 
   const handleGetStarted = () => {
     navigate('/new_organizer', { state: { showGeneralTutorial: true } });
@@ -336,23 +420,11 @@ const ResidentialPage = () => {
               Quick pairings. Real neighbor introductions.
             </ScrollReveal>
             <ScrollReveal className="res-solution-cta">
-              <HoverBorderGlow
-                borderRadius={18}
-                borderWidth={1.5}
-                bloomBlur={10}
-                bloomInset={2}
-                duration={2800}
-                spread={42}
-                colors={['#ffffff', '#a5b4fc', '#7c3aed']}
-              >
-                <button
-                  type="button"
-                  className="res-get-started-btn"
-                  onClick={handleGetStarted}
-                >
-                  <span className="res-get-started-label">Get Started</span>
-                </button>
-              </HoverBorderGlow>
+              <div ref={getStartedAnchorRef} className="res-solution-cta-anchor">
+                <div className="res-solution-cta-placeholder" aria-hidden="true">
+                  <GetStartedButton onClick={handleGetStarted} />
+                </div>
+              </div>
             </ScrollReveal>
             <div className="res-solution-points">
               <ScrollReveal className="res-glass-card res-solution-point">
@@ -424,6 +496,17 @@ const ResidentialPage = () => {
       <ScrollReveal className="res-footer-wrap">
         <SiteSocialFooter />
       </ScrollReveal>
+
+      {floatingGetStartedTopPx !== null &&
+        createPortal(
+          <div
+            className="res-get-started-float"
+            style={{ top: `${floatingGetStartedTopPx}px` }}
+          >
+            <GetStartedButton onClick={handleGetStarted} />
+          </div>,
+          document.body,
+        )}
 
       <script
         type="application/ld+json"

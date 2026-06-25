@@ -796,7 +796,7 @@ const MockTonyLobbyView = ({ active, customTags, hasTags, showTableNumbers }) =>
 
 /* ── Main component ─────────────────────────────────────────────────────── */
 
-const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTableNumbers, stopAfterReady = false, startFromScene = 3, stopBeforeEnd = false, showSkip = false, embedded = false }) => {
+const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTableNumbers, stopAfterReady = false, startFromScene = 3, stopBeforeEnd = false, showSkip = false, embedded = false, convoPairOnly = false, cmefStartScene = 22 }) => {
     const [scene, setScene] = useState(startFromScene);
     const [fadingOut, setFadingOut] = useState(false);
     const [showReady, setShowReady] = useState(false);
@@ -1127,10 +1127,11 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
             <CoolerGeneralMatchEventFlow
                 isVisible={showCmef}
                 variant="compact"
-                startScene={22}
+                startScene={cmefStartScene}
                 stopAfterScene={26}
                 embedded
                 hideSkip
+                convoPairOnly={convoPairOnly}
                 onComplete={handleCmefComplete}
             />
         )}

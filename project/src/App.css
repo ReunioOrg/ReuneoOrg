@@ -1096,25 +1096,25 @@
   filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
 }
 
-/* White shimmer for the Create label on desktop */
+/* White shimmer for the Create / Get Started label (desktop + mobile portalled CTA) */
 .desktop-create-wrapper .app-dock-label.shiny-text {
   font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   background: linear-gradient(
     120deg,
-    rgba(255, 255, 255, 0.75) 0%,
-    rgba(255, 255, 255, 0.75) 30%,
+    rgba(255, 255, 255, 0.94) 0%,
+    rgba(255, 255, 255, 0.94) 40%,
     #ffffff 50%,
-    rgba(255, 255, 255, 0.75) 70%,
-    rgba(255, 255, 255, 0.75) 100%
+    rgba(255, 255, 255, 0.94) 60%,
+    rgba(255, 255, 255, 0.94) 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: none;
-  animation: shimmer-text 2s linear infinite;
+  animation: shimmer-text 2.4s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

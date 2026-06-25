@@ -58,6 +58,8 @@ function ResidentialHeroTutorial() {
           embedded
           startFromScene={13}
           stopBeforeEnd
+          convoPairOnly
+          cmefStartScene={15}
           onComplete={handleComplete}
           showSkip={false}
         />
