@@ -19,6 +19,8 @@ const NewOrganizerView = () => {
     const { user, permissions, isLegacyOrganizer, checkAuth } = useContext(AuthContext);
     const returnData = location.state?.returnData;
     const fromTutorial = location.state?.fromTutorial;
+    const fromSpeedFriending = location.state?.fromSpeedFriending;
+    const fromResidential = location.state?.fromResidential;
 
     // ── Step Navigation ──
     const [currentStep, setCurrentStep] = useState(returnData ? 5 : 1);
@@ -78,6 +80,8 @@ const NewOrganizerView = () => {
         if (
             !returnData &&
             !fromTutorial &&
+            !fromSpeedFriending &&
+            !fromResidential &&
             permissions !== 'admin' &&
             permissions !== 'organizer' &&
             !isLegacyOrganizer

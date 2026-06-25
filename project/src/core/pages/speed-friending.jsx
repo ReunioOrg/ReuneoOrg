@@ -5,6 +5,7 @@ import PageNavBar from '../components/PageNavBar/PageNavBar';
 import SiteSocialFooter from '../components/SiteSocialFooter/SiteSocialFooter';
 import ClientTestimonialsSection from '../components/ClientTestimonialsSection/ClientTestimonialsSection';
 import ResidentialHeroTutorial from '../components/ResidentialHeroTutorial/ResidentialHeroTutorial';
+import SpeedFriendingMatchingTutorial from '../components/SpeedFriendingMatchingTutorial/SpeedFriendingMatchingTutorial';
 import HoverBorderGlow from '../components/HoverBorderGlow/HoverBorderGlow';
 import './speed-friending.css';
 
@@ -381,7 +382,7 @@ const SpeedFriendingPage = () => {
   const floatingGetStartedTopPx = useFloatingGetStartedTop(getStartedAnchorRef);
 
   const handleGetStarted = () => {
-    navigate('/new_organizer', { state: { showGeneralTutorial: true } });
+    navigate('/new_organizer', { state: { fromSpeedFriending: true } });
   };
 
   return (
@@ -447,9 +448,10 @@ const SpeedFriendingPage = () => {
               Speed friending formats your community will keep coming back for.
             </ScrollReveal>
             <ScrollReveal as="p" className="sf-section-sub">
-              Pick a format, set interest-based matching in Reuneo, and let the rounds run themselves. People meet based on what they have in common, not just whoever shows up.
+              Pick a format, set interest-based matching in Reuneo, and let the rounds run themselves. People meet based on what they have in common - not just whoever shows up.
             </ScrollReveal>
           </div>
+          <SpeedFriendingMatchingTutorial />
           <div className="sf-activities-grid">
             {ACTIVITIES.map((activity) => (
               <ScrollReveal

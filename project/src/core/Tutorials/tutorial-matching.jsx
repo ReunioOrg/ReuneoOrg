@@ -52,7 +52,7 @@ const PersonIcon = ({ color = '#3b82f6' }) => (
     </svg>
 );
 
-const TutorialMatching = ({ isVisible, onComplete, mode = 'overlay', tags }) => {
+const TutorialMatching = ({ isVisible, onComplete, mode = 'overlay', tags, playbackRate = 1 }) => {
     const [currentScene, setCurrentScene] = useState(0);
     const [fadingOut, setFadingOut] = useState(false);
     const [loopKey, setLoopKey] = useState(0);
@@ -111,7 +111,7 @@ const TutorialMatching = ({ isVisible, onComplete, mode = 'overlay', tags }) => 
 
         const sceneCount = !isInline ? SCENES.length : hasRound2 ? 25 : 12;
         const scenes = SCENES.slice(0, sceneCount);
-        const speed = isInline ? 0.75 : 1;
+        const speed = (isInline ? 0.75 : 1) / playbackRate;
         let elapsed = 0;
         const timers = [];
 
@@ -131,7 +131,7 @@ const TutorialMatching = ({ isVisible, onComplete, mode = 'overlay', tags }) => 
             if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current);
             if (loopDelayRef.current) clearTimeout(loopDelayRef.current);
         };
-    }, [isVisible, isInline, hasRound2, finishTutorial, loopKey]);
+    }, [isVisible, isInline, hasRound2, finishTutorial, loopKey, playbackRate]);
 
     useEffect(() => {
         const stage = stageRef.current;

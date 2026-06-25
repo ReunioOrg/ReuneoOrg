@@ -380,7 +380,7 @@ const ResidentialPage = () => {
   const floatingGetStartedTopPx = useFloatingGetStartedTop(getStartedAnchorRef);
 
   const handleGetStarted = () => {
-    navigate('/new_organizer', { state: { showGeneralTutorial: true } });
+    navigate('/new_organizer', { state: { fromResidential: true } });
   };
 
   return (

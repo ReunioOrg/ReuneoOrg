@@ -1,0 +1,88 @@
+.sf-matching-tutorial {
+  width: 100%;
+  max-width: 720px;
+  margin: 32px auto 48px;
+  min-height: clamp(380px, 55vw, 540px);
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+.sf-matching-tutorial .matching-tutorial-overlay {
+  position: relative;
+  inset: auto;
+  z-index: 1;
+  background: transparent;
+  display: block;
+  opacity: 1;
+}
+
+.sf-matching-tutorial .matching-tutorial-overlay.tutorial-fade-out {
+  opacity: 0;
+}
+
+.sf-matching-tutorial .tm-skip {
+  display: none;
+}
+
+.sf-matching-tutorial .tm-wrapper {
+  width: 100%;
+}
+
+.sf-matching-tutorial .tm-header-container {
+  display: none;
+}
+
+.sf-matching-tutorial .tutorial-stage {
+  max-width: 100%;
+  height: min(340px, 48vw);
+  min-height: 260px;
+  margin: 0 auto;
+}
+
+.sf-matching-tutorial-placeholder {
+  width: 100%;
+  min-height: clamp(380px, 55vw, 540px);
+}
+
+@media (min-width: 768px) {
+  .sf-matching-tutorial {
+    max-width: 800px;
+    margin: 40px auto 56px;
+  }
+
+  .sf-matching-tutorial .tutorial-stage {
+    max-width: 600px;
+    height: min(400px, 42vw);
+    min-height: 320px;
+  }
+}
+
+@media (max-width: 767px) {
+  .sf-matching-tutorial {
+    margin: 24px auto 36px;
+    padding: 0 20px;
+    min-height: clamp(320px, 48vw, 430px);
+    overflow: hidden;
+  }
+
+  .sf-matching-tutorial-placeholder {
+    min-height: clamp(320px, 48vw, 430px);
+  }
+
+  .sf-matching-tutorial .matching-tutorial-overlay {
+    overflow: hidden;
+  }
+
+  .sf-matching-tutorial .tm-wrapper {
+    transform: scale(0.75);
+    transform-origin: top center;
+    padding-top: 44px;
+    box-sizing: border-box;
+  }
+
+  .sf-matching-tutorial .tutorial-stage {
+    height: min(300px, 72vw);
+    min-height: 240px;
+    overflow: visible;
+  }
+}
