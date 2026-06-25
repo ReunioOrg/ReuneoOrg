@@ -2377,8 +2377,18 @@
 .act-embedded-root .act-overlay-embedded {
     position: absolute;
     inset: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: none;
+    transform: none;
+    box-shadow: none;
     animation: none;
     overflow: hidden;
+}
+
+.act-embedded-root .act-overlay-exit {
+    transform: none;
 }
 
 .act-embedded-root .act-scene {
@@ -2394,11 +2404,37 @@
 .act-embedded-root .cmef-overlay.cmef-embedded {
     position: absolute;
     inset: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    transform: none;
 }
 
 .act-embedded-root .act-admin-scene-header-text {
     font-size: 0.92rem;
     padding: 0 12px;
+    max-width: 92%;
+}
+
+@media (min-width: 769px) {
+    .act-embedded-root .act-scene-mock {
+        padding-top: 16px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .act-embedded-root .act-active-mock {
+        max-width: 100%;
+    }
+
+    .act-embedded-root .act-admin-scene-header-text {
+        font-size: 1rem;
+        max-width: 480px;
+    }
+
+    .act-embedded-root .act-pair-greeting-stage {
+        max-width: 100%;
+    }
 }
 
 @media (max-width: 768px) {

@@ -57,6 +57,7 @@ function ResidentialHeroTutorial() {
           isVisible
           embedded
           startFromScene={13}
+          stopBeforeEnd
           onComplete={handleComplete}
           showSkip={false}
         />

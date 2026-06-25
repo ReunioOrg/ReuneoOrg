@@ -1,14 +1,193 @@
 .res-hero-tutorial {
   width: 100%;
   max-width: 720px;
-  margin: 8px auto 28px;
+  margin: 48px auto 28px;
   min-height: clamp(360px, 52vw, 500px);
+}
+
+.res-hero-tutorial .act-embedded-root {
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.res-hero-tutorial .act-embedded-root .act-overlay,
+.res-hero-tutorial .act-embedded-root .act-overlay-embedded {
+  background: transparent;
+}
+
+.res-hero-tutorial .act-embedded-root .cmef-overlay.cmef-embedded {
+  background: transparent;
+  align-items: flex-start;
+  padding-top: 4px;
+  box-sizing: border-box;
+}
+
+/* Circle mingling headers — match scene 13 "Everyone will check their phones…" style */
+.res-hero-tutorial .act-embedded-root .cmef-header-container,
+.res-hero-tutorial .act-embedded-root .cmef-header-container.cmef-header-act4 {
+  width: 100%;
+  max-width: 100%;
+  min-height: 0;
+  padding: 0 20px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+.res-hero-tutorial .act-embedded-root .cmef-header-text,
+.res-hero-tutorial .act-embedded-root .cmef-act4-header,
+.res-hero-tutorial .act-embedded-root .cmef-blue-header {
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  font-weight: 700;
+  color: #1a1a2e;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+  text-shadow: none;
+  white-space: normal;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.res-hero-tutorial .act-embedded-root .cmef-stage,
+.res-hero-tutorial .act-embedded-root .cmef-stage.cmef-stage-act4 {
+  max-width: 100%;
+  height: min(300px, 42vw);
+  min-height: 220px;
+}
+
+.res-hero-tutorial .act-embedded-root .cmef-event-circle {
+  width: min(260px, 72vw);
+  height: min(260px, 72vw);
+}
+
+.res-hero-tutorial .act-embedded-root .cmef-convo-overlay {
+  background: transparent;
+}
+
+/* Scene 13 match tiles — blend with page background */
+.res-hero-tutorial .act-embedded-root .act-section-header {
+  display: none;
+}
+
+.res-hero-tutorial .act-embedded-root .act-paired-player-card {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Circle mingling convo bubbles — smaller on mobile + desktop */
+.res-hero-tutorial .act-embedded-root .cmef-convo-word {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.res-hero-tutorial .act-embedded-root .cmef-convo-text {
+  max-width: 72px;
+}
+
+/* Mobile — downscale circle diagram ~25% (keep headers + convo text as-is) */
+@media (max-width: 767px) {
+  .res-hero-tutorial .act-embedded-root .cmef-header-container,
+  .res-hero-tutorial .act-embedded-root .cmef-header-container.cmef-header-act4 {
+    margin-bottom: 6px;
+  }
+
+  .res-hero-tutorial .act-embedded-root .cmef-stage,
+  .res-hero-tutorial .act-embedded-root .cmef-stage.cmef-stage-act4 {
+    height: min(220px, 32vw);
+    min-height: 180px;
+  }
+
+  .res-hero-tutorial .act-embedded-root .cmef-event-circle {
+    width: min(195px, 54vw);
+    height: min(195px, 54vw);
+    border-width: 1.5px;
+  }
+
+  .res-hero-tutorial .act-embedded-root .cmef-event-circle::after {
+    width: 12px;
+    height: 54px;
+    right: -4px;
+  }
+
+  .res-hero-tutorial .act-embedded-root .cmef-dot {
+    width: 12px;
+    height: 12px;
+  }
+
+  .res-hero-tutorial .act-embedded-root .cmef-dot-phone .cmef-phone {
+    width: 16px;
+    padding: 1px;
+    gap: 1px;
+    border-radius: 3px;
+  }
+
+  .res-hero-tutorial .act-embedded-root .cmef-dot-phone .cmef-phone-speaker {
+    height: 1.5px;
+  }
+
+  .res-hero-tutorial .act-embedded-root .cmef-dot-phone .cmef-phone-home {
+    width: 4px;
+    height: 4px;
+  }
+
+  .res-hero-tutorial .act-embedded-root .cmef-dot-phone .cmef-phone-screen {
+    border-radius: 2px;
+  }
+
+  .res-hero-tutorial .act-embedded-root .cmef-dot-phone {
+    transform: translate(-50%, calc(-100% - 7px));
+  }
+
+  .res-hero-tutorial .act-embedded-root .cmef-new-arrivals {
+    right: -4px;
+    gap: 7px;
+    transform: translateY(-50%) scale(0.75);
+  }
+
+  .res-hero-tutorial .act-embedded-root .cmef-arrivals-text {
+    font-size: 7px;
+  }
+
+  .res-hero-tutorial .act-embedded-root .cmef-arrivals-arrow {
+    width: 21px;
+    height: 1.5px;
+  }
+
+  .res-hero-tutorial .act-embedded-root .cmef-arrivals-arrow::before {
+    width: 5px;
+    height: 5px;
+    border-width: 1.5px;
+  }
+
+  .res-hero-tutorial .act-embedded-root .cmef-event-label {
+    font-size: 10px;
+  }
+
+  /* Scene 14 — "Nice to meet you Kate" / "Hi Tony" */
+  .res-hero-tutorial .act-embedded-root .act-pair-greeting-stage .cmef-greet-text {
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .res-hero-tutorial .act-embedded-root .act-pair-greeting-stage .cmef-greet-left,
+  .res-hero-tutorial .act-embedded-root .act-pair-greeting-stage .cmef-greet-right {
+    top: 28%;
+  }
+}
+
+@media (min-width: 768px) {
+  .res-hero-tutorial .act-embedded-root .cmef-convo-word {
+    font-size: 12px;
+  }
+
+  .res-hero-tutorial .act-embedded-root .cmef-convo-text {
+    max-width: 84px;
+  }
 }
 
 .res-hero-tutorial-placeholder {
   width: 100%;
   min-height: clamp(360px, 52vw, 500px);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(20, 77, 255, 0.06);
 }

@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import PageNavBar from '../components/PageNavBar/PageNavBar';
 import SiteSocialFooter from '../components/SiteSocialFooter/SiteSocialFooter';
-import CoolerGeneralMatchEventFlow from '../Tutorials/cooler_general_match_event_flow';
 import ClientTestimonialsSection from '../components/ClientTestimonialsSection/ClientTestimonialsSection';
 import ResidentialHeroTutorial from '../components/ResidentialHeroTutorial/ResidentialHeroTutorial';
+import HoverBorderGlow from '../components/HoverBorderGlow/HoverBorderGlow';
 import './residential.css';
 
 const PAGE_TITLE = 'Resident Events & Icebreakers for Apartment Communities | Reuneo';
@@ -215,37 +215,37 @@ function ActivityIcon({ type }) {
 const ACTIVITIES = [
   {
     title: 'Girls Speed Friending',
-    copy: 'A low-pressure mixer for women in the building to meet neighbors outside their usual circle. Strong fit for new residents who want to expand their social circle fast.',
+    copy: "Women in the building meet women they've never talked to. Quick rounds, easy conversation, no awkward standing around hoping someone approaches.",
     icon: 'girls',
   },
   {
     title: 'Pet Parent Speed Friending',
-    copy: 'Dog owners meet dog owners, cat people meet cat people. An easy conversation starter before anyone falls into awkward small talk.',
+    copy: 'Dog people meet dog people. Cat people meet cat people. Give residents an easy reason to say hello before the small talk runs out.',
     icon: 'pet',
   },
   {
     title: 'Moms Speed Friending',
-    copy: 'Connect parents navigating the same stage of life. Use light matching so moms meet other moms in the building, not just whoever is standing nearby.',
+    copy: 'Parents at the same stage of life meet each other on purpose — not just whoever happens to be at the playground. Light matching keeps it relevant.',
     icon: 'moms',
   },
   {
     title: 'Fitness Pal Speed Friending',
-    copy: 'Pair residents around gym, yoga, running, or wellness interests. Perfect for amenity socials near the fitness center, pool, or studio space.',
+    copy: 'Pair residents around gym, running, yoga, or wellness interests. A natural fit for events near the fitness center, pool, or studio.',
     icon: 'fitness',
   },
   {
     title: 'Happy Hour Speed Friending',
-    copy: 'Run structured neighbor introductions in the first 30 minutes of a rooftop or lounge event, then let open mingling build on real connections.',
+    copy: 'Start with structured introductions for the first 20-30 minutes, then open it up. Mingling lands different when people already know someone in the room.',
     icon: 'happy-hour',
   },
   {
     title: 'Astrology Speed Friending',
-    copy: 'A fun, low-stakes theme night. Residents share signs or interests and meet neighbors through quick 1-on-1 rounds before the group mingles.',
+    copy: 'Low-stakes, high-personality theme night. Residents meet neighbors through quick rounds before the group opens up. Signs optional, vibes required.',
     icon: 'astrology',
   },
   {
     title: 'Book Worm Speed Friending',
-    copy: 'Match readers by genre or what they are reading now. Ideal for lounge, library, or co-working amenity spaces.',
+    copy: "Match readers by genre or what they're into right now. Works anywhere residents already slow down — the lounge, library, or co-working space.",
     icon: 'book',
     highlight: true,
   },
@@ -292,12 +292,11 @@ const FAQ_JSON_LD = {
 };
 
 const ResidentialPage = () => {
-  const [showTutorial, setShowTutorial] = useState(true);
   const navigate = useNavigate();
   useResidentialPageMeta();
 
-  const handleTryFree = () => {
-    navigate('/new_organizer', { state: { fromTutorial: true } });
+  const handleGetStarted = () => {
+    navigate('/new_organizer', { state: { showGeneralTutorial: true } });
   };
 
   return (
@@ -310,35 +309,50 @@ const ResidentialPage = () => {
           <ScrollReveal as="h1" className="res-hero-title" delay={0}>
             Help every resident feel like they belong.
           </ScrollReveal>
-          <ScrollReveal delay={80}>
-            <ResidentialHeroTutorial />
-          </ScrollReveal>
-          <ScrollReveal as="p" className="res-hero-sub" delay={160}>
+          <ScrollReveal as="p" className="res-hero-sub" delay={80}>
             Most resident events look good on the calendar, but once people show up, they often just grab a drink and stick with whoever they already know.
           </ScrollReveal>
-          <ScrollReveal as="p" className="res-hero-fix" delay={240}>
+          <ScrollReveal as="p" className="res-hero-fix" delay={160}>
             Reuneo fixes that. We pair people into engaging 1-on-1 conversations. No app, no awkwardness.
+          </ScrollReveal>
+          <ScrollReveal delay={240}>
+            <ResidentialHeroTutorial />
           </ScrollReveal>
         </section>
 
         {/* Gap */}
         <section className="res-gap">
-          <div className="res-section-inner">
-            <ScrollReveal as="h2" className="res-section-title">
+          <div className="res-section-inner res-section-inner--wide">
+            <ScrollReveal as="h2" className="res-section-title res-section-title--left">
               You nail the setup. Connection is still left to chance.
-            </ScrollReveal>
-            <ScrollReveal as="ul" className="res-gap-bullets">
-              <li>Residents grab a drink and stick with people they already know</li>
-              <li>New neighbors leave having met no one new</li>
             </ScrollReveal>
           </div>
         </section>
 
         {/* Solution */}
         <section className="res-solution">
-          <div className="res-section-inner">
-            <ScrollReveal as="h2" className="res-section-title">
+          <div className="res-section-inner res-section-inner--wide">
+            <ScrollReveal as="h2" className="res-section-title res-section-title--right">
               Quick pairings. Real neighbor introductions.
+            </ScrollReveal>
+            <ScrollReveal className="res-solution-cta">
+              <HoverBorderGlow
+                borderRadius={18}
+                borderWidth={1.5}
+                bloomBlur={10}
+                bloomInset={2}
+                duration={2800}
+                spread={42}
+                colors={['#ffffff', '#a5b4fc', '#7c3aed']}
+              >
+                <button
+                  type="button"
+                  className="res-get-started-btn"
+                  onClick={handleGetStarted}
+                >
+                  <span className="res-get-started-label">Get Started</span>
+                </button>
+              </HoverBorderGlow>
             </ScrollReveal>
             <div className="res-solution-points">
               <ScrollReveal className="res-glass-card res-solution-point">
@@ -352,33 +366,6 @@ const ResidentialPage = () => {
               <ScrollReveal className="res-glass-card res-solution-point">
                 <h3>Everyone meets someone new</h3>
                 <p>Neighbor introductions on purpose, not left to chance.</p>
-              </ScrollReveal>
-            </div>
-          </div>
-        </section>
-
-        {/* First 30 min */}
-        <section className="res-timing">
-          <div className="res-section-inner">
-            <ScrollReveal as="h2" className="res-section-title">
-              The first 30 minutes are usually the hardest part.
-            </ScrollReveal>
-            <div className="res-before-after">
-              <ScrollReveal className="res-glass-card res-ba-card">
-                <h3>Without Reuneo</h3>
-                <ul className="res-ba-list">
-                  <li>Awkward first half-hour</li>
-                  <li>People cluster by who they know</li>
-                  <li>Open mingling never quite clicks</li>
-                </ul>
-              </ScrollReveal>
-              <ScrollReveal className="res-glass-card res-ba-card res-ba-card--with">
-                <h3>With Reuneo</h3>
-                <ul className="res-ba-list">
-                  <li>Room feels connected early</li>
-                  <li>Everyone meets someone new first</li>
-                  <li>Mingling builds on real introductions</li>
-                </ul>
               </ScrollReveal>
             </div>
           </div>
@@ -411,52 +398,6 @@ const ResidentialPage = () => {
           <ScrollReveal as="p" className="res-activities-callout">
             Same platform, different theme every month. Your team picks the event, Reuneo handles the pairing.
           </ScrollReveal>
-          <ScrollReveal className="res-activities-cta">
-            <button type="button" className="res-primary-btn" onClick={handleTryFree}>
-              Try an activity free
-            </button>
-          </ScrollReveal>
-        </section>
-
-        {/* Demo */}
-        <section className="res-demo" id="demo">
-          <div className="res-demo-header">
-            <ScrollReveal as="h2" className="res-section-title">
-              See what your residents experience
-            </ScrollReveal>
-            <ScrollReveal as="p" className="res-section-sub">
-              Watch how Reuneo guides attendees through live pairing - the same flow your residents would use at your next event.
-            </ScrollReveal>
-          </div>
-
-          {!showTutorial && (
-            <ScrollReveal className="res-demo-cta-group">
-              <button
-                type="button"
-                className="res-replay-btn"
-                onClick={() => setShowTutorial(true)}
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                  <path d="M3 3v5h5" />
-                </svg>
-                Replay
-              </button>
-              <button type="button" className="res-primary-btn" onClick={handleTryFree}>
-                Try Reuneo Free
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </button>
-            </ScrollReveal>
-          )}
-
-          <ScrollReveal className="res-demo-flow-container">
-            <CoolerGeneralMatchEventFlow
-              isVisible={showTutorial}
-              onComplete={() => setShowTutorial(false)}
-            />
-          </ScrollReveal>
         </section>
 
         {/* FAQ */}
@@ -477,27 +418,7 @@ const ResidentialPage = () => {
         </section>
 
         {/* Testimonials */}
-        <ClientTestimonialsSection subtitle="Property teams and event organizers use Reuneo to help residents actually meet at live events." />
-
-        {/* Final CTA */}
-        <section className="res-final-cta">
-          <ScrollReveal className="res-glass-card res-final-cta-inner">
-            <h2 className="res-section-title">
-              Make your next resident event feel more connected, on purpose.
-            </h2>
-            <p className="res-section-sub">
-              Instead of leaving neighbor introductions up to chance, try Reuneo free. Could be a simple fit for your next event.
-            </p>
-            <div className="res-final-cta-actions">
-              <button type="button" className="res-primary-btn" onClick={handleTryFree}>
-                Try Reuneo Free
-              </button>
-              <Link to="/contact" className="res-secondary-link">
-                Questions? Contact us
-              </Link>
-            </div>
-          </ScrollReveal>
-        </section>
+        <ClientTestimonialsSection subtitle="Outsource the time, focus, and energy needed to run quality socials at your events" />
       </main>
 
       <ScrollReveal className="res-footer-wrap">
