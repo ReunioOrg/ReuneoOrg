@@ -1,0 +1,14 @@
+.res-hero-tutorial {
+  width: 100%;
+  max-width: 720px;
+  margin: 8px auto 28px;
+  min-height: clamp(360px, 52vw, 500px);
+}
+
+.res-hero-tutorial-placeholder {
+  width: 100%;
+  min-height: clamp(360px, 52vw, 500px);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(20, 77, 255, 0.06);
+}

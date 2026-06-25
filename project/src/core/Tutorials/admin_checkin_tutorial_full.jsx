@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './admin_checkin_tutorial_full.css';
+import './cooler_general_match_event_flow.css';
 import '../lobby/how_to_tutorial.css';
 import UserIsReadyAnimation from '../lobby/user_is_ready_animation';
 import { TutorialSlide2, TutorialSlide3 } from '../lobby/how_to_tutorial';
@@ -529,7 +530,93 @@ const MockActiveState = ({ customTags, active }) => {
     );
 };
 
-/* Scene 14: Kate's profile icon zooms to fill the screen */
+/* Scene 14: Pair greeting — hop-in icons, phones, confetti greetings (replaces go-find lobby scenes) */
+
+const PairGreetingPhone = ({ imageSrc }) => (
+    <div className="cmef-phone">
+        <div className="cmef-phone-speaker" />
+        <div className="cmef-phone-screen">
+            <img src={imageSrc} alt="" className="cmef-phone-photo" />
+        </div>
+        <div className="cmef-phone-home" />
+    </div>
+);
+
+const PairGreetingConfetti = () => (
+    <div className="cmef-confetti-burst">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+            <span key={n} className={`cmef-conf cmef-c${n}`} />
+        ))}
+    </div>
+);
+
+const HOP_DURATION_MS = 1500;
+const GREET_DELAY_AFTER_PHONES_MS = 250;
+
+const MockPairGreeting = ({ active }) => {
+    const [showPhones, setShowPhones] = useState(false);
+    const [showGreet, setShowGreet] = useState(false);
+    const [fading, setFading] = useState(false);
+
+    useEffect(() => {
+        if (!active) {
+            setShowPhones(false);
+            setShowGreet(false);
+            setFading(false);
+            return;
+        }
+
+        const timers = [
+            setTimeout(() => setShowPhones(true), HOP_DURATION_MS),
+            setTimeout(() => setShowGreet(true), HOP_DURATION_MS + GREET_DELAY_AFTER_PHONES_MS),
+            setTimeout(() => setFading(true), 3800),
+        ];
+        return () => timers.forEach(clearTimeout);
+    }, [active]);
+
+    return (
+        <div className={`act-pair-greeting-stage${fading ? ' act-pair-greeting-fade' : ''}`}>
+            <div className="cmef-person cmef-person-left">
+                <div className="cmef-person-hop">
+                    <PersonIcon />
+                </div>
+            </div>
+            <div className="cmef-person cmef-person-right">
+                <div className="cmef-person-hop">
+                    <PersonIcon />
+                </div>
+            </div>
+            {showPhones && (
+                <>
+                    <div className="cmef-float-phone cmef-float-kate cmef-float-snug">
+                        <div className="cmef-float-pop">
+                            <PairGreetingPhone imageSrc="/assets/kate_rodriguez.png" />
+                        </div>
+                    </div>
+                    <div className="cmef-float-phone cmef-float-tony cmef-float-snug">
+                        <div className="cmef-float-pop">
+                            <PairGreetingPhone imageSrc="/assets/tony_chopper.jpg" />
+                        </div>
+                    </div>
+                </>
+            )}
+            {showGreet && (
+                <>
+                    <div className="cmef-greet cmef-greet-left">
+                        <span className="cmef-greet-text">Nice to meet you Kate!</span>
+                        <PairGreetingConfetti />
+                    </div>
+                    <div className="cmef-greet cmef-greet-right">
+                        <span className="cmef-greet-text">Hi Tony!</span>
+                        <PairGreetingConfetti />
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
+
+/* Scene 14 (legacy): Kate's profile icon zooms to fill the screen */
 const MockProfileZoom = ({ zoomed }) => (
     <div className="act-profile-zoom-wrapper">
         <img
@@ -707,56 +794,14 @@ const MockTonyLobbyView = ({ active, customTags, hasTags, showTableNumbers }) =>
     );
 };
 
-/* ── Scene 16: Video ending with two header messages ───────────────────── */
-
-const ENDING_HEADERS = [
-    'Turn your event into a connection engine',
-    'No app, just a QR code and passion for conversation',
-];
-
-const MockVideoEnding = ({ active }) => {
-    const [phase, setPhase] = useState(0);
-    // phases: 0=idle, 1=h1 in, 2=h1 out, 3=h2 in
-
-    useEffect(() => {
-        if (!active) { setPhase(0); return; }
-        const timers = [
-            setTimeout(() => setPhase(1), 100),
-            setTimeout(() => setPhase(2), 2300),
-            setTimeout(() => setPhase(3), 2700),
-        ];
-        return () => timers.forEach(clearTimeout);
-    }, [active]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    return (
-        <div className="act-video-ending">
-            <video className="act-video-ending-bg" autoPlay muted playsInline>
-                <source src="/assets/demo_app_home_video_X2_small.mp4" type="video/mp4" />
-            </video>
-            <div className="act-video-ending-scrim" />
-            {(phase === 1 || phase === 2) && (
-                <p className={`act-video-header${phase === 2 ? ' act-video-header-out' : ' act-video-header-in'}`}>
-                    {ENDING_HEADERS[0]}
-                </p>
-            )}
-            {phase === 3 && (
-                <p className="act-video-header act-video-header-in">
-                    {ENDING_HEADERS[1]}
-                </p>
-            )}
-        </div>
-    );
-};
-
 /* ── Main component ─────────────────────────────────────────────────────── */
 
-const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTableNumbers, stopAfterReady = false, startFromScene = 3, stopBeforeEnd = false, showSkip = false }) => {
+const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTableNumbers, stopAfterReady = false, startFromScene = 3, stopBeforeEnd = false, showSkip = false, embedded = false }) => {
     const [scene, setScene] = useState(startFromScene);
     const [fadingOut, setFadingOut] = useState(false);
     const [showReady, setShowReady] = useState(false);
     const [showAdminPulse, setShowAdminPulse] = useState(false);
     const [showAdminPress, setShowAdminPress] = useState(false);
-    const [cardZoomed, setCardZoomed] = useState(false);
     const [showCmef, setShowCmef] = useState(false);
     const [showEndPulse, setShowEndPulse] = useState(false);
     const [showEndPress, setShowEndPress] = useState(false);
@@ -795,12 +840,11 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
             setShowReady(false);
             setShowAdminPulse(false);
             setShowAdminPress(false);
-            setCardZoomed(false);
             setShowCmef(false);
             setShowEndPulse(false);
             setShowEndPress(false);
         }
-    }, [isVisible]);
+    }, [isVisible, startFromScene]);
 
     /* Scene 3 → 4: auto-advance after 4.5s on scene 3 */
     useEffect(() => {
@@ -888,39 +932,21 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
         return () => clearTimeout(t);
     }, [scene]);
 
-    /* Scene 13 → 14 */
+    /* Scene 13 → 14: pair greeting */
     useEffect(() => {
         if (scene !== 13) return;
         const t = setTimeout(() => setScene(14), 3500);
         return () => clearTimeout(t);
     }, [scene]);
 
-    /* Scene 14: zoom Kate's profile photo → advance to lobby view */
+    /* Scene 14 → CMEF mingling (circle dots) */
     useEffect(() => {
         if (scene !== 14) return;
-        setCardZoomed(false);
-        const timers = [
-            setTimeout(() => setCardZoomed(true), 100),
-            setTimeout(() => setScene(15), 1300),
-        ];
-        return () => timers.forEach(clearTimeout);
-    }, [scene]);
-
-    /* Scene 15 → 16 (Tony's lobby view) */
-    useEffect(() => {
-        if (scene !== 15) return;
-        const t = setTimeout(() => setScene(16), 4500);
+        const t = setTimeout(() => setShowCmef(true), 4200);
         return () => clearTimeout(t);
     }, [scene]);
 
-    /* Scene 16 → CMEF section → 17 (video ending) */
-    useEffect(() => {
-        if (scene !== 16) return;
-        const t = setTimeout(() => setShowCmef(true), 4500);
-        return () => clearTimeout(t);
-    }, [scene]);
-
-    /* Scene 17: End lobby — CTA pulse → press → advance to video */
+    /* Scene 17: End lobby — CTA pulse → press → complete */
     useEffect(() => {
         if (scene !== 17) return;
         setShowEndPulse(false);
@@ -928,16 +954,9 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
         const timers = [
             setTimeout(() => setShowEndPulse(true), 1200),
             setTimeout(() => setShowEndPress(true), 2500),
-            setTimeout(() => setScene(18), 4000),
+            setTimeout(() => handleFinalComplete(), 4000),
         ];
         return () => timers.forEach(clearTimeout);
-    }, [scene]);
-
-    /* Scene 18 → final complete (6500ms covers both video headers + breathing room) */
-    useEffect(() => {
-        if (scene !== 18) return;
-        const t = setTimeout(() => handleFinalComplete(), 6500);
-        return () => clearTimeout(t);
     }, [scene]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!isVisible) return null;
@@ -945,9 +964,9 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
     const s = scene;
     const split = tagSplitRef.current;
 
-    return (
+    const tutorialContent = (
         <>
-        <div className={`act-overlay${fadingOut ? ' act-overlay-exit' : ''}${s >= 4 ? ' act-overlay-white' : ''}`} style={s === 18 ? { zIndex: 10002 } : undefined}>
+        <div className={`act-overlay${embedded ? ' act-overlay-embedded' : ''}${fadingOut ? ' act-overlay-exit' : ''}${s >= 4 ? ' act-overlay-white' : ''}`}>
 
             {/* ── Scene 3: Opening scene ── */}
             <div className={`act-scene${s === 3 ? ' act-scene-active' : ''}`}>
@@ -1084,33 +1103,9 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
                 {s >= 13 && <MockActiveState customTags={customTags} active={s === 13} />}
             </div>
 
-            {/* ── Scene 14: Zoom into Kate's profile photo ── */}
-            <div className={`act-scene act-scene-mock act-scene-profile-zoom${s === 14 ? ' act-scene-active' : ''}`}>
-                {s >= 14 && <MockProfileZoom zoomed={cardZoomed} />}
-            </div>
-
-            {/* ── Scene 15: Kate's lobby view ── */}
-            <div className={`act-scene act-scene-mock${s === 15 ? ' act-scene-active' : ''}`}>
-                {s >= 15 && (
-                    <MockLobbyView
-                        active={s === 15}
-                        customTags={customTags}
-                        hasTags={hasTags}
-                        showTableNumbers={showTableNumbers}
-                    />
-                )}
-            </div>
-
-            {/* ── Scene 16: Tony's lobby view ── */}
-            <div className={`act-scene act-scene-mock${s === 16 ? ' act-scene-active' : ''}`}>
-                {s >= 16 && (
-                    <MockTonyLobbyView
-                        active={s === 16 && !showCmef}
-                        customTags={customTags}
-                        hasTags={hasTags}
-                        showTableNumbers={showTableNumbers}
-                    />
-                )}
+            {/* ── Scene 14: Pair greeting (hop-in + phones + confetti) ── */}
+            <div className={`act-scene act-scene-mock${s === 14 ? ' act-scene-active' : ''}`}>
+                {s >= 14 && !showCmef && <MockPairGreeting active={s === 14} />}
             </div>
 
             {/* ── Scene 17: End lobby ── */}
@@ -1123,11 +1118,6 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
                         <MockAdminEnd showPulse={showEndPulse} showPress={showEndPress} />
                     </>
                 )}
-            </div>
-
-            {/* ── Scene 18: Video ending ── */}
-            <div className={`act-scene act-scene-video${s === 18 ? ' act-scene-active' : ''}`}>
-                {s >= 18 && <MockVideoEnding active={s === 18} />}
             </div>
 
         </div>
@@ -1161,6 +1151,12 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
         )}
         </>
     );
+
+    if (embedded) {
+        return <div className="act-embedded-root">{tutorialContent}</div>;
+    }
+
+    return tutorialContent;
 };
 
 export default AdminCheckinTutorialFull;

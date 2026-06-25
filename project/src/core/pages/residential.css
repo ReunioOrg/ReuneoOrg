@@ -438,6 +438,23 @@
   text-align: left;
 }
 
+.res-activity-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  color: #144dff;
+  background: rgba(20, 77, 255, 0.07);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.res-activity-icon svg {
+  display: block;
+}
+
 .res-activity-card h3 {
   font-size: 1.25rem;
   font-weight: 700;
@@ -449,19 +466,7 @@
   font-size: 0.95rem;
   color: #555;
   line-height: 1.65;
-  margin: 0 0 14px;
-}
-
-.res-activity-tag {
-  display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #144dff;
-  background: rgba(20, 77, 255, 0.08);
-  padding: 5px 10px;
-  border-radius: 6px;
+  margin: 0;
 }
 
 .res-activities-callout {
