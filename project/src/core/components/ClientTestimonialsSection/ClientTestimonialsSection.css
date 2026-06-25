@@ -1,0 +1,183 @@
+@keyframes lpFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lp-testimonials-section {
+  width: 100%;
+  padding: 80px 0 110px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border-top: 1px solid rgba(255, 255, 255, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+.lp-testimonials-header {
+  text-align: center;
+  padding: 0 40px;
+  margin-bottom: 52px;
+  opacity: 0;
+}
+
+.lp-t-header-in {
+  animation: lpFadeInUp 0.8s ease-out 0.2s forwards;
+}
+
+.lp-t-title {
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 14px;
+  color: #1a1a1a !important;
+  text-shadow: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+.lp-t-subtitle {
+  font-size: 17px;
+  color: #555;
+  margin: 0 auto;
+  max-width: 580px;
+  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+.lp-t-carousel {
+  overflow-x: hidden;
+  overflow-y: visible;
+  cursor: grab;
+}
+
+.lp-t-carousel:active {
+  cursor: grabbing;
+}
+
+.lp-t-track {
+  display: flex;
+  gap: 28px;
+  padding: 16px 40px 24px;
+  width: max-content;
+}
+
+.lp-t-card {
+  flex: 0 0 420px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(230, 232, 240, 0.8);
+  border-radius: 18px;
+  padding: 30px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
+  opacity: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lp-t-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.11);
+}
+
+.lp-t-animate-in .lp-t-card--1 { animation: lpFadeInUp 0.8s ease-out 0.35s forwards; }
+.lp-t-animate-in .lp-t-card--2 { animation: lpFadeInUp 0.8s ease-out 0.52s forwards; }
+.lp-t-animate-in .lp-t-card--3 { animation: lpFadeInUp 0.8s ease-out 0.69s forwards; }
+.lp-t-animate-in .lp-t-card--4 { animation: lpFadeInUp 0.8s ease-out 0.86s forwards; }
+
+.lp-t-avatar {
+  flex-shrink: 0;
+}
+
+.lp-t-avatar-img {
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
+  object-fit: cover;
+  display: block;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.lp-t-quote {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.65;
+  color: #1a1a1a;
+  margin: 0;
+  flex: 1;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+.lp-t-author {
+  margin-top: auto;
+}
+
+.lp-t-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 3px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+.lp-t-org {
+  font-size: 13px;
+  color: #888;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+@media (max-width: 768px) {
+  .lp-testimonials-section {
+    padding: 60px 0 70px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .lp-testimonials-header {
+    padding: 0 20px;
+    margin-bottom: 36px;
+  }
+
+  .lp-t-title {
+    font-size: 28px;
+  }
+
+  .lp-t-subtitle {
+    font-size: 15px;
+  }
+
+  .lp-t-track {
+    gap: 16px;
+    padding: 12px 20px 20px;
+  }
+
+  .lp-t-card {
+    flex: 0 0 300px;
+    padding: 22px 18px;
+    gap: 14px;
+  }
+
+  .lp-t-avatar-img {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+  }
+
+  .lp-t-quote {
+    font-size: 14px;
+  }
+
+  .lp-t-name {
+    font-size: 13px;
+  }
+}

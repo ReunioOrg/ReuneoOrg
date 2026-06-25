@@ -12,6 +12,7 @@ function RouteLayoutHandler() {
     || pathname.startsWith('/plan-selection')
     || pathname.startsWith('/tutorial')
     || pathname.startsWith('/contact')
+    || pathname.startsWith('/residential')
     || pathname.startsWith('/login');
 
   const isHomeRoute = pathname === '/';
