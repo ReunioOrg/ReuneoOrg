@@ -1,19 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Redirecting...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reuneo - Elevate Your Events</title>
+  <meta name="title" content="Reuneo - Elevate Your Events">
+  <meta name="description" content="The perfect icebreaker">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://reuneo.com/">
+  <meta property="og:title" content="Reuneo - Elevate Your Events">
+  <meta property="og:description" content="The perfect icebreaker">
+  <meta property="og:image" content="https://reuneo.com/assets/reuneo_test_14.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://reuneo.com/">
+  <meta property="twitter:title" content="Reuneo - Elevate Your Events">
+  <meta property="twitter:description" content="The perfect icebreaker">
+  <meta property="twitter:image" content="https://reuneo.com/assets/reuneo_test_14.png">
+
   <script type="text/javascript">
     var segmentCount = 0;
     var location = window.location;
     var rootPath = '/';
-    
+
     // Construct the redirect URL
-    var redirect = location.protocol + '//' + location.hostname + 
-                  (location.port ? ':' + location.port : '') + 
+    var redirect = location.protocol + '//' + location.hostname +
+                  (location.port ? ':' + location.port : '') +
                   rootPath + '?p=/' +
-                  location.pathname.slice(rootPath.length) + 
-                  location.search + 
+                  location.pathname.slice(rootPath.length) +
+                  location.search +
                   location.hash;
 
     window.location.replace(redirect);
