@@ -56,7 +56,7 @@ function ResidentialHeroTutorial() {
           key={runKey}
           isVisible
           embedded
-          startFromScene={13}
+          startFromScene={14}
           stopBeforeEnd
           convoPairOnly
           cmefStartScene={15}

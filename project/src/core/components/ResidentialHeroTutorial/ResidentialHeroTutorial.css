@@ -196,6 +196,15 @@
   .res-hero-tutorial .act-embedded-root .cmef-convo-text {
     max-width: 84px;
   }
+
+  /* Mingling convo blurbs — pull inward on desktop only (mobile keeps default 14% / 84%) */
+  .res-hero-tutorial .act-embedded-root .cmef-convo-text-layer .cmef-convo-text:nth-child(1) {
+    left: 26% !important;
+  }
+
+  .res-hero-tutorial .act-embedded-root .cmef-convo-text-layer .cmef-convo-text:nth-child(2) {
+    left: 74% !important;
+  }
 }
 
 .res-hero-tutorial-placeholder {
