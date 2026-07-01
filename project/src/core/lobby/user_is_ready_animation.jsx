@@ -2,11 +2,11 @@ import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './user_is_ready_animation.css';
 
-const UserIsReadyAnimation = ({ isVisible, onAnimationEnd, mainText = "You're ready!", subText = "You will be paired up soon." }) => {
+const UserIsReadyAnimation = ({ isVisible, onAnimationEnd, mainText = "You're ready!", subText = "You will be paired up soon.", duration = 2200 }) => {
     const [active, setActive] = useState(false);
     const timerRef = useRef(null);
     const callbackRef = useRef(onAnimationEnd);
-    callbackRef.current = onAnimationEnd; // Always stays fresh with latest closure
+    callbackRef.current = onAnimationEnd;
 
     useEffect(() => {
         if (timerRef.current) {
@@ -19,7 +19,7 @@ const UserIsReadyAnimation = ({ isVisible, onAnimationEnd, mainText = "You're re
             timerRef.current = setTimeout(() => {
                 setActive(false);
                 callbackRef.current?.();
-            }, 2200);
+            }, duration);
         } else {
             setActive(false);
         }
@@ -30,7 +30,7 @@ const UserIsReadyAnimation = ({ isVisible, onAnimationEnd, mainText = "You're re
                 timerRef.current = null;
             }
         };
-    }, [isVisible]);
+    }, [isVisible, duration]);
 
     return (
         <AnimatePresence>
@@ -42,10 +42,8 @@ const UserIsReadyAnimation = ({ isVisible, onAnimationEnd, mainText = "You're re
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
                 >
-                    {/* Frosted backdrop */}
                     <div className="ready-backdrop" />
                     
-                    {/* Main content card */}
                     <motion.div 
                         className="ready-card"
                         initial={{ scale: 0.8, opacity: 0, y: 20 }}
@@ -58,9 +56,7 @@ const UserIsReadyAnimation = ({ isVisible, onAnimationEnd, mainText = "You're re
                             delay: 0.1
                         }}
                     >
-                        {/* Animated checkmark circle */}
                         <div className="checkmark-container">
-                            {/* Circle that draws itself */}
                             <svg className="checkmark-svg" viewBox="0 0 100 100">
                                 <motion.circle
                                     className="checkmark-circle"
@@ -77,7 +73,6 @@ const UserIsReadyAnimation = ({ isVisible, onAnimationEnd, mainText = "You're re
                                         ease: "easeOut"
                                     }}
                                 />
-                                {/* Checkmark that draws itself */}
                                 <motion.path
                                     className="checkmark-check"
                                     d="M30 50 L45 65 L70 35"
@@ -94,8 +89,6 @@ const UserIsReadyAnimation = ({ isVisible, onAnimationEnd, mainText = "You're re
                                     }}
                                 />
                             </svg>
-                            
-                            {/* Success pulse ring */}
                             <motion.div 
                                 className="success-pulse"
                                 initial={{ scale: 0.8, opacity: 0.6 }}
@@ -108,7 +101,6 @@ const UserIsReadyAnimation = ({ isVisible, onAnimationEnd, mainText = "You're re
                             />
                         </div>
 
-                        {/* Text */}
                         <motion.div 
                             className="ready-text"
                             initial={{ opacity: 0, y: 10 }}

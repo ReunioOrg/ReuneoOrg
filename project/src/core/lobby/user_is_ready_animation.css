@@ -84,6 +84,7 @@
     color: #1a1a2e;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     margin-bottom: 6px;
+    text-align: center;
 }
 
 .ready-subtext {
@@ -91,6 +92,9 @@
     font-weight: 500;
     color: #6b7280;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    text-align: center;
+    line-height: 1.45;
+    max-width: 300px;
 }
 
 /* Mobile adjustments */

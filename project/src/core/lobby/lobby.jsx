@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { AuthContext } from '../Auth/AuthContext';
 import usePlaySound from '../playsound';
 import { useContext } from 'react';
@@ -10,6 +10,7 @@ import useGetLobbyMetadata from './get_lobby_metadata';
 import LobbyCountdown from './lobby_countdown';
 import HowToTutorial from './how_to_tutorial';
 import ShowMatchAnimation from './show_match_animation';
+import DemoFindPersonPopup from './demo_find_person_popup';
 import UserIsReadyAnimation from './user_is_ready_animation';
 import { storeLobbyCode, clearLobbyStorage, refreshLobbyTimestamp } from '../utils/lobbyStorage';
 import { CommunityPageButton } from '../community/mycf';
@@ -52,8 +53,11 @@ const LobbyScreen = () => {
 
     // --- Free-trial onboarding demo state ---
     const demoModeRef = useRef(false);  // ref so it's accessible inside stale closures in fetchLobbyData
+    const isDemoLobby = new URLSearchParams(window.location.search).get('demo') === 'true';
     const demoTimerRef = useRef(null);  // active demo countdown timer
     const demoRoundTimerStartedRef = useRef(new Set()); // rounds where demo timer has already been started
+    const demoFindPersonPopupShownRef = useRef(false);
+    const [showDemoFindPersonPopup, setShowDemoFindPersonPopup] = useState(false);
     const [showDemoFastForward, setShowDemoFastForward] = useState(false); // overlay text
     const [player_count, setPlayerCount] = useState(null);
     useGetLobbyMetadata(setPlayerCount, null, lobbyCode);
@@ -575,13 +579,27 @@ const LobbyScreen = () => {
                     const matchDetails = getMatchingTags(data.player_tags, data.opponent_tags);
                     
                     if (isPurgatoryPairing) {
-                        // Purgatory: show animation ONLY if the tutorial is not active
-                        if (!showTutorialRef.current) {
+                        const isDemoRound1Purgatory = demoModeRef.current && (data.current_round || 1) === 1;
+
+                        // Demo R1: skip match overlay so find-person popup gets full focus
+                        if (!isDemoRound1Purgatory && !showTutorialRef.current) {
                             console.log('Purgatory pairing - triggering animation');
                             isAnimating.current = true;
                             setShowMatchAnimation(true);
+                        } else if (isDemoRound1Purgatory) {
+                            console.log('Demo R1 purgatory - skipping match animation for find-person popup');
                         } else {
                             console.log('Purgatory pairing - skipping animation (tutorial active)');
+                        }
+
+                        // Demo R1: find-your-person popup once eligible + purgatory paired
+                        if (
+                            isDemoRound1Purgatory &&
+                            data.eligible_for_pairing &&
+                            !demoFindPersonPopupShownRef.current
+                        ) {
+                            demoFindPersonPopupShownRef.current = true;
+                            setShowDemoFindPersonPopup(true);
                         }
                         
                         // Play notification sound to alert user of purgatory match (always, even during tutorial)
@@ -654,12 +672,12 @@ const LobbyScreen = () => {
                         demoRoundTimerStartedRef.current.add(currentRound);
                         clearTimeout(demoTimerRef.current);
 
-                        const isExitRound = currentRound >= 4;
-                        const timerMs = isExitRound ? 5000 : currentRound === 1 ? 10000 : 7000;
+                        const isExitRound = currentRound >= 3;
+                        const timerMs = currentRound === 1 ? 15000 : 10000;
 
                         demoTimerRef.current = setTimeout(async () => {
                             if (isExitRound) {
-                                // End of demo: set flag, go back to admin view
+                                // End of demo lobby view: set flag, return to admin (lobby stays active)
                                 localStorage.setItem('demoCompletedAt', Date.now().toString());
                                 navigate(`/admin_lobby_view?code=${currentLobbyCode}`, {
                                     state: { demoMode: true, returnedFromDemo: true }
@@ -988,14 +1006,22 @@ const LobbyScreen = () => {
         localStorage.setItem('hasShownEmailBackupModal', 'true');
     };
 
-    // Reset match banner and animation tracking when lobby state changes or opponent leaves
+    const handleMatchAnimationEnd = useCallback(() => {
+        setShowMatchAnimation(false);
+        isAnimating.current = false;
+        setShowBannerSparkles(true);
+        setTimeout(() => setShowBannerSparkles(false), 3000);
+    }, []);
+
+    // Reset match banner when leaving active; reset animation tracking only when opponent actually leaves
+    // (not when opponentProfile is still loading — that was causing duplicate overlay replays)
     useEffect(() => {
-        if (lobbyState !== "active" || !opponentProfile) {
+        if (lobbyState !== "active" || !opponentName) {
             setShowMatchBanner(false);
             setMatchingTags(null);
-            lastAnimatedOpponentRef.current = null;  // Reset so animation can trigger for next pairing
+            lastAnimatedOpponentRef.current = null;
         }
-    }, [lobbyState, opponentProfile]);
+    }, [lobbyState, opponentName]);
 
     // Clear profile images cache and modal flags when lobby terminates
     useEffect(() => {
@@ -1526,6 +1552,9 @@ const LobbyScreen = () => {
                             {/* Tag Selection Groups */}
                             <div className={`tag-group ${selectionPhase === 'self' ? 'active' : 'hidden'}`}>
                                 <h2 style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", color: '#1a1a2e' }}>Who are you?</h2>
+                                {isDemoLobby && (
+                                    <p className="demo-tag-selection-subheader">Select tags to see how pairing works.</p>
+                                )}
                                 <AnimatedTagList
                                     tags={tagsState}
                                     selectedTags={(selfTags != null) ? selfTags : serverselfTags}
@@ -1539,6 +1568,9 @@ const LobbyScreen = () => {
 
                             <div className={`tag-group ${selectionPhase === 'desiring' ? 'active' : 'hidden'}`} ref={desiringTagsRef}>
                                 <h2 style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", color: '#1a1a2e' }}>Who do you want to meet?</h2>
+                                {isDemoLobby && (
+                                    <p className="demo-tag-selection-subheader">Select tags to see how pairing works.</p>
+                                )}
                                 <AnimatedTagList
                                     tags={tagsState}
                                     selectedTags={(desiringTags != null) ? desiringTags : serverdesiringTags}
@@ -1607,13 +1639,25 @@ const LobbyScreen = () => {
             {/* Add the animation component */}
             <ShowMatchAnimation 
                 isVisible={showMatchAnimation} 
-                onAnimationEnd={() => {
-                    setShowMatchAnimation(false);
-                    isAnimating.current = false;
-                    // Trigger sparkles on the match banner
-                    setShowBannerSparkles(true);
-                    setTimeout(() => setShowBannerSparkles(false), 3000);
-                }} 
+                onAnimationEnd={handleMatchAnimationEnd}
+            />
+
+            {/* Demo only: round 1 find-your-person popup after purgatory pairing */}
+            <DemoFindPersonPopup
+                isVisible={showDemoFindPersonPopup}
+                onClose={() => setShowDemoFindPersonPopup(false)}
+                organizerName={userProfile?.name}
+                opponentName={opponentProfile?.name}
+                organizerPhoto={
+                    userProfile?.image_data
+                        ? `data:image/jpeg;base64,${userProfile.image_data}`
+                        : null
+                }
+                opponentPhoto={
+                    opponentProfile?.image_data
+                        ? `data:image/jpeg;base64,${opponentProfile.image_data}`
+                        : null
+                }
             />
 
             {/* Add the ready animation component */}

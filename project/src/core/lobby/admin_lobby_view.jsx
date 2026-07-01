@@ -16,8 +16,8 @@ import getCroppedImg from '../cropImage';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AdminCheckinTutorialFull from '../Tutorials/admin_checkin_tutorial_full';
 import AdminSettingsDropdown from './AdminSettingsDropdown';
+import UserIsReadyAnimation from './user_is_ready_animation';
 
-//load asset image earthart.jpg
 import { returnBase64TestImg } from '../misc/misc';
 
 const AttendeeLimitWarningModal = ({ isOpen, onClose, playerCount, attendeeLimit, onUpgrade }) => {
@@ -240,7 +240,7 @@ const generateStyledQRCodeImage = (svgElement, code) => {
 };
 
 // Progress bar component for lobby phases
-const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, currentRound, checkinTriggerRef, suppressCheckinAutoOpen, planInfo, showStartPulse, onStartTutorial, startModalTriggerRef, showEndPulse, onEndTutorial, endModalTriggerRef, forceStartEnabled, showStartTapHint, showEndTapHint }) => {
+const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, currentRound, checkinTriggerRef, suppressCheckinAutoOpen, planInfo, showStartPulse, onStartTutorial, startModalTriggerRef, showEndPulse, onEndTutorial, endModalTriggerRef, forceStartEnabled, showStartTapHint, showEndTapHint, demoMode }) => {
     // Determine states for each arrow
     // Check-in
     const checkinActive = lobbyState === 'checkin';
@@ -395,12 +395,6 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                 ) : (
                     <>
                         <div style={{ flex: '1 1 0', height: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {showStartTapHint && (
-                                <div className="demo-tap-hint" style={{ position: 'absolute', top: '-48px', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
-                                    <span className="demo-tap-arrow">↓</span>
-                                    <span className="demo-tap-label">Tap here!</span>
-                                </div>
-                            )}
                             <button
                                 className={`${startBtnClass()}${startOnTop ? ' pill-on-top' : ''}`}
                                 tabIndex={0}
@@ -408,21 +402,21 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                                 onClick={handleStart}
                             >
                                 Start
-                                {showStartPulse && (
+                                {showStartPulse && !modal && (
                                     <>
                                         <span className="start-pill-ring start-pill-ring-1" />
                                         <span className="start-pill-ring start-pill-ring-2" />
                                     </>
                                 )}
                             </button>
-                        </div>
-                        <div style={{ flex: '1 1 0', height: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {showEndTapHint && (
-                                <div className="demo-tap-hint" style={{ position: 'absolute', top: '-48px', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
-                                    <span className="demo-tap-arrow">↓</span>
+                            {showStartTapHint && (
+                                <div className="demo-tap-hint demo-tap-hint-below" style={{ position: 'absolute', bottom: '-34px', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
+                                    <span className="demo-tap-arrow">↑</span>
                                     <span className="demo-tap-label">Tap here!</span>
                                 </div>
                             )}
+                        </div>
+                        <div style={{ flex: '1 1 0', height: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <button
                                 className={`${endBtnClass()}${endOnTop ? ' pill-on-top' : ''}`}
                                 tabIndex={0}
@@ -430,13 +424,19 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                                 onClick={handleEnd}
                             >
                                 End
-                                {showEndPulse && (
+                                {showEndPulse && !modal && (
                                     <>
                                         <span className="end-pill-ring end-pill-ring-1" />
                                         <span className="end-pill-ring end-pill-ring-2" />
                                     </>
                                 )}
                             </button>
+                            {showEndTapHint && (
+                                <div className="demo-tap-hint demo-tap-hint-below" style={{ position: 'absolute', bottom: '-34px', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
+                                    <span className="demo-tap-arrow">↑</span>
+                                    <span className="demo-tap-label">Tap here!</span>
+                                </div>
+                            )}
                         </div>
                     </>
                 )}
@@ -522,11 +522,17 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                             <>
                                 <div className="confirm-modal-header">
                                     <h2 className="confirm-modal-title">
-                                        {modal === 'start' ? 'Start Rounds' : 'End Session to Start Match History'}
+                                        {modal === 'start' && demoMode
+                                            ? 'Start Your Demo'
+                                            : modal === 'start'
+                                            ? 'Start Rounds'
+                                            : 'End Session to Start Match History'}
                                     </h2>
                                     <p className="confirm-modal-subtitle">
-                                        {modal === 'start' 
-                                            ? 'Start pairing up your attendees! Don\'t worry - new arrivals will be paired up immediately.' 
+                                        {modal === 'start' && demoMode
+                                            ? 'This counts as 1 free trial use - you\'ll still have 2 sessions left for your real events. No stress!'
+                                            : modal === 'start'
+                                            ? 'Start pairing up your attendees! Don\'t worry - new arrivals will be paired up immediately.'
                                             : 'This will trigger the Matches History for everyone!'}
                                     </p>
                                 </div>
@@ -1260,7 +1266,19 @@ const AdminLobbyView = () => {
     // demoUsernames: Set of injected demolobbyuser usernames (used for realPlayerCount + DEMO badges)
     const [demoUsernames, setDemoUsernames] = useState(new Set());
     const demoActiveTimerRef = useRef(null);
+    const demoPrepPopupTimerRef = useRef(null);
     const prevLobbyStateForDemoRef = useRef(null);
+    const [showDemoPrepPopup, setShowDemoPrepPopup] = useState(false);
+
+    const DEMO_ACTIVE_VIEW_MS = 11000;
+    const DEMO_LOBBY_PREP_POPUP_MS = 4500;
+    const DEMO_WATCH_HEADER_DISPLAY_MS = 5000;
+    const DEMO_WATCH_HEADER_EXIT_MS = 650;
+
+    const [demoWatchHeaderPhase, setDemoWatchHeaderPhase] = useState('gone'); // 'visible' | 'exiting' | 'gone'
+    const demoWatchHeaderExitTimerRef = useRef(null);
+    const [demoCongratsHeaderPhase, setDemoCongratsHeaderPhase] = useState('gone');
+    const demoCongratsHeaderExitTimerRef = useRef(null);
 
     // Detect demo mode: first-time free-trial organizer
     useEffect(() => {
@@ -1326,10 +1344,16 @@ const AdminLobbyView = () => {
         prevLobbyStateForDemoRef.current = lobbyState;
     }, [lobbyState, demoMode, demoStep]);
 
-    // 4-second timer: once active → join organizer mid-round → navigate to lobby.jsx
+    // Active phase: watch pairings, then prep popup (4.5s before push), then join + navigate to lobby
     useEffect(() => {
         if (!demoMode || demoStep !== 'active') return;
+
+        demoPrepPopupTimerRef.current = setTimeout(() => {
+            setShowDemoPrepPopup(true);
+        }, DEMO_ACTIVE_VIEW_MS);
+
         demoActiveTimerRef.current = setTimeout(async () => {
+            setShowDemoPrepPopup(false);
             try {
                 await apiFetch('/demo_join_organizer', {
                     method: 'POST',
@@ -1339,9 +1363,84 @@ const AdminLobbyView = () => {
                 console.error('[DEMO] demo_join_organizer failed:', err);
             }
             navigate(`/lobby?code=${lobbyCode}&demo=true`);
-        }, 4000);
-        return () => clearTimeout(demoActiveTimerRef.current);
+        }, DEMO_ACTIVE_VIEW_MS + DEMO_LOBBY_PREP_POPUP_MS);
+
+        return () => {
+            clearTimeout(demoPrepPopupTimerRef.current);
+            clearTimeout(demoActiveTimerRef.current);
+            setShowDemoPrepPopup(false);
+        };
     }, [demoMode, demoStep]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Demo active: show "Watch every pairing live!" for 5s, then float up + fade out
+    useEffect(() => {
+        if (!demoMode || demoStep !== 'active' || lobbyState !== 'active') {
+            setDemoWatchHeaderPhase('gone');
+            return;
+        }
+
+        setDemoWatchHeaderPhase('visible');
+
+        const displayTimer = setTimeout(() => {
+            setDemoWatchHeaderPhase('exiting');
+        }, DEMO_WATCH_HEADER_DISPLAY_MS);
+
+        return () => {
+            clearTimeout(displayTimer);
+            if (demoWatchHeaderExitTimerRef.current) {
+                clearTimeout(demoWatchHeaderExitTimerRef.current);
+            }
+        };
+    }, [demoMode, demoStep, lobbyState]);
+
+    useEffect(() => {
+        if (demoWatchHeaderPhase !== 'exiting') return;
+
+        demoWatchHeaderExitTimerRef.current = setTimeout(() => {
+            setDemoWatchHeaderPhase('gone');
+        }, DEMO_WATCH_HEADER_EXIT_MS);
+
+        return () => {
+            if (demoWatchHeaderExitTimerRef.current) {
+                clearTimeout(demoWatchHeaderExitTimerRef.current);
+            }
+        };
+    }, [demoWatchHeaderPhase]);
+
+    // Demo endRound: show congratulations header for 5s, then float up + fade out
+    useEffect(() => {
+        if (!demoMode || demoStep !== 'endRound') {
+            setDemoCongratsHeaderPhase('gone');
+            return;
+        }
+
+        setDemoCongratsHeaderPhase('visible');
+
+        const displayTimer = setTimeout(() => {
+            setDemoCongratsHeaderPhase('exiting');
+        }, DEMO_WATCH_HEADER_DISPLAY_MS);
+
+        return () => {
+            clearTimeout(displayTimer);
+            if (demoCongratsHeaderExitTimerRef.current) {
+                clearTimeout(demoCongratsHeaderExitTimerRef.current);
+            }
+        };
+    }, [demoMode, demoStep]);
+
+    useEffect(() => {
+        if (demoCongratsHeaderPhase !== 'exiting') return;
+
+        demoCongratsHeaderExitTimerRef.current = setTimeout(() => {
+            setDemoCongratsHeaderPhase('gone');
+        }, DEMO_WATCH_HEADER_EXIT_MS);
+
+        return () => {
+            if (demoCongratsHeaderExitTimerRef.current) {
+                clearTimeout(demoCongratsHeaderExitTimerRef.current);
+            }
+        };
+    }, [demoCongratsHeaderPhase]);
 
     // Add playerCount and lobbyState for progress bar
     const playerCount = (lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0);
@@ -1748,6 +1847,20 @@ const AdminLobbyView = () => {
                         />
                     )}
                 </div>
+                {(demoWatchHeaderPhase === 'visible' || demoWatchHeaderPhase === 'exiting') && (
+                    <h2
+                        className={`demo-pairing-guide-header demo-pairing-guide-header-watch${demoWatchHeaderPhase === 'exiting' ? ' demo-pairing-guide-header-exit' : ''}`}
+                    >
+                        Watch every pairing live!
+                    </h2>
+                )}
+                {(demoCongratsHeaderPhase === 'visible' || demoCongratsHeaderPhase === 'exiting') && (
+                    <h2
+                        className={`demo-pairing-guide-header demo-pairing-guide-header-watch${demoCongratsHeaderPhase === 'exiting' ? ' demo-pairing-guide-header-exit' : ''}`}
+                    >
+                        Congratulations! You've seen how the pairing works.
+                    </h2>
+                )}
                 {tutorialMode && (
                     <AdminCheckinTutorialFull
                         isVisible={tutorialMode}
@@ -1915,6 +2028,7 @@ const AdminLobbyView = () => {
                     forceStartEnabled={demoMode && demoStep === 'start'}
                     showStartTapHint={demoMode && demoStep === 'start'}
                     showEndTapHint={demoMode && demoStep === 'endRound'}
+                    demoMode={demoMode}
                 />
 
                 {/* Attendee QR button — hidden only when inline QR is visible (checkin + <2 real players) */}
@@ -2171,7 +2285,16 @@ const AdminLobbyView = () => {
             </div>
 
             {/* Sound Prompt - same conditional rendering as lobby.jsx */}
-            {(soundEnabled || !showSoundPrompt) || (lobbyState == "checkin") || (lobbyState == null) || isPlaying ? null : <SoundPrompt onEnable={() => { loadSound(); setShowSoundPrompt(false); }} onDismiss={() => setShowSoundPrompt(false)} />}
+            {(soundEnabled || !showSoundPrompt) || (lobbyState == "checkin") || (lobbyState == null) || isPlaying || demoMode ? null : <SoundPrompt onEnable={() => { loadSound(); setShowSoundPrompt(false); }} onDismiss={() => setShowSoundPrompt(false)} />}
+
+            {/* Demo: prep popup 4.5s before force-push into attendee lobby */}
+            <UserIsReadyAnimation
+                isVisible={showDemoPrepPopup}
+                duration={DEMO_LOBBY_PREP_POPUP_MS}
+                mainText="Get ready!"
+                subText="You're about to see a live demo of how your attendees get paired."
+                onAnimationEnd={() => setShowDemoPrepPopup(false)}
+            />
         </>
     );
 }

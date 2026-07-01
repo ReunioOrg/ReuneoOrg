@@ -516,6 +516,28 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+/* Demo only: active-phase guide header below nav bar, above avatar strip */
+.demo-pairing-guide-header {
+    font-size: 1.3rem;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: -0.01em;
+    text-align: center;
+    margin: 0.25rem auto 0.35rem;
+    line-height: 1.3;
+    padding: 0 16px;
+}
+
+.demo-pairing-guide-header-watch {
+    transition: opacity 0.65s ease-in, transform 0.65s ease-in;
+}
+
+.demo-pairing-guide-header-exit {
+    opacity: 0;
+    transform: translateY(-14px);
+    pointer-events: none;
+}
+
 .player-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -1694,7 +1716,8 @@
 }
 
 .inline-checkin-content .checkin-modal-title,
-.start-experience-header .checkin-modal-title {
+.start-experience-header .checkin-modal-title,
+.demo-pairing-guide-header {
     background: linear-gradient(
         120deg,
         #4b73ef 0%,
@@ -1718,10 +1741,15 @@
 
 @media (prefers-reduced-motion: reduce) {
     .inline-checkin-content .checkin-modal-title,
-    .start-experience-header .checkin-modal-title {
+    .start-experience-header .checkin-modal-title,
+    .demo-pairing-guide-header {
         animation: none;
         background: none;
         -webkit-text-fill-color: #4b73ef;
+    }
+
+    .demo-pairing-guide-header-watch {
+        transition: none;
     }
 }
 
@@ -2988,9 +3016,17 @@
     margin-top: 0.5rem;
 }
 
+.demo-tap-hint-below .demo-tap-arrow {
+    font-size: 1.0rem;
+}
+
+.demo-tap-hint-below .demo-tap-label {
+    font-size: 0.7rem;
+}
+
 .demo-tap-arrow {
     font-size: 1.4rem;
-    color: #6366f1;
+    color: #4b73ef;
     line-height: 1;
     animation: demoArrowBounce 1.1s ease-in-out infinite;
 }
@@ -2998,8 +3034,21 @@
 .demo-tap-label {
     font-size: 0.82rem;
     font-weight: 700;
-    color: #6366f1;
     letter-spacing: 0.03em;
+    background: linear-gradient(
+        120deg,
+        #4b73ef 0%,
+        #4b73ef 25%,
+        #93c5fd 45%,
+        #93c5fd 55%,
+        #4b73ef 75%,
+        #4b73ef 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer-text-inline 4s linear infinite;
 }
 
 @keyframes demoArrowBounce {

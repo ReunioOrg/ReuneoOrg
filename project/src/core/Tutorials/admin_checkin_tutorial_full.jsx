@@ -117,12 +117,12 @@ const MockNameStep = ({ active }) => {
                 setTyped(TARGET.slice(0, idx));
                 if (idx >= TARGET.length) {
                     clearInterval(typeInterval);
-                    laterTimers.push(setTimeout(() => setShowValid(true), 400));
-                    laterTimers.push(setTimeout(() => setShowContinue(true), 900));
-                    laterTimers.push(setTimeout(() => setPressContinue(true), 1800));
+                    laterTimers.push(setTimeout(() => setShowValid(true), 500));
+                    laterTimers.push(setTimeout(() => setShowContinue(true), 1125));
+                    laterTimers.push(setTimeout(() => setPressContinue(true), 2250));
                 }
-            }, 160);
-        }, 500);
+            }, 200);
+        }, 625);
 
         return () => {
             clearTimeout(startDelay);
@@ -133,8 +133,6 @@ const MockNameStep = ({ active }) => {
 
     return (
         <div className="act-mock-signup">
-            <p className="act-mock-header">Signup to join</p>
-
             <div className="act-mock-dots">
                 <span className="act-mock-dot act-mock-dot-active" />
                 <span className="act-mock-dot" />
@@ -186,12 +184,12 @@ const MockPhotoStep = ({ active, onDone }) => {
         }
 
         const timers = [
-            setTimeout(() => setShowFlash(true),     600),
-            setTimeout(() => setShowFlash(false),   1050),
-            setTimeout(() => setShowPhoto(true),    1150),
-            setTimeout(() => setShowComplete(true), 2000),
-            setTimeout(() => setPressComplete(true),2900),
-            setTimeout(() => onDone?.(),            3400),
+            setTimeout(() => setShowFlash(true),     750),
+            setTimeout(() => setShowFlash(false),   1313),
+            setTimeout(() => setShowPhoto(true),    1438),
+            setTimeout(() => setShowComplete(true), 2500),
+            setTimeout(() => setPressComplete(true),3625),
+            setTimeout(() => onDone?.(),            4250),
         ];
 
         return () => timers.forEach(clearTimeout);
@@ -271,12 +269,12 @@ const MockTagStep = ({ active, phase, allTags, autoSelected, selfComplete, onDon
         }
 
         const count = autoSelected.length;
-        const baseDelay = 600;
-        const tagInterval = 520;
+        const baseDelay = 750;
+        const tagInterval = 650;
         const lastTagTime = baseDelay + (count - 1) * tagInterval;
-        const btnDelay  = lastTagTime + 720;
-        const pressDelay = btnDelay + 800;
-        const doneDelay  = pressDelay + 520;
+        const btnDelay  = lastTagTime + 900;
+        const pressDelay = btnDelay + 1000;
+        const doneDelay  = pressDelay + 650;
 
         const timers = [];
 
@@ -453,7 +451,7 @@ const MockActiveState = ({ customTags, active }) => {
             return;
         }
         /* Pulse both avatars immediately on entry */
-        const t = setTimeout(() => setShowKatePulse(true), 300);
+        const t = setTimeout(() => setShowKatePulse(true), 375);
         return () => clearTimeout(t);
     }, [active]);
 
@@ -550,8 +548,8 @@ const PairGreetingConfetti = () => (
     </div>
 );
 
-const HOP_DURATION_MS = 1500;
-const GREET_DELAY_AFTER_PHONES_MS = 250;
+const HOP_DURATION_MS = 1875;
+const GREET_DELAY_AFTER_PHONES_MS = 313;
 
 const MockPairGreeting = ({ active }) => {
     const [showPhones, setShowPhones] = useState(false);
@@ -569,7 +567,7 @@ const MockPairGreeting = ({ active }) => {
         const timers = [
             setTimeout(() => setShowPhones(true), HOP_DURATION_MS),
             setTimeout(() => setShowGreet(true), HOP_DURATION_MS + GREET_DELAY_AFTER_PHONES_MS),
-            setTimeout(() => setFading(true), 3800),
+            setTimeout(() => setFading(true), 4750),
         ];
         return () => timers.forEach(clearTimeout);
     }, [active]);
@@ -639,7 +637,7 @@ const MockLobbyView = ({ active, customTags, hasTags, showTableNumbers }) => {
 
     useEffect(() => {
         if (!active) { setShowCard(false); return; }
-        const t = setTimeout(() => setShowCard(true), 200);
+        const t = setTimeout(() => setShowCard(true), 250);
         return () => clearTimeout(t);
     }, [active]);
 
@@ -721,7 +719,7 @@ const MockTonyLobbyView = ({ active, customTags, hasTags, showTableNumbers }) =>
 
     useEffect(() => {
         if (!active) { setShowCard(false); return; }
-        const t = setTimeout(() => setShowCard(true), 200);
+        const t = setTimeout(() => setShowCard(true), 250);
         return () => clearTimeout(t);
     }, [active]);
 
@@ -849,21 +847,21 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
     /* Scene 3 → 4: auto-advance after 4.5s on scene 3 */
     useEffect(() => {
         if (scene !== 3) return;
-        const t = setTimeout(() => setScene(4), 4500);
+        const t = setTimeout(() => setScene(4), 5625);
         return () => clearTimeout(t);
     }, [scene]);
 
     /* Scene 4 → 5: after phone zoom completes */
     useEffect(() => {
         if (scene !== 4) return;
-        const t = setTimeout(() => setScene(5), 3600);
+        const t = setTimeout(() => setScene(5), 4500);
         return () => clearTimeout(t);
     }, [scene]);
 
     /* Scene 5 → 6 */
     useEffect(() => {
         if (scene !== 5) return;
-        const t = setTimeout(() => setScene(6), 3200);
+        const t = setTimeout(() => setScene(6), 4000);
         return () => clearTimeout(t);
     }, [scene]);
 
@@ -890,7 +888,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
     /* Scene 7 → 8: volume slide auto-advances after 4000ms (both branches) */
     useEffect(() => {
         if (scene !== 7) return;
-        const t = setTimeout(() => setScene(8), 4000);
+        const t = setTimeout(() => setScene(8), 5000);
         return () => clearTimeout(t);
     }, [scene]);
 
@@ -902,7 +900,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
         const t = setTimeout(() => {
             if (hasTags) setScene(9);
             else setShowReady(true);
-        }, 3500);
+        }, 4375);
         return () => clearTimeout(t);
     }, [scene, hasTags]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -918,9 +916,9 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
         setShowAdminPulse(false);
         setShowAdminPress(false);
         const timers = [
-            setTimeout(() => setShowAdminPulse(true), 1200),
-            setTimeout(() => setShowAdminPress(true), 2500),
-            setTimeout(() => setScene(12), 4000),
+            setTimeout(() => setShowAdminPulse(true), 1500),
+            setTimeout(() => setShowAdminPress(true), 3125),
+            setTimeout(() => setScene(12), 5000),
         ];
         return () => timers.forEach(clearTimeout);
     }, [scene]);
@@ -928,21 +926,21 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
     /* Scene 12 → 13 */
     useEffect(() => {
         if (scene !== 12) return;
-        const t = setTimeout(() => setScene(13), 1600);
+        const t = setTimeout(() => setScene(13), 2000);
         return () => clearTimeout(t);
     }, [scene]);
 
     /* Scene 13 → 14: pair greeting */
     useEffect(() => {
         if (scene !== 13) return;
-        const t = setTimeout(() => setScene(14), 3500);
+        const t = setTimeout(() => setScene(14), 4375);
         return () => clearTimeout(t);
     }, [scene]);
 
     /* Scene 14 → CMEF mingling (circle dots) */
     useEffect(() => {
         if (scene !== 14) return;
-        const t = setTimeout(() => setShowCmef(true), 4200);
+        const t = setTimeout(() => setShowCmef(true), 5250);
         return () => clearTimeout(t);
     }, [scene]);
 
@@ -952,9 +950,9 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
         setShowEndPulse(false);
         setShowEndPress(false);
         const timers = [
-            setTimeout(() => setShowEndPulse(true), 1200),
-            setTimeout(() => setShowEndPress(true), 2500),
-            setTimeout(() => handleFinalComplete(), 4000),
+            setTimeout(() => setShowEndPulse(true), 1500),
+            setTimeout(() => setShowEndPress(true), 3125),
+            setTimeout(() => handleFinalComplete(), 5000),
         ];
         return () => timers.forEach(clearTimeout);
     }, [scene]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -974,7 +972,7 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
                     <>
                         <div className="act-header-area" style={{ marginTop: '36px' }}>
                             <p className="act-header-text act-single-header">
-                                After scanning, tell them one thing: &ldquo;Listen to the app&rsquo;s instructions&rdquo;
+                                After scanning, tell your attendees this: &ldquo;Listen to the app&rsquo;s instructions&rdquo;
                             </p>
                         </div>
                         <div className="act-stage">
@@ -1005,33 +1003,61 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
 
             {/* ── Scene 5: Mock signup – name ── */}
             <div className={`act-scene act-scene-mock${s === 5 ? ' act-scene-active' : ''}`}>
-                {s >= 5 && <MockNameStep active={s === 5} />}
+                {s >= 5 && (
+                    <>
+                        <div className="act-step-header">
+                            <span className="act-step-badge">1</span>
+                            <span className="act-step-text">Attendees input their name</span>
+                        </div>
+                        <MockNameStep active={s === 5} />
+                    </>
+                )}
             </div>
 
             {/* ── Scene 6: Mock signup – photo ── */}
             <div className={`act-scene act-scene-mock${s === 6 ? ' act-scene-active' : ''}`}>
-                {s >= 6 && <MockPhotoStep active={s === 6} onDone={handleAfterPhoto} />}
+                {s >= 6 && (
+                    <>
+                        <div className="act-step-header">
+                            <span className="act-step-badge">2</span>
+                            <span className="act-step-text">Attendees upload a selfie</span>
+                        </div>
+                        <MockPhotoStep active={s === 6} onDone={handleAfterPhoto} />
+                    </>
+                )}
             </div>
 
             {/* ── Scene 7: Volume slide (both branches) ── */}
             <div className={`act-scene act-scene-mock act-howto-scene${s === 7 ? ' act-scene-active' : ''}`}>
                 {s >= 7 && (
-                    <div className="tutorial-container act-howto-container">
-                        <div className="tutorial-slide current">
-                            <TutorialSlide2 isActive={s === 7} />
+                    <>
+                        <div className="act-step-header">
+                            <span className="act-step-badge">3</span>
+                            <span className="act-step-text">Tell attendees to raise their volume</span>
                         </div>
-                    </div>
+                        <div className="tutorial-container act-howto-container">
+                            <div className="tutorial-slide current">
+                                <TutorialSlide2 isActive={s === 7} />
+                            </div>
+                        </div>
+                    </>
                 )}
             </div>
 
             {/* ── Scene 8: Pause slide (both branches) ── */}
             <div className={`act-scene act-scene-mock act-howto-scene${s === 8 ? ' act-scene-active' : ''}`}>
                 {s >= 8 && (
-                    <div className="tutorial-container act-howto-container">
-                        <div className="tutorial-slide current">
-                            <TutorialSlide3 isActive={s === 8} onPauseClicked={null} />
+                    <>
+                        <div className="act-step-header">
+                            <span className="act-step-badge">4</span>
+                            <span className="act-step-text">Attendees can pause anytime</span>
                         </div>
-                    </div>
+                        <div className="tutorial-container act-howto-container">
+                            <div className="tutorial-slide current">
+                                <TutorialSlide3 isActive={s === 8} onPauseClicked={null} />
+                            </div>
+                        </div>
+                    </>
                 )}
             </div>
 

@@ -34,6 +34,12 @@ const ShowMatchAnimation = ({ isVisible, onAnimationEnd }) => {
     const [active, setActive] = useState(false);
     const [showText, setShowText] = useState(false);
     const timerRef = useRef(null);
+    const textTimerRef = useRef(null);
+    const onAnimationEndRef = useRef(onAnimationEnd);
+
+    useEffect(() => {
+        onAnimationEndRef.current = onAnimationEnd;
+    }, [onAnimationEnd]);
     
     const particles = useMemo(() => generateParticles(30), []);
     const stars = useMemo(() => generateStars(20), []);
@@ -41,6 +47,11 @@ const ShowMatchAnimation = ({ isVisible, onAnimationEnd }) => {
     useEffect(() => {
         if (timerRef.current) {
             clearTimeout(timerRef.current);
+            timerRef.current = null;
+        }
+        if (textTimerRef.current) {
+            clearTimeout(textTimerRef.current);
+            textTimerRef.current = null;
         }
 
         if (isVisible) {
@@ -48,14 +59,12 @@ const ShowMatchAnimation = ({ isVisible, onAnimationEnd }) => {
             setShowText(false);
             
             // Show text after particles converge
-            setTimeout(() => setShowText(true), 600);
+            textTimerRef.current = setTimeout(() => setShowText(true), 600);
 
             timerRef.current = setTimeout(() => {
                 setActive(false);
                 setShowText(false);
-                if (onAnimationEnd) {
-                    onAnimationEnd();
-                }
+                onAnimationEndRef.current?.();
             }, 3500);
         } else {
             setActive(false);
@@ -67,8 +76,12 @@ const ShowMatchAnimation = ({ isVisible, onAnimationEnd }) => {
                 clearTimeout(timerRef.current);
                 timerRef.current = null;
             }
+            if (textTimerRef.current) {
+                clearTimeout(textTimerRef.current);
+                textTimerRef.current = null;
+            }
         };
-    }, [isVisible, onAnimationEnd]);
+    }, [isVisible]);
 
     return (
         <AnimatePresence>
