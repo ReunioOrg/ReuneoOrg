@@ -49,6 +49,12 @@ const LobbyScreen = () => {
     const [lobbyCode, setLobbyCode] = useState('yonder');
     const navigate = useNavigate();
     const { code } = useParams();
+
+    // --- Free-trial onboarding demo state ---
+    const demoModeRef = useRef(false);  // ref so it's accessible inside stale closures in fetchLobbyData
+    const demoTimerRef = useRef(null);  // active demo countdown timer
+    const demoRoundTimerStartedRef = useRef(new Set()); // rounds where demo timer has already been started
+    const [showDemoFastForward, setShowDemoFastForward] = useState(false); // overlay text
     const [player_count, setPlayerCount] = useState(null);
     useGetLobbyMetadata(setPlayerCount, null, lobbyCode);
     const { user, userProfile, checkAuth, permissions, isAuthLoading, authLoadingMessage, emailVerified, userEmail } = useContext(AuthContext);
@@ -91,7 +97,13 @@ const LobbyScreen = () => {
     useEffect(() => {
         const checkParams = async () => {
             const params = new URLSearchParams(window.location.search);
-            const codeParam = params.get('code') || code;      
+            const codeParam = params.get('code') || code;
+
+            // Detect free-trial onboarding demo mode
+            if (params.get('demo') === 'true') {
+                demoModeRef.current = true;
+            }
+
             if (codeParam) {
                 setLobbyCode(codeParam);
                 // Store lobby code in localStorage for "return to lobby" feature
@@ -635,6 +647,40 @@ const LobbyScreen = () => {
                     }
                 }
                 
+                // --- Demo mode: timed fast-forward and exit logic ---
+                if (demoModeRef.current && data.lobby_state === 'active' && data.eligible_for_pairing) {
+                    const currentRound = data.current_round || 1;
+                    if (!demoRoundTimerStartedRef.current.has(currentRound)) {
+                        demoRoundTimerStartedRef.current.add(currentRound);
+                        clearTimeout(demoTimerRef.current);
+
+                        const isExitRound = currentRound >= 4;
+                        const timerMs = isExitRound ? 5000 : currentRound === 1 ? 10000 : 7000;
+
+                        demoTimerRef.current = setTimeout(async () => {
+                            if (isExitRound) {
+                                // End of demo: set flag, go back to admin view
+                                localStorage.setItem('demoCompletedAt', Date.now().toString());
+                                navigate(`/admin_lobby_view?code=${currentLobbyCode}`, {
+                                    state: { demoMode: true, returnedFromDemo: true }
+                                });
+                            } else {
+                                // Fast-forward: reset the round timer and show overlay
+                                setShowDemoFastForward(true);
+                                try {
+                                    await apiFetch('/reset_lobby_timer', {
+                                        method: 'GET',
+                                        headers: { 'lobby_code': currentLobbyCode }
+                                    });
+                                } catch (e) {
+                                    console.error('[DEMO] reset_lobby_timer failed:', e);
+                                }
+                                setTimeout(() => setShowDemoFastForward(false), 3000);
+                            }
+                        }, timerMs);
+                    }
+                }
+
                 setPrevLobbyState(data.lobby_state);
             }
         } catch (error) {
@@ -654,7 +700,10 @@ const LobbyScreen = () => {
             fetchLobbyData();
         }, useEffectTime);
 
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(interval);
+            clearTimeout(demoTimerRef.current);
+        };
     }, []); 
 
     // Opportunistic audio unlock for purgatory notification sound
@@ -1710,6 +1759,22 @@ const LobbyScreen = () => {
                                 Got it
                             </button>
                         </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Demo mode: fast-forward overlay shown when reset_lobby_timer is called */}
+            <AnimatePresence>
+                {showDemoFastForward && (
+                    <motion.div
+                        className="demo-fast-forward-overlay"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.35 }}
+                    >
+                        <span className="demo-fast-forward-emoji">⚡</span>
+                        <span className="demo-fast-forward-text">Fast-forwarding to the next round so you can see more pairings!</span>
                     </motion.div>
                 )}
             </AnimatePresence>

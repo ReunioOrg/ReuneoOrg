@@ -1306,11 +1306,11 @@
     z-index: 1;
 }
 
-.progress-pill-btn:first-child {
+.lobby-progress-track > div:first-child {
     margin-right: -10px;
 }
 
-.progress-pill-btn:last-child {
+.lobby-progress-track > div:last-child {
     margin-left: -10px;
 }
 
@@ -2956,3 +2956,58 @@
     pointer-events: auto;
 }
 
+/* ── Demo onboarding styles ── */
+
+/* Badge shown on demo user player cards */
+.demo-user-badge {
+    display: inline-block;
+    padding: 0.1rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: rgba(99, 102, 241, 0.12);
+    color: #6366f1;
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    margin-top: 2px;
+}
+
+/* "Tap here!" hint shown above the QR card and Start button during demo */
+.demo-tap-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    animation: demoTapPulse 1.1s ease-in-out infinite;
+    pointer-events: none;
+    margin-bottom: 4px;
+}
+
+.demo-tap-hint-qr {
+    margin-top: 0.5rem;
+}
+
+.demo-tap-arrow {
+    font-size: 1.4rem;
+    color: #6366f1;
+    line-height: 1;
+    animation: demoArrowBounce 1.1s ease-in-out infinite;
+}
+
+.demo-tap-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #6366f1;
+    letter-spacing: 0.03em;
+}
+
+@keyframes demoArrowBounce {
+    0%, 100% { transform: translateY(0); opacity: 1; }
+    50% { transform: translateY(5px); opacity: 0.7; }
+}
+
+@keyframes demoTapPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.65; }
+}

@@ -240,12 +240,12 @@ const generateStyledQRCodeImage = (svgElement, code) => {
 };
 
 // Progress bar component for lobby phases
-const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, currentRound, checkinTriggerRef, suppressCheckinAutoOpen, planInfo, showStartPulse, onStartTutorial, startModalTriggerRef, showEndPulse, onEndTutorial, endModalTriggerRef }) => {
+const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, currentRound, checkinTriggerRef, suppressCheckinAutoOpen, planInfo, showStartPulse, onStartTutorial, startModalTriggerRef, showEndPulse, onEndTutorial, endModalTriggerRef, forceStartEnabled, showStartTapHint, showEndTapHint }) => {
     // Determine states for each arrow
     // Check-in
     const checkinActive = lobbyState === 'checkin';
-    // Start Rounds
-    const startAvailable = playerCount >= 2 && lobbyState === 'checkin';
+    // Start Rounds — forceStartEnabled allows demo mode to unlock Start without real players
+    const startAvailable = (playerCount >= 2 || forceStartEnabled) && lobbyState === 'checkin';
     const startActive = lobbyState === 'active';
     // End Rounds
     const endAvailable = lobbyState === 'active';
@@ -326,7 +326,7 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
     // Auto-open disabled — inline QR on page makes it redundant
 
     const startBtnClass = () => {
-        if (checkinActive && playerCount < 2) return 'progress-pill-btn progress-pill-start-waiting';
+        if (checkinActive && playerCount < 2 && !forceStartEnabled) return 'progress-pill-btn progress-pill-start-waiting';
         if (checkinActive) return 'progress-pill-btn progress-pill-start';
         return 'progress-pill-btn progress-pill-inactive';
     };
@@ -394,34 +394,50 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                     <span className="interrim-round-label">Creating Pairs...</span>
                 ) : (
                     <>
-                        <button
-                            className={`${startBtnClass()}${startOnTop ? ' pill-on-top' : ''}`}
-                            tabIndex={0}
-                            title={startAvailable ? 'Start rounds' : 'At least 2 players required'}
-                            onClick={handleStart}
-                        >
-                            Start
-                            {showStartPulse && (
-                                <>
-                                    <span className="start-pill-ring start-pill-ring-1" />
-                                    <span className="start-pill-ring start-pill-ring-2" />
-                                </>
+                        <div style={{ flex: '1 1 0', height: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {showStartTapHint && (
+                                <div className="demo-tap-hint" style={{ position: 'absolute', top: '-48px', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
+                                    <span className="demo-tap-arrow">↓</span>
+                                    <span className="demo-tap-label">Tap here!</span>
+                                </div>
                             )}
-                        </button>
-                        <button
-                            className={`${endBtnClass()}${endOnTop ? ' pill-on-top' : ''}`}
-                            tabIndex={0}
-                            title={endAvailable ? 'End rounds' : 'Cannot end yet'}
-                            onClick={handleEnd}
-                        >
-                            End
-                            {showEndPulse && (
-                                <>
-                                    <span className="end-pill-ring end-pill-ring-1" />
-                                    <span className="end-pill-ring end-pill-ring-2" />
-                                </>
+                            <button
+                                className={`${startBtnClass()}${startOnTop ? ' pill-on-top' : ''}`}
+                                tabIndex={0}
+                                title={startAvailable ? 'Start rounds' : 'At least 2 players required'}
+                                onClick={handleStart}
+                            >
+                                Start
+                                {showStartPulse && (
+                                    <>
+                                        <span className="start-pill-ring start-pill-ring-1" />
+                                        <span className="start-pill-ring start-pill-ring-2" />
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                        <div style={{ flex: '1 1 0', height: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {showEndTapHint && (
+                                <div className="demo-tap-hint" style={{ position: 'absolute', top: '-48px', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
+                                    <span className="demo-tap-arrow">↓</span>
+                                    <span className="demo-tap-label">Tap here!</span>
+                                </div>
                             )}
-                        </button>
+                            <button
+                                className={`${endBtnClass()}${endOnTop ? ' pill-on-top' : ''}`}
+                                tabIndex={0}
+                                title={endAvailable ? 'End rounds' : 'Cannot end yet'}
+                                onClick={handleEnd}
+                            >
+                                End
+                                {showEndPulse && (
+                                    <>
+                                        <span className="end-pill-ring end-pill-ring-1" />
+                                        <span className="end-pill-ring end-pill-ring-2" />
+                                    </>
+                                )}
+                            </button>
+                        </div>
                     </>
                 )}
             </div>
@@ -1235,10 +1251,109 @@ const AdminLobbyView = () => {
     // True once the organizer taps the QR card in this page session (resets on refresh)
     const [qrTappedThisSession, setQrTappedThisSession] = useState(false);
 
+    // --- Free-trial onboarding demo state ---
+    // demoMode: true when organizer is a first-time free-trial user
+    const [demoMode, setDemoMode] = useState(false);
+    // demoStep: drives the step-by-step demo flow
+    // 'inject' → 'qr' → 'start' → 'active' → 'endRound' → null
+    const [demoStep, setDemoStep] = useState(null);
+    // demoUsernames: Set of injected demolobbyuser usernames (used for realPlayerCount + DEMO badges)
+    const [demoUsernames, setDemoUsernames] = useState(new Set());
+    const demoActiveTimerRef = useRef(null);
+    const prevLobbyStateForDemoRef = useRef(null);
+
+    // Detect demo mode: first-time free-trial organizer
+    useEffect(() => {
+        if (!planInfo) return;
+        if (
+            planInfo.plan_type === 'free_trial' &&
+            planInfo.trial_uses_remaining === 3 &&
+            !localStorage.getItem('demoCompletedAt')
+        ) {
+            setDemoMode(true);
+            setDemoStep('inject');
+        }
+    }, [planInfo]);
+
+    // Detect returning from lobby.jsx after demo rounds
+    useEffect(() => {
+        if (location.state?.returnedFromDemo) {
+            setDemoMode(true);
+            setDemoStep('endRound');
+            setDemoUsernames(new Set([
+                'demolobbyuser1', 'demolobbyuser2', 'demolobbyuser3',
+                'demolobbyuser4', 'demolobbyuser5'
+            ]));
+            // Clear the router state so a refresh doesn't re-trigger
+            window.history.replaceState({}, '');
+        }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Inject demo users when demoStep === 'inject'
+    useEffect(() => {
+        if (!demoMode || demoStep !== 'inject' || !lobbyCode || lobbyCode === 'test') return;
+        const injectUsers = async () => {
+            try {
+                const res = await apiFetch('/inject_demo_users', {
+                    method: 'POST',
+                    headers: { 'lobby_code': lobbyCode }
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    setDemoUsernames(new Set(data.injected));
+                    setDemoStep('qr');
+                }
+            } catch (err) {
+                console.error('[DEMO] Failed to inject demo users:', err);
+            }
+        };
+        injectUsers();
+    }, [demoMode, demoStep, lobbyCode]);
+
+    // Advance demoStep 'qr' → 'start' when QR is tapped (watches existing qrTappedThisSession)
+    useEffect(() => {
+        if (demoMode && demoStep === 'qr' && qrTappedThisSession) {
+            setDemoStep('start');
+        }
+    }, [qrTappedThisSession, demoMode, demoStep]);
+
+    // Advance demoStep 'start' → 'active' when lobby transitions to active state
+    useEffect(() => {
+        if (!demoMode || demoStep !== 'start') return;
+        if (lobbyState === 'active' && prevLobbyStateForDemoRef.current !== 'active') {
+            setDemoStep('active');
+        }
+        prevLobbyStateForDemoRef.current = lobbyState;
+    }, [lobbyState, demoMode, demoStep]);
+
+    // 4-second timer: once active → join organizer mid-round → navigate to lobby.jsx
+    useEffect(() => {
+        if (!demoMode || demoStep !== 'active') return;
+        demoActiveTimerRef.current = setTimeout(async () => {
+            try {
+                await apiFetch('/demo_join_organizer', {
+                    method: 'POST',
+                    headers: { 'lobby_code': lobbyCode }
+                });
+            } catch (err) {
+                console.error('[DEMO] demo_join_organizer failed:', err);
+            }
+            navigate(`/lobby?code=${lobbyCode}&demo=true`);
+        }, 4000);
+        return () => clearTimeout(demoActiveTimerRef.current);
+    }, [demoMode, demoStep]); // eslint-disable-line react-hooks/exhaustive-deps
+
     // Add playerCount and lobbyState for progress bar
     const playerCount = (lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0);
+
+    // realPlayerCount excludes demo users so they don't affect layout conditions
+    const realPlayerCount = (demoMode && demoUsernames.size > 0)
+        ? (lobbyData?.filter(p => !demoUsernames.has(p.username)).length || 0)
+          + (pairedPlayers?.filter(pair => !pair.some(p => demoUsernames.has(p.username))).length * 2 || 0)
+        : playerCount;
+
     const totalAttendeeCount = playerCount + inactivePlayerCount;
-    const isQrState = lobbyState === 'checkin' && playerCount < 2;
+    const isQrState = lobbyState === 'checkin' && realPlayerCount < 2;
 
     // 90% attendee limit warning -- show once per lobby via sessionStorage
     useEffect(() => {
@@ -1247,11 +1362,11 @@ const AdminLobbyView = () => {
         const storageKey = `limitWarning_${lobbyCode}`;
         if (sessionStorage.getItem(storageKey)) return;
         const threshold = Math.floor(planInfo.attendee_limit * 0.9);
-        if (playerCount >= threshold) {
+        if (realPlayerCount >= threshold) {
             setShowLimitWarningModal(true);
             sessionStorage.setItem(storageKey, 'true');
         }
-    }, [playerCount, planInfo, lobbyCode, showLimitWarningModal]);
+    }, [realPlayerCount, planInfo, lobbyCode, showLimitWarningModal]);
 
     const CreateLobby = async () => {
         const response = await apiFetch('/create_lobby', {
@@ -1687,8 +1802,8 @@ const AdminLobbyView = () => {
                 {lobbyState !== 'interrim' && (
                     <OverlappingProfileList
                         players={{ pairedPlayers, lobbyData }}
-                        totalAttendeeCount={playerCount}
-                        attendeeLimit={planInfo?.attendee_limit || null}
+                        totalAttendeeCount={realPlayerCount}
+                        attendeeLimit={demoMode ? null : (planInfo?.attendee_limit || null)}
                         lobbyState={lobbyState}
                         planType={planInfo?.plan_type}
                         onUpgrade={planInfo ? () => goToAccountDetails() : null}
@@ -1700,6 +1815,12 @@ const AdminLobbyView = () => {
                         <p className="checkin-modal-subtitle">
                             Tell people to scan and listen to the app's instructions. Thats it!
                         </p>
+                        {demoMode && demoStep === 'qr' && (
+                            <div className="demo-tap-hint demo-tap-hint-qr">
+                                <span className="demo-tap-arrow">↓</span>
+                                <span className="demo-tap-label">Tap here!</span>
+                            </div>
+                        )}
                         <div className="checkin-modal-qr-wrapper" style={{ marginTop: '0.75rem' }} onClick={() => {
                             setInlineQrPulsing(true);
                             setTimeout(() => setInlineQrPulsing(false), 700);
@@ -1760,7 +1881,7 @@ const AdminLobbyView = () => {
 
                 <LobbyProgressBar
                     lobbyState={lobbyState}
-                    playerCount={playerCount}
+                    playerCount={realPlayerCount}
                     onStart={handleStartRounds}
                     onEnd={handleEndRounds}
                     lobbyCode={lobbyCode}
@@ -1768,22 +1889,36 @@ const AdminLobbyView = () => {
                     checkinTriggerRef={checkinTriggerRef}
                     suppressCheckinAutoOpen={false}
                     planInfo={planInfo}
-                    showStartPulse={lobbyState === 'checkin' && (playerCount >= 2 || (playerCount < 2 && qrTappedThisSession))}
+                    showStartPulse={lobbyState === 'checkin' && (realPlayerCount >= 2 || (realPlayerCount < 2 && qrTappedThisSession))}
                     onStartTutorial={() => {
-                        if (hasPlayedStartAnimation(lobbyCode)) {
+                        if (demoMode && demoStep !== 'start') return;
+                        if (demoMode) {
+                            // Demo mode: skip the tutorial animation, go straight to the confirm modal
+                            startModalTriggerRef.current?.();
+                        } else if (hasPlayedStartAnimation(lobbyCode)) {
                             startModalTriggerRef.current?.();
                         } else {
                             setShowStartTutorial(true);
                         }
                     }}
                     startModalTriggerRef={startModalTriggerRef}
-                    showEndPulse={lobbyState === 'active' && maxActiveRound >= 4}
-                    onEndTutorial={() => setShowEndTutorial(true)}
+                    showEndPulse={demoMode ? demoStep === 'endRound' : lobbyState === 'active' && maxActiveRound >= 4}
+                    onEndTutorial={() => {
+                        if (demoMode) {
+                            // Demo mode: skip the end tutorial animation, go straight to confirm modal
+                            endModalTriggerRef.current?.();
+                        } else {
+                            setShowEndTutorial(true);
+                        }
+                    }}
                     endModalTriggerRef={endModalTriggerRef}
+                    forceStartEnabled={demoMode && demoStep === 'start'}
+                    showStartTapHint={demoMode && demoStep === 'start'}
+                    showEndTapHint={demoMode && demoStep === 'endRound'}
                 />
 
-                {/* Attendee QR button — hidden only when inline QR is visible (checkin + <2 players) */}
-                {!(lobbyState === 'checkin' && playerCount < 2) && (
+                {/* Attendee QR button — hidden only when inline QR is visible (checkin + <2 real players) */}
+                {!(lobbyState === 'checkin' && realPlayerCount < 2) && (
                     <div
                         className="admin-lobby-dropdown-toggle attendee-qr-btn"
                         onClick={() => checkinTriggerRef.current?.()}
@@ -1894,6 +2029,9 @@ const AdminLobbyView = () => {
                                                     </span>
                                                 </div>
                                                 <h3 className="paired-player-name">{pair[0].name}</h3>
+                                                {demoMode && demoUsernames.has(pair[0].username) && (
+                                                    <span className="demo-user-badge">Demo</span>
+                                                )}
                                                 {pair[0].eligible_for_pairing === false && (
                                                     <span className="eligibility-badge not-eligible">Not ready</span>
                                                 )}
@@ -1928,6 +2066,9 @@ const AdminLobbyView = () => {
                                                     </span>
                                                 </div>
                                                 <h3 className="paired-player-name">{pair[1].name}</h3>
+                                                {demoMode && demoUsernames.has(pair[1].username) && (
+                                                    <span className="demo-user-badge">Demo</span>
+                                                )}
                                                 {pair[1].eligible_for_pairing === false && (
                                                     <span className="eligibility-badge not-eligible">Not ready</span>
                                                 )}
@@ -1985,6 +2126,9 @@ const AdminLobbyView = () => {
                                             </span>
                                         </div>
                                         <h3 className="player-name">{player.name}</h3>
+                                        {demoMode && demoUsernames.has(player.username) && (
+                                            <span className="demo-user-badge">Demo</span>
+                                        )}
                                         {player.eligible_for_pairing === false && (
                                             <span className="eligibility-badge not-eligible">Not ready</span>
                                         )}
