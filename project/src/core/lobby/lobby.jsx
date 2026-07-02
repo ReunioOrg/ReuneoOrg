@@ -957,6 +957,46 @@ const LobbyScreen = () => {
         }, 2300); // Unmount at 2.3s + 0.3s exit animation = 2.6s total
     };
 
+    // Cleanup phase intro timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (phaseIntroTimeoutRef.current) {
+                clearTimeout(phaseIntroTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    // Add this state to track if we should show the animation
+    const [showLobbyCountdown, setShowLobbyCountdown] = useState(false);
+    
+    // Add this effect to handle the interrim state
+    useEffect(() => {
+        if (lobbyState === "interrim") {
+            setShowLobbyCountdown(true);
+        } else if (lobbyState === "active") {
+            // Keep the animation visible for a moment after state changes to active
+            const timer = setTimeout(() => {
+                setShowLobbyCountdown(false);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [lobbyState]);
+    
+    // Add this handler for when the animation completes
+    const handleLobbyCountdownComplete = () => {
+        // You can add any additional logic here
+        console.log("Lobby countdown animation completed");
+    };
+
+    // Add this state to track if we should show the tutorial
+    const [showTutorial, setShowTutorial] = useState(false);
+    const showTutorialRef = useRef(false);
+
+    // Keep ref in sync so polling closure always has the latest value
+    useEffect(() => {
+        showTutorialRef.current = showTutorial;
+    }, [showTutorial]);
+
     const performTagScroll = useCallback(() => {
         if (!tagsSectionRef.current) return;
         tagsSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -997,46 +1037,6 @@ const LobbyScreen = () => {
             }, 450);
         }, 400);
     }, [tagsState, serverselfTags, serverdesiringTags, showTutorial, soundEnabled, showSoundPrompt, lobbyState, isPlaying, performTagScroll]);
-
-    // Cleanup phase intro timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (phaseIntroTimeoutRef.current) {
-                clearTimeout(phaseIntroTimeoutRef.current);
-            }
-        };
-    }, []);
-
-    // Add this state to track if we should show the animation
-    const [showLobbyCountdown, setShowLobbyCountdown] = useState(false);
-    
-    // Add this effect to handle the interrim state
-    useEffect(() => {
-        if (lobbyState === "interrim") {
-            setShowLobbyCountdown(true);
-        } else if (lobbyState === "active") {
-            // Keep the animation visible for a moment after state changes to active
-            const timer = setTimeout(() => {
-                setShowLobbyCountdown(false);
-            }, 1000);
-            return () => clearTimeout(timer);
-        }
-    }, [lobbyState]);
-    
-    // Add this handler for when the animation completes
-    const handleLobbyCountdownComplete = () => {
-        // You can add any additional logic here
-        console.log("Lobby countdown animation completed");
-    };
-
-    // Add this state to track if we should show the tutorial
-    const [showTutorial, setShowTutorial] = useState(false);
-    const showTutorialRef = useRef(false);
-
-    // Keep ref in sync so polling closure always has the latest value
-    useEffect(() => {
-        showTutorialRef.current = showTutorial;
-    }, [showTutorial]);
     
     // Profile modal state
     const [showProfileModal, setShowProfileModal] = useState(false);
