@@ -34,8 +34,10 @@ const LobbyScreen = () => {
     
     const [tagsState, setTagsState] = useState([]);
     const [selectionPhase, setSelectionPhase] = useState('self');
-    const [hasScrolledToTags, setHasScrolledToTags] = useState(false);
     const [tagLimitWarning, setTagLimitWarning] = useState('');
+    const tagAutoScrollDoneRef = useRef(false);
+    const tagScrollTimerRef = useRef(null);
+    const prevShowTutorialRef = useRef(false);
     const desiringTagsRef = useRef(null);
     const continueButtonRef = useRef(null);
     const [showReadyAnimation, setShowReadyAnimation] = useState(false);
@@ -1038,20 +1040,57 @@ const LobbyScreen = () => {
 
     const tagsSectionRef = useRef(null);
 
-    // Add useEffect to scroll to tags if no server tags exist and custom tags are available
-    // Also shows focus overlay to draw attention to tag selection
-    useEffect(() => {
-        // Check if sound prompt is currently visible
-        const isSoundPromptVisible = !soundEnabled && showSoundPrompt && 
-            lobbyState !== "checkin" && lobbyState !== null && !isPlaying;
-        
-        if (!hasScrolledToTags && !isSoundPromptVisible && !serverselfTags?.length && !serverdesiringTags?.length && tagsState?.length > 0) {
-            tagsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-            setHasScrolledToTags(true);
+    const tryScrollToTags = useCallback(() => {
+        const needsTagSelection = tagsState?.length > 0 &&
+            (!serverselfTags?.length || !serverdesiringTags?.length);
+        const isSoundPromptBlocking = !soundEnabled && showSoundPrompt &&
+            lobbyState !== 'checkin' && lobbyState !== null && !isPlaying;
+
+        if (!needsTagSelection || tagAutoScrollDoneRef.current || showTutorial || isSoundPromptBlocking) {
+            return;
+        }
+        if (!tagsSectionRef.current) return;
+
+        tagAutoScrollDoneRef.current = true;
+        if (tagScrollTimerRef.current) clearTimeout(tagScrollTimerRef.current);
+        tagScrollTimerRef.current = setTimeout(() => {
+            tagsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             setShowTagsFocusOverlay(true);
             triggerPhaseIntro();
+            tagScrollTimerRef.current = null;
+        }, 150);
+    }, [tagsState, serverselfTags, serverdesiringTags, showTutorial, soundEnabled, showSoundPrompt, lobbyState, isPlaying]);
+
+    // Eligible (tags complete): reset auto-scroll so a future incomplete state can scroll again
+    useEffect(() => {
+        const needsTagSelection = tagsState?.length > 0 &&
+            (!serverselfTags?.length || !serverdesiringTags?.length);
+        if (!needsTagSelection) {
+            tagAutoScrollDoneRef.current = false;
+            setShowTagsFocusOverlay(false);
         }
-    }, [serverselfTags, serverdesiringTags, tagsState, hasScrolledToTags, soundEnabled, showSoundPrompt, lobbyState, isPlaying]);
+    }, [tagsState, serverselfTags, serverdesiringTags]);
+
+    // Scroll to tags when user is ineligible (incomplete tag selection) and blockers are clear
+    useEffect(() => {
+        tryScrollToTags();
+    }, [tryScrollToTags]);
+
+    // Retry after tutorial closes — primary moment users need to reach tag selection
+    useEffect(() => {
+        if (prevShowTutorialRef.current && !showTutorial) {
+            const timer = setTimeout(() => tryScrollToTags(), 350);
+            prevShowTutorialRef.current = showTutorial;
+            return () => clearTimeout(timer);
+        }
+        prevShowTutorialRef.current = showTutorial;
+    }, [showTutorial, tryScrollToTags]);
+
+    useEffect(() => {
+        return () => {
+            if (tagScrollTimerRef.current) clearTimeout(tagScrollTimerRef.current);
+        };
+    }, []);
 
     // Handle email backup modal close
     const handleEmailBackupModalClose = () => {
