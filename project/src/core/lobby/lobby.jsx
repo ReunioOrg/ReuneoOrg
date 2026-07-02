@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useLayoutEffect, useState, useRef, useCallback } from 'react';
 import { AuthContext } from '../Auth/AuthContext';
 import usePlaySound from '../playsound';
 import { useContext } from 'react';
@@ -26,8 +26,28 @@ const AVAILABLE_TAGS = []; // Remove hardcoded tags
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
 const MAX_TAGS_ALLOWED = 5; // Maximum number of tags allowed for both self and desiring tags
 const useEffectTime=5000;
+const DEMO_TAG_PREP_POLL_MS = 1000;
+const DEMO_TAG_PREP_SETTLE_MS = 150;
+const DEMO_TAG_PREP_MAX_WAIT_MS = 15000;
 // Temporarily disable lobby profile image fetching to prevent backend overload
 const DISABLE_LOBBY_PROFILE_IMAGES = false;
+
+// Filter console with [LOBBY-LAYOUT] or [TAG-SCROLL] during demo tag-shift debugging
+const logLobbyLayout = (event, details = {}) => {
+    console.log('[LOBBY-LAYOUT]', event, {
+        ms: Math.round(performance.now()),
+        scrollY: Math.round(window.scrollY),
+        ...details,
+    });
+};
+
+const logTagScroll = (event, details = {}) => {
+    console.log('[TAG-SCROLL]', event, {
+        ms: Math.round(performance.now()),
+        scrollY: Math.round(window.scrollY),
+        ...details,
+    });
+};
 
 const LobbyScreen = () => {
     const playat=Math.floor(9*60);
@@ -40,6 +60,7 @@ const LobbyScreen = () => {
     const prevShowTutorialRef = useRef(false);
     const desiringTagsRef = useRef(null);
     const continueButtonRef = useRef(null);
+    const tagsSectionRef = useRef(null);
     const [showReadyAnimation, setShowReadyAnimation] = useState(false);
     const isReadyAnimating = useRef(false);
     const [tagsCompleted, setTagsCompleted] = useState(false);
@@ -61,6 +82,11 @@ const LobbyScreen = () => {
     const demoFindPersonPopupShownRef = useRef(false);
     const [showDemoFindPersonPopup, setShowDemoFindPersonPopup] = useState(false);
     const [showDemoFastForward, setShowDemoFastForward] = useState(false); // overlay text
+    // Demo tag lobbies only: white prep overlay until layout stable, then scroll once
+    const [showDemoTagPrepOverlay, setShowDemoTagPrepOverlay] = useState(false);
+    const demoTagPrepCompleteRef = useRef(false);
+    const demoTagPrepSettleTimerRef = useRef(null);
+    const demoTagPrepFallbackTimerRef = useRef(null);
     const [player_count, setPlayerCount] = useState(null);
     useGetLobbyMetadata(setPlayerCount, null, lobbyCode);
     const { user, userProfile, checkAuth, permissions, isAuthLoading, authLoadingMessage, emailVerified, userEmail } = useContext(AuthContext);
@@ -453,6 +479,12 @@ const LobbyScreen = () => {
                 if (data.opponent_name==null) {
                     setOpponentProfile(null);
                 }
+                if (demoModeRef.current && data.custom_tags?.length) {
+                    logLobbyLayout('POLL: custom_tags loaded', {
+                        count: data.custom_tags.length,
+                        lobbyState: data.lobby_state,
+                    });
+                }
                 setTagsState(data.custom_tags);
                 setLobbyState(data.lobby_state);
                 setLobbyCreatorUsername(data.lobby_creator_username);
@@ -463,12 +495,21 @@ const LobbyScreen = () => {
                     ? data.round_time_left 
                     : 0;
                 
-                console.log("Timer Debug:", {
-                    roundDuration: data.lobby_duration,
-                    timeLeft: timeLeft,
-                    lobbyState: data.lobby_state,
-                    usingDefaultDuration: !data.lobby_duration
-                });
+                if (demoModeRef.current) {
+                    logLobbyLayout('POLL: timer data', {
+                        roundDuration: data.lobby_duration,
+                        timeLeft,
+                        lobbyState: data.lobby_state,
+                        usingDefaultDuration: !data.lobby_duration,
+                    });
+                } else {
+                    console.log("Timer Debug:", {
+                        roundDuration: data.lobby_duration,
+                        timeLeft: timeLeft,
+                        lobbyState: data.lobby_state,
+                        usingDefaultDuration: !data.lobby_duration
+                    });
+                }
                 
                 roundPosition.current = timeLeft;
                 beatGoOff.current = data.beat_go_off;
@@ -519,6 +560,12 @@ const LobbyScreen = () => {
                 
                 if (metadataResponse.ok) {
                     const metadataData = await metadataResponse.json();
+                    if (demoModeRef.current && metadataData.player_count != null) {
+                        logLobbyLayout('POLL: player_count', {
+                            player_count: metadataData.player_count,
+                            lobbyState: data.lobby_state,
+                        });
+                    }
                     setPlayerCount(metadataData.player_count);
                     
                     // Check if usernames changed and fetch missing profile images
@@ -904,6 +951,9 @@ const LobbyScreen = () => {
     };
 
     const handleContinue = () => {
+        if (layoutDebugEnabled) {
+            logTagScroll('handleContinue self → desiring');
+        }
         if (selfTags != null) {
             define_profile_info(selfTags, desiringTags || []);
             // Delay optimistic UI update until after scroll completes
@@ -924,6 +974,9 @@ const LobbyScreen = () => {
     };
 
     const handleSave = () => {
+        if (layoutDebugEnabled) {
+            logTagScroll('handleSave tags complete');
+        }
         if (desiringTags != null) {
             define_profile_info(selfTags || [], desiringTags);
             if (!isReadyAnimating.current) {
@@ -944,14 +997,69 @@ const LobbyScreen = () => {
     };
 
     const triggerPhaseIntro = () => {
+        if (layoutDebugEnabled) {
+            logTagScroll('PHASE_INTRO_SHOW', { selectionPhase });
+        }
         if (phaseIntroTimeoutRef.current) {
             clearTimeout(phaseIntroTimeoutRef.current);
         }
         setShowPhaseIntro(true);
         phaseIntroTimeoutRef.current = setTimeout(() => {
+            if (layoutDebugEnabled) {
+                logTagScroll('PHASE_INTRO_HIDE', { selectionPhase });
+            }
             setShowPhaseIntro(false);
         }, 2300); // Unmount at 2.3s + 0.3s exit animation = 2.6s total
     };
+
+    const scrollToTagsSection = useCallback((delayMs = DEMO_TAG_PREP_SETTLE_MS) => {
+        if (!tagsSectionRef.current || tagAutoScrollDoneRef.current) return;
+
+        tagAutoScrollDoneRef.current = true;
+        if (tagScrollTimerRef.current) clearTimeout(tagScrollTimerRef.current);
+        if (isDemoLobby) {
+            logTagScroll('SCROLL_SCHEDULED', {
+                delayMs,
+                tagsSectionTop: tagsSectionRef.current.getBoundingClientRect().top,
+            });
+        }
+        tagScrollTimerRef.current = setTimeout(() => {
+            const topBefore = tagsSectionRef.current?.getBoundingClientRect().top;
+            if (isDemoLobby) {
+                logTagScroll('SCROLL_EXECUTING scrollIntoView', {
+                    tagsSectionTopBefore: topBefore,
+                    scrollYBefore: window.scrollY,
+                });
+            }
+            tagsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setShowTagsFocusOverlay(true);
+            triggerPhaseIntro();
+            tagScrollTimerRef.current = null;
+            if (isDemoLobby) {
+                requestAnimationFrame(() => {
+                    logTagScroll('SCROLL_AFTER_FRAME', {
+                        tagsSectionTop: tagsSectionRef.current?.getBoundingClientRect().top,
+                        scrollY: window.scrollY,
+                    });
+                });
+            }
+        }, delayMs);
+    }, [isDemoLobby, selectionPhase]);
+
+    const dismissDemoTagPrepAndScroll = useCallback((reason = 'stable') => {
+        if (demoTagPrepCompleteRef.current) return;
+        if (isDemoLobby) {
+            logTagScroll('DEMO_PREP dismiss', { reason });
+        }
+        demoTagPrepCompleteRef.current = true;
+        setShowDemoTagPrepOverlay(false);
+        if (demoTagPrepSettleTimerRef.current) clearTimeout(demoTagPrepSettleTimerRef.current);
+        if (demoTagPrepFallbackTimerRef.current) clearTimeout(demoTagPrepFallbackTimerRef.current);
+        demoTagPrepSettleTimerRef.current = setTimeout(() => {
+            scrollToTagsSection(0);
+            demoTagPrepSettleTimerRef.current = null;
+        }, DEMO_TAG_PREP_SETTLE_MS);
+    }, [isDemoLobby, scrollToTagsSection]);
 
     // Cleanup phase intro timeout on unmount
     useEffect(() => {
@@ -1038,7 +1146,198 @@ const LobbyScreen = () => {
         }
     }, [lobbyState]);
 
-    const tagsSectionRef = useRef(null);
+    const lobbyHeaderRef = useRef(null);
+    const timerContainerRef = useRef(null);
+    const playerCountRef = useRef(null);
+    const profilesContainerRef = useRef(null);
+    const layoutHeightsRef = useRef({});
+    const layoutMountLoggedRef = useRef(false);
+    const prevRoundTimeLeftRef = useRef(undefined);
+    const prevTagsStateLenRef = useRef(0);
+    const layoutDebugEnabled = isDemoLobby;
+
+    const prevLobbyStateRef = useRef(null);
+    useEffect(() => {
+        if (!layoutDebugEnabled) return;
+        if (prevLobbyStateRef.current === lobbyState) return;
+        logLobbyLayout('STATE: lobbyState changed', {
+            from: prevLobbyStateRef.current,
+            to: lobbyState,
+        });
+        prevLobbyStateRef.current = lobbyState;
+    }, [layoutDebugEnabled, lobbyState]);
+
+    useEffect(() => {
+        if (!layoutDebugEnabled || layoutMountLoggedRef.current) return;
+        layoutMountLoggedRef.current = true;
+        logLobbyLayout('DEMO_LOBBY_MOUNT', { url: window.location.href });
+    }, [layoutDebugEnabled]);
+
+    useEffect(() => {
+        if (!layoutDebugEnabled) return;
+        const showCompleteInterests = tagsState.length > 0 &&
+            (serverselfTags.length === 0 || serverdesiringTags.length === 0);
+        logLobbyLayout('RENDER: lobby-header', {
+            lobbyState,
+            showCompleteInterests,
+            showMissingTagsButton: showCompleteInterests,
+            tagsCount: tagsState.length,
+            selfTagsCount: serverselfTags.length,
+            desiringTagsCount: serverdesiringTags.length,
+        });
+    }, [layoutDebugEnabled, lobbyState, tagsState, serverselfTags, serverdesiringTags]);
+
+    useEffect(() => {
+        if (!layoutDebugEnabled) return;
+        const prev = prevRoundTimeLeftRef.current;
+        if (prev === roundTimeLeft) return;
+        const countdownWillMount = (lobbyState === 'active' || lobbyState === 'interrim') && !!roundTimeLeft;
+        logLobbyLayout('RENDER: countdown-timer', {
+            roundTimeLeftFrom: prev ?? null,
+            roundTimeLeftTo: roundTimeLeft,
+            roundDuration,
+            lobbyState,
+            countdownWillMount,
+            timerContainerVisible: !!(logoDataRef.current || lobbyState !== 'checkin'),
+        });
+        prevRoundTimeLeftRef.current = roundTimeLeft;
+    }, [layoutDebugEnabled, roundTimeLeft, roundDuration, lobbyState]);
+
+    useEffect(() => {
+        if (!layoutDebugEnabled) return;
+        const prevLen = prevTagsStateLenRef.current;
+        if (prevLen === tagsState.length) return;
+        logLobbyLayout('RENDER: tags-section', {
+            tagsCountFrom: prevLen,
+            tagsCountTo: tagsState.length,
+            tagsSectionWillMount: tagsState.length > 0,
+            demoSubheaderWillMount: isDemoLobby && tagsState.length > 0,
+        });
+        prevTagsStateLenRef.current = tagsState.length;
+    }, [layoutDebugEnabled, tagsState.length, isDemoLobby]);
+
+    useEffect(() => {
+        if (!layoutDebugEnabled) return;
+        const soundPromptVisible = !(
+            (soundEnabled || !showSoundPrompt) ||
+            lobbyState == null ||
+            isPlaying
+        );
+        logLobbyLayout('RENDER: sound-prompt', {
+            visible: soundPromptVisible,
+            soundEnabled,
+            showSoundPrompt,
+            isPlaying,
+            lobbyState,
+        });
+    }, [layoutDebugEnabled, soundEnabled, showSoundPrompt, isPlaying, lobbyState]);
+
+    useEffect(() => {
+        if (!layoutDebugEnabled) return;
+        const showPlayerCount = (
+            (lobbyState === 'checkin') ||
+            (lobbyState === 'active' && !opponentProfile)
+        ) && player_count !== null;
+        const showProfiles = (
+            lobbyState === 'checkin' ||
+            (lobbyState === 'active' && !opponentProfile)
+        );
+        logLobbyLayout('RENDER: player-widgets', {
+            showPlayerCount,
+            showProfiles,
+            player_count,
+            hasOpponentProfile: !!opponentProfile,
+            lobbyState,
+        });
+    }, [layoutDebugEnabled, lobbyState, opponentProfile, player_count]);
+
+    useEffect(() => {
+        if (!layoutDebugEnabled) return;
+        logLobbyLayout('RENDER: lobby-countdown', { showLobbyCountdown, lobbyState });
+    }, [layoutDebugEnabled, showLobbyCountdown, lobbyState]);
+
+    useEffect(() => {
+        if (!layoutDebugEnabled) return;
+        logTagScroll('TAG_UI_STATE', {
+            showTagsFocusOverlay,
+            showPhaseIntro,
+            selectionPhase,
+            tagsSectionVisible: tagsState.length > 0,
+            demoSubheaderVisible: isDemoLobby && tagsState.length > 0,
+            needsTagSelection: tagsState.length > 0 &&
+                (!serverselfTags.length || !serverdesiringTags.length),
+            tagAutoScrollDone: tagAutoScrollDoneRef.current,
+        });
+    }, [
+        layoutDebugEnabled,
+        showTagsFocusOverlay,
+        showPhaseIntro,
+        selectionPhase,
+        tagsState,
+        serverselfTags,
+        serverdesiringTags,
+        isDemoLobby,
+    ]);
+
+    useLayoutEffect(() => {
+        if (!layoutDebugEnabled) return;
+        const measure = (ref) => ref.current?.getBoundingClientRect().height ?? 0;
+        const next = {
+            header: measure(lobbyHeaderRef),
+            timer: measure(timerContainerRef),
+            playerCount: measure(playerCountRef),
+            profiles: measure(profilesContainerRef),
+            tagsSection: measure(tagsSectionRef),
+        };
+        const prev = layoutHeightsRef.current;
+        const changed = Object.keys(next).filter(
+            (key) => Math.abs((prev[key] ?? 0) - next[key]) > 1
+        );
+        if (Object.keys(prev).length === 0) {
+            logLobbyLayout('INITIAL_HEIGHTS', { heights: next });
+        } else if (changed.length > 0) {
+            const deltas = {};
+            changed.forEach((key) => {
+                deltas[key] = {
+                    from: prev[key] ?? 0,
+                    to: next[key],
+                    delta: next[key] - (prev[key] ?? 0),
+                };
+            });
+            logLobbyLayout('HEIGHT_SHIFT', {
+                changed,
+                deltas,
+                context: {
+                    lobbyState,
+                    roundTimeLeft,
+                    showCompleteInterests: tagsState.length > 0 &&
+                        (!serverselfTags.length || !serverdesiringTags.length),
+                    player_count,
+                    hasOpponentProfile: !!opponentProfile,
+                    showTagsFocusOverlay,
+                    showPhaseIntro,
+                    showLobbyCountdown,
+                },
+            });
+        }
+        layoutHeightsRef.current = next;
+    }, [
+        layoutDebugEnabled,
+        lobbyState,
+        roundTimeLeft,
+        roundDuration,
+        tagsState,
+        serverselfTags,
+        serverdesiringTags,
+        opponentProfile,
+        player_count,
+        showTagsFocusOverlay,
+        showPhaseIntro,
+        showLobbyCountdown,
+        showSoundPrompt,
+        soundEnabled,
+        userProfile,
+    ]);
 
     const tryScrollToTags = useCallback(() => {
         const needsTagSelection = tagsState?.length > 0 &&
@@ -1046,20 +1345,43 @@ const LobbyScreen = () => {
         const isSoundPromptBlocking = !soundEnabled && showSoundPrompt &&
             lobbyState !== 'checkin' && lobbyState !== null && !isPlaying;
 
-        if (!needsTagSelection || tagAutoScrollDoneRef.current || showTutorial || isSoundPromptBlocking) {
+        if (layoutDebugEnabled && needsTagSelection) {
+            logTagScroll('tryScrollToTags called', {
+                needsTagSelection,
+                tagAutoScrollDone: tagAutoScrollDoneRef.current,
+                showTutorial,
+                isSoundPromptBlocking,
+                hasTagsSectionRef: !!tagsSectionRef.current,
+            });
+        }
+
+        if (isDemoLobby && !demoTagPrepCompleteRef.current) {
+            if (layoutDebugEnabled && needsTagSelection) {
+                logTagScroll('SCROLL_BLOCKED', { reason: 'demo_prep_overlay' });
+            }
             return;
         }
-        if (!tagsSectionRef.current) return;
 
-        tagAutoScrollDoneRef.current = true;
-        if (tagScrollTimerRef.current) clearTimeout(tagScrollTimerRef.current);
-        tagScrollTimerRef.current = setTimeout(() => {
-            tagsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            setShowTagsFocusOverlay(true);
-            triggerPhaseIntro();
-            tagScrollTimerRef.current = null;
-        }, 150);
-    }, [tagsState, serverselfTags, serverdesiringTags, showTutorial, soundEnabled, showSoundPrompt, lobbyState, isPlaying]);
+        if (!needsTagSelection || tagAutoScrollDoneRef.current || showTutorial || isSoundPromptBlocking) {
+            if (layoutDebugEnabled && needsTagSelection) {
+                const reason = !needsTagSelection ? 'tags_complete'
+                    : tagAutoScrollDoneRef.current ? 'already_scrolled'
+                    : showTutorial ? 'tutorial_open'
+                    : isSoundPromptBlocking ? 'sound_prompt'
+                    : 'unknown';
+                logTagScroll('SCROLL_BLOCKED', { reason });
+            }
+            return;
+        }
+        if (!tagsSectionRef.current) {
+            if (layoutDebugEnabled) {
+                logTagScroll('SCROLL_BLOCKED', { reason: 'tags_section_ref_missing' });
+            }
+            return;
+        }
+
+        scrollToTagsSection(DEMO_TAG_PREP_SETTLE_MS);
+    }, [tagsState, serverselfTags, serverdesiringTags, showTutorial, soundEnabled, showSoundPrompt, lobbyState, isPlaying, layoutDebugEnabled, isDemoLobby, scrollToTagsSection]);
 
     // Eligible (tags complete): reset auto-scroll so a future incomplete state can scroll again
     useEffect(() => {
@@ -1076,19 +1398,86 @@ const LobbyScreen = () => {
         tryScrollToTags();
     }, [tryScrollToTags]);
 
+    // Demo tag lobbies: show prep overlay while lobby layout settles (regular lobbies skip entirely)
+    useEffect(() => {
+        if (!isDemoLobby) return;
+        const needsTagSelection = tagsState.length > 0 &&
+            (!serverselfTags?.length || !serverdesiringTags?.length);
+        if (!needsTagSelection) {
+            setShowDemoTagPrepOverlay(false);
+            return;
+        }
+        if (!demoTagPrepCompleteRef.current) {
+            setShowDemoTagPrepOverlay(true);
+        }
+    }, [isDemoLobby, tagsState, serverselfTags, serverdesiringTags]);
+
+    // Faster polling while demo prep overlay is active
+    useEffect(() => {
+        if (!showDemoTagPrepOverlay) return;
+        fetchLobbyData();
+        const interval = setInterval(fetchLobbyData, DEMO_TAG_PREP_POLL_MS);
+        return () => clearInterval(interval);
+    }, [showDemoTagPrepOverlay]);
+
+    // Dismiss prep overlay once sound is resolved and active-round layout is stable
+    useEffect(() => {
+        if (!showDemoTagPrepOverlay || demoTagPrepCompleteRef.current) return;
+
+        const soundResolved = (soundEnabled || !showSoundPrompt) ||
+            lobbyState == null || isPlaying;
+        const layoutStable = lobbyState === 'active' &&
+            roundTimeLeft > 0 &&
+            tagsState.length > 0 &&
+            player_count !== null;
+
+        if (soundResolved && layoutStable) {
+            dismissDemoTagPrepAndScroll('layout_stable');
+        }
+    }, [
+        showDemoTagPrepOverlay,
+        soundEnabled,
+        showSoundPrompt,
+        lobbyState,
+        isPlaying,
+        roundTimeLeft,
+        tagsState,
+        player_count,
+        dismissDemoTagPrepAndScroll,
+    ]);
+
+    // Fallback: never leave demo users stuck on prep overlay
+    useEffect(() => {
+        if (!showDemoTagPrepOverlay || demoTagPrepCompleteRef.current) return;
+        demoTagPrepFallbackTimerRef.current = setTimeout(() => {
+            dismissDemoTagPrepAndScroll('fallback_timeout');
+        }, DEMO_TAG_PREP_MAX_WAIT_MS);
+        return () => {
+            if (demoTagPrepFallbackTimerRef.current) {
+                clearTimeout(demoTagPrepFallbackTimerRef.current);
+                demoTagPrepFallbackTimerRef.current = null;
+            }
+        };
+    }, [showDemoTagPrepOverlay, dismissDemoTagPrepAndScroll]);
+
     // Retry after tutorial closes — primary moment users need to reach tag selection
     useEffect(() => {
         if (prevShowTutorialRef.current && !showTutorial) {
+            if (layoutDebugEnabled) {
+                logTagScroll('TUTORIAL_CLOSED retry in 350ms');
+            }
             const timer = setTimeout(() => tryScrollToTags(), 350);
             prevShowTutorialRef.current = showTutorial;
             return () => clearTimeout(timer);
         }
         prevShowTutorialRef.current = showTutorial;
-    }, [showTutorial, tryScrollToTags]);
+    }, [showTutorial, tryScrollToTags, layoutDebugEnabled]);
 
     useEffect(() => {
         return () => {
             if (tagScrollTimerRef.current) clearTimeout(tagScrollTimerRef.current);
+            if (demoTagPrepSettleTimerRef.current) clearTimeout(demoTagPrepSettleTimerRef.current);
+            if (demoTagPrepFallbackTimerRef.current) clearTimeout(demoTagPrepFallbackTimerRef.current);
         };
     }, []);
 
@@ -1264,7 +1653,7 @@ const LobbyScreen = () => {
                     </div>
                 )}
 
-                <div className="lobby-header" style={{marginTop: '-30px'}} key={lobbyState}>
+                <div className="lobby-header" ref={lobbyHeaderRef} style={{marginTop: '-30px'}} key={lobbyState}>
                     <h2>
                         {tagsState.length > 0 && (serverselfTags.length == 0 || serverdesiringTags.length == 0) ? (
                             <>
@@ -1309,7 +1698,7 @@ const LobbyScreen = () => {
 
                 {/* Timer and Sponsor Container - Conditional visibility */}
                 {(logoDataRef.current || lobbyState !== "checkin") && (
-                    <div className={`timer-sponsor-container ${(logoDataRef.current && lobbyState !== "checkin") ? "has-timer" : ""}`}>
+                    <div ref={timerContainerRef} className={`timer-sponsor-container ${(logoDataRef.current && lobbyState !== "checkin") ? "has-timer" : ""}`}>
                     {/* Sponsor Logo - Conditional visibility */}
                     {logoDataRef.current && (
                         <div className="sponsor-logo">
@@ -1432,7 +1821,7 @@ const LobbyScreen = () => {
 
                 {/* Player Count Display */}
                 {((lobbyState === "checkin") || (lobbyState === "active" && !opponentProfile)) && player_count !== null && (
-                    <div className="player-count-container">
+                    <div className="player-count-container" ref={playerCountRef}>
                         <div className="player-count-widget">
                             <div className="player-count-icon">
                                 <div className="icon-pulse"></div>
@@ -1453,7 +1842,7 @@ const LobbyScreen = () => {
 
                 {/* Profile Images to Display in Lobby*/}
                 {((lobbyState === "checkin") || (lobbyState === "active" && !opponentProfile)) && (
-                    <div className="lobby-profiles-container">
+                    <div className="lobby-profiles-container" ref={profilesContainerRef}>
                         <div className="lobby-profiles-grid">
                             {player_count > 0 ? (
                                 <>
@@ -1656,6 +2045,12 @@ const LobbyScreen = () => {
                     </button>
                 </div> */}
             </div>
+
+            {showDemoTagPrepOverlay && (
+                <div className="demo-tag-prep-overlay">
+                    <LoadingSpinner size={50} message="Getting your demo ready..." />
+                </div>
+            )}
 
             {(soundEnabled || !showSoundPrompt) || (lobbyState == null) || isPlaying ? null : <SoundPrompt />}
 

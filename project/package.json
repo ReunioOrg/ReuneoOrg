@@ -7,7 +7,7 @@
     "dev": "vite",
     "dev:client": "vite",
     "build": "vite build",
-    "build:deploy": "vite build && cp dist/assets/index-*.js ../assets/ && cp dist/assets/index-*.css ../assets/ && cp dist/index.html ../ && cp dist/404.html ../404.html && mkdir -p ../new_organizer && cp dist/new_organizer/index.html ../new_organizer/index.html && cp -r public/assets/* ../assets/ && cp -r dist/blog ../blog && cp dist/robots.txt ../robots.txt && cp dist/sitemap.xml ../sitemap.xml",
+    "build:deploy": "vite build && find ../assets -maxdepth 1 -name 'index-*.js' -delete && find ../assets -maxdepth 1 -name 'index-*.css' -delete && cp dist/assets/index-*.js ../assets/ && cp dist/assets/index-*.css ../assets/ && cp dist/index.html ../ && cp dist/404.html ../404.html && mkdir -p ../new_organizer && cp dist/new_organizer/index.html ../new_organizer/index.html && cp -r public/assets/* ../assets/ && cp -r dist/blog ../blog && cp dist/robots.txt ../robots.txt && cp dist/sitemap.xml ../sitemap.xml",
     "lint": "eslint .",
     "preview": "vite preview"
   },

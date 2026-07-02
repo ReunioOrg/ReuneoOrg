@@ -243,6 +243,20 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+/* Demo tag lobby: covers pre-tag lobby while layout settles (z-index below sound prompt at 1100) */
+.demo-tag-prep-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    z-index: 1050;
+}
+
 .demo-tag-selection-subheader {
     font-size: 0.85rem;
     color: #4b5563;
