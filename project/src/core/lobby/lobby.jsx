@@ -37,9 +37,6 @@ const LobbyScreen = () => {
     const [tagLimitWarning, setTagLimitWarning] = useState('');
     const tagAutoScrollDoneRef = useRef(false);
     const tagScrollTimerRef = useRef(null);
-    const tagScrollRetryTimerRef = useRef(null);
-    const hasInitialLobbyPollRef = useRef(false);
-    const tagsSectionRef = useRef(null);
     const prevShowTutorialRef = useRef(false);
     const desiringTagsRef = useRef(null);
     const continueButtonRef = useRef(null);
@@ -458,7 +455,6 @@ const LobbyScreen = () => {
                 }
                 setTagsState(data.custom_tags);
                 setLobbyState(data.lobby_state);
-                hasInitialLobbyPollRef.current = true;
                 setLobbyCreatorUsername(data.lobby_creator_username);
                 setRoundDuration(data.lobby_duration);
                 
@@ -996,47 +992,6 @@ const LobbyScreen = () => {
     useEffect(() => {
         showTutorialRef.current = showTutorial;
     }, [showTutorial]);
-
-    const performTagScroll = useCallback(() => {
-        if (!tagsSectionRef.current) return;
-        tagsSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        setShowTagsFocusOverlay(true);
-        triggerPhaseIntro();
-    }, []);
-
-    const tryScrollToTags = useCallback(() => {
-        const needsTagSelection = tagsState?.length > 0 &&
-            (!serverselfTags?.length || !serverdesiringTags?.length);
-        const isSoundPromptBlocking = !soundEnabled && showSoundPrompt &&
-            lobbyState !== 'checkin' && lobbyState !== null && !isPlaying;
-
-        if (!needsTagSelection || tagAutoScrollDoneRef.current || showTutorial || isSoundPromptBlocking) {
-            return;
-        }
-        if (!hasInitialLobbyPollRef.current || lobbyState === null) {
-            return;
-        }
-        if (!tagsSectionRef.current) return;
-
-        tagAutoScrollDoneRef.current = true;
-        if (tagScrollTimerRef.current) clearTimeout(tagScrollTimerRef.current);
-        if (tagScrollRetryTimerRef.current) clearTimeout(tagScrollRetryTimerRef.current);
-
-        // Wait for header (e.g. Complete Interests) + timer to paint, then scroll; retry once if layout shifts
-        tagScrollTimerRef.current = setTimeout(() => {
-            performTagScroll();
-            tagScrollTimerRef.current = null;
-
-            tagScrollRetryTimerRef.current = setTimeout(() => {
-                const stillNeedsTags = tagsState?.length > 0 &&
-                    (!serverselfTags?.length || !serverdesiringTags?.length);
-                if (stillNeedsTags) {
-                    performTagScroll();
-                }
-                tagScrollRetryTimerRef.current = null;
-            }, 450);
-        }, 400);
-    }, [tagsState, serverselfTags, serverdesiringTags, showTutorial, soundEnabled, showSoundPrompt, lobbyState, isPlaying, performTagScroll]);
     
     // Profile modal state
     const [showProfileModal, setShowProfileModal] = useState(false);
@@ -1083,6 +1038,29 @@ const LobbyScreen = () => {
         }
     }, [lobbyState]);
 
+    const tagsSectionRef = useRef(null);
+
+    const tryScrollToTags = useCallback(() => {
+        const needsTagSelection = tagsState?.length > 0 &&
+            (!serverselfTags?.length || !serverdesiringTags?.length);
+        const isSoundPromptBlocking = !soundEnabled && showSoundPrompt &&
+            lobbyState !== 'checkin' && lobbyState !== null && !isPlaying;
+
+        if (!needsTagSelection || tagAutoScrollDoneRef.current || showTutorial || isSoundPromptBlocking) {
+            return;
+        }
+        if (!tagsSectionRef.current) return;
+
+        tagAutoScrollDoneRef.current = true;
+        if (tagScrollTimerRef.current) clearTimeout(tagScrollTimerRef.current);
+        tagScrollTimerRef.current = setTimeout(() => {
+            tagsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setShowTagsFocusOverlay(true);
+            triggerPhaseIntro();
+            tagScrollTimerRef.current = null;
+        }, 150);
+    }, [tagsState, serverselfTags, serverdesiringTags, showTutorial, soundEnabled, showSoundPrompt, lobbyState, isPlaying]);
+
     // Eligible (tags complete): reset auto-scroll so a future incomplete state can scroll again
     useEffect(() => {
         const needsTagSelection = tagsState?.length > 0 &&
@@ -1090,10 +1068,6 @@ const LobbyScreen = () => {
         if (!needsTagSelection) {
             tagAutoScrollDoneRef.current = false;
             setShowTagsFocusOverlay(false);
-            if (tagScrollRetryTimerRef.current) {
-                clearTimeout(tagScrollRetryTimerRef.current);
-                tagScrollRetryTimerRef.current = null;
-            }
         }
     }, [tagsState, serverselfTags, serverdesiringTags]);
 
@@ -1115,7 +1089,6 @@ const LobbyScreen = () => {
     useEffect(() => {
         return () => {
             if (tagScrollTimerRef.current) clearTimeout(tagScrollTimerRef.current);
-            if (tagScrollRetryTimerRef.current) clearTimeout(tagScrollRetryTimerRef.current);
         };
     }, []);
 
