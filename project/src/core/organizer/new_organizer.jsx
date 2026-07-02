@@ -4,30 +4,34 @@ import './new_organizer.css';
 import { apiFetch } from '../utils/api';
 import { AuthContext } from '../Auth/AuthContext';
 import FloatingLinesBackground from './FloatingLinesBackground';
-import AttendeesHistoryTutorial from '../Tutorials/attendees_history_tutorial';
 import TutorialMatching from '../Tutorials/tutorial-matching';
 import CoolerGeneralMatchEventFlow from '../Tutorials/cooler_general_match_event_flow';
-import TutorialAttendeesPhone from '../Tutorials/tutorial-attendees-phone';
-import RoundDurationTutorial from '../Tutorials/round_duration_tutorial';
 
-const SHOW_INTEREST_PAIRING = true;
 const PLACEHOLDER_ANIMATION_TAGS = ['Content Creator', 'Plumber', 'Investor', 'Capricorn'];
+
+const DEMO_LOBBY_DEFAULTS = {
+    attendees: 25,
+    minutes: '5',
+    seconds: '0',
+    show_table_numbers: true,
+    enable_match_history: false,
+};
 
 const NewOrganizerView = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { user, permissions, isLegacyOrganizer, checkAuth } = useContext(AuthContext);
+    const { permissions, isLegacyOrganizer, checkAuth } = useContext(AuthContext);
     const returnData = location.state?.returnData;
     const fromTutorial = location.state?.fromTutorial;
     const fromSpeedFriending = location.state?.fromSpeedFriending;
     const fromResidential = location.state?.fromResidential;
 
-    // ── Step Navigation ──
-    const [currentStep, setCurrentStep] = useState(returnData ? 5 : 1);
-    const [visitedSteps, setVisitedSteps] = useState(returnData ? new Set([1,2,3,4,5]) : new Set([1]));
+    // ── Step Navigation (user-facing: step 3 interest pairing → step 5 account) ──
+    const [currentStep, setCurrentStep] = useState(returnData ? 5 : 3);
+    const [visitedSteps, setVisitedSteps] = useState(returnData ? new Set([3, 5]) : new Set([3]));
     const [navDirection, setNavDirection] = useState('forward');
     const [step3View, setStep3View] = useState(
-        returnData?.selected_tab === 'custom' ? 'tags' : 'prompt'
+        returnData?.selected_tab === 'custom' ? 'tags' : 'description'
     );
 
     // ── Form Data ──
@@ -35,11 +39,6 @@ const NewOrganizerView = () => {
     const [selectedTab, setSelectedTab] = useState(returnData?.selected_tab || 'icebreaker');
     const [customTags, setCustomTags] = useState(returnData?.custom_tags || []);
     const [tagInput, setTagInput] = useState('');
-    const [attendees, setAttendees] = useState(returnData?.attendees != null ? String(returnData.attendees) : '');
-    const [minutes, setMinutes] = useState(returnData?.minutes || '5');
-    const [seconds, setSeconds] = useState(returnData?.seconds || '0');
-    const [showTableNumbers, setShowTableNumbers] = useState(returnData?.show_table_numbers ?? false);
-    const [enableMatchHistory, setEnableMatchHistory] = useState(returnData?.enable_match_history ?? true);
     const [organizerName, setOrganizerName] = useState('');
     const [email, setEmail] = useState(returnData?.email || '');
     const [showEmailConfirmModal, setShowEmailConfirmModal] = useState(false);
@@ -48,7 +47,6 @@ const NewOrganizerView = () => {
     const [aiDescription, setAiDescription] = useState('');
     const [isGeneratingTags, setIsGeneratingTags] = useState(false);
     const [tagsFromAI, setTagsFromAI] = useState(false);
-    const [animationTags, setAnimationTags] = useState([]);
 
     // ── UI State ──
     const [isLoading, setIsLoading] = useState(false);
@@ -56,14 +54,13 @@ const NewOrganizerView = () => {
     const [showTutorial, setShowTutorial] = useState(false);
     const [showGeneralTutorial, setShowGeneralTutorial] = useState(false);
 
-    const MaxMinutes = 8;
     const isSubmittingRef = useRef(false);
 
     useEffect(() => {
         if (permissions === 'organizer' && !isLegacyOrganizer && !isSubmittingRef.current) {
             navigate('/organizer-account-details');
         }
-    }, [permissions, isLegacyOrganizer]);
+    }, [permissions, isLegacyOrganizer, navigate]);
 
     // ── Initialization ──
     useEffect(() => {
@@ -74,7 +71,7 @@ const NewOrganizerView = () => {
             ).join('');
             setLobbyCode(randomCode);
         }
-    }, []);
+    }, [returnData]);
 
     useEffect(() => {
         if (
@@ -88,7 +85,7 @@ const NewOrganizerView = () => {
         ) {
             setShowGeneralTutorial(true);
         }
-    }, []);
+    }, [returnData, fromTutorial, fromSpeedFriending, fromResidential, permissions, isLegacyOrganizer]);
 
     // Lock body scroll while the confirmation modal is open
     useEffect(() => {
@@ -108,14 +105,6 @@ const NewOrganizerView = () => {
         setShowGeneralTutorial(false);
     };
 
-    // ── Helpers ──
-    const getRecommendedMinutes = () => {
-        const num = parseInt(attendees) || 0;
-        if (num <= 30) return 5;
-        if (num <= 65) return 6;
-        return 7;
-    };
-
     const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
     const handleEmailChange = (e) => {
@@ -130,85 +119,26 @@ const NewOrganizerView = () => {
     };
 
     const handleBack = () => {
-        if (currentStep === 1) {
-            navigate('/');
+        if (currentStep === 5) {
+            setNavDirection('back');
+            setStep3View('tags');
+            goToStep(3, 'back');
         } else if (currentStep === 3) {
-            if (step3View === 'tags' || step3View === 'description') {
+            if (step3View === 'tags') {
                 setNavDirection('back');
-                setStep3View('prompt');
+                setStep3View('description');
             } else {
-                goToStep(2, 'back');
+                navigate('/');
             }
-        } else {
-            const prevStep = currentStep - 1;
-            if (prevStep === 3) {
-                if (!SHOW_INTEREST_PAIRING) {
-                    goToStep(2, 'back');
-                } else {
-                    if (selectedTab === 'custom' && customTags.length > 0) {
-                        setStep3View('tags');
-                    } else {
-                        setStep3View('prompt');
-                    }
-                    goToStep(3, 'back');
-                }
-                return;
-            }
-            goToStep(prevStep, 'back');
         }
     };
 
     const handleNext = () => {
         if (currentStep >= 5 || !visitedSteps.has(currentStep + 1)) return;
-        if (currentStep === 1) {
-            handleStep1Submit();
-            return;
-        }
         goToStep(currentStep + 1, 'forward');
     };
 
-    // ── Step 1: Attendees ──
-    const handleAttendeesChange = (e) => {
-        const value = e.target.value;
-        if (value === '' || (Number(value) >= 0 && Number.isInteger(Number(value)))) {
-            setAttendees(value);
-        }
-    };
-
-    const handleStep1Submit = () => {
-        const num = parseInt(attendees);
-        if (!num || num < 1) return;
-        advanceFromStep1();
-    };
-
-    const advanceFromStep1 = () => {
-        if (!visitedSteps.has(2)) {
-            setMinutes(String(getRecommendedMinutes()));
-            setSeconds('0');
-        }
-        setVisitedSteps(prev => new Set([...prev, 2]));
-        goToStep(2, 'forward');
-    };
-
-    // ── Step 2: Duration ──
-    const handleStep2Submit = () => {
-        if (!SHOW_INTEREST_PAIRING) {
-            setSelectedTab('icebreaker');
-            setCustomTags([]);
-            setVisitedSteps(prev => new Set([...prev, 3, 4]));
-            goToStep(4, 'forward');
-            return;
-        }
-        setVisitedSteps(prev => new Set([...prev, 3]));
-        goToStep(3, 'forward');
-    };
-
     // ── Step 3: Interest Pairing ──
-    const handleTryItOut = () => {
-        setNavDirection('forward');
-        setStep3View('description');
-    };
-
     const handleGoToTagsEmpty = () => {
         setError('');
         setNavDirection('forward');
@@ -219,24 +149,17 @@ const NewOrganizerView = () => {
         setSelectedTab('icebreaker');
         setCustomTags([]);
         setTagInput('');
-        setVisitedSteps(prev => new Set([...prev, 4]));
-        goToStep(4, 'forward');
-    };
-
-    const handleStep3Continue = () => {
-        setSelectedTab('custom');
-        setVisitedSteps(prev => new Set([...prev, 4]));
-        goToStep(4, 'forward');
-    };
-
-    // ── Step 4: Match History ──
-    const handleStep4Advance = (enable) => {
-        setEnableMatchHistory(enable);
         setVisitedSteps(prev => new Set([...prev, 5]));
         goToStep(5, 'forward');
     };
 
-    // ── Tags (preserved logic) ──
+    const handleStep3Continue = () => {
+        setSelectedTab('custom');
+        setVisitedSteps(prev => new Set([...prev, 5]));
+        goToStep(5, 'forward');
+    };
+
+    // ── Tags ──
     const handleAddTag = () => {
         if (tagInput.includes(',')) {
             const potentialTags = tagInput.split(',').map(tag =>
@@ -290,8 +213,6 @@ const NewOrganizerView = () => {
 
             if (data.status === 'success' && data.tags) {
                 setCustomTags(data.tags);
-                const shuffled = [...data.tags].sort(() => Math.random() - 0.5);
-                setAnimationTags(shuffled.slice(0, 4));
                 setTagsFromAI(true);
                 setNavDirection('forward');
                 setStep3View('tags');
@@ -318,18 +239,20 @@ const NewOrganizerView = () => {
         isSubmittingRef.current = true;
         setIsLoading(true);
         setError('');
-        const lobbyDuration = (parseInt(minutes) * 60) + parseInt(seconds);
+
+        const { attendees, minutes, seconds, show_table_numbers, enable_match_history } = DEMO_LOBBY_DEFAULTS;
+        const lobbyDuration = (parseInt(minutes, 10) * 60) + parseInt(seconds, 10);
 
         const lobbyData = {
             lobby_code: lobbyCode,
             selected_tab: selectedTab,
             custom_tags: selectedTab === 'custom' ? customTags : [],
             lobby_duration: lobbyDuration,
-            attendees: parseInt(attendees),
+            attendees,
             minutes,
             seconds,
-            show_table_numbers: showTableNumbers,
-            enable_match_history: enableMatchHistory,
+            show_table_numbers,
+            enable_match_history,
             email,
         };
 
@@ -342,7 +265,7 @@ const NewOrganizerView = () => {
                     email,
                     name: organizerName.trim(),
                     lobby_data: lobbyData,
-                    attendees: parseInt(attendees),
+                    attendees,
                 }),
             });
         } catch {}
@@ -371,11 +294,13 @@ const NewOrganizerView = () => {
                     state: { freeTrial: true, email, lobbyData },
                 });
             } else {
+                isSubmittingRef.current = false;
                 setError(data.message || 'Failed to create account. Please try again.');
                 setIsLoading(false);
             }
         } catch (err) {
             console.error('Free trial creation error:', err);
+            isSubmittingRef.current = false;
             setError('Something went wrong. Please check your connection and try again.');
             setIsLoading(false);
         }
@@ -395,104 +320,6 @@ const NewOrganizerView = () => {
             <path d="M19 14L19.75 16.25L22 17L19.75 17.75L19 20L18.25 17.75L16 17L18.25 16.25L19 14Z" opacity="0.7"/>
         </svg>
     );
-
-    // ── Render: Step 1 — Attendees ──
-    const renderStep1 = () => {
-        const num = parseInt(attendees);
-        const isValid = num >= 1;
-        const showTableHint = Number.isInteger(num) && num >= 50;
-
-        return (
-            <div className="step-container">
-                <h1 className="step-title">How many people are attending?</h1>
-                <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
-                    Estimate the max, so everyone gets to make new connections!
-                </p>
-                <div className="attendees-input-wrapper">
-                    <input
-                        type="number"
-                        value={attendees}
-                        onChange={handleAttendeesChange}
-                        min="1"
-                        placeholder="0"
-                        className="form-input attendees-input"
-                        autoComplete="off"
-                    />
-                    <button className="step2-go-btn" onClick={handleStep1Submit} disabled={!isValid}>
-                        <ArrowRight />
-                    </button>
-                </div>
-                {showTableHint
-                    ? <TutorialAttendeesPhone key="tap-table" variant="table" />
-                    : <TutorialAttendeesPhone key="tap-profile" variant="profile" />
-                }
-            </div>
-        );
-    };
-
-    // ── Render: Step 2 — Duration ──
-    const renderStep2 = () => {
-        const recommended = getRecommendedMinutes();
-
-        return (
-            <div className="step-container">
-                <h1 className="step-title">Conversation Duration</h1>
-                <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
-                    We recommend <strong style={{ color: '#0f1729' }}>{recommended} minutes</strong>. This includes
-                    buffer time for people to end prior conversations and move onto their next person
-                </p>
-                <div className="duration-edit-wrapper">
-                    <div className="duration-input-container">
-                        <div className="duration-input-group">
-                            <input
-                                type="number"
-                                value={minutes}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    if (value === '' || (parseInt(value) > 0 && parseInt(value) <= MaxMinutes)) {
-                                        setMinutes(value);
-                                        if (parseInt(value) === MaxMinutes) setSeconds('0');
-                                    }
-                                }}
-                                min="1"
-                                max={MaxMinutes}
-                                placeholder={`1-${MaxMinutes}`}
-                                className="form-input duration-input"
-                                autoComplete="off"
-                            />
-                            <label className="duration-label">Minutes</label>
-                        </div>
-                        <div className="duration-input-group">
-                            <input
-                                type="number"
-                                value={seconds}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    if (value === '' || (parseInt(value) >= 0 && parseInt(value) <= 59)) {
-                                        setSeconds(value);
-                                    }
-                                }}
-                                min="0"
-                                max="59"
-                                placeholder="0-59"
-                                className="form-input duration-input"
-                                autoComplete="off"
-                                disabled={parseInt(minutes) === MaxMinutes}
-                            />
-                            <label className="duration-label">Seconds</label>
-                        </div>
-                    </div>
-                    <button className="step2-go-btn" onClick={handleStep2Submit}>
-                        <ArrowRight />
-                    </button>
-                </div>
-                {parseInt(minutes) >= MaxMinutes && (
-                    <div className="duration-max-toast">Maximum total duration is {MaxMinutes} minutes</div>
-                )}
-                <RoundDurationTutorial minutes={minutes} seconds={seconds} />
-            </div>
-        );
-    };
 
     // ── Render: Step 3 — Interest Pairing ──
     const renderStep3 = () => {
@@ -539,108 +366,67 @@ const NewOrganizerView = () => {
             );
         }
 
-        if (step3View === 'tags') {
-            return (
-                <div className="step-container">
-                    <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>Add or edit the matching categories for your event</p>
-                    <TutorialMatching
-                        mode="inline"
-                        isVisible={currentStep === 3 && step3View === 'tags'}
-                        tags={customTags.length >= 2 ? customTags.slice(0, 4) : PLACEHOLDER_ANIMATION_TAGS}
-                    />
-                    <div className="custom-matching-section">
-                        <div className="tag-input-container">
-                            <input
-                                type="text"
-                                value={tagInput}
-                                onChange={(e) => setTagInput(e.target.value)}
-                                onKeyDown={handleTagKeyDown}
-                                placeholder="Add categories (press + to add)"
-                                className="form-input"
-                                autoComplete="off"
-                            />
-                            <button type="button" onClick={handleAddTag} className="tag-add-button">+</button>
-                        </div>
-                        {customTags.length > 0 && (
-                            <div className="tag-list">
-                                {customTags.map((tag, index) => (
-                                    <div key={index} className="tag-item">
-                                        {tag}
-                                        <button type="button" onClick={() => handleRemoveTag(tag)}
-                                            className="tag-remove-button">×</button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                    {tagsFromAI && (
-                        <button type="button" className="regenerate-button" onClick={handleRegenerate}>
-                            <SparkleIcon /> Regenerate
-                        </button>
-                    )}
-                    {customTags.length === 0 && (
-                        <button className="step-cta step-cta-secondary" onClick={handleStep3Skip}>
-                            Skip <ArrowRight />
-                        </button>
-                    )}
-                    {customTags.length === 1 && (
-                        <>
-                            <button className="step-cta step-cta-secondary" disabled>
-                                Continue <ArrowRight />
-                            </button>
-                            <p style={{ fontSize: '0.8rem', color: '#888', textAlign: 'center', marginTop: '8px' }}>
-                                Add at least 2 categories to enable interest matching
-                            </p>
-                        </>
-                    )}
-                    {customTags.length >= 2 && (
-                        <button className="step-cta" onClick={handleStep3Continue}>
-                            Continue <ArrowRight />
-                        </button>
-                    )}
-                </div>
-            );
-        }
-
         return (
             <div className="step-container">
-                <h1 className="step-title">Interest Pairing</h1>
-                <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
-                    Matchmaking blended in with the regular pairing, its the best of both worlds!
-                </p>
-                <button className="step-cta" onClick={handleTryItOut}>
-                    Try it Out <ArrowRight />
-                </button>
-                <button className="step-cta step-cta-secondary" onClick={handleStep3Skip}>
-                    Quick Pairing
-                </button>
+                <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>Add or edit the matching categories for your event</p>
                 <TutorialMatching
                     mode="inline"
-                    isVisible={currentStep === 3 && step3View === 'prompt'}
+                    isVisible={currentStep === 3 && step3View === 'tags'}
+                    tags={customTags.length >= 2 ? customTags.slice(0, 4) : PLACEHOLDER_ANIMATION_TAGS}
                 />
+                <div className="custom-matching-section">
+                    <div className="tag-input-container">
+                        <input
+                            type="text"
+                            value={tagInput}
+                            onChange={(e) => setTagInput(e.target.value)}
+                            onKeyDown={handleTagKeyDown}
+                            placeholder="Add categories (press + to add)"
+                            className="form-input"
+                            autoComplete="off"
+                        />
+                        <button type="button" onClick={handleAddTag} className="tag-add-button">+</button>
+                    </div>
+                    {customTags.length > 0 && (
+                        <div className="tag-list">
+                            {customTags.map((tag, index) => (
+                                <div key={index} className="tag-item">
+                                    {tag}
+                                    <button type="button" onClick={() => handleRemoveTag(tag)}
+                                        className="tag-remove-button">×</button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+                {tagsFromAI && (
+                    <button type="button" className="regenerate-button" onClick={handleRegenerate}>
+                        <SparkleIcon /> Regenerate
+                    </button>
+                )}
+                {customTags.length === 0 && (
+                    <button className="step-cta step-cta-secondary" onClick={handleStep3Skip}>
+                        Skip <ArrowRight />
+                    </button>
+                )}
+                {customTags.length === 1 && (
+                    <>
+                        <button className="step-cta step-cta-secondary" disabled>
+                            Continue <ArrowRight />
+                        </button>
+                        <p style={{ fontSize: '0.8rem', color: '#888', textAlign: 'center', marginTop: '8px' }}>
+                            Add at least 2 categories to enable interest matching
+                        </p>
+                    </>
+                )}
+                {customTags.length >= 2 && (
+                    <button className="step-cta" onClick={handleStep3Continue}>
+                        Continue <ArrowRight />
+                    </button>
+                )}
             </div>
         );
     };
-
-    // ── Render: Step 4 — Match History ──
-    const renderStep4 = () => (
-        <div className="step-container">
-            <h1 className="step-title">History of Connections</h1>
-            <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
-                They just <strong className="aht-header-green">save their email</strong> to
-                access their connections at the end of the session. Your <strong className="aht-header-green">organizer dashboard</strong> will have insights and analytics about your attendees!
-            </p>
-            <div className="step5-reveal step5-reveal-step4-body">
-                <button className="step-cta" onClick={() => handleStep4Advance(true)}>
-                    Enable <ArrowRight />
-                </button>
-                <button className="step-cta step-cta-secondary" onClick={() => handleStep4Advance(false)}>
-                    Skip
-                </button>
-                <AttendeesHistoryTutorial />
-            </div>
-        </div>
-    );
 
     // ── Render: Step 5 — Get Started ──
     const renderStep5 = () => (
@@ -678,6 +464,7 @@ const NewOrganizerView = () => {
 
     // ── Main Render ──
     const stepKey = currentStep === 3 ? `3-${step3View}` : String(currentStep);
+    const showExistingAccountLink = currentStep === 3 && step3View === 'description';
 
     return (
         <div className="new-organizer-background">
@@ -704,7 +491,7 @@ const NewOrganizerView = () => {
                 )}
             </div>
 
-            {currentStep === 1 && (
+            {showExistingAccountLink && (
                 <button
                     type="button"
                     onClick={() => navigate('/forgot-password')}
@@ -717,10 +504,7 @@ const NewOrganizerView = () => {
             {/* Step Content */}
             <div className="step-content-wrapper">
                 <div key={stepKey} className={`step-content step-${navDirection}`}>
-                    {currentStep === 1 && renderStep1()}
-                    {currentStep === 2 && renderStep2()}
                     {currentStep === 3 && renderStep3()}
-                    {currentStep === 4 && renderStep4()}
                     {currentStep === 5 && renderStep5()}
                 </div>
             </div>
