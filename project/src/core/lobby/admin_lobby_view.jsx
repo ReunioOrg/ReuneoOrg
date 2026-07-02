@@ -1261,22 +1261,18 @@ const AdminLobbyView = () => {
     // demoMode: true when organizer is a first-time free-trial user
     const [demoMode, setDemoMode] = useState(false);
     // demoStep: drives the step-by-step demo flow
-    // 'inject' → 'qr' → 'start' → 'active' → 'endRound' → null
+    // 'inject' → 'qr' → 'start' → (force-push to lobby) → 'endRound' → null
     const [demoStep, setDemoStep] = useState(null);
     // demoUsernames: Set of injected demolobbyuser usernames (used for realPlayerCount + DEMO badges)
     const [demoUsernames, setDemoUsernames] = useState(new Set());
-    const demoActiveTimerRef = useRef(null);
-    const demoPrepPopupTimerRef = useRef(null);
-    const prevLobbyStateForDemoRef = useRef(null);
+    const demoLobbyPushTimerRef = useRef(null);
+    const demoLobbyPushStartedRef = useRef(false);
     const [showDemoPrepPopup, setShowDemoPrepPopup] = useState(false);
 
-    const DEMO_ACTIVE_VIEW_MS = 11000;
-    const DEMO_LOBBY_PREP_POPUP_MS = 4500;
+    const DEMO_LOBBY_PREP_POPUP_MS = 4000;
     const DEMO_WATCH_HEADER_DISPLAY_MS = 5000;
     const DEMO_WATCH_HEADER_EXIT_MS = 650;
 
-    const [demoWatchHeaderPhase, setDemoWatchHeaderPhase] = useState('gone'); // 'visible' | 'exiting' | 'gone'
-    const demoWatchHeaderExitTimerRef = useRef(null);
     const [demoCongratsHeaderPhase, setDemoCongratsHeaderPhase] = useState('gone');
     const demoCongratsHeaderExitTimerRef = useRef(null);
 
@@ -1335,77 +1331,13 @@ const AdminLobbyView = () => {
         }
     }, [qrTappedThisSession, demoMode, demoStep]);
 
-    // Advance demoStep 'start' → 'active' when lobby transitions to active state
     useEffect(() => {
-        if (!demoMode || demoStep !== 'start') return;
-        if (lobbyState === 'active' && prevLobbyStateForDemoRef.current !== 'active') {
-            setDemoStep('active');
-        }
-        prevLobbyStateForDemoRef.current = lobbyState;
-    }, [lobbyState, demoMode, demoStep]);
-
-    // Active phase: watch pairings, then prep popup (4.5s before push), then join + navigate to lobby
-    useEffect(() => {
-        if (!demoMode || demoStep !== 'active') return;
-
-        demoPrepPopupTimerRef.current = setTimeout(() => {
-            setShowDemoPrepPopup(true);
-        }, DEMO_ACTIVE_VIEW_MS);
-
-        demoActiveTimerRef.current = setTimeout(async () => {
-            setShowDemoPrepPopup(false);
-            try {
-                await apiFetch('/demo_join_organizer', {
-                    method: 'POST',
-                    headers: { 'lobby_code': lobbyCode }
-                });
-            } catch (err) {
-                console.error('[DEMO] demo_join_organizer failed:', err);
-            }
-            navigate(`/lobby?code=${lobbyCode}&demo=true`);
-        }, DEMO_ACTIVE_VIEW_MS + DEMO_LOBBY_PREP_POPUP_MS);
-
         return () => {
-            clearTimeout(demoPrepPopupTimerRef.current);
-            clearTimeout(demoActiveTimerRef.current);
-            setShowDemoPrepPopup(false);
-        };
-    }, [demoMode, demoStep]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    // Demo active: show "Watch every pairing live!" for 5s, then float up + fade out
-    useEffect(() => {
-        if (!demoMode || demoStep !== 'active' || lobbyState !== 'active') {
-            setDemoWatchHeaderPhase('gone');
-            return;
-        }
-
-        setDemoWatchHeaderPhase('visible');
-
-        const displayTimer = setTimeout(() => {
-            setDemoWatchHeaderPhase('exiting');
-        }, DEMO_WATCH_HEADER_DISPLAY_MS);
-
-        return () => {
-            clearTimeout(displayTimer);
-            if (demoWatchHeaderExitTimerRef.current) {
-                clearTimeout(demoWatchHeaderExitTimerRef.current);
+            if (demoLobbyPushTimerRef.current) {
+                clearTimeout(demoLobbyPushTimerRef.current);
             }
         };
-    }, [demoMode, demoStep, lobbyState]);
-
-    useEffect(() => {
-        if (demoWatchHeaderPhase !== 'exiting') return;
-
-        demoWatchHeaderExitTimerRef.current = setTimeout(() => {
-            setDemoWatchHeaderPhase('gone');
-        }, DEMO_WATCH_HEADER_EXIT_MS);
-
-        return () => {
-            if (demoWatchHeaderExitTimerRef.current) {
-                clearTimeout(demoWatchHeaderExitTimerRef.current);
-            }
-        };
-    }, [demoWatchHeaderPhase]);
+    }, []);
 
     // Demo endRound: show congratulations header for 5s, then float up + fade out
     useEffect(() => {
@@ -1745,6 +1677,22 @@ const AdminLobbyView = () => {
             const data = await response.json();
             if (data.status === 'success') {
                 toast.success('Rounds started!', { position: 'top-center' });
+                if (demoMode && demoStep === 'start' && !demoLobbyPushStartedRef.current) {
+                    demoLobbyPushStartedRef.current = true;
+                    setShowDemoPrepPopup(true);
+                    demoLobbyPushTimerRef.current = setTimeout(async () => {
+                        setShowDemoPrepPopup(false);
+                        try {
+                            await apiFetch('/demo_join_organizer', {
+                                method: 'POST',
+                                headers: { 'lobby_code': lobbyCode }
+                            });
+                        } catch (err) {
+                            console.error('[DEMO] demo_join_organizer failed:', err);
+                        }
+                        navigate(`/lobby?code=${lobbyCode}&demo=true`);
+                    }, DEMO_LOBBY_PREP_POPUP_MS);
+                }
             } else {
                 if (data.reason === 'activations_exhausted' || data.reason === 'monthly_limit_reached' || data.reason === 'no_uses_remaining') {
                     goToAccountDetails({ limitMessage: data.message });
@@ -1847,13 +1795,6 @@ const AdminLobbyView = () => {
                         />
                     )}
                 </div>
-                {(demoWatchHeaderPhase === 'visible' || demoWatchHeaderPhase === 'exiting') && (
-                    <h2
-                        className={`demo-pairing-guide-header demo-pairing-guide-header-watch${demoWatchHeaderPhase === 'exiting' ? ' demo-pairing-guide-header-exit' : ''}`}
-                    >
-                        Watch every pairing live!
-                    </h2>
-                )}
                 {(demoCongratsHeaderPhase === 'visible' || demoCongratsHeaderPhase === 'exiting') && (
                     <h2
                         className={`demo-pairing-guide-header demo-pairing-guide-header-watch${demoCongratsHeaderPhase === 'exiting' ? ' demo-pairing-guide-header-exit' : ''}`}
@@ -2287,7 +2228,7 @@ const AdminLobbyView = () => {
             {/* Sound Prompt - same conditional rendering as lobby.jsx */}
             {(soundEnabled || !showSoundPrompt) || (lobbyState == "checkin") || (lobbyState == null) || isPlaying || demoMode ? null : <SoundPrompt onEnable={() => { loadSound(); setShowSoundPrompt(false); }} onDismiss={() => setShowSoundPrompt(false)} />}
 
-            {/* Demo: prep popup 4.5s before force-push into attendee lobby */}
+            {/* Demo: prep popup during interrim, then force-push into attendee lobby */}
             <UserIsReadyAnimation
                 isVisible={showDemoPrepPopup}
                 duration={DEMO_LOBBY_PREP_POPUP_MS}
