@@ -102,7 +102,17 @@ const SetPasswordPage = () => {
                 if (lobbyCode) {
                     navigate(`/lobby?code=${lobbyCode}`);
                 } else if (permissions === 'organizer') {
-                    navigate('/create_lobby');
+                    try {
+                        const lobbyResponse = await apiFetch('/view_my_active_lobbies');
+                        const lobbyData = await lobbyResponse.json();
+                        if (lobbyData?.lobbies?.length > 0) {
+                            navigate(`/admin_lobby_view?code=${lobbyData.lobbies[0]}`);
+                        } else {
+                            navigate('/');
+                        }
+                    } catch {
+                        navigate('/');
+                    }
                 } else {
                     navigate('/paired-player-history');
                 }
