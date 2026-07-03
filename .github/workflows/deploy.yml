@@ -1,0 +1,97 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only allow one deployment at a time; don't cancel in-progress so we don't
+# leave the site in a broken state mid-deploy.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      # Copy only the static site files — exclude source, deps, and git internals
+      - name: Prepare site files
+        run: |
+          mkdir _site
+          rsync -a \
+            --exclude='project/' \
+            --exclude='node_modules/' \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='_site/' \
+            . _site/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+      # --- Deploy with up to 3 attempts ---
+
+      - name: Deploy (attempt 1)
+        id: deploy_1
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+
+      - name: Retry wait (20s)
+        if: steps.deploy_1.outcome == 'failure'
+        run: |
+          echo "Attempt 1 failed — waiting 20s before retry..."
+          sleep 20
+
+      - name: Deploy (attempt 2)
+        if: steps.deploy_1.outcome == 'failure'
+        id: deploy_2
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+
+      - name: Retry wait (40s)
+        if: steps.deploy_1.outcome == 'failure' && steps.deploy_2.outcome == 'failure'
+        run: |
+          echo "Attempt 2 failed — waiting 40s before final retry..."
+          sleep 40
+
+      - name: Deploy (attempt 3 — final)
+        if: steps.deploy_1.outcome == 'failure' && steps.deploy_2.outcome == 'failure'
+        id: deploy_3
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+
+      # Fail the job explicitly if all 3 attempts failed
+      - name: Check deploy result
+        if: steps.deploy_1.outcome == 'failure' && steps.deploy_2.outcome == 'failure' && steps.deploy_3.outcome == 'failure'
+        run: |
+          echo "All 3 deploy attempts failed. GitHub Pages may be having an outage."
+          exit 1
+
+      # Capture the URL from whichever attempt succeeded
+      - name: Set deployment URL
+        id: deployment
+        run: |
+          if [ "${{ steps.deploy_1.outcome }}" = "success" ]; then
+            echo "page_url=${{ steps.deploy_1.outputs.page_url }}" >> $GITHUB_OUTPUT
+          elif [ "${{ steps.deploy_2.outcome }}" = "success" ]; then
+            echo "page_url=${{ steps.deploy_2.outputs.page_url }}" >> $GITHUB_OUTPUT
+          else
+            echo "page_url=${{ steps.deploy_3.outputs.page_url }}" >> $GITHUB_OUTPUT
+          fi
