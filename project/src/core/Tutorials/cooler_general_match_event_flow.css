@@ -57,6 +57,14 @@
     align-items: center;
     gap: 4px;
     transition: color 0.2s ease, border-color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.cmef-skip:focus,
+.cmef-skip:focus-visible,
+.cmef-skip:active {
+    outline: none;
+    box-shadow: none;
 }
 
 .cmef-skip:hover {
@@ -68,6 +76,71 @@
     font-size: 15px;
     line-height: 1;
     color: inherit;
+}
+
+/* ── Loading Footer (opt-in via loadingFooterMessage prop) ── */
+
+.cmef-bottom-footer {
+    position: absolute;
+    bottom: max(20px, env(safe-area-inset-bottom, 20px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cmef-loading-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cmef-loading-footer-tappable {
+    pointer-events: auto;
+    cursor: default;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.cmef-loading-footer-tappable:focus,
+.cmef-loading-footer-tappable:focus-visible,
+.cmef-loading-footer-tappable:active {
+    outline: none;
+    box-shadow: none;
+    border: none;
+}
+
+.cmef-loading-footer .loading-spinner-wrapper {
+    gap: 8px;
+}
+
+.cmef-loading-footer .loading-spinner-message {
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.cmef-skip.cmef-skip-centered {
+    position: relative;
+    right: auto;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    border-color: #9ca3af;
+    background: rgba(255, 255, 255, 0.92);
+    color: #6b7280;
+}
+
+.cmef-skip.cmef-skip-centered:hover {
+    color: #374151;
+    border-color: #6b7280;
 }
 
 /* ── Layout Wrapper ──────────────────────────────── */
@@ -1137,12 +1210,16 @@
         right: calc(50% - 300px);
         bottom: max(32px, env(safe-area-inset-bottom, 32px));
     }
+
+    .cmef-bottom-footer {
+        bottom: max(32px, env(safe-area-inset-bottom, 32px));
+    }
 }
 
-/* ── Organizer variant — 15% faster motion ───────── */
+/* ── Organizer variant — ~32% faster motion (1.15 × 1.15) ── */
 
 .cmef-overlay.cmef-organizer {
-    --cmef-spd: 0.869565; /* 1 / 1.15 */
+    --cmef-spd: 0.756158; /* 1 / 1.3225 */
     transition-duration: calc(0.6s * var(--cmef-spd));
 }
 

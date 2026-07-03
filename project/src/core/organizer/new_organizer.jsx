@@ -541,6 +541,7 @@ const NewOrganizerView = () => {
                 isVisible={showGeneralTutorial}
                 onComplete={handleGeneralTutorialComplete}
                 variant="organizer"
+                loadingFooterMessage="Preparing your lobby..."
             />
 
             {/* ── Email Confirmation Modal ── */}

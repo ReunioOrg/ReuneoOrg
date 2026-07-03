@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './cooler_general_match_event_flow.css';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const SCENES = [
     // Act 1: Entrance
@@ -40,8 +41,8 @@ const SCENES = [
     { id: 'lets-go', duration: 1400 },         // 27
 ];
 
-/** New-organizer playback runs 15% faster than base timings. */
-const ORGANIZER_SPEED = 1.15;
+/** New-organizer playback — 15% faster twice (≈32% faster than base). */
+const ORGANIZER_SPEED = 1.3225;
 const orgMs = (ms) => Math.round(ms / ORGANIZER_SPEED);
 
 /** New-organizer flow: MockPairGreeting-style intro, then mixing (no lets-go). */
@@ -194,6 +195,7 @@ const CoolerGeneralMatchEventFlow = ({
     hideSkip = false,
     embedded = false,
     convoPairOnly = false,
+    loadingFooterMessage = null,
 }) => {
     const isOrganizer = variant === 'organizer';
     const isCompact = variant === 'compact';
@@ -208,7 +210,9 @@ const CoolerGeneralMatchEventFlow = ({
     const [round3HeaderReady, setRound3HeaderReady] = useState(false);
     const [convoTextFading, setConvoTextFading] = useState(false);
     const [isShuffling, setIsShuffling] = useState(false);
+    const [skipRevealed, setSkipRevealed] = useState(false);
     const animFrameRef = useRef(null);
+    const hasHiddenSkipFooter = Boolean(loadingFooterMessage);
 
     const finishTutorial = useCallback(() => {
         setFadingOut(true);
@@ -233,6 +237,7 @@ const CoolerGeneralMatchEventFlow = ({
             setRound3HeaderReady(false);
             setConvoTextFading(false);
             setIsShuffling(false);
+            setSkipRevealed(false);
             if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
             return;
         }
@@ -805,8 +810,28 @@ const CoolerGeneralMatchEventFlow = ({
                     )}
                 </div>
             </div>
-            {(isOrganizer || s < 27) && !hideSkip && (
-                <button className="cmef-skip" onClick={finishTutorial}>
+            {hasHiddenSkipFooter && (
+                <div className="cmef-bottom-footer">
+                    {!skipRevealed ? (
+                        <button
+                            type="button"
+                            className="cmef-loading-footer cmef-loading-footer-tappable"
+                            onClick={() => setSkipRevealed(true)}
+                            aria-label="Reveal skip"
+                        >
+                            <LoadingSpinner size={34} message={loadingFooterMessage} />
+                        </button>
+                    ) : (
+                        (isOrganizer || s < 27) && !hideSkip && (
+                            <button type="button" className="cmef-skip cmef-skip-centered" onClick={finishTutorial}>
+                                skip <span className="cmef-skip-arrow">{'\u2192'}</span>
+                            </button>
+                        )
+                    )}
+                </div>
+            )}
+            {!hasHiddenSkipFooter && (isOrganizer || s < 27) && !hideSkip && (
+                <button type="button" className="cmef-skip" onClick={finishTutorial}>
                     skip <span className="cmef-skip-arrow">{'\u2192'}</span>
                 </button>
             )}
