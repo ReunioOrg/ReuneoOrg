@@ -9,6 +9,17 @@ import CoolerGeneralMatchEventFlow from '../Tutorials/cooler_general_match_event
 
 const PLACEHOLDER_ANIMATION_TAGS = ['Content Creator', 'Plumber', 'Investor', 'Capricorn'];
 
+const EVENT_DESCRIPTION_EXAMPLES = [
+    'A speed friending event for fitness enthusiasts',
+    'An icebreaker for apartment residents',
+    'Speed dating for math nerds',
+    'A mixer for construction workers and contractors',
+    'Team building at a work event',
+];
+
+const DESCRIPTION_EXAMPLE_INTERVAL_MS = 4000;
+const DESCRIPTION_EXAMPLE_FADE_MS = 180;
+
 const DEMO_LOBBY_DEFAULTS = {
     attendees: 25,
     minutes: '5',
@@ -53,6 +64,9 @@ const NewOrganizerView = () => {
     const [error, setError] = useState('');
     const [showTutorial, setShowTutorial] = useState(false);
     const [showGeneralTutorial, setShowGeneralTutorial] = useState(false);
+    const [descriptionExampleIndex, setDescriptionExampleIndex] = useState(0);
+    const [descriptionExampleVisible, setDescriptionExampleVisible] = useState(true);
+    const [standardPairingNote, setStandardPairingNote] = useState(false);
 
     const isSubmittingRef = useRef(false);
     const generalTutorialTriggeredRef = useRef(false);
@@ -90,6 +104,29 @@ const NewOrganizerView = () => {
             adjustDescriptionHeight();
         }
     }, [aiDescription, currentStep, step3View]);
+
+    useEffect(() => {
+        const onDescriptionStep = currentStep === 3 && step3View === 'description';
+        if (!onDescriptionStep || aiDescription.trim() || isGeneratingTags) {
+            setDescriptionExampleVisible(true);
+            return undefined;
+        }
+
+        let fadeTimeout;
+
+        const timer = setInterval(() => {
+            setDescriptionExampleVisible(false);
+            fadeTimeout = setTimeout(() => {
+                setDescriptionExampleIndex((prev) => (prev + 1) % EVENT_DESCRIPTION_EXAMPLES.length);
+                setDescriptionExampleVisible(true);
+            }, DESCRIPTION_EXAMPLE_FADE_MS);
+        }, DESCRIPTION_EXAMPLE_INTERVAL_MS);
+
+        return () => {
+            clearInterval(timer);
+            clearTimeout(fadeTimeout);
+        };
+    }, [aiDescription, currentStep, step3View, isGeneratingTags]);
 
     const shouldAutoShowGeneralTutorial = () =>
         !returnData &&
@@ -160,26 +197,47 @@ const NewOrganizerView = () => {
     };
 
     // ── Step 3: Interest Pairing ──
-    const handleGoToTagsEmpty = () => {
-        setError('');
+    const advanceToSignup = () => {
+        setVisitedSteps(prev => new Set([...prev, 5]));
         setNavDirection('forward');
-        setStep3View('tags');
+        goToStep(5, 'forward');
+        triggerGeneralTutorialIfEligible();
+    };
+
+    const applyIcebreakerPairing = (showFallbackNote = false) => {
+        setSelectedTab('icebreaker');
+        setCustomTags([]);
+        setTagsFromAI(false);
+        setTagInput('');
+        setStandardPairingNote(showFallbackNote);
+    };
+
+    const applyCustomPairingFromTags = (tags) => {
+        setStandardPairingNote(false);
+        if (tags.length >= 2) {
+            setSelectedTab('custom');
+            setCustomTags(tags);
+            setTagsFromAI(true);
+        } else {
+            applyIcebreakerPairing(false);
+        }
+    };
+
+    const handleDescriptionContinueEmpty = () => {
+        setError('');
+        applyIcebreakerPairing(false);
+        advanceToSignup();
     };
 
     const handleStep3Skip = () => {
-        setSelectedTab('icebreaker');
-        setCustomTags([]);
-        setTagInput('');
-        setVisitedSteps(prev => new Set([...prev, 5]));
-        goToStep(5, 'forward');
-        triggerGeneralTutorialIfEligible();
+        applyIcebreakerPairing(false);
+        advanceToSignup();
     };
 
     const handleStep3Continue = () => {
         setSelectedTab('custom');
-        setVisitedSteps(prev => new Set([...prev, 5]));
-        goToStep(5, 'forward');
-        triggerGeneralTutorialIfEligible();
+        setStandardPairingNote(false);
+        advanceToSignup();
     };
 
     // ── Tags ──
@@ -235,16 +293,17 @@ const NewOrganizerView = () => {
             const data = await response.json();
 
             if (data.status === 'success' && data.tags) {
-                setCustomTags(data.tags);
-                setTagsFromAI(true);
-                setNavDirection('forward');
-                setStep3View('tags');
+                const tags = Array.isArray(data.tags) ? data.tags : [];
+                applyCustomPairingFromTags(tags);
+                advanceToSignup();
             } else {
-                setError(data.message || 'Failed to generate categories.');
+                applyIcebreakerPairing(true);
+                advanceToSignup();
             }
         } catch (err) {
             console.error('Error generating tags:', err);
-            setError('Failed to generate categories. Try again or enter tags manually separated by commas.');
+            applyIcebreakerPairing(true);
+            advanceToSignup();
         } finally {
             setIsGeneratingTags(false);
         }
@@ -344,6 +403,38 @@ const NewOrganizerView = () => {
         </svg>
     );
 
+    const InputPersonIcon = () => (
+        <svg className="signup-field-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8" r="3.5" />
+            <path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6" />
+        </svg>
+    );
+
+    const InputEmailIcon = () => (
+        <svg className="signup-field-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="M3 7l9 6 9-6" />
+        </svg>
+    );
+
+    const TrustShieldIcon = () => (
+        <svg className="signup-trust-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12 3l7 3v6c0 4.5-3.1 7.4-7 9-3.9-1.6-7-4.5-7-9V6l7-3z" />
+            <path d="M9 12l2 2 4-4" />
+        </svg>
+    );
+
+    const TrustLockIcon = () => (
+        <svg className="signup-trust-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="5" y="11" width="14" height="10" rx="2" />
+            <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+        </svg>
+    );
+
     // ── Render: Step 3 — Interest Pairing ──
     const renderStep3 = () => {
         if (step3View === 'description') {
@@ -357,22 +448,32 @@ const NewOrganizerView = () => {
                                 <br />
                                 What&apos;s the goal?
                             </p>
-                            <textarea
-                                ref={descriptionTextareaRef}
-                                value={aiDescription}
-                                onChange={(e) => {
-                                    if (e.target.value.length <= 500) {
-                                        setAiDescription(e.target.value);
-                                        requestAnimationFrame(adjustDescriptionHeight);
-                                    }
-                                }}
-                                placeholder="ex: Creators and local businesses at a networking mixer"
-                                className="event-prompt-textarea"
-                                rows={2}
-                                maxLength={500}
-                                autoComplete="off"
-                                disabled={isGeneratingTags}
-                            />
+                            <div className="event-prompt-textarea-wrap">
+                                {!aiDescription && (
+                                    <span
+                                        className={`event-prompt-example${descriptionExampleVisible ? '' : ' event-prompt-example-fade-out'}`}
+                                        aria-hidden="true"
+                                    >
+                                        {EVENT_DESCRIPTION_EXAMPLES[descriptionExampleIndex]}
+                                    </span>
+                                )}
+                                <textarea
+                                    ref={descriptionTextareaRef}
+                                    value={aiDescription}
+                                    onChange={(e) => {
+                                        if (e.target.value.length <= 500) {
+                                            setAiDescription(e.target.value);
+                                            requestAnimationFrame(adjustDescriptionHeight);
+                                        }
+                                    }}
+                                    placeholder=""
+                                    className="event-prompt-textarea"
+                                    rows={2}
+                                    maxLength={500}
+                                    autoComplete="off"
+                                    disabled={isGeneratingTags}
+                                />
+                            </div>
                             <p className="event-prompt-card-hint">
                                 Reuneo handles the rotations, timing, pairing, and more.
                             </p>
@@ -382,7 +483,7 @@ const NewOrganizerView = () => {
                             <button
                                 type="button"
                                 className="step-cta event-prompt-continue"
-                                onClick={aiDescription.trim().length >= 2 ? handleGenerateTags : handleGoToTagsEmpty}
+                                onClick={aiDescription.trim().length >= 2 ? handleGenerateTags : handleDescriptionContinueEmpty}
                                 disabled={isGeneratingTags}
                             >
                                 {isGeneratingTags ? (
@@ -464,41 +565,75 @@ const NewOrganizerView = () => {
 
     // ── Render: Step 5 — Get Started ──
     const renderStep5 = () => (
-        <div className="step-container review-step">
-            <h1 className="step-title">Get Started for Free</h1>
+        <div className="step-container step-container-signup">
+            <h1 className="step-title step-title-prompt">Get started for free.</h1>
 
-            {error && <div className="error-message">{error}</div>}
+            {standardPairingNote && (
+                <p className="signup-pairing-note">Using standard pairing.</p>
+            )}
 
-            <input
-                type="text"
-                value={organizerName}
-                onChange={(e) => setOrganizerName(e.target.value)}
-                placeholder="Name"
-                className="form-input name-input"
-                autoComplete="name"
-            />
-
-            <div className="create-row">
-                <input
-                    type="email"
-                    value={email}
-                    onChange={handleEmailChange}
-                    placeholder="Email"
-                    className="form-input email-input"
-                    autoComplete="email"
-                />
-                <button className="step-cta create-cta" onClick={() => setShowEmailConfirmModal(true)}
-                    disabled={isLoading || !organizerName.trim() || !isValidEmail(email)}>
-                    {isLoading ? 'Creating...' : 'Create'}
-                    {!isLoading && <SparkleIcon />}
-                </button>
+            <div className="signup-form-card">
+                <div className="signup-form-card-body">
+                    <div className="signup-field">
+                        <label htmlFor="organizer-name">Name</label>
+                        <div className="signup-input-wrap">
+                            <InputPersonIcon />
+                            <input
+                                id="organizer-name"
+                                type="text"
+                                value={organizerName}
+                                onChange={(e) => setOrganizerName(e.target.value)}
+                                placeholder="Your name"
+                                autoComplete="name"
+                            />
+                        </div>
+                    </div>
+                    <div className="signup-field">
+                        <label htmlFor="organizer-email">Email</label>
+                        <div className="signup-input-wrap">
+                            <InputEmailIcon />
+                            <input
+                                id="organizer-email"
+                                type="email"
+                                value={email}
+                                onChange={handleEmailChange}
+                                placeholder="you@company.com"
+                                autoComplete="email"
+                            />
+                        </div>
+                    </div>
+                    {error && <div className="error-message signup-form-error">{error}</div>}
+                </div>
+                <div className="signup-form-card-footer">
+                    <button
+                        type="button"
+                        className="step-cta signup-create-cta"
+                        onClick={() => setShowEmailConfirmModal(true)}
+                        disabled={isLoading || !organizerName.trim() || !isValidEmail(email)}
+                    >
+                        {isLoading ? 'Creating...' : 'Create account'}
+                        {!isLoading && <SparkleIcon />}
+                    </button>
+                </div>
             </div>
+
+            <ul className="signup-trust-list">
+                <li className="signup-trust-item">
+                    <TrustShieldIcon />
+                    <span>Free to try. No credit card required.</span>
+                </li>
+                <li className="signup-trust-item">
+                    <TrustLockIcon />
+                    <span>Your information is secure.</span>
+                </li>
+            </ul>
         </div>
     );
 
     // ── Main Render ──
     const stepKey = currentStep === 3 ? `3-${step3View}` : String(currentStep);
     const isDescriptionStep = currentStep === 3 && step3View === 'description';
+    const isSignupStep = currentStep === 5;
 
     return (
         <div className="new-organizer-background">
@@ -526,7 +661,9 @@ const NewOrganizerView = () => {
             </div>
 
             {/* Step Content */}
-            <div className={`step-content-wrapper${isDescriptionStep ? ' step-content-wrapper-prompt' : ''}`}>
+            <div className={`step-content-wrapper${
+                isDescriptionStep ? ' step-content-wrapper-prompt' : ''
+            }${isSignupStep ? ' step-content-wrapper-signup' : ''}`}>
                 <div key={stepKey} className={`step-content step-${navDirection}`}>
                     {currentStep === 3 && renderStep3()}
                     {currentStep === 5 && renderStep5()}
@@ -537,12 +674,15 @@ const NewOrganizerView = () => {
                 isVisible={showTutorial}
                 onComplete={handleTutorialComplete}
             />
-            <CoolerGeneralMatchEventFlow
-                isVisible={showGeneralTutorial}
-                onComplete={handleGeneralTutorialComplete}
-                variant="organizer"
-                loadingFooterMessage="Preparing your lobby..."
-            />
+            {showGeneralTutorial && (
+                <CoolerGeneralMatchEventFlow
+                    isVisible
+                    onComplete={handleGeneralTutorialComplete}
+                    variant="organizer"
+                    loadingFooterMessage="Preparing your lobby..."
+                    tags={customTags.length >= 2 ? customTags : undefined}
+                />
+            )}
 
             {/* ── Email Confirmation Modal ── */}
             {showEmailConfirmModal && (

@@ -1,6 +1,22 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import './cooler_general_match_event_flow.css';
-import LoadingSpinner from '../components/LoadingSpinner';
+import AnimationProgressFooter from '../components/AnimationProgressFooter';
+import {
+    ORGANIZER_TAG_MATCH_HEADER,
+    organizerTagMatchScene,
+    useMatchingTagArrows,
+    MatchingTagPersonLabels,
+    MatchingTagArrows,
+} from './matching_tag_round';
+import {
+    ORGANIZER_SPEED,
+    ORGANIZER_INTRO_COUNT,
+    ORGANIZER_TAG_MATCH_COUNT,
+    buildOrganizerScenes,
+    getOrganizerSceneDurationMs,
+    getOrganizerPlaybackDurationMs,
+    orgMs,
+} from './cmef_organizer_timing';
 
 const SCENES = [
     // Act 1: Entrance
@@ -39,19 +55,6 @@ const SCENES = [
     // Act 8: Closing
     { id: 'final-fade', duration: 800 },       // 26
     { id: 'lets-go', duration: 1400 },         // 27
-];
-
-/** New-organizer playback — 15% faster twice (≈32% faster than base). */
-const ORGANIZER_SPEED = 1.3225;
-const orgMs = (ms) => Math.round(ms / ORGANIZER_SPEED);
-
-/** New-organizer flow: MockPairGreeting-style intro, then mixing (no lets-go). */
-const ORGANIZER_SCENES = [
-    { id: 'pair-hop', duration: 1875 },
-    { id: 'pair-phones', duration: 313 },
-    { id: 'pair-greet', duration: 1400 },
-    { id: 'pair-fade', duration: 700 },
-    ...SCENES.slice(16, 27),
 ];
 
 const PersonIcon = ({ color = '#3b82f6' }) => (
@@ -196,10 +199,25 @@ const CoolerGeneralMatchEventFlow = ({
     embedded = false,
     convoPairOnly = false,
     loadingFooterMessage = null,
+    tags = null,
 }) => {
     const isOrganizer = variant === 'organizer';
     const isCompact = variant === 'compact';
-    const sceneList = isOrganizer ? ORGANIZER_SCENES : SCENES;
+    const hasTagMatch = isOrganizer && tags && tags.length >= 2;
+    const tagSceneCount = hasTagMatch ? ORGANIZER_TAG_MATCH_COUNT : 0;
+    const pairFadeIndex = ORGANIZER_INTRO_COUNT + tagSceneCount;
+    const tagMatchStartIndex = ORGANIZER_INTRO_COUNT;
+    const sceneList = useMemo(
+        () => (isOrganizer ? buildOrganizerScenes(hasTagMatch) : SCENES),
+        [isOrganizer, hasTagMatch]
+    );
+    const resolveFullScene = (sceneIndex) => {
+        if (!isOrganizer) return sceneIndex;
+        const scene = sceneList[sceneIndex];
+        if (!scene) return sceneIndex;
+        const fullIdx = SCENES.findIndex((sc) => sc.id === scene.id);
+        return fullIdx >= 0 ? fullIdx : sceneIndex;
+    };
     const startIdx = startSceneProp !== undefined ? startSceneProp : (isCompact ? 15 : 0);
     const stopAt = stopAfterScene !== undefined ? stopAfterScene : sceneList.length;
     const [currentScene, setCurrentScene] = useState(startIdx);
@@ -211,8 +229,23 @@ const CoolerGeneralMatchEventFlow = ({
     const [convoTextFading, setConvoTextFading] = useState(false);
     const [isShuffling, setIsShuffling] = useState(false);
     const [skipRevealed, setSkipRevealed] = useState(false);
+    const [stageDims, setStageDims] = useState({ w: 420, h: 380 });
     const animFrameRef = useRef(null);
+    const organizerStageRef = useRef(null);
+    const founderTagLeftRef = useRef(null);
+    const founderTagRightRef = useRef(null);
+    const investorTagLeftRef = useRef(null);
+    const investorTagRightRef = useRef(null);
     const hasHiddenSkipFooter = Boolean(loadingFooterMessage);
+    const organizerProgressDurationMs = isOrganizer
+        ? getOrganizerPlaybackDurationMs(hasTagMatch)
+        : null;
+    const tagRefs = useMemo(() => ({
+        founderTagLeftRef,
+        founderTagRightRef,
+        investorTagLeftRef,
+        investorTagRightRef,
+    }), []);
 
     const finishTutorial = useCallback(() => {
         setFadingOut(true);
@@ -226,6 +259,16 @@ const CoolerGeneralMatchEventFlow = ({
     // produces a new onComplete reference (e.g. from AdminLobbyView's 1s polling).
     const finishTutorialRef = useRef(finishTutorial);
     finishTutorialRef.current = finishTutorial;
+
+    const inTagMatchScene = hasTagMatch && currentScene >= tagMatchStartIndex && currentScene < pairFadeIndex;
+    const tagMatchSceneIndex = inTagMatchScene ? currentScene - tagMatchStartIndex : -1;
+    const matchScene = inTagMatchScene ? organizerTagMatchScene(tagMatchSceneIndex) : 0;
+    const { founderArrow, investorArrow } = useMatchingTagArrows(
+        organizerStageRef,
+        tagRefs,
+        inTagMatchScene,
+        matchScene
+    );
 
     useEffect(() => {
         if (!isVisible) {
@@ -251,17 +294,22 @@ const CoolerGeneralMatchEventFlow = ({
 
         let elapsed = 0;
         const timers = [];
+        const activeSceneList = isOrganizer ? buildOrganizerScenes(hasTagMatch) : SCENES;
+        const activeStopAt = stopAfterScene !== undefined ? stopAfterScene : activeSceneList.length;
 
-        sceneList.forEach((scene, index) => {
+        activeSceneList.forEach((scene, index) => {
             if (index < startIdx) return;
-            if (index >= stopAt) return;
+            if (index >= activeStopAt) return;
 
             if (index > startIdx) {
                 const timer = setTimeout(() => setCurrentScene(index), elapsed);
                 timers.push(timer);
             }
-            const duration = (isCompact && scene.id === 'lets-go') ? 600 : scene.duration;
-            elapsed += isOrganizer ? orgMs(duration) : duration;
+            const baseDuration = (isCompact && scene.id === 'lets-go') ? 600 : scene.duration;
+            const duration = isOrganizer
+                ? getOrganizerSceneDurationMs(scene, index, hasTagMatch)
+                : baseDuration;
+            elapsed += duration;
         });
 
         // Use the ref so this effect never needs to re-run just because onComplete
@@ -270,7 +318,22 @@ const CoolerGeneralMatchEventFlow = ({
         timers.push(endTimer);
 
         return () => timers.forEach(clearTimeout);
-    }, [isVisible]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [isVisible, hasTagMatch, isOrganizer, isCompact, startIdx, stopAfterScene]);
+
+    useEffect(() => {
+        if (!inTagMatchScene) return undefined;
+        const stage = organizerStageRef.current;
+        if (!stage) return undefined;
+
+        const updateDims = () => {
+            const sr = stage.getBoundingClientRect();
+            setStageDims({ w: sr.width, h: sr.height });
+        };
+
+        updateDims();
+        const timer = setTimeout(updateDims, 60);
+        return () => clearTimeout(timer);
+    }, [inTagMatchScene, matchScene]);
 
     useEffect(() => {
         const timers = [];
@@ -315,7 +378,7 @@ const CoolerGeneralMatchEventFlow = ({
             }, t(1000)));
         };
 
-        const fs = isOrganizer && currentScene >= 4 ? currentScene + 12 : currentScene;
+        const fs = resolveFullScene(currentScene);
 
         if (fs === 16) {
             setCircles([
@@ -331,7 +394,9 @@ const CoolerGeneralMatchEventFlow = ({
         } else if (fs === 17) {
             setCircles(prev => [
                 ...prev.map((c, i) => ({
-                    ...c, x: MIX_SETS[0][i].x, y: MIX_SETS[0][i].y,
+                    ...c,
+                    x: MIX_SETS[0][i]?.x ?? c.x,
+                    y: MIX_SETS[0][i]?.y ?? c.y,
                 })),
                 { id: 2, x: 100, y: 48 },
                 { id: 3, x: 106, y: 48 },
@@ -414,7 +479,9 @@ const CoolerGeneralMatchEventFlow = ({
     if (!isVisible) return null;
 
     const s = currentScene;
-    const fs = isOrganizer && s >= 4 ? s + 12 : s;
+    const fs = resolveFullScene(s);
+    const tag1 = tags?.[0] || '';
+    const tag2 = tags?.[1] || '';
 
     const headerText = !isOrganizer && (s >= 1 && s <= 2)
         ? 'These are two people at your event'
@@ -434,12 +501,23 @@ const CoolerGeneralMatchEventFlow = ({
     const showFloats = !isOrganizer && s >= 9 && s <= 15;
     const floatSmall = s >= 10;
     const floatSnug = s >= 11;
-    const overflowVisible = isOrganizer ? s >= 1 && s <= 3 : s >= 9;
+    const overflowVisible = isOrganizer ? s >= 1 && s <= pairFadeIndex : s >= 9;
 
-    const showOrganizerIntro = isOrganizer && s <= 3;
-    const organizerIntroFading = isOrganizer && s >= 3;
+    const showOrganizerIntro = isOrganizer && s <= pairFadeIndex;
+    const organizerIntroFading = isOrganizer && s >= pairFadeIndex;
+    const fadeOrganizerPhonesGreetings = hasTagMatch && s >= tagMatchStartIndex;
+    const showOrganizerPhoneElements = isOrganizer && s >= 1 && (
+        hasTagMatch ? s <= tagMatchStartIndex : s <= pairFadeIndex
+    );
+    const showOrganizerGreetingElements = isOrganizer && s >= 2 && (
+        hasTagMatch ? s <= tagMatchStartIndex : s <= pairFadeIndex
+    );
+    const tagMatchExitFade = hasTagMatch && s >= pairFadeIndex - 1;
+    const showTagMatchHeader = hasTagMatch && s >= tagMatchStartIndex && s <= pairFadeIndex;
+    const tagMatchHeaderFading = tagMatchExitFade;
 
     const isAct4 = fs >= 14;
+    const useAct4Layout = isAct4 || (hasTagMatch && s >= tagMatchStartIndex && s <= pairFadeIndex);
     const showAct1 = !isOrganizer && s <= 15;
     const act1Fading = !isOrganizer && s >= 14;
     const showEventSpace = fs >= 15 && fs <= 26;
@@ -468,13 +546,21 @@ const CoolerGeneralMatchEventFlow = ({
     return (
         <div className={`cmef-overlay ${isCompact ? 'cmef-compact' : ''} ${isOrganizer ? 'cmef-organizer' : ''} ${embedded ? 'cmef-embedded' : ''} ${fadingOut ? 'cmef-fade-out' : ''}`}>
             <div className="cmef-wrapper">
-                <div className={`cmef-header-container ${isAct4 ? 'cmef-header-act4' : ''}`}>
+                <div className={`cmef-header-container${useAct4Layout ? ' cmef-header-act4' : ''}${showTagMatchHeader ? ' cmef-header-tag-match' : ''}`}>
                     {headerText && (
                         <span
                             className={`cmef-header-text ${headerFading ? 'cmef-header-fade-out' : ''}`}
                             key={headerText}
                         >
                             {headerText}
+                        </span>
+                    )}
+                    {showTagMatchHeader && (
+                        <span
+                            className={`cmef-header-text cmef-act4-header ${tagMatchHeaderFading ? 'cmef-header-fade-out' : ''}`}
+                            key="tag-match-header"
+                        >
+                            {ORGANIZER_TAG_MATCH_HEADER}
                         </span>
                     )}
                     {showAct4Header && (
@@ -495,36 +581,59 @@ const CoolerGeneralMatchEventFlow = ({
                     )}
                 </div>
 
-                <div className={`cmef-stage ${isAct4 ? 'cmef-stage-act4' : ''} ${overflowVisible ? 'cmef-stage-overflow' : ''}`}>
+                <div
+                    ref={isOrganizer ? organizerStageRef : null}
+                    className={`cmef-stage${useAct4Layout ? ' cmef-stage-act4' : ''}${overflowVisible ? ' cmef-stage-overflow' : ''}`}
+                >
                     {showOrganizerIntro && (
-                    <div className={`cmef-act1-content cmef-pair-greeting-intro${organizerIntroFading ? ' cmef-act1-fade' : ''}`}>
+                    <div className={`cmef-act1-content cmef-pair-greeting-intro${inTagMatchScene ? ' cmef-tag-match-active' : ''}${tagMatchExitFade ? ' cmef-tag-match-exit-fade' : ''}${organizerIntroFading ? ' cmef-act1-fade' : ''}`}>
                         <div className="cmef-person cmef-person-left">
+                            {inTagMatchScene && (
+                                <MatchingTagPersonLabels
+                                    side="left"
+                                    matchScene={matchScene}
+                                    tag1={tag1}
+                                    tag2={tag2}
+                                    tagRefs={tagRefs}
+                                    labelsFading={tagMatchExitFade}
+                                />
+                            )}
                             <div className="cmef-person-hop">
                                 <PersonIcon />
                             </div>
                         </div>
                         <div className="cmef-person cmef-person-right">
+                            {inTagMatchScene && (
+                                <MatchingTagPersonLabels
+                                    side="right"
+                                    matchScene={matchScene}
+                                    tag1={tag1}
+                                    tag2={tag2}
+                                    tagRefs={tagRefs}
+                                    labelsFading={tagMatchExitFade}
+                                />
+                            )}
                             <div className="cmef-person-hop">
                                 <PersonIcon />
                             </div>
                         </div>
-                        {s >= 1 && (
+                        {showOrganizerPhoneElements && (
                             <>
-                                <div className="cmef-float-phone cmef-float-kate cmef-float-snug">
+                                <div className={`cmef-float-phone cmef-float-kate cmef-float-snug${fadeOrganizerPhonesGreetings ? ' cmef-organizer-tags-fade' : ''}`}>
                                     <div className="cmef-float-pop">
                                         <PhoneFrame imageSrc="/assets/kate_rodriguez.png" />
                                     </div>
                                 </div>
-                                <div className="cmef-float-phone cmef-float-tony cmef-float-snug">
+                                <div className={`cmef-float-phone cmef-float-tony cmef-float-snug${fadeOrganizerPhonesGreetings ? ' cmef-organizer-tags-fade' : ''}`}>
                                     <div className="cmef-float-pop">
                                         <PhoneFrame imageSrc="/assets/tony_chopper.jpg" />
                                     </div>
                                 </div>
                             </>
                         )}
-                        {s >= 2 && (
+                        {showOrganizerGreetingElements && (
                             <>
-                                <div className="cmef-greet cmef-greet-left">
+                                <div className={`cmef-greet cmef-greet-left${fadeOrganizerPhonesGreetings ? ' cmef-organizer-tags-fade' : ''}`}>
                                     <span className="cmef-greet-text">Nice to meet you Kate!</span>
                                     <div className="cmef-confetti-burst">
                                         {[1,2,3,4,5,6,7,8].map(n => (
@@ -532,7 +641,7 @@ const CoolerGeneralMatchEventFlow = ({
                                         ))}
                                     </div>
                                 </div>
-                                <div className="cmef-greet cmef-greet-right">
+                                <div className={`cmef-greet cmef-greet-right${fadeOrganizerPhonesGreetings ? ' cmef-organizer-tags-fade' : ''}`}>
                                     <span className="cmef-greet-text">Hi Tony!</span>
                                     <div className="cmef-confetti-burst">
                                         {[1,2,3,4,5,6,7,8].map(n => (
@@ -541,6 +650,15 @@ const CoolerGeneralMatchEventFlow = ({
                                     </div>
                                 </div>
                             </>
+                        )}
+                        {inTagMatchScene && (
+                            <MatchingTagArrows
+                                matchScene={matchScene}
+                                founderArrow={founderArrow}
+                                investorArrow={investorArrow}
+                                stageDims={stageDims}
+                                arrowsHidden={tagMatchExitFade}
+                            />
                         )}
                     </div>
                     )}
@@ -819,7 +937,11 @@ const CoolerGeneralMatchEventFlow = ({
                             onClick={() => setSkipRevealed(true)}
                             aria-label="Reveal skip"
                         >
-                            <LoadingSpinner size={34} message={loadingFooterMessage} />
+                            <AnimationProgressFooter
+                                durationMs={organizerProgressDurationMs}
+                                message={loadingFooterMessage}
+                                isActive={isVisible && !skipRevealed}
+                            />
                         </button>
                     ) : (
                         (isOrganizer || s < 27) && !hideSkip && (

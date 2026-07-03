@@ -117,14 +117,8 @@
     border: none;
 }
 
-.cmef-loading-footer .loading-spinner-wrapper {
-    gap: 8px;
-}
-
-.cmef-loading-footer .loading-spinner-message {
-    font-size: 0.82rem;
-    font-weight: 600;
-    letter-spacing: 0.01em;
+.cmef-loading-footer .animation-progress-footer {
+    width: min(280px, calc(100vw - 48px));
 }
 
 .cmef-skip.cmef-skip-centered {
@@ -653,6 +647,37 @@
     pointer-events: none;
 }
 
+.cmef-float-phone.cmef-organizer-tags-fade,
+.cmef-greet.cmef-organizer-tags-fade {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+}
+
+.cmef-pair-greeting-intro .cmef-person {
+    z-index: 2;
+}
+
+.cmef-pair-greeting-intro .tutorial-labels {
+    z-index: 3;
+}
+
+.cmef-pair-greeting-intro .tutorial-arrow {
+    z-index: 1;
+}
+
+.cmef-tag-match-active .tutorial-label-slide {
+    animation-duration: 0.6s;
+}
+
+.cmef-tag-match-active .tutorial-arrow-fade-in {
+    animation-duration: 0.6s;
+}
+
+.cmef-tag-match-active .tutorial-label-tag {
+    transition-duration: 0.24s;
+}
+
 /* ── Overflow Visible (from Act 3 float phones onward) ── */
 
 .cmef-stage.cmef-stage-overflow {
@@ -680,6 +705,49 @@
     text-align: center;
     line-height: 1.25;
     white-space: normal;
+}
+
+/* Tag-match beat — align header position/size with mingling (Act 4) scene */
+.cmef-header-container.cmef-header-tag-match {
+    margin-top: -20px;
+    margin-bottom: 28px;
+}
+
+.cmef-header-container.cmef-header-tag-match .cmef-act4-header {
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+    text-shadow: none;
+    animation: cmefTagMatchHeaderFadeIn 0.625s ease 0.25s both;
+}
+
+.cmef-header-container.cmef-header-tag-match .cmef-act4-header.cmef-header-fade-out {
+    animation: cmefTagMatchHeaderFadeOut 0.625s ease forwards;
+}
+
+@keyframes cmefTagMatchHeaderFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cmefTagMatchHeaderFadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(-10px); }
+}
+
+.cmef-tag-match-exit-fade .cmef-person .cmef-person-hop {
+    opacity: 0.4;
+    transition: opacity 0.55s ease;
+}
+
+.cmef-tag-match-active.cmef-tag-match-exit-fade.cmef-act1-fade {
+    transition: opacity 0.75s ease;
+}
+
+.cmef-tag-match-active.cmef-tag-match-exit-fade.cmef-act1-fade .cmef-person .cmef-person-hop {
+    opacity: 0;
+    transition: opacity 0.75s ease;
 }
 
 /* ── Act 4 Rotating Header Text ──────────────────── */
@@ -1063,6 +1131,20 @@
         font-size: 18px;
     }
 
+    .cmef-header-container.cmef-header-tag-match {
+        margin-top: -14px;
+        margin-bottom: 22px;
+    }
+
+    .cmef-header-container.cmef-header-tag-match .cmef-act4-header {
+        font-size: 18px;
+        animation: cmefTagMatchHeaderFadeIn 0.625s ease 0.25s both;
+    }
+
+    .cmef-header-container.cmef-header-tag-match .cmef-act4-header.cmef-header-fade-out {
+        animation: cmefTagMatchHeaderFadeOut 0.625s ease forwards;
+    }
+
     .cmef-blue-header {
         font-size: 19px;
     }
@@ -1171,6 +1253,20 @@
         font-size: 24px;
     }
 
+    .cmef-header-container.cmef-header-tag-match {
+        margin-top: -24px;
+        margin-bottom: 32px;
+    }
+
+    .cmef-header-container.cmef-header-tag-match .cmef-act4-header {
+        font-size: 24px;
+        animation: cmefTagMatchHeaderFadeIn 0.625s ease 0.25s both;
+    }
+
+    .cmef-header-container.cmef-header-tag-match .cmef-act4-header.cmef-header-fade-out {
+        animation: cmefTagMatchHeaderFadeOut 0.625s ease forwards;
+    }
+
     .cmef-blue-header {
         font-size: 28px;
     }
@@ -1230,6 +1326,14 @@
 .cmef-overlay.cmef-organizer .cmef-header-text,
 .cmef-overlay.cmef-organizer .cmef-act4-header {
     animation-duration: calc(0.5s * var(--cmef-spd));
+}
+
+.cmef-overlay.cmef-organizer .cmef-header-container.cmef-header-tag-match .cmef-act4-header {
+    animation: cmefTagMatchHeaderFadeIn 0.625s ease 0.25s both;
+}
+
+.cmef-overlay.cmef-organizer .cmef-header-container.cmef-header-tag-match .cmef-act4-header.cmef-header-fade-out {
+    animation: cmefTagMatchHeaderFadeOut 0.625s ease forwards;
 }
 
 .cmef-overlay.cmef-organizer .cmef-header-text {
