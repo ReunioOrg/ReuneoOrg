@@ -55,6 +55,7 @@ const NewOrganizerView = () => {
     const [showGeneralTutorial, setShowGeneralTutorial] = useState(false);
 
     const isSubmittingRef = useRef(false);
+    const generalTutorialTriggeredRef = useRef(false);
 
     useEffect(() => {
         if (permissions === 'organizer' && !isLegacyOrganizer && !isSubmittingRef.current) {
@@ -73,19 +74,22 @@ const NewOrganizerView = () => {
         }
     }, [returnData]);
 
-    useEffect(() => {
-        if (
-            !returnData &&
-            !fromTutorial &&
-            !fromSpeedFriending &&
-            !fromResidential &&
-            permissions !== 'admin' &&
-            permissions !== 'organizer' &&
-            !isLegacyOrganizer
-        ) {
+    const shouldAutoShowGeneralTutorial = () =>
+        !returnData &&
+        !fromTutorial &&
+        !fromSpeedFriending &&
+        !fromResidential &&
+        permissions !== 'admin' &&
+        permissions !== 'organizer' &&
+        !isLegacyOrganizer;
+
+    const triggerGeneralTutorialIfEligible = () => {
+        if (generalTutorialTriggeredRef.current) return;
+        if (shouldAutoShowGeneralTutorial()) {
+            generalTutorialTriggeredRef.current = true;
             setShowGeneralTutorial(true);
         }
-    }, [returnData, fromTutorial, fromSpeedFriending, fromResidential, permissions, isLegacyOrganizer]);
+    };
 
     // Lock body scroll while the confirmation modal is open
     useEffect(() => {
@@ -151,12 +155,14 @@ const NewOrganizerView = () => {
         setTagInput('');
         setVisitedSteps(prev => new Set([...prev, 5]));
         goToStep(5, 'forward');
+        triggerGeneralTutorialIfEligible();
     };
 
     const handleStep3Continue = () => {
         setSelectedTab('custom');
         setVisitedSteps(prev => new Set([...prev, 5]));
         goToStep(5, 'forward');
+        triggerGeneralTutorialIfEligible();
     };
 
     // ── Tags ──
@@ -516,6 +522,7 @@ const NewOrganizerView = () => {
             <CoolerGeneralMatchEventFlow
                 isVisible={showGeneralTutorial}
                 onComplete={handleGeneralTutorialComplete}
+                variant="organizer"
             />
 
             {/* ── Email Confirmation Modal ── */}

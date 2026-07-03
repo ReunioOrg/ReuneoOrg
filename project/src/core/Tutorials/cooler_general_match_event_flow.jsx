@@ -40,6 +40,19 @@ const SCENES = [
     { id: 'lets-go', duration: 1400 },         // 27
 ];
 
+/** New-organizer playback runs 15% faster than base timings. */
+const ORGANIZER_SPEED = 1.15;
+const orgMs = (ms) => Math.round(ms / ORGANIZER_SPEED);
+
+/** New-organizer flow: MockPairGreeting-style intro, then mixing (no lets-go). */
+const ORGANIZER_SCENES = [
+    { id: 'pair-hop', duration: 1875 },
+    { id: 'pair-phones', duration: 313 },
+    { id: 'pair-greet', duration: 1400 },
+    { id: 'pair-fade', duration: 700 },
+    ...SCENES.slice(16, 27),
+];
+
 const PersonIcon = ({ color = '#3b82f6' }) => (
     <svg viewBox="0 0 32 80" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="16" cy="10" r="9" fill={color} />
@@ -182,8 +195,11 @@ const CoolerGeneralMatchEventFlow = ({
     embedded = false,
     convoPairOnly = false,
 }) => {
+    const isOrganizer = variant === 'organizer';
     const isCompact = variant === 'compact';
+    const sceneList = isOrganizer ? ORGANIZER_SCENES : SCENES;
     const startIdx = startSceneProp !== undefined ? startSceneProp : (isCompact ? 15 : 0);
+    const stopAt = stopAfterScene !== undefined ? stopAfterScene : sceneList.length;
     const [currentScene, setCurrentScene] = useState(startIdx);
     const [fadingOut, setFadingOut] = useState(false);
     const [circles, setCircles] = useState([]);
@@ -198,8 +214,8 @@ const CoolerGeneralMatchEventFlow = ({
         setFadingOut(true);
         setTimeout(() => {
             onComplete?.();
-        }, isCompact ? 400 : 600);
-    }, [onComplete, isCompact]);
+        }, isOrganizer ? orgMs(400) : (isCompact ? 400 : 600));
+    }, [onComplete, isCompact, isOrganizer]);
 
     // Always keep a ref to the latest finishTutorial so the isVisible effect can
     // call it without being re-triggered every time the parent re-renders and
@@ -231,16 +247,16 @@ const CoolerGeneralMatchEventFlow = ({
         let elapsed = 0;
         const timers = [];
 
-        SCENES.forEach((scene, index) => {
+        sceneList.forEach((scene, index) => {
             if (index < startIdx) return;
-            if (stopAfterScene !== undefined && index >= stopAfterScene) return;
+            if (index >= stopAt) return;
 
             if (index > startIdx) {
                 const timer = setTimeout(() => setCurrentScene(index), elapsed);
                 timers.push(timer);
             }
             const duration = (isCompact && scene.id === 'lets-go') ? 600 : scene.duration;
-            elapsed += duration;
+            elapsed += isOrganizer ? orgMs(duration) : duration;
         });
 
         // Use the ref so this effect never needs to re-run just because onComplete
@@ -253,13 +269,15 @@ const CoolerGeneralMatchEventFlow = ({
 
     useEffect(() => {
         const timers = [];
+        const t = (ms) => (isOrganizer ? orgMs(ms) : ms);
+        const motionScale = isOrganizer ? ORGANIZER_SPEED : 1;
 
         const runShufflePhysics = (targetPairSet, totalCircles = 16) => {
             setIsShuffling(true);
             setPhoneRevealCount(0);
             const vels = Array.from({ length: totalCircles }, () => ({
-                vx: (Math.random() - 0.5) * 120,
-                vy: (Math.random() - 0.5) * 120,
+                vx: (Math.random() - 0.5) * 120 * motionScale,
+                vy: (Math.random() - 0.5) * 120 * motionScale,
             }));
             let lastTime = performance.now();
             const CENTER = 50, BOUND = 36;
@@ -289,10 +307,12 @@ const CoolerGeneralMatchEventFlow = ({
                 cancelAnimationFrame(animFrameRef.current);
                 setIsShuffling(false);
                 setCircles(pairSetToCircles(targetPairSet));
-            }, 1000));
+            }, t(1000)));
         };
 
-        if (currentScene === 16) {
+        const fs = isOrganizer && currentScene >= 4 ? currentScene + 12 : currentScene;
+
+        if (fs === 16) {
             setCircles([
                 { id: 0, x: 100, y: 48 },
                 { id: 1, x: 106, y: 48 },
@@ -302,8 +322,8 @@ const CoolerGeneralMatchEventFlow = ({
                     { id: 0, x: 63, y: 48 },
                     { id: 1, x: 69, y: 48 },
                 ]);
-            }, 50));
-        } else if (currentScene === 17) {
+            }, t(50)));
+        } else if (fs === 17) {
             setCircles(prev => [
                 ...prev.map((c, i) => ({
                     ...c, x: MIX_SETS[0][i].x, y: MIX_SETS[0][i].y,
@@ -312,38 +332,38 @@ const CoolerGeneralMatchEventFlow = ({
                 { id: 3, x: 106, y: 48 },
             ]);
             for (let p = 2; p <= 7; p++) {
-                const t = (p - 1) * 120;
+                const delay = t((p - 1) * 120);
                 timers.push(setTimeout(() => {
                     setCircles(prev => [
                         ...prev,
                         { id: p * 2, x: 100, y: 48 },
                         { id: p * 2 + 1, x: 106, y: 48 },
                     ]);
-                }, t));
+                }, delay));
                 timers.push(setTimeout(() => {
                     const mix = MIX_SETS[p % MIX_SETS.length];
                     setCircles(prev => prev.map((c, i) => ({
                         ...c, x: mix[i]?.x ?? c.x, y: mix[i]?.y ?? c.y,
                     })));
-                }, t + 60));
+                }, delay + t(60)));
             }
-        } else if (currentScene === 18) {
+        } else if (fs === 18) {
             setCircles(pairSetToCircles(PAIR_SET_A));
-        } else if (currentScene === 19) {
+        } else if (fs === 19) {
             for (let i = 0; i < 8; i++) {
-                timers.push(setTimeout(() => setPhoneRevealCount(i + 1), i * 140));
+                timers.push(setTimeout(() => setPhoneRevealCount(i + 1), t(i * 140)));
             }
-        } else if (currentScene === 20) {
+        } else if (fs === 20) {
             setConvoTextFading(false);
             const r1Texts = convoPairOnly ? CONVO_PAIR_ONLY_R1 : CONVO_TEXTS_R1;
             for (let i = 0; i < r1Texts.length; i++) {
-                timers.push(setTimeout(() => setConvoRevealCount(i + 1), i * 180));
+                timers.push(setTimeout(() => setConvoRevealCount(i + 1), t(i * 180)));
             }
-            timers.push(setTimeout(() => setConvoTextFading(true), 1300));
-        } else if (currentScene === 21) {
+            timers.push(setTimeout(() => setConvoTextFading(true), t(1300)));
+        } else if (fs === 21) {
             setConvoRevealCount(0);
             setConvoTextFading(false);
-        } else if (currentScene === 22) {
+        } else if (fs === 22) {
             for (let i = 0; i < 4; i++) {
                 timers.push(setTimeout(() => {
                     setCircles(prev => [
@@ -351,14 +371,14 @@ const CoolerGeneralMatchEventFlow = ({
                         { id: 16 + i * 2, x: 95, y: 42 + i * 4 },
                         { id: 16 + i * 2 + 1, x: 95, y: 42 + i * 4 },
                     ]);
-                }, i * 60));
+                }, t(i * 60)));
             }
             runShufflePhysics(PAIR_SET_B, 24);
-        } else if (currentScene === 23) {
+        } else if (fs === 23) {
             setPhoneRevealCount(8);
             setConvoTextFading(false);
-            timers.push(setTimeout(() => setConvoTextFading(true), 1000));
-        } else if (currentScene === 24) {
+            timers.push(setTimeout(() => setConvoTextFading(true), t(1000)));
+        } else if (fs === 24) {
             for (let i = 0; i < 3; i++) {
                 timers.push(setTimeout(() => {
                     setCircles(prev => [
@@ -366,16 +386,16 @@ const CoolerGeneralMatchEventFlow = ({
                         { id: 24 + i * 2, x: 95, y: 44 + i * 4 },
                         { id: 24 + i * 2 + 1, x: 95, y: 44 + i * 4 },
                     ]);
-                }, i * 60));
+                }, t(i * 60)));
             }
             runShufflePhysics(PAIR_SET_C, 30);
-        } else if (currentScene === 25) {
+        } else if (fs === 25) {
             setPhoneRevealCount(8);
             setRound3HeaderReady(false);
             setConvoTextFading(false);
-            timers.push(setTimeout(() => setRound3HeaderReady(true), 250));
-            timers.push(setTimeout(() => setConvoTextFading(true), 1000));
-        } else if (currentScene === 26) {
+            timers.push(setTimeout(() => setRound3HeaderReady(true), t(250)));
+            timers.push(setTimeout(() => setConvoTextFading(true), t(1000)));
+        } else if (fs === 26) {
             setPhoneRevealCount(0);
             setConvoTextFading(false);
         }
@@ -384,13 +404,14 @@ const CoolerGeneralMatchEventFlow = ({
             timers.forEach(clearTimeout);
             if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
         };
-    }, [currentScene]);
+    }, [currentScene, isOrganizer, convoPairOnly]);
 
     if (!isVisible) return null;
 
     const s = currentScene;
+    const fs = isOrganizer && s >= 4 ? s + 12 : s;
 
-    const headerText = (s >= 1 && s <= 2)
+    const headerText = !isOrganizer && (s >= 1 && s <= 2)
         ? 'These are two people at your event'
         : null;
     const headerFading = s >= 2;
@@ -398,46 +419,49 @@ const CoolerGeneralMatchEventFlow = ({
     const hasEntered = s >= 2;
     const isZoomed = s >= 2 && s <= 7;
 
-    const showCloseup = s >= 2 && s <= 8;
+    const showCloseup = !isOrganizer && s >= 2 && s <= 8;
     const closeupVisible = s >= 3 && s <= 7;
     const kateViewVisible = s >= 3 && s <= 4;
     const kateTextVisible = s >= 4;
     const tonyViewVisible = s >= 6 && s <= 7;
     const tonyTextVisible = s >= 7;
 
-    const showFloats = s >= 9 && s <= 15;
+    const showFloats = !isOrganizer && s >= 9 && s <= 15;
     const floatSmall = s >= 10;
     const floatSnug = s >= 11;
-    const overflowVisible = s >= 9;
+    const overflowVisible = isOrganizer ? s >= 1 && s <= 3 : s >= 9;
 
-    const isAct4 = s >= 14;
-    const showAct1 = s <= 15;
-    const act1Fading = s >= 14;
-    const showEventSpace = s >= 15 && s <= 26;
-    const eventSpaceVisible = s >= 15 && s <= 25;
-    const showEventLabel = s >= 15 && s <= 16;
-    const eventLabelFading = s >= 16;
-    const showAct4Header = s >= 15 && s <= 20;
-    const showDots = s >= 16 && s <= 26;
-    const showNewArrivals = s >= 16 && s <= 25;
-    const showConvo = s >= 20 && s <= 21;
-    const convoFading = s >= 21;
-    const showRound2Convo = s === 23;
-    const showRound3Convo = s === 25;
+    const showOrganizerIntro = isOrganizer && s <= 3;
+    const organizerIntroFading = isOrganizer && s >= 3;
+
+    const isAct4 = fs >= 14;
+    const showAct1 = !isOrganizer && s <= 15;
+    const act1Fading = !isOrganizer && s >= 14;
+    const showEventSpace = fs >= 15 && fs <= 26;
+    const eventSpaceVisible = fs >= 15 && fs <= 25;
+    const showEventLabel = fs >= 15 && fs <= 16;
+    const eventLabelFading = fs >= 16;
+    const showAct4Header = fs >= 15 && fs <= 20;
+    const showDots = fs >= 16 && fs <= 26;
+    const showNewArrivals = fs >= 16 && fs <= 25;
+    const showConvo = fs >= 20 && fs <= 21;
+    const convoFading = fs >= 21;
+    const showRound2Convo = fs === 23;
+    const showRound3Convo = fs === 25;
     const blueHeaderText =
-        (s >= 23 && (s <= 24 || (s === 25 && !round3HeaderReady)))
+        (fs >= 23 && (fs <= 24 || (fs === 25 && !round3HeaderReady)))
             ? "Each round they get paired up with someone new!"
-        : (s >= 25 && s <= 26 && round3HeaderReady)
+        : (fs >= 25 && fs <= 26 && round3HeaderReady)
             ? 'Creating real connections and increasing engagement!'
         : null;
-    const blueHeaderFading = (s === 25 && !round3HeaderReady) || s === 26;
+    const blueHeaderFading = (fs === 25 && !round3HeaderReady) || fs === 26;
 
     const convoR1 = convoPairOnly ? CONVO_PAIR_ONLY_R1 : CONVO_TEXTS_R1;
     const convoR2 = convoPairOnly ? CONVO_PAIR_ONLY_R2 : CONVO_TEXTS_R2;
     const convoR3 = convoPairOnly ? CONVO_PAIR_ONLY_R3 : CONVO_TEXTS_R3;
 
     return (
-        <div className={`cmef-overlay ${isCompact ? 'cmef-compact' : ''} ${embedded ? 'cmef-embedded' : ''} ${fadingOut ? 'cmef-fade-out' : ''}`}>
+        <div className={`cmef-overlay ${isCompact ? 'cmef-compact' : ''} ${isOrganizer ? 'cmef-organizer' : ''} ${embedded ? 'cmef-embedded' : ''} ${fadingOut ? 'cmef-fade-out' : ''}`}>
             <div className="cmef-wrapper">
                 <div className={`cmef-header-container ${isAct4 ? 'cmef-header-act4' : ''}`}>
                     {headerText && (
@@ -450,7 +474,7 @@ const CoolerGeneralMatchEventFlow = ({
                     )}
                     {showAct4Header && (
                         <span
-                            className={`cmef-header-text cmef-act4-header ${s >= 19 ? 'cmef-header-fade-out' : ''}`}
+                            className={`cmef-header-text cmef-act4-header ${fs >= 19 ? 'cmef-header-fade-out' : ''}`}
                             key="act4-header"
                         >
                             Turn your event into a community building experience!
@@ -467,7 +491,56 @@ const CoolerGeneralMatchEventFlow = ({
                 </div>
 
                 <div className={`cmef-stage ${isAct4 ? 'cmef-stage-act4' : ''} ${overflowVisible ? 'cmef-stage-overflow' : ''}`}>
-                    {!isCompact && showAct1 && (
+                    {showOrganizerIntro && (
+                    <div className={`cmef-act1-content cmef-pair-greeting-intro${organizerIntroFading ? ' cmef-act1-fade' : ''}`}>
+                        <div className="cmef-person cmef-person-left">
+                            <div className="cmef-person-hop">
+                                <PersonIcon />
+                            </div>
+                        </div>
+                        <div className="cmef-person cmef-person-right">
+                            <div className="cmef-person-hop">
+                                <PersonIcon />
+                            </div>
+                        </div>
+                        {s >= 1 && (
+                            <>
+                                <div className="cmef-float-phone cmef-float-kate cmef-float-snug">
+                                    <div className="cmef-float-pop">
+                                        <PhoneFrame imageSrc="/assets/kate_rodriguez.png" />
+                                    </div>
+                                </div>
+                                <div className="cmef-float-phone cmef-float-tony cmef-float-snug">
+                                    <div className="cmef-float-pop">
+                                        <PhoneFrame imageSrc="/assets/tony_chopper.jpg" />
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                        {s >= 2 && (
+                            <>
+                                <div className="cmef-greet cmef-greet-left">
+                                    <span className="cmef-greet-text">Nice to meet you Kate!</span>
+                                    <div className="cmef-confetti-burst">
+                                        {[1,2,3,4,5,6,7,8].map(n => (
+                                            <span key={n} className={`cmef-conf cmef-c${n}`} />
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="cmef-greet cmef-greet-right">
+                                    <span className="cmef-greet-text">Hi Tony!</span>
+                                    <div className="cmef-confetti-burst">
+                                        {[1,2,3,4,5,6,7,8].map(n => (
+                                            <span key={n} className={`cmef-conf cmef-c${n}`} />
+                                        ))}
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                    )}
+
+                    {!isCompact && !isOrganizer && showAct1 && (
                     <div className={`cmef-act1-content ${act1Fading ? 'cmef-act1-fade' : ''}`}>
                     {/* ── Person Icons ── */}
                     <div className={
@@ -640,7 +713,7 @@ const CoolerGeneralMatchEventFlow = ({
                                 })}
                             </div>
                             {showNewArrivals && (() => {
-                                const isArriving = (s >= 16 && s <= 17) || s === 22 || s === 24;
+                                const isArriving = (fs >= 16 && fs <= 17) || fs === 22 || fs === 24;
                                 return (
                                     <div className="cmef-new-arrivals">
                                         <span className={`cmef-arrivals-text${isArriving ? ' cmef-arrivals-text-visible' : ''}`}>NEW<br />ARRIVALS</span>
@@ -716,8 +789,8 @@ const CoolerGeneralMatchEventFlow = ({
                         </div>
                     )}
 
-                    {/* ── Let's Get Started (Final) ── */}
-                    {s >= 27 && (
+                    {/* ── Let's Get Started (Final) — full variant only ── */}
+                    {!isOrganizer && s >= 27 && (
                         <div className="cmef-lets-go">
                             {"Let's get started!".split('').map((char, i) => (
                                 <span
@@ -732,7 +805,7 @@ const CoolerGeneralMatchEventFlow = ({
                     )}
                 </div>
             </div>
-            {s < 27 && !hideSkip && (
+            {(isOrganizer || s < 27) && !hideSkip && (
                 <button className="cmef-skip" onClick={finishTutorial}>
                     skip <span className="cmef-skip-arrow">{'\u2192'}</span>
                 </button>

@@ -1131,3 +1131,74 @@
         bottom: max(32px, env(safe-area-inset-bottom, 32px));
     }
 }
+
+/* ── Organizer variant — 15% faster motion ───────── */
+
+.cmef-overlay.cmef-organizer {
+    --cmef-spd: 0.869565; /* 1 / 1.15 */
+    transition-duration: calc(0.6s * var(--cmef-spd));
+}
+
+.cmef-overlay.cmef-organizer .cmef-wrapper {
+    animation-duration: calc(0.6s * var(--cmef-spd));
+}
+
+.cmef-overlay.cmef-organizer .cmef-header-text,
+.cmef-overlay.cmef-organizer .cmef-act4-header {
+    animation-duration: calc(0.5s * var(--cmef-spd));
+}
+
+.cmef-overlay.cmef-organizer .cmef-header-text {
+    animation-delay: calc(0.2s * var(--cmef-spd));
+}
+
+.cmef-overlay.cmef-organizer .cmef-person-left,
+.cmef-overlay.cmef-organizer .cmef-person-right,
+.cmef-overlay.cmef-organizer .cmef-person-hop {
+    animation-duration: calc(1.5s * var(--cmef-spd));
+}
+
+.cmef-overlay.cmef-organizer .cmef-person-left,
+.cmef-overlay.cmef-organizer .cmef-person-right {
+    transition-duration: calc(1s * var(--cmef-spd)), calc(1s * var(--cmef-spd)), calc(1s * var(--cmef-spd));
+}
+
+.cmef-overlay.cmef-organizer .cmef-float-pop,
+.cmef-overlay.cmef-organizer .cmef-dot-phone .cmef-phone {
+    animation-duration: calc(0.5s * var(--cmef-spd));
+}
+
+.cmef-overlay.cmef-organizer .cmef-greet-left,
+.cmef-overlay.cmef-organizer .cmef-greet-right {
+    animation-duration: calc(0.7s * var(--cmef-spd));
+}
+
+.cmef-overlay.cmef-organizer .cmef-act1-content {
+    transition-duration: calc(0.8s * var(--cmef-spd));
+}
+
+.cmef-overlay.cmef-organizer .cmef-event-label,
+.cmef-overlay.cmef-organizer .cmef-event-space,
+.cmef-overlay.cmef-organizer .cmef-convo-overlay,
+.cmef-overlay.cmef-organizer .cmef-convo-text-layer,
+.cmef-overlay.cmef-organizer .cmef-arrivals-text,
+.cmef-overlay.cmef-organizer .cmef-arrivals-arrow {
+    transition-duration: calc(0.8s * var(--cmef-spd));
+}
+
+.cmef-overlay.cmef-organizer .cmef-dot {
+    transition-duration: calc(0.4s * var(--cmef-spd)), calc(0.4s * var(--cmef-spd)), calc(0.3s * var(--cmef-spd));
+}
+
+.cmef-overlay.cmef-organizer .cmef-convo-text,
+.cmef-overlay.cmef-organizer .cmef-convo-word {
+    animation-duration: calc(0.5s * var(--cmef-spd));
+}
+
+.cmef-overlay.cmef-organizer .cmef-conf {
+    animation-duration: calc(0.8s * var(--cmef-spd));
+}
+
+.cmef-overlay.cmef-organizer .cmef-arrow-active {
+    animation-duration: calc(1.2s * var(--cmef-spd));
+}
