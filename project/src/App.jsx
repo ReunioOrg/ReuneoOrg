@@ -1253,15 +1253,6 @@ const App = () => {
 
       {isDesktop && createPortal(<SiteNavBar />, document.body)}
 
-      {/* Background video — mobile landing uses gradient hero + contained floating lines */}
-      {isDesktop && (
-        <video className="background-video" autoPlay loop muted playsInline poster="/assets/demo_app_home_video_cover.jpg">
-          <source src="/assets/demo_app_home_video_X2_small.mp4" type="video/mp4" />
-          <source src="/assets/app_home_video_2.webm" type="video/webm" />
-          <img src="/assets/demo_app_home_video_cover.jpg" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          Your browser does not support the video tag.
-        </video>
-      )}
       
       {/* Main App Content */}
       <div
