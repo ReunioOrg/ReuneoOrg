@@ -1295,6 +1295,11 @@
     margin-bottom: 0.75rem;
 }
 
+/* Demo QR focus: below-QR controls hidden via conditional render; give QR block breathing room */
+.admin-lobby-demo-qr-focus .inline-checkin-content {
+    padding-bottom: 2rem;
+}
+
 .lobby-progress-track {
     display: flex;
     align-items: center;

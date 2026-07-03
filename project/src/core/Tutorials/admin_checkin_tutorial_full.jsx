@@ -794,7 +794,7 @@ const MockTonyLobbyView = ({ active, customTags, hasTags, showTableNumbers }) =>
 
 /* ── Main component ─────────────────────────────────────────────────────── */
 
-const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTableNumbers, stopAfterReady = false, startFromScene = 3, stopBeforeEnd = false, showSkip = false, embedded = false, convoPairOnly = false, cmefStartScene = 22 }) => {
+const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTableNumbers, stopAfterReady = false, stopAfterScene = null, startFromScene = 3, stopBeforeEnd = false, showSkip = false, embedded = false, convoPairOnly = false, cmefStartScene = 22 }) => {
     const [scene, setScene] = useState(startFromScene);
     const [fadingOut, setFadingOut] = useState(false);
     const [showReady, setShowReady] = useState(false);
@@ -851,12 +851,28 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
         return () => clearTimeout(t);
     }, [scene]);
 
-    /* Scene 4 → 5: after phone zoom completes */
+    // Empty deps intentional — same pattern as handleCmefComplete.
+    // onComplete is an inline arrow fn in AdminLobbyView that changes reference every
+    // polling re-render (~1s); capturing it in deps would reset the scene-4 timer
+    // on every poll and prevent it from ever firing.
+    const finishEarly = useCallback(() => { // eslint-disable-line react-hooks/exhaustive-deps
+        setScene(99);
+        setFadingOut(true);
+        setTimeout(() => onComplete?.(), 400);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    /* Scene 4 → 5: after phone zoom completes (or early exit when stopAfterScene === 4) */
     useEffect(() => {
         if (scene !== 4) return;
-        const t = setTimeout(() => setScene(5), 4500);
+        const t = setTimeout(() => {
+            if (stopAfterScene === 4) {
+                finishEarly();
+            } else {
+                setScene(5);
+            }
+        }, 4500);
         return () => clearTimeout(t);
-    }, [scene]);
+    }, [scene, stopAfterScene, finishEarly]);
 
     /* Scene 5 → 6 */
     useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { AuthContext } from '../Auth/AuthContext';
 import usePlaySound from '../playsound';
 import { useContext } from 'react';
@@ -1261,7 +1261,7 @@ const AdminLobbyView = () => {
     // demoMode: true when organizer is a first-time free-trial user
     const [demoMode, setDemoMode] = useState(false);
     // demoStep: drives the step-by-step demo flow
-    // 'inject' → 'qr' → 'start' → (force-push to lobby) → 'endRound' → null
+    // 'inject' → 'qr' → (prep popup + lobby) → 'endRound' → null
     const [demoStep, setDemoStep] = useState(null);
     // demoUsernames: Set of injected demolobbyuser usernames (used for realPlayerCount + DEMO badges)
     const [demoUsernames, setDemoUsernames] = useState(new Set());
@@ -1324,12 +1324,23 @@ const AdminLobbyView = () => {
         injectUsers();
     }, [demoMode, demoStep, lobbyCode]);
 
-    // Advance demoStep 'qr' → 'start' when QR is tapped (watches existing qrTappedThisSession)
-    useEffect(() => {
-        if (demoMode && demoStep === 'qr' && qrTappedThisSession) {
-            setDemoStep('start');
-        }
-    }, [qrTappedThisSession, demoMode, demoStep]);
+    const startDemoLobbyPush = useCallback(() => {
+        if (demoLobbyPushStartedRef.current) return;
+        demoLobbyPushStartedRef.current = true;
+        setShowDemoPrepPopup(true);
+        demoLobbyPushTimerRef.current = setTimeout(async () => {
+            setShowDemoPrepPopup(false);
+            try {
+                await apiFetch('/demo_join_organizer', {
+                    method: 'POST',
+                    headers: { 'lobby_code': lobbyCode },
+                });
+            } catch (err) {
+                console.error('[DEMO] demo_join_organizer failed:', err);
+            }
+            navigate(`/lobby?code=${lobbyCode}&demo=true`);
+        }, DEMO_LOBBY_PREP_POPUP_MS);
+    }, [lobbyCode, navigate]);
 
     useEffect(() => {
         return () => {
@@ -1385,6 +1396,7 @@ const AdminLobbyView = () => {
 
     const totalAttendeeCount = playerCount + inactivePlayerCount;
     const isQrState = lobbyState === 'checkin' && realPlayerCount < 2;
+    const hideBelowQrInDemo = demoMode && demoStep === 'qr';
 
     // 90% attendee limit warning -- show once per lobby via sessionStorage
     useEffect(() => {
@@ -1677,22 +1689,6 @@ const AdminLobbyView = () => {
             const data = await response.json();
             if (data.status === 'success') {
                 toast.success('Rounds started!', { position: 'top-center' });
-                if (demoMode && demoStep === 'start' && !demoLobbyPushStartedRef.current) {
-                    demoLobbyPushStartedRef.current = true;
-                    setShowDemoPrepPopup(true);
-                    demoLobbyPushTimerRef.current = setTimeout(async () => {
-                        setShowDemoPrepPopup(false);
-                        try {
-                            await apiFetch('/demo_join_organizer', {
-                                method: 'POST',
-                                headers: { 'lobby_code': lobbyCode }
-                            });
-                        } catch (err) {
-                            console.error('[DEMO] demo_join_organizer failed:', err);
-                        }
-                        navigate(`/lobby?code=${lobbyCode}&demo=true`);
-                    }, DEMO_LOBBY_PREP_POPUP_MS);
-                }
             } else {
                 if (data.reason === 'activations_exhausted' || data.reason === 'monthly_limit_reached' || data.reason === 'no_uses_remaining') {
                     goToAccountDetails({ limitMessage: data.message });
@@ -1755,7 +1751,7 @@ const AdminLobbyView = () => {
                     goToAccountDetails();
                 }}
             />
-            <div className={`admin-lobby-container${isQrState ? ' admin-lobby-qr-state' : ''}`}>
+            <div className={`admin-lobby-container${isQrState ? ' admin-lobby-qr-state' : ''}${hideBelowQrInDemo ? ' admin-lobby-demo-qr-focus' : ''}`}>
                 {DEVMODE && (
                     <button onClick={resetLobbyTimer}>
                         Reset Lobby Timer
@@ -1816,11 +1812,16 @@ const AdminLobbyView = () => {
                         onComplete={() => {
                             setShowCheckinTutorial(false);
                             markQrAnimationPlayed(lobbyCode);
-                            handleInlineQrDownload();
+                            if (demoMode && demoStep === 'qr') {
+                                startDemoLobbyPush();
+                            } else {
+                                handleInlineQrDownload();
+                            }
                         }}
                         customTags={customTags}
                         showTableNumbers={showTableNumbers}
-                        stopAfterReady
+                        stopAfterReady={!(demoMode && demoStep === 'qr')}
+                        stopAfterScene={demoMode && demoStep === 'qr' ? 4 : null}
                         showSkip
                     />
                 )}
@@ -1879,11 +1880,15 @@ const AdminLobbyView = () => {
                             setInlineQrPulsing(true);
                             setTimeout(() => setInlineQrPulsing(false), 700);
                             setQrTappedThisSession(true);
-                            if (hasPlayedQrAnimation(lobbyCode)) {
-                                // Animation already played for this lobby — go straight to download
+                            if (demoMode && demoStep === 'qr') {
+                                if (hasPlayedQrAnimation(lobbyCode)) {
+                                    startDemoLobbyPush();
+                                } else {
+                                    setShowCheckinTutorial(true);
+                                }
+                            } else if (hasPlayedQrAnimation(lobbyCode)) {
                                 handleInlineQrDownload();
                             } else {
-                                // First tap: play animation; download fires in onComplete
                                 setShowCheckinTutorial(true);
                             }
                         }}>
@@ -1926,13 +1931,14 @@ const AdminLobbyView = () => {
                     </div>
                 )}
 
-                {lobbyState === 'checkin' && (
+                {!hideBelowQrInDemo && lobbyState === 'checkin' && (
                     <div className="start-experience-header">
                         <h2 className="checkin-modal-title">2. Start the Experience</h2>
                         <p className="checkin-modal-subtitle">It's a pairing machine - everyone joined will start getting paired up with each other!</p>
                     </div>
                 )}
 
+                {!hideBelowQrInDemo && (
                 <LobbyProgressBar
                     lobbyState={lobbyState}
                     playerCount={realPlayerCount}
@@ -1945,11 +1951,7 @@ const AdminLobbyView = () => {
                     planInfo={planInfo}
                     showStartPulse={lobbyState === 'checkin' && (realPlayerCount >= 2 || (realPlayerCount < 2 && qrTappedThisSession))}
                     onStartTutorial={() => {
-                        if (demoMode && demoStep !== 'start') return;
-                        if (demoMode) {
-                            // Demo mode: skip the tutorial animation, go straight to the confirm modal
-                            startModalTriggerRef.current?.();
-                        } else if (hasPlayedStartAnimation(lobbyCode)) {
+                        if (hasPlayedStartAnimation(lobbyCode)) {
                             startModalTriggerRef.current?.();
                         } else {
                             setShowStartTutorial(true);
@@ -1959,21 +1961,18 @@ const AdminLobbyView = () => {
                     showEndPulse={demoMode ? demoStep === 'endRound' : lobbyState === 'active' && maxActiveRound >= 4}
                     onEndTutorial={() => {
                         if (demoMode) {
-                            // Demo mode: skip the end tutorial animation, go straight to confirm modal
                             endModalTriggerRef.current?.();
                         } else {
                             setShowEndTutorial(true);
                         }
                     }}
                     endModalTriggerRef={endModalTriggerRef}
-                    forceStartEnabled={demoMode && demoStep === 'start'}
-                    showStartTapHint={demoMode && demoStep === 'start'}
                     showEndTapHint={demoMode && demoStep === 'endRound'}
                     demoMode={demoMode}
                 />
+                )}
 
-                {/* Attendee QR button — hidden only when inline QR is visible (checkin + <2 real players) */}
-                {!(lobbyState === 'checkin' && realPlayerCount < 2) && (
+                {!hideBelowQrInDemo && !(lobbyState === 'checkin' && realPlayerCount < 2) && (
                     <div
                         className="admin-lobby-dropdown-toggle attendee-qr-btn"
                         onClick={() => checkinTriggerRef.current?.()}
@@ -2149,7 +2148,7 @@ const AdminLobbyView = () => {
                     </div>
                 )}
 
-                {lobbyData && lobbyData.length > 0 && (
+                {lobbyData && lobbyData.length > 0 && !hideBelowQrInDemo && (
                     <div className="admin-lobby-players">
                         <div className="player-section">
                             {lobbyState === 'interrim' ? (

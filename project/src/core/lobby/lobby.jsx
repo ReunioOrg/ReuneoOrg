@@ -87,6 +87,9 @@ const LobbyScreen = () => {
     const demoTagPrepCompleteRef = useRef(false);
     const demoTagPrepSettleTimerRef = useRef(null);
     const demoTagPrepFallbackTimerRef = useRef(null);
+    const demoTutorialCompleteRef = useRef(false);
+    const demoAutoStartFiredRef = useRef(false);
+    const [eligibleForPairing, setEligibleForPairing] = useState(false);
     const [player_count, setPlayerCount] = useState(null);
     useGetLobbyMetadata(setPlayerCount, null, lobbyCode);
     const { user, userProfile, checkAuth, permissions, isAuthLoading, authLoadingMessage, emailVerified, userEmail } = useContext(AuthContext);
@@ -157,10 +160,8 @@ const LobbyScreen = () => {
                     isDemoLobby,
                 });
                 
-                // Demo flow: skip HowTo tutorial (covered by admin QR animation); mark seen so it won't replay
-                if (isDemoLobby && isAuthenticated) {
-                    localStorage.setItem(lobbyTutorialKey, 'true');
-                } else if (!hasSeenLobbyTutorial && isAuthenticated) {
+                // Demo flow: full attendee tutorial in lobby (admin QR animation is trimmed to scan-only)
+                if (!hasSeenLobbyTutorial && isAuthenticated) {
                     setShowTutorial(true);
                     localStorage.setItem(lobbyTutorialKey, 'true');
                 }
@@ -168,6 +169,22 @@ const LobbyScreen = () => {
         };
         checkParams();
     }, [code]);
+
+    // Demo lobby: skip sound prompt friction (tutorial handles volume guidance)
+    useEffect(() => {
+        if (isDemoLobby) {
+            setShowSoundPrompt(false);
+        }
+    }, [isDemoLobby]);
+
+    // Demo lobby: ensure organizer is a player during checkin (idempotent backup after admin push)
+    useEffect(() => {
+        if (!isDemoLobby || !lobbyCode || lobbyCode === 'yonder') return;
+        apiFetch('/demo_join_organizer', {
+            method: 'POST',
+            headers: { 'lobby_code': lobbyCode },
+        }).catch((err) => console.error('[DEMO] demo_join_organizer on mount failed:', err));
+    }, [isDemoLobby, lobbyCode]);
 
     const [opponentProfile, setOpponentProfile] = useState(null);
     const [prevOpponentProfile, setPrevOpponentProfile] = useState(null);
@@ -528,6 +545,10 @@ const LobbyScreen = () => {
                 }
                 if ((data.player_tags!=null) && (data.player_tags.desiring_tags_work!=null)) {
                     setServerdesiringTags(data.player_tags.desiring_tags_work);
+                }
+
+                if (data.eligible_for_pairing !== undefined) {
+                    setEligibleForPairing(data.eligible_for_pairing);
                 }
         
                 // Audio switchover: when leaving checkin, switch from ambient loop to main track
@@ -1107,6 +1128,14 @@ const LobbyScreen = () => {
     // Add this handler for when the tutorial completes
     const handleTutorialComplete = () => {
         setShowTutorial(false);
+        if (isDemoLobby) {
+            demoTutorialCompleteRef.current = true;
+            // Unblock tryScrollToTags for checkin-entry demo flow.
+            // demoTagPrepCompleteRef is normally set by dismissDemoTagPrepAndScroll
+            // (old post-Start flow). In the new checkin-entry flow the prep overlay
+            // never shows, so the ref stays false and blocks every scroll attempt.
+            demoTagPrepCompleteRef.current = true;
+        }
         checkAuth();
     };
 
@@ -1398,9 +1427,13 @@ const LobbyScreen = () => {
         tryScrollToTags();
     }, [tryScrollToTags]);
 
-    // Demo tag lobbies: show prep overlay while lobby layout settles (regular lobbies skip entirely)
+    // Demo tag lobbies: show prep overlay only after rounds are active (legacy mid-active join path)
     useEffect(() => {
         if (!isDemoLobby) return;
+        if (lobbyState !== 'active') {
+            setShowDemoTagPrepOverlay(false);
+            return;
+        }
         const needsTagSelection = tagsState.length > 0 &&
             (!serverselfTags?.length || !serverdesiringTags?.length);
         if (!needsTagSelection) {
@@ -1410,7 +1443,67 @@ const LobbyScreen = () => {
         if (!demoTagPrepCompleteRef.current) {
             setShowDemoTagPrepOverlay(true);
         }
-    }, [isDemoLobby, tagsState, serverselfTags, serverdesiringTags]);
+    }, [isDemoLobby, lobbyState, tagsState, serverselfTags, serverdesiringTags]);
+
+    // Demo-only: auto-start rounds once tutorial (+ tags if required) is complete during checkin
+    useEffect(() => {
+        if (!isDemoLobby || demoAutoStartFiredRef.current) return;
+        if (lobbyState !== 'checkin') return;
+        if (!demoTutorialCompleteRef.current) return;
+        if (showTutorial) return;
+        if (showSoundPrompt && !soundEnabled) return;
+        if (showReadyAnimation || isReadyAnimating.current) return;
+
+        const needsTags = tagsState.length > 0;
+        if (needsTags) {
+            if (!tagsCompleted) return;
+            if (!serverselfTags?.length || !serverdesiringTags?.length) return;
+        }
+        if (!eligibleForPairing) return;
+
+        demoAutoStartFiredRef.current = true;
+
+        const runDemoAutoStart = async () => {
+            const code = lobbyCodeRef.current;
+            try {
+                await apiFetch('/demo_join_organizer', {
+                    method: 'POST',
+                    headers: { 'lobby_code': code },
+                });
+            } catch (err) {
+                console.error('[DEMO] demo_join_organizer before auto-start failed:', err);
+            }
+
+            try {
+                const response = await apiFetch('/start_rounds', {
+                    method: 'GET',
+                    headers: { 'lobby_code': code },
+                });
+                const result = await response.json();
+                if (result.status !== 'success') {
+                    console.error('[DEMO] auto start_rounds failed:', result);
+                    demoAutoStartFiredRef.current = false;
+                }
+            } catch (err) {
+                console.error('[DEMO] auto start_rounds error:', err);
+                demoAutoStartFiredRef.current = false;
+            }
+        };
+
+        runDemoAutoStart();
+    }, [
+        isDemoLobby,
+        lobbyState,
+        showTutorial,
+        showSoundPrompt,
+        soundEnabled,
+        showReadyAnimation,
+        tagsCompleted,
+        tagsState,
+        serverselfTags,
+        serverdesiringTags,
+        eligibleForPairing,
+    ]);
 
     // Faster polling while demo prep overlay is active
     useEffect(() => {
@@ -2052,7 +2145,7 @@ const LobbyScreen = () => {
                 </div>
             )}
 
-            {(soundEnabled || !showSoundPrompt) || (lobbyState == null) || isPlaying ? null : <SoundPrompt />}
+            {(soundEnabled || !showSoundPrompt) || (lobbyState == null) || isPlaying || isDemoLobby ? null : <SoundPrompt />}
 
             {/* Add the animation component */}
             {showLobbyCountdown && !(tagsState.length > 0 && serverdesiringTags.length === 0) && (
