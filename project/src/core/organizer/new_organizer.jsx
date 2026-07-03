@@ -56,6 +56,17 @@ const NewOrganizerView = () => {
 
     const isSubmittingRef = useRef(false);
     const generalTutorialTriggeredRef = useRef(false);
+    const descriptionTextareaRef = useRef(null);
+
+    const adjustDescriptionHeight = () => {
+        const el = descriptionTextareaRef.current;
+        if (!el) return;
+        el.style.height = 'auto';
+        const maxHeight = 160;
+        const nextHeight = Math.min(el.scrollHeight, maxHeight);
+        el.style.height = `${nextHeight}px`;
+        el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden';
+    };
 
     useEffect(() => {
         if (permissions === 'organizer' && !isLegacyOrganizer && !isSubmittingRef.current) {
@@ -73,6 +84,12 @@ const NewOrganizerView = () => {
             setLobbyCode(randomCode);
         }
     }, [returnData]);
+
+    useEffect(() => {
+        if (currentStep === 3 && step3View === 'description') {
+            adjustDescriptionHeight();
+        }
+    }, [aiDescription, currentStep, step3View]);
 
     const shouldAutoShowGeneralTutorial = () =>
         !returnData &&
@@ -331,43 +348,54 @@ const NewOrganizerView = () => {
     const renderStep3 = () => {
         if (step3View === 'description') {
             return (
-                <div className="step-container">
-                    <h1 className="step-title">Describe the people and purpose of your event</h1>
-                    <div className="description-input-container">
-                        <textarea
-                            value={aiDescription}
-                            onChange={(e) => {
-                                if (e.target.value.length <= 500) setAiDescription(e.target.value);
-                            }}
-                            placeholder="ex: A networking mixer for content creators and local construction companies"
-                            className="form-input description-textarea"
-                            rows={3}
-                            maxLength={500}
-                            autoComplete="off"
-                            disabled={isGeneratingTags}
-                        />
-                        <button
-                            type="button"
-                            onClick={handleGenerateTags}
-                            className="sparkle-submit-button"
-                            disabled={isGeneratingTags || !aiDescription.trim()}
-                        >
-                            {isGeneratingTags ? (
-                                <div className="button-spinner" />
-                            ) : (
-                                <SparkleIcon />
-                            )}
-                        </button>
+                <div className="step-container step-container-prompt">
+                    <h1 className="step-title step-title-prompt">Tell us about your ideal event.</h1>
+                    <div className="event-prompt-card">
+                        <div className="event-prompt-card-body">
+                            <p className="event-prompt-card-label">
+                                Who&apos;s coming?
+                                <br />
+                                What&apos;s the goal?
+                            </p>
+                            <textarea
+                                ref={descriptionTextareaRef}
+                                value={aiDescription}
+                                onChange={(e) => {
+                                    if (e.target.value.length <= 500) {
+                                        setAiDescription(e.target.value);
+                                        requestAnimationFrame(adjustDescriptionHeight);
+                                    }
+                                }}
+                                placeholder="ex: Creators and local businesses at a networking mixer"
+                                className="event-prompt-textarea"
+                                rows={2}
+                                maxLength={500}
+                                autoComplete="off"
+                                disabled={isGeneratingTags}
+                            />
+                            <p className="event-prompt-card-hint">
+                                Reuneo handles the rotations, timing, pairing, and more.
+                            </p>
+                            {error && <div className="error-message event-prompt-error">{error}</div>}
+                        </div>
+                        <div className="event-prompt-card-footer">
+                            <button
+                                type="button"
+                                className="step-cta event-prompt-continue"
+                                onClick={aiDescription.trim().length >= 2 ? handleGenerateTags : handleGoToTagsEmpty}
+                                disabled={isGeneratingTags}
+                            >
+                                {isGeneratingTags ? (
+                                    <>
+                                        <div className="button-spinner event-prompt-spinner" />
+                                        Continuing...
+                                    </>
+                                ) : (
+                                    <>Continue <ArrowRight /></>
+                                )}
+                            </button>
+                        </div>
                     </div>
-                    {aiDescription.length > 0 && (
-                        <div className="char-counter">{aiDescription.length}/500</div>
-                    )}
-                    {error && <div className="error-message">{error}</div>}
-                    <button className={`step-cta ${aiDescription.trim().split(/\s+/).filter(Boolean).length <= 1 ? 'step-cta-secondary' : ''}`}
-                        onClick={aiDescription.trim().length >= 2 ? handleGenerateTags : handleGoToTagsEmpty}
-                        disabled={isGeneratingTags}>
-                        Continue <ArrowRight />
-                    </button>
                 </div>
             );
         }
@@ -470,14 +498,14 @@ const NewOrganizerView = () => {
 
     // ── Main Render ──
     const stepKey = currentStep === 3 ? `3-${step3View}` : String(currentStep);
-    const showExistingAccountLink = currentStep === 3 && step3View === 'description';
+    const isDescriptionStep = currentStep === 3 && step3View === 'description';
 
     return (
         <div className="new-organizer-background">
             <FloatingLinesBackground />
 
             {/* Navigation Bar */}
-            <div className="step-nav-bar">
+            <div className={`step-nav-bar${isDescriptionStep ? ' step-nav-bar-prompt' : ''}`}>
                 <button className="nav-arrow" onClick={handleBack} aria-label="Back">
                     <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
                         <circle cx="18" cy="18" r="17" stroke="#374151" strokeWidth="1.5" fill="rgba(255,255,255,0.8)"/>
@@ -485,7 +513,7 @@ const NewOrganizerView = () => {
                     </svg>
                 </button>
                 <img src="/assets/reuneo_test_14.png" alt="Reuneo Logo" className="logo-image-nav" />
-                {currentStep < 5 && visitedSteps.has(currentStep + 1) ? (
+                {!isDescriptionStep && currentStep < 5 && visitedSteps.has(currentStep + 1) ? (
                     <button className="nav-arrow" onClick={handleNext} aria-label="Next">
                         <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
                             <circle cx="18" cy="18" r="17" stroke="#374151" strokeWidth="1.5" fill="rgba(255,255,255,0.8)"/>
@@ -497,18 +525,8 @@ const NewOrganizerView = () => {
                 )}
             </div>
 
-            {showExistingAccountLink && (
-                <button
-                    type="button"
-                    onClick={() => navigate('/forgot-password')}
-                    className="existing-organizer-button step1-fade-link"
-                >
-                    I have an account
-                </button>
-            )}
-
             {/* Step Content */}
-            <div className="step-content-wrapper">
+            <div className={`step-content-wrapper${isDescriptionStep ? ' step-content-wrapper-prompt' : ''}`}>
                 <div key={stepKey} className={`step-content step-${navDirection}`}>
                     {currentStep === 3 && renderStep3()}
                     {currentStep === 5 && renderStep5()}

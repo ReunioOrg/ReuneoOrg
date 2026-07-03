@@ -503,6 +503,122 @@
 
 /* ── AI Description Input ────────────────────── */
 
+.step-container-prompt {
+    gap: 28px;
+    padding-top: 8px;
+}
+
+.step-title-prompt {
+    background: none;
+    padding: 0;
+    max-width: 300px;
+    font-size: 1.35rem;
+    line-height: 1.35;
+    color: #374151;
+}
+
+.step-content-wrapper-prompt {
+    padding-top: 12px;
+    max-width: 360px;
+}
+
+.event-prompt-card {
+    width: 100%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    border: 1.5px dashed rgba(75, 115, 239, 0.35);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 12px rgba(20, 77, 255, 0.06);
+    overflow: hidden;
+    text-align: left;
+}
+
+.event-prompt-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px 18px 16px;
+}
+
+.event-prompt-card-label {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.45;
+    color: #374151;
+}
+
+.event-prompt-textarea {
+    width: 100%;
+    min-height: 56px;
+    max-height: 160px;
+    padding: 12px 14px;
+    border: 1px solid rgba(20, 77, 255, 0.18);
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: inherit;
+    line-height: 1.5;
+    color: #1a1a2e;
+    background: rgba(255, 255, 255, 0.9);
+    resize: none;
+    overflow: hidden;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.event-prompt-textarea::placeholder {
+    color: #9ca3af;
+}
+
+.event-prompt-textarea:hover:not(:disabled) {
+    border-color: rgba(20, 77, 255, 0.32);
+}
+
+.event-prompt-textarea:focus {
+    outline: none;
+    border-color: #144dff;
+    box-shadow: 0 0 0 3px rgba(20, 77, 255, 0.1);
+    background: #fff;
+}
+
+.event-prompt-textarea:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.event-prompt-card-hint {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: #6b7280;
+}
+
+.event-prompt-error {
+    margin: 0;
+    text-align: left;
+}
+
+.event-prompt-card-footer {
+    border-top: 1px solid rgba(75, 115, 239, 0.12);
+    padding: 14px 18px 18px;
+}
+
+.event-prompt-continue {
+    width: 100%;
+    margin-top: 0;
+    padding: 16px 24px;
+    border-radius: 14px;
+    font-size: 16px;
+}
+
+.event-prompt-spinner {
+    border-color: rgba(255, 255, 255, 0.35);
+    border-top-color: #fff;
+}
+
 .description-input-container {
     display: flex;
     gap: 8px;
@@ -1670,6 +1786,27 @@
         font-size: 1.2rem;
     }
 
+    .step-title-prompt {
+        font-size: 1.22rem;
+        max-width: 280px;
+    }
+
+    .step-content-wrapper-prompt {
+        padding: 8px 20px 40px;
+    }
+
+    .event-prompt-card {
+        max-width: 100%;
+    }
+
+    .event-prompt-card-body {
+        padding: 18px 16px 14px;
+    }
+
+    .event-prompt-card-footer {
+        padding: 12px 16px 16px;
+    }
+
     .step-subtitle {
         font-size: 12px;
     }
@@ -1779,6 +1916,20 @@
     .step-title {
         font-size: 1.6rem;
         max-width: 440px;
+    }
+
+    .step-title-prompt {
+        font-size: 1.5rem;
+        max-width: 360px;
+    }
+
+    .step-content-wrapper-prompt {
+        max-width: 400px;
+        padding-top: 24px;
+    }
+
+    .event-prompt-card {
+        max-width: 340px;
     }
 
     .step-subtitle {
