@@ -77,19 +77,67 @@ const OrganizerSignupSuccess = () => {
         verify();
     }, [location.search]);
 
-    // Phase 3: timer during "check-email" (5s for free trial, 30s for paid)
+    // Phase 3: check-email transition
     useEffect(() => {
         if (phase !== 'check-email') return;
 
-        const delay = isFreeTrial ? 2000 : 30000;
-        timerRef.current = setTimeout(() => {
-            navigate('/create_lobby', { state: { lobbyData } });
-        }, delay);
+        // Paid path: wait 30s then send to review (unchanged)
+        if (!isFreeTrial) {
+            timerRef.current = setTimeout(() => {
+                navigate('/create_lobby', { state: { lobbyData } });
+            }, 30000);
+            return () => {
+                if (timerRef.current) clearTimeout(timerRef.current);
+            };
+        }
 
-        return () => {
-            if (timerRef.current) clearTimeout(timerRef.current);
+        // Free-trial path: auto-POST /create_lobby, skip review screen
+        if (!lobbyData?.lobby_code) {
+            navigate('/create_lobby', { state: { lobbyData } });
+            return undefined;
+        }
+
+        let cancelled = false;
+
+        const autoCreate = async () => {
+            try {
+                const payload = {
+                    lobby_code: lobbyData.lobby_code,
+                    custom_tags: lobbyData.selected_tab === 'custom' ? (lobbyData.custom_tags || []) : [],
+                    lobby_duration: lobbyData.lobby_duration,
+                    show_table_numbers: lobbyData.show_table_numbers,
+                    enable_match_history: lobbyData.enable_match_history,
+                };
+
+                const res = await apiFetch('/create_lobby', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await res.json();
+                if (cancelled) return;
+
+                if (res.ok && data.status === 'success') {
+                    navigate(`/admin_lobby_view?code=${lobbyData.lobby_code}`, {
+                        state: { newlyCreated: true },
+                    });
+                } else {
+                    // Fallback: review screen pre-filled with lobby data
+                    navigate('/create_lobby', { state: { lobbyData } });
+                }
+            } catch (err) {
+                console.error('[free-trial] Auto-create lobby failed:', err);
+                if (!cancelled) {
+                    navigate('/create_lobby', { state: { lobbyData } });
+                }
+            }
         };
-    }, [phase, navigate, lobbyData]);
+
+        autoCreate();
+
+        return () => { cancelled = true; };
+    }, [phase, isFreeTrial, navigate, lobbyData]);
 
     const handleAnimationEnd = () => {
         if (isUpgradeResult) {
