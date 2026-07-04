@@ -1267,14 +1267,14 @@ const AdminLobbyView = () => {
     const [demoUsernames, setDemoUsernames] = useState(new Set());
     const demoLobbyPushTimerRef = useRef(null);
     const demoLobbyPushStartedRef = useRef(false);
+    const demoQrStartInFlightRef = useRef(false);
     const [showDemoPrepPopup, setShowDemoPrepPopup] = useState(false);
 
-    const DEMO_LOBBY_PREP_POPUP_MS = 4000;
+    const DEMO_LOBBY_PREP_POPUP_MS = 6000;
     const DEMO_WATCH_HEADER_DISPLAY_MS = 5000;
-    const DEMO_WATCH_HEADER_EXIT_MS = 650;
 
-    const [demoCongratsHeaderPhase, setDemoCongratsHeaderPhase] = useState('gone');
-    const demoCongratsHeaderExitTimerRef = useRef(null);
+    // Demo endRound header: 'hidden' | 'congrats' | 'endPrompt'
+    const [demoEndHeaderPhase, setDemoEndHeaderPhase] = useState('hidden');
 
     // Detect demo mode: first-time free-trial organizer
     useEffect(() => {
@@ -1350,40 +1350,21 @@ const AdminLobbyView = () => {
         };
     }, []);
 
-    // Demo endRound: show congratulations header for 5s, then float up + fade out
+    // Demo endRound: congrats header, then crossfade to End CTA (slot stays mounted)
     useEffect(() => {
         if (!demoMode || demoStep !== 'endRound') {
-            setDemoCongratsHeaderPhase('gone');
+            setDemoEndHeaderPhase('hidden');
             return;
         }
 
-        setDemoCongratsHeaderPhase('visible');
+        setDemoEndHeaderPhase('congrats');
 
         const displayTimer = setTimeout(() => {
-            setDemoCongratsHeaderPhase('exiting');
+            setDemoEndHeaderPhase('endPrompt');
         }, DEMO_WATCH_HEADER_DISPLAY_MS);
 
-        return () => {
-            clearTimeout(displayTimer);
-            if (demoCongratsHeaderExitTimerRef.current) {
-                clearTimeout(demoCongratsHeaderExitTimerRef.current);
-            }
-        };
+        return () => clearTimeout(displayTimer);
     }, [demoMode, demoStep]);
-
-    useEffect(() => {
-        if (demoCongratsHeaderPhase !== 'exiting') return;
-
-        demoCongratsHeaderExitTimerRef.current = setTimeout(() => {
-            setDemoCongratsHeaderPhase('gone');
-        }, DEMO_WATCH_HEADER_EXIT_MS);
-
-        return () => {
-            if (demoCongratsHeaderExitTimerRef.current) {
-                clearTimeout(demoCongratsHeaderExitTimerRef.current);
-            }
-        };
-    }, [demoCongratsHeaderPhase]);
 
     // Add playerCount and lobbyState for progress bar
     const playerCount = (lobbyData?.length || 0) + (pairedPlayers?.length * 2 || 0);
@@ -1677,6 +1658,40 @@ const AdminLobbyView = () => {
             },
         });
 
+    // Demo first QR tap: start rounds before check-in animation (repeat tap skips this)
+    const handleDemoFirstQrTap = useCallback(async () => {
+        if (demoQrStartInFlightRef.current) return;
+        demoQrStartInFlightRef.current = true;
+        try {
+            const response = await apiFetch('/start_rounds', {
+                method: 'GET',
+                headers: { lobby_code: lobbyCode },
+            });
+            const data = await response.json();
+            const started =
+                data.status === 'success' ||
+                (typeof data.message === 'string' && data.message.includes('already in progress'));
+            if (started) {
+                setShowCheckinTutorial(true);
+                return;
+            }
+            if (
+                data.reason === 'activations_exhausted' ||
+                data.reason === 'monthly_limit_reached' ||
+                data.reason === 'no_uses_remaining'
+            ) {
+                goToAccountDetails({ limitMessage: data.message });
+                return;
+            }
+            toast.error("Couldn't start. Tap the QR code again.", { position: 'top-center' });
+        } catch (err) {
+            console.error('[DEMO] start_rounds on first QR tap failed:', err);
+            toast.error("Couldn't start. Tap the QR code again.", { position: 'top-center' });
+        } finally {
+            demoQrStartInFlightRef.current = false;
+        }
+    }, [lobbyCode, goToAccountDetails]);
+
     // Handlers for progress bar actions
     const handleStartRounds = async () => {
         try {
@@ -1791,12 +1806,27 @@ const AdminLobbyView = () => {
                         />
                     )}
                 </div>
-                {(demoCongratsHeaderPhase === 'visible' || demoCongratsHeaderPhase === 'exiting') && (
-                    <h2
-                        className={`demo-pairing-guide-header demo-pairing-guide-header-watch${demoCongratsHeaderPhase === 'exiting' ? ' demo-pairing-guide-header-exit' : ''}`}
-                    >
-                        Congratulations! You've seen how the pairing works.
-                    </h2>
+                {demoMode && demoStep === 'endRound' && demoEndHeaderPhase !== 'hidden' && (
+                    <div className="demo-pairing-guide-header-slot" aria-live="polite">
+                        <h2
+                            className={`demo-pairing-guide-header demo-pairing-guide-header-line${
+                                demoEndHeaderPhase === 'endPrompt' ? ' demo-pairing-guide-header-exit' : ''
+                            }`}
+                            aria-hidden={demoEndHeaderPhase === 'endPrompt'}
+                        >
+                            Congratulations! You&apos;ve seen how the pairing works.
+                        </h2>
+                        <h2
+                            className={`demo-pairing-guide-header demo-pairing-guide-header-line${
+                                demoEndHeaderPhase === 'endPrompt'
+                                    ? ' demo-pairing-guide-header-enter-visible'
+                                    : ' demo-pairing-guide-header-enter-hidden'
+                            }`}
+                            aria-hidden={demoEndHeaderPhase !== 'endPrompt'}
+                        >
+                            New pairings run automatically. Click &quot;End&quot; when you&apos;re ready to stop
+                        </h2>
+                    </div>
                 )}
                 {tutorialMode && (
                     <AdminCheckinTutorialFull
@@ -1822,7 +1852,8 @@ const AdminLobbyView = () => {
                         showTableNumbers={showTableNumbers}
                         stopAfterReady={!(demoMode && demoStep === 'qr')}
                         stopAfterScene={demoMode && demoStep === 'qr' ? 4 : null}
-                        showSkip
+                        exitScene4AfterZoom={demoMode && demoStep === 'qr'}
+                        showSkip={!(demoMode && demoStep === 'qr')}
                     />
                 )}
                 {showStartTutorial && (
@@ -1884,7 +1915,7 @@ const AdminLobbyView = () => {
                                 if (hasPlayedQrAnimation(lobbyCode)) {
                                     startDemoLobbyPush();
                                 } else {
-                                    setShowCheckinTutorial(true);
+                                    handleDemoFirstQrTap();
                                 }
                             } else if (hasPlayedQrAnimation(lobbyCode)) {
                                 handleInlineQrDownload();

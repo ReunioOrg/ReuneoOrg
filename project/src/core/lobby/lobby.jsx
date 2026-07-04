@@ -29,6 +29,10 @@ const useEffectTime=5000;
 const DEMO_TAG_PREP_POLL_MS = 1000;
 const DEMO_TAG_PREP_SETTLE_MS = 150;
 const DEMO_TAG_PREP_MAX_WAIT_MS = 15000;
+const DEMO_ROUND1_VIEW_MS = 12000;
+const DEMO_ROUND2_VIEW_MS = 10000;
+const DEMO_ROUND3_VIEW_MS = 4000;
+const DEMO_HOST_RETURN_POPUP_MS = 4000;
 // Temporarily disable lobby profile image fetching to prevent backend overload
 const DISABLE_LOBBY_PROFILE_IMAGES = false;
 
@@ -81,14 +85,14 @@ const LobbyScreen = () => {
     const demoRoundTimerStartedRef = useRef(new Set()); // rounds where demo timer has already been started
     const demoFindPersonPopupShownRef = useRef(false);
     const [showDemoFindPersonPopup, setShowDemoFindPersonPopup] = useState(false);
-    const [showDemoFastForward, setShowDemoFastForward] = useState(false); // overlay text
+    const [showDemoFastForward, setShowDemoFastForward] = useState(false);
+    const [showDemoHostReturn, setShowDemoHostReturn] = useState(false);
     // Demo tag lobbies only: white prep overlay until layout stable, then scroll once
     const [showDemoTagPrepOverlay, setShowDemoTagPrepOverlay] = useState(false);
     const demoTagPrepCompleteRef = useRef(false);
     const demoTagPrepSettleTimerRef = useRef(null);
     const demoTagPrepFallbackTimerRef = useRef(null);
     const demoTutorialCompleteRef = useRef(false);
-    const demoAutoStartFiredRef = useRef(false);
     const [eligibleForPairing, setEligibleForPairing] = useState(false);
     const [player_count, setPlayerCount] = useState(null);
     useGetLobbyMetadata(setPlayerCount, null, lobbyCode);
@@ -699,8 +703,12 @@ const LobbyScreen = () => {
                         console.log('Normal pairing with interest match:', matchDetails);
                         setMatchingTags(matchDetails);
                         setShowMatchBanner(true);
-                        isAnimating.current = true;
-                        setShowMatchAnimation(true);
+                        const isDemoRound3TagMatch =
+                            demoModeRef.current && (data.current_round || 1) === 3;
+                        if (!isDemoRound3TagMatch) {
+                            isAnimating.current = true;
+                            setShowMatchAnimation(true);
+                        }
                     }
                     
                     // Check if we need match count data for any modal triggers
@@ -743,15 +751,15 @@ const LobbyScreen = () => {
                         clearTimeout(demoTimerRef.current);
 
                         const isExitRound = currentRound >= 3;
-                        const timerMs = currentRound === 1 ? 15000 : 10000;
+                        const timerMs = currentRound === 1
+                            ? DEMO_ROUND1_VIEW_MS
+                            : currentRound === 3
+                                ? DEMO_ROUND3_VIEW_MS
+                                : DEMO_ROUND2_VIEW_MS;
 
                         demoTimerRef.current = setTimeout(async () => {
                             if (isExitRound) {
-                                // End of demo lobby view: set flag, return to admin (lobby stays active)
-                                localStorage.setItem('demoCompletedAt', Date.now().toString());
-                                navigate(`/admin_lobby_view?code=${currentLobbyCode}`, {
-                                    state: { demoMode: true, returnedFromDemo: true }
-                                });
+                                setShowDemoHostReturn(true);
                             } else {
                                 // Fast-forward: reset the round timer and show overlay
                                 setShowDemoFastForward(true);
@@ -763,7 +771,6 @@ const LobbyScreen = () => {
                                 } catch (e) {
                                     console.error('[DEMO] reset_lobby_timer failed:', e);
                                 }
-                                setTimeout(() => setShowDemoFastForward(false), 3000);
                             }
                         }, timerMs);
                     }
@@ -1130,11 +1137,12 @@ const LobbyScreen = () => {
         setShowTutorial(false);
         if (isDemoLobby) {
             demoTutorialCompleteRef.current = true;
-            // Unblock tryScrollToTags for checkin-entry demo flow.
-            // demoTagPrepCompleteRef is normally set by dismissDemoTagPrepAndScroll
-            // (old post-Start flow). In the new checkin-entry flow the prep overlay
-            // never shows, so the ref stays false and blocks every scroll attempt.
-            demoTagPrepCompleteRef.current = true;
+            // Admin first-QR start: lobby is usually active during tutorial — keep
+            // demoTagPrepCompleteRef false so prep overlay waits for layout-stable scroll.
+            // Still checkin (e.g. start failed): unblock immediate tryScrollToTags.
+            if (lobbyState !== 'active') {
+                demoTagPrepCompleteRef.current = true;
+            }
         }
         checkAuth();
     };
@@ -1427,9 +1435,13 @@ const LobbyScreen = () => {
         tryScrollToTags();
     }, [tryScrollToTags]);
 
-    // Demo tag lobbies: show prep overlay only after rounds are active (legacy mid-active join path)
+    // Demo tag lobbies: prep overlay after tutorial, when active + tags need selection
     useEffect(() => {
         if (!isDemoLobby) return;
+        if (showTutorial) {
+            setShowDemoTagPrepOverlay(false);
+            return;
+        }
         if (lobbyState !== 'active') {
             setShowDemoTagPrepOverlay(false);
             return;
@@ -1443,67 +1455,7 @@ const LobbyScreen = () => {
         if (!demoTagPrepCompleteRef.current) {
             setShowDemoTagPrepOverlay(true);
         }
-    }, [isDemoLobby, lobbyState, tagsState, serverselfTags, serverdesiringTags]);
-
-    // Demo-only: auto-start rounds once tutorial (+ tags if required) is complete during checkin
-    useEffect(() => {
-        if (!isDemoLobby || demoAutoStartFiredRef.current) return;
-        if (lobbyState !== 'checkin') return;
-        if (!demoTutorialCompleteRef.current) return;
-        if (showTutorial) return;
-        if (showSoundPrompt && !soundEnabled) return;
-        if (showReadyAnimation || isReadyAnimating.current) return;
-
-        const needsTags = tagsState.length > 0;
-        if (needsTags) {
-            if (!tagsCompleted) return;
-            if (!serverselfTags?.length || !serverdesiringTags?.length) return;
-        }
-        if (!eligibleForPairing) return;
-
-        demoAutoStartFiredRef.current = true;
-
-        const runDemoAutoStart = async () => {
-            const code = lobbyCodeRef.current;
-            try {
-                await apiFetch('/demo_join_organizer', {
-                    method: 'POST',
-                    headers: { 'lobby_code': code },
-                });
-            } catch (err) {
-                console.error('[DEMO] demo_join_organizer before auto-start failed:', err);
-            }
-
-            try {
-                const response = await apiFetch('/start_rounds', {
-                    method: 'GET',
-                    headers: { 'lobby_code': code },
-                });
-                const result = await response.json();
-                if (result.status !== 'success') {
-                    console.error('[DEMO] auto start_rounds failed:', result);
-                    demoAutoStartFiredRef.current = false;
-                }
-            } catch (err) {
-                console.error('[DEMO] auto start_rounds error:', err);
-                demoAutoStartFiredRef.current = false;
-            }
-        };
-
-        runDemoAutoStart();
-    }, [
-        isDemoLobby,
-        lobbyState,
-        showTutorial,
-        showSoundPrompt,
-        soundEnabled,
-        showReadyAnimation,
-        tagsCompleted,
-        tagsState,
-        serverselfTags,
-        serverdesiringTags,
-        eligibleForPairing,
-    ]);
+    }, [isDemoLobby, showTutorial, lobbyState, tagsState, serverselfTags, serverdesiringTags]);
 
     // Faster polling while demo prep overlay is active
     useEffect(() => {
@@ -1785,7 +1737,10 @@ const LobbyScreen = () => {
                 {/* Table number display - moved here to be right below the header */}
                 {lobbyState === "active" && opponentProfile && tableNumber && (
                     <div className="table-number">
-                        <h3 style={{color: '#4b73ef'}}>at table: {tableNumber}</h3>
+                        <h3>
+                            <span className="table-number-label">at table:</span>{' '}
+                            <span className="table-number-value">{tableNumber}</span>
+                        </h3>
                     </div>
                 )}
 
@@ -2334,21 +2289,31 @@ const LobbyScreen = () => {
                 )}
             </AnimatePresence>
 
-            {/* Demo mode: fast-forward overlay shown when reset_lobby_timer is called */}
-            <AnimatePresence>
-                {showDemoFastForward && (
-                    <motion.div
-                        className="demo-fast-forward-overlay"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.35 }}
-                    >
-                        <span className="demo-fast-forward-emoji">⚡</span>
-                        <span className="demo-fast-forward-text">Fast-forwarding to the next round so you can see more pairings!</span>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* Demo mode: fast-forward popup when reset_lobby_timer is called between rounds */}
+            <UserIsReadyAnimation
+                isVisible={showDemoFastForward}
+                variant="fastForward"
+                duration={3000}
+                mainText="Fast-forwarding!"
+                subText="Moving to the next round so you can see more pairings."
+                onAnimationEnd={() => setShowDemoFastForward(false)}
+            />
+
+            {/* Demo mode: round 3 host-return popup before navigating to admin */}
+            <UserIsReadyAnimation
+                isVisible={showDemoHostReturn}
+                variant="hostReturn"
+                duration={DEMO_HOST_RETURN_POPUP_MS}
+                mainText="Now watch from the host seat"
+                subText="We're taking you back to your admin panel so you can see how pairing looks from your side."
+                onAnimationEnd={() => {
+                    setShowDemoHostReturn(false);
+                    localStorage.setItem('demoCompletedAt', Date.now().toString());
+                    navigate(`/admin_lobby_view?code=${lobbyCodeRef.current}`, {
+                        state: { demoMode: true, returnedFromDemo: true },
+                    });
+                }}
+            />
         </div>
     );
 }

@@ -213,6 +213,20 @@
     animation: actTextIn 0.5s ease both;
 }
 
+/* Demo QR flow — Scene 3 header matches step/slide header presence */
+.act-header-area-prominent {
+    max-width: min(92vw, 380px);
+    padding: 0 12px;
+}
+
+.act-header-text-prominent {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    line-height: 1.35;
+    padding: 0;
+}
+
 /* ══════════════════════════════════════════════════
    Stage (fills remaining height, centres content)
    ══════════════════════════════════════════════════ */
@@ -560,6 +574,14 @@
 
     .act-header-text {
         font-size: 1.18rem;
+    }
+
+    .act-header-text-prominent {
+        font-size: 1.32rem;
+    }
+
+    .act-header-area-prominent {
+        max-width: min(92vw, 420px);
     }
 
     .act-scan-headers {

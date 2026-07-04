@@ -111,12 +111,17 @@ export const TutorialSlide3 = ({ isActive, onPauseClicked }) => {
 
       <div className="slide3-phone-frame">
         <div className="slide3-pause-wrapper">
-          <button className="slide3-mock-pause" onClick={onPauseClicked}>
-            Pause
-          </button>
-          <span className="slide3-pulse-ring slide3-pulse-ring-1" />
-          <span className="slide3-pulse-ring slide3-pulse-ring-2" />
-          <span className="slide3-tap-label">Tap here</span>
+          <div className="slide3-pause-button-wrap">
+            <button className="slide3-mock-pause" onClick={onPauseClicked}>
+              Pause
+            </button>
+            <span className="slide3-pulse-ring slide3-pulse-ring-1" />
+            <span className="slide3-pulse-ring slide3-pulse-ring-2" />
+          </div>
+          <div className="slide3-tap-hint">
+            <span className="slide3-tap-arrow">←</span>
+            <span className="slide3-tap-label">Tap here!</span>
+          </div>
         </div>
         <img
           src="/assets/stock-woman-cropped.png"

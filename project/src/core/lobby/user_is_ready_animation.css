@@ -65,6 +65,14 @@
     stroke: #10b981;
 }
 
+.fast-forward-icon-stroke {
+    stroke: #10b981;
+}
+
+.host-return-icon-stroke {
+    stroke: #10b981;
+}
+
 /* Success pulse ring */
 .success-pulse {
     position: absolute;
@@ -95,6 +103,16 @@
     text-align: center;
     line-height: 1.45;
     max-width: 300px;
+}
+
+.ready-subtext-wide {
+    max-width: 320px;
+}
+
+@media (max-width: 480px) {
+    .ready-subtext-wide {
+        max-width: 280px;
+    }
 }
 
 /* Mobile adjustments */

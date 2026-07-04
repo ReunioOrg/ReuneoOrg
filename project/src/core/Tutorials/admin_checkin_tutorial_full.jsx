@@ -794,7 +794,7 @@ const MockTonyLobbyView = ({ active, customTags, hasTags, showTableNumbers }) =>
 
 /* ── Main component ─────────────────────────────────────────────────────── */
 
-const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTableNumbers, stopAfterReady = false, stopAfterScene = null, startFromScene = 3, stopBeforeEnd = false, showSkip = false, embedded = false, convoPairOnly = false, cmefStartScene = 22 }) => {
+const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTableNumbers, stopAfterReady = false, stopAfterScene = null, exitScene4AfterZoom = false, startFromScene = 3, stopBeforeEnd = false, showSkip = false, embedded = false, convoPairOnly = false, cmefStartScene = 22 }) => {
     const [scene, setScene] = useState(startFromScene);
     const [fadingOut, setFadingOut] = useState(false);
     const [showReady, setShowReady] = useState(false);
@@ -864,15 +864,16 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
     /* Scene 4 → 5: after phone zoom completes (or early exit when stopAfterScene === 4) */
     useEffect(() => {
         if (scene !== 4) return;
+        const scene4DelayMs = stopAfterScene === 4 && exitScene4AfterZoom ? 1800 : 4500;
         const t = setTimeout(() => {
             if (stopAfterScene === 4) {
                 finishEarly();
             } else {
                 setScene(5);
             }
-        }, 4500);
+        }, scene4DelayMs);
         return () => clearTimeout(t);
-    }, [scene, stopAfterScene, finishEarly]);
+    }, [scene, stopAfterScene, exitScene4AfterZoom, finishEarly]);
 
     /* Scene 5 → 6 */
     useEffect(() => {
@@ -986,9 +987,9 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
             <div className={`act-scene${s === 3 ? ' act-scene-active' : ''}`}>
                 {s >= 3 && (
                     <>
-                        <div className="act-header-area" style={{ marginTop: '36px' }}>
-                            <p className="act-header-text act-single-header">
-                                After scanning, tell your attendees this: &ldquo;Listen to the app&rsquo;s instructions&rdquo;
+                        <div className={`act-header-area${exitScene4AfterZoom ? ' act-header-area-prominent' : ''}`} style={{ marginTop: '36px' }}>
+                            <p className={`act-header-text act-single-header${exitScene4AfterZoom ? ' act-header-text-prominent' : ''}`}>
+                                Your attendees will scan the QR to join - the app guides them through every step
                             </p>
                         </div>
                         <div className="act-stage">
@@ -1012,7 +1013,9 @@ const AdminCheckinTutorialFull = ({ isVisible, onComplete, customTags, showTable
                 {s >= 4 && (
                     <>
                         <PhoneZoom />
-                        <p className="act-how-people-join">How Attendees Join!</p>
+                        {!exitScene4AfterZoom && (
+                            <p className="act-how-people-join">How Attendees Join!</p>
+                        )}
                     </>
                 )}
             </div>
