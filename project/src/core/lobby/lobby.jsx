@@ -28,7 +28,7 @@ const MAX_TAGS_ALLOWED = 5; // Maximum number of tags allowed for both self and 
 const useEffectTime=5000;
 const DEMO_TAG_PREP_POLL_MS = 1000;
 const DEMO_TAG_PREP_SETTLE_MS = 150;
-const DEMO_TAG_PREP_MAX_WAIT_MS = 15000;
+const DEMO_TAG_PREP_MAX_WAIT_MS = 3000;
 const DEMO_ROUND1_VIEW_MS = 12000;
 const DEMO_ROUND2_VIEW_MS = 10000;
 const DEMO_ROUND3_VIEW_MS = 4000;
@@ -1473,8 +1473,7 @@ const LobbyScreen = () => {
             lobbyState == null || isPlaying;
         const layoutStable = lobbyState === 'active' &&
             roundTimeLeft > 0 &&
-            tagsState.length > 0 &&
-            player_count !== null;
+            tagsState.length > 0;
 
         if (soundResolved && layoutStable) {
             dismissDemoTagPrepAndScroll('layout_stable');
@@ -1487,7 +1486,6 @@ const LobbyScreen = () => {
         isPlaying,
         roundTimeLeft,
         tagsState,
-        player_count,
         dismissDemoTagPrepAndScroll,
     ]);
 
