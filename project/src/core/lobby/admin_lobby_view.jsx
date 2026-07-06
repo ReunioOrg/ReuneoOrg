@@ -1727,7 +1727,11 @@ const AdminLobbyView = () => {
         if (response.ok) {
             clearQrAnimation(lobbyCode);
             clearStartAnimation(lobbyCode);
-            navigate('/organizer-dashboard');
+            if (demoMode && demoStep === 'endRound') {
+                navigate('/plan-selection');
+            } else {
+                navigate('/organizer-dashboard');
+            }
         }
     };
 

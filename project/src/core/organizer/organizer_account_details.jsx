@@ -387,7 +387,6 @@ const OrganizerAccountDetails = () => {
                                     <div className="account-activations-label">Trial Activations</div>
                                     <div className="account-activations-value">{planDetails.trial_uses_remaining ?? 0}</div>
                                     <div className="account-activations-subtext">of 3 per month</div>
-                                    <div className="account-usage-reset">Resets monthly</div>
                                 </div>
                             )}
 
