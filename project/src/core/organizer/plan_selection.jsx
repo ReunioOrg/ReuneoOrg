@@ -17,6 +17,47 @@ const PLAN_TYPE_LABELS = { single_use: 'One-Time Use', monthly: 'Monthly', free_
 const PLAN_NAMES = { 50: 'Basic', 100: 'Plus', 150: 'Pro', 200: 'Ultra' };
 const getPlanName = (tier) => PLAN_NAMES[tier.upper] ?? `Up to ${tier.upper}`;
 
+const getCurrentPlanTileContent = (plan) => {
+    if (!plan) return { name: '', detail: '' };
+    const limit = plan.attendee_limit;
+    const type = plan.plan_type;
+
+    if (type === 'free_trial') {
+        const uses = plan.trial_uses_remaining ?? 0;
+        return {
+            name: PLAN_TYPE_LABELS.free_trial,
+            detail: `${limit ?? '—'} attendees · ${uses} of 3 activations left`,
+        };
+    }
+    if (type === 'single_use') {
+        const remaining = plan.activations_remaining ?? 0;
+        return {
+            name: PLAN_TYPE_LABELS.single_use,
+            detail: `${limit ?? '—'} attendees · ${remaining} activation${remaining === 1 ? '' : 's'} left`,
+        };
+    }
+    if (type === 'monthly') {
+        const tierName = limit != null ? PLAN_NAMES[limit] : null;
+        const perMonth = plan.uses_per_month ?? 3;
+        const used = plan.uses_this_month ?? 0;
+        const remaining = Math.max(perMonth - used, 0);
+        return {
+            name: tierName ?? PLAN_TYPE_LABELS.monthly,
+            detail: [
+                PLAN_TYPE_LABELS.monthly,
+                limit != null ? `${limit} attendees` : null,
+                `${remaining} of ${perMonth} activations left`,
+            ]
+                .filter(Boolean)
+                .join(' · '),
+        };
+    }
+    return {
+        name: PLAN_TYPE_LABELS[type] || type,
+        detail: limit != null ? `${limit} attendees` : '',
+    };
+};
+
 const SHOW_ONE_TIME_OPTION = false;
 
 const INITIAL_VISIBLE_TIERS = 3;
@@ -362,6 +403,13 @@ const PlanSelection = () => {
     const hasHiddenTiers = tiers.length > INITIAL_VISIBLE_TIERS;
 
     const showFreeTrial = pageMode === 'browse';
+    const showCurrentPlanTile = pageMode !== 'browse' && !!userPlan;
+    const currentPlanTile = userPlan ? getCurrentPlanTileContent(userPlan) : null;
+    const pageTitle = pageMode === 'freeTrial'
+        ? 'Upgrade your plan'
+        : pageMode === 'browse'
+            ? 'Pricing'
+            : 'Change Plan';
 
     // ── Back navigation ──
     const handleBack = () => {
@@ -393,15 +441,20 @@ const PlanSelection = () => {
                 </nav>
             )}
 
-            <h1 className="ps-page-title">
-                {isUpgrade ? 'Change Plan' : 'Pricing'}
-            </h1>
-            <p className="ps-page-subtitle">
-                {isUpgrade
-                    ? <>Currently on <strong>{PLAN_TYPE_LABELS[currentPlan?.plan_type] || currentPlan?.plan_type}</strong> with <strong>{currentPlan?.attendee_limit}</strong> attendees</>
-                    : 'Real Connections. Real Engagement. Real Results.'
-                }
-            </p>
+            <h1 className="ps-page-title">{pageTitle}</h1>
+            {showCurrentPlanTile && currentPlanTile ? (
+                <div className="ps-current-plan-tile">
+                    <div className="ps-current-plan-label">Your plan</div>
+                    <div className="ps-current-plan-name">{currentPlanTile.name}</div>
+                    {currentPlanTile.detail && (
+                        <div className="ps-current-plan-detail">{currentPlanTile.detail}</div>
+                    )}
+                </div>
+            ) : (
+                <p className="ps-page-subtitle">
+                    Real Connections. Real Engagement. Real Results.
+                </p>
+            )}
 
             {/* ── Try for Free (browse mode) ── */}
             {showFreeTrial && (
@@ -529,7 +582,7 @@ const PlanSelection = () => {
                                     <div className="ps-tier-plan-name">{getPlanName(tier)}</div>
 
                                     <div className="ps-tier-attendee-label">
-                                        Up to {tier.upper} attendees
+                                        Up to <span className="ps-tier-attendee-count">{tier.upper}</span> attendees
                                     </div>
 
                                     <div className="ps-tier-price-section">
