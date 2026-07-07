@@ -337,12 +337,7 @@
     align-self: center;
 }
 
-/* ── Step 4 Green Emphasis ── */
-
-.aht-header-green {
-    color: #22c55e;
-    font-weight: 700;
-}
+/* ── Step 4 reveal timing ── */
 
 .step5-reveal-step4-body {
     animation-delay: 0.25s;

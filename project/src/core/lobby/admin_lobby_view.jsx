@@ -27,6 +27,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import AdminCheckinTutorialFull from '../Tutorials/admin_checkin_tutorial_full';
 import AdminSettingsDropdown from './AdminSettingsDropdown';
 import UserIsReadyAnimation from './user_is_ready_animation';
+import { useDemoMatchHistoryOutro } from '../Tutorials/demo_match_history_outro';
 
 import { returnBase64TestImg } from '../misc/misc';
 
@@ -1152,6 +1153,11 @@ const AdminLobbyView = () => {
     const { user, userProfile, checkAuth, permissions, isLegacyOrganizer, isAuthLoading } = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
+    const {
+        startDemoMatchHistoryOutro,
+        cancelDemoMatchHistoryOutro,
+        completeDemoMatchHistoryOutroNavigation,
+    } = useDemoMatchHistoryOutro();
     const DEVMODE = false;
 
     const [planInfo, setPlanInfo] = useState(null);
@@ -1751,22 +1757,47 @@ const AdminLobbyView = () => {
         }
     };
     const handleEndRounds = async () => {
-        cancelSound(); // Cleanup audio when terminating lobby
-        const response = await apiFetch('/terminate_lobby', {
-            method: 'GET',
-            headers: {
-                'lobby_code': lobbyCode
+        const isDemoEnd = demoMode && demoStep === 'endRound';
+
+        if (isDemoEnd && !startDemoMatchHistoryOutro()) {
+            return;
+        }
+
+        cancelSound();
+
+        try {
+            const response = await apiFetch('/terminate_lobby', {
+                method: 'GET',
+                headers: {
+                    'lobby_code': lobbyCode
+                }
+            });
+
+            if (!response.ok) {
+                if (isDemoEnd) {
+                    cancelDemoMatchHistoryOutro();
+                }
+                toast.error('Failed to end session. Please try again.', { position: 'top-center' });
+                return;
             }
-        });
-        if (response.ok) {
+
             clearQrAnimation(lobbyCode);
             clearStartAnimation(lobbyCode);
             clearSpeakerTip(lobbyCode);
-            if (demoMode && demoStep === 'endRound') {
-                navigate('/plan-selection');
+
+            if (isDemoEnd) {
+                completeDemoMatchHistoryOutroNavigation(() => {
+                    navigate('/plan-selection', { replace: true });
+                });
             } else {
                 navigate('/organizer-dashboard');
             }
+        } catch (err) {
+            console.error('Error ending rounds:', err);
+            if (isDemoEnd) {
+                cancelDemoMatchHistoryOutro();
+            }
+            toast.error('Failed to end session. Please try again.', { position: 'top-center' });
         }
     };
 

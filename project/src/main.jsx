@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './core/Auth/AuthContext.jsx'
 import ScrollToTop from './core/ScrollToTop.jsx'
 import RouteLayoutHandler from './core/RouteLayoutHandler.jsx'
+import { DemoMatchHistoryOutroProvider } from './core/Tutorials/demo_match_history_outro.jsx'
 
 import LoginSignupPage from './core/Auth/LoginSignupPage.jsx'
 import LogoutPage from './core/Auth/LogoutPage.jsx'
@@ -35,6 +36,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
       <Router basename="/">
+        <DemoMatchHistoryOutroProvider>
         <ScrollToTop />
         <RouteLayoutHandler />
         <Routes>
@@ -62,6 +64,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/speed-friending" element={<SpeedFriendingPage />} />
           {/* <Route path="/cofounders" element={<MyCF />} /> */}
         </Routes>
+        </DemoMatchHistoryOutroProvider>
         </Router>
       </AuthProvider>
     </StrictMode>,

@@ -9,6 +9,37 @@ const PersonIcon = ({ color = '#3b82f6' }) => (
     </svg>
 );
 
+export const MatchHistoryPitchHeader = ({ variant = 'inline' }) => {
+    const titleClass = variant === 'outro' ? 'aht-pitch-title-outro' : 'step-title';
+    const subtitleClass = variant === 'outro' ? 'aht-pitch-subtitle-outro' : 'step-subtitle';
+    const subtitleStyle = variant === 'inline' ? { fontWeight: 600, fontStyle: 'normal' } : undefined;
+
+    if (variant === 'outro') {
+        return (
+            <>
+                <h1 className={titleClass}>Connections, saved automatically</h1>
+                <p className={subtitleClass}>
+                    Attendees simply save their email to{' '}
+                    <strong className="aht-outro-emphasis">unlock everyone</strong> they met after the
+                    event. No match cards, no follow-up emails, no manual work for you.
+                </p>
+            </>
+        );
+    }
+
+    return (
+        <>
+            <h1 className={titleClass}>History of Connections</h1>
+            <p className={subtitleClass} style={subtitleStyle}>
+                They just <strong className="aht-header-green">save their email</strong> to
+                access their connections at the end of the session. Your{' '}
+                <strong className="aht-header-green">organizer dashboard</strong> will have insights
+                and analytics about your attendees!
+            </p>
+        </>
+    );
+};
+
 const MOCK_TILES = [
     {
         name: 'Sofia Cortez',
@@ -62,8 +93,8 @@ const MOCK_TILES = [
     },
 ];
 
-const AttendeesHistoryTutorial = () => (
-    <div className="aht-wrapper">
+const AttendeesHistoryTutorial = ({ variant = 'inline' }) => (
+    <div className={`aht-wrapper${variant === 'outro' ? ' aht-outro' : ''}`}>
         {/* Left: Blue person icon with label */}
         <div className="aht-person-section">
             <div className="aht-person-label">attendee POV</div>

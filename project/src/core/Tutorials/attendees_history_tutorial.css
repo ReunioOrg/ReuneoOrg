@@ -485,3 +485,16 @@
         width: 100px;
     }
 }
+
+/* ── Shared pitch emphasis (create_lobby step 4 + demo outro) ── */
+
+.aht-header-green {
+    color: #22c55e;
+    font-weight: 700;
+}
+
+/* ── Outro variant — scroll timing default; dmho overlay overrides in demo_match_history_outro.css ── */
+
+.aht-wrapper.aht-outro .aht-scroll-content {
+    animation: ahtScrollContent 9.6s linear 2.5s infinite;
+}

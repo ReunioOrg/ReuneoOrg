@@ -1,0 +1,383 @@
+/* ══════════════════════════════════════════════════
+   Demo Match History Outro — fullscreen transition
+   after free-trial demo lobby End Session
+   ══════════════════════════════════════════════════ */
+
+@keyframes dmhoFadeFloatIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes dmhoFadeDriftLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-10px) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) translateY(0);
+    }
+}
+
+@keyframes dmhoPhoneRiseIn {
+    from {
+        opacity: 0;
+        transform: translateY(36px) scale(0.94);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.dmho-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding:
+        max(20px, env(safe-area-inset-top, 0px))
+        max(12px, env(safe-area-inset-right, 0px))
+        max(16px, env(safe-area-inset-bottom, 0px))
+        max(12px, env(safe-area-inset-left, 0px));
+    background: #f8f9fb;
+    pointer-events: auto;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+}
+
+.dmho-overlay-fading {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.dmho-content {
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+    padding: clamp(12px, 3vh, 24px) 16px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    text-align: center;
+    box-sizing: border-box;
+    flex: 1;
+}
+
+.dmho-header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: clamp(28px, 6vh, 48px);
+    flex-shrink: 0;
+}
+
+.dmho-scene {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* Pitch header — mirrors create_lobby step 4 in fullscreen context */
+
+.aht-pitch-title-outro {
+    color: #4b5563;
+    font-size: 1.45rem;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    line-height: 1.25;
+    opacity: 0;
+    animation: dmhoFadeFloatIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.08s forwards;
+}
+
+.aht-pitch-subtitle-outro {
+    color: #6b7280;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-style: normal;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    line-height: 1.5;
+    max-width: 400px;
+    opacity: 0;
+    animation: dmhoFadeFloatIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.32s forwards;
+}
+
+.aht-outro-emphasis {
+    color: #4b7ef0;
+    font-weight: 700;
+}
+
+/* ── Outro scene: person left, phone right (always horizontal) ── */
+
+.dmho-content .aht-wrapper.aht-outro {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    width: 100%;
+    max-width: 360px;
+    padding: 0;
+}
+
+.dmho-content .aht-wrapper.aht-outro .aht-person-section {
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.dmho-content .aht-wrapper.aht-outro .aht-person-label {
+    font-size: 11px;
+    opacity: 0;
+    animation: dmhoFadeDriftLeft 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.72s forwards;
+}
+
+.dmho-content .aht-wrapper.aht-outro .aht-person-icon {
+    width: 38px;
+    opacity: 0;
+    animation: dmhoFadeDriftLeft 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.88s forwards;
+}
+
+.dmho-content .aht-wrapper.aht-outro .aht-phone-area {
+    flex: 0 1 auto;
+    max-width: 196px;
+    min-width: 0;
+    opacity: 0;
+    animation: dmhoPhoneRiseIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) 1.12s forwards;
+}
+
+.dmho-content .aht-wrapper.aht-outro .aht-scroll-content {
+    animation: ahtScrollContent 9.6s linear 2.5s infinite;
+}
+
+/* Narrower frame, taller screen */
+.dmho-content .aht-wrapper.aht-outro .aht-phone {
+    max-width: 188px;
+    border-radius: 30px;
+    padding: 0 7px 5px;
+}
+
+.dmho-content .aht-wrapper.aht-outro .aht-notch {
+    width: 62px;
+    height: 18px;
+    border-radius: 0 0 11px 11px;
+}
+
+.dmho-content .aht-wrapper.aht-outro .aht-screen {
+    height: 400px;
+    border-radius: 4px 4px 22px 22px;
+}
+
+.dmho-content .aht-wrapper.aht-outro .aht-home-indicator {
+    width: 72px;
+}
+
+.dmho-content .aht-wrapper.aht-outro .aht-screen-logo {
+    width: 52px;
+}
+
+.dmho-content .aht-wrapper.aht-outro .aht-screen-title {
+    font-size: 11px;
+}
+
+.dmho-content .aht-wrapper.aht-outro .aht-tile {
+    width: 94%;
+    padding: 10px 7px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+}
+
+.dmho-content .aht-wrapper.aht-outro .aht-tile-img {
+    width: 46px;
+    height: 46px;
+}
+
+.dmho-content .aht-wrapper.aht-outro .aht-tile-name {
+    font-size: 10px;
+}
+
+.dmho-content .aht-wrapper.aht-outro .aht-star {
+    font-size: 13px;
+}
+
+@media screen and (max-width: 768px) {
+    .dmho-overlay {
+        padding-top: max(16px, env(safe-area-inset-top, 0px));
+        padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+    }
+
+    .dmho-content {
+        min-height: calc(100dvh - max(16px, env(safe-area-inset-top, 0px)) - max(20px, env(safe-area-inset-bottom, 0px)));
+        padding: clamp(16px, 5vh, 48px) 16px clamp(20px, 5vh, 40px);
+        justify-content: flex-start;
+    }
+
+    .dmho-header {
+        margin-bottom: clamp(20px, 4vh, 32px);
+    }
+
+    .dmho-scene {
+        flex: 1 1 auto;
+        align-items: center;
+        justify-content: center;
+        padding-bottom: clamp(8px, 2vh, 24px);
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .dmho-content {
+        padding: clamp(12px, 4vh, 36px) 12px clamp(16px, 4vh, 32px);
+        max-width: 100%;
+    }
+
+    .dmho-header {
+        gap: 8px;
+        margin-bottom: clamp(16px, 3.5vh, 28px);
+    }
+
+    .aht-pitch-title-outro {
+        font-size: 1.25rem;
+    }
+
+    .aht-pitch-subtitle-outro {
+        font-size: 0.88rem;
+    }
+
+    .dmho-content .aht-wrapper.aht-outro {
+        gap: 10px;
+        max-width: 320px;
+    }
+
+    .dmho-content .aht-wrapper.aht-outro .aht-person-icon {
+        width: 34px;
+    }
+
+    .dmho-content .aht-wrapper.aht-outro .aht-person-label {
+        font-size: 10px;
+    }
+
+    .dmho-content .aht-wrapper.aht-outro .aht-phone-area {
+        max-width: 178px;
+    }
+
+    .dmho-content .aht-wrapper.aht-outro .aht-phone {
+        max-width: 172px;
+        border-radius: 26px;
+    }
+
+    .dmho-content .aht-wrapper.aht-outro .aht-screen {
+        height: 360px;
+    }
+}
+
+/* Taller phones — scale phone to use vertical space without bunching at top */
+@media screen and (max-width: 768px) and (min-height: 740px) {
+    .dmho-header {
+        margin-bottom: clamp(24px, 5vh, 40px);
+    }
+
+    .dmho-content .aht-wrapper.aht-outro .aht-phone-area {
+        max-width: 200px;
+    }
+
+    .dmho-content .aht-wrapper.aht-outro .aht-phone {
+        max-width: 192px;
+    }
+
+    .dmho-content .aht-wrapper.aht-outro .aht-screen {
+        height: clamp(380px, 42vh, 460px);
+    }
+
+    .dmho-content .aht-wrapper.aht-outro .aht-person-icon {
+        width: 40px;
+    }
+}
+
+@media screen and (max-width: 768px) and (min-height: 860px) {
+    .dmho-content {
+        padding-top: clamp(24px, 6vh, 56px);
+    }
+
+    .dmho-content .aht-wrapper.aht-outro .aht-screen {
+        height: clamp(400px, 44vh, 480px);
+    }
+}
+
+@media screen and (min-width: 769px) {
+    .dmho-overlay {
+        align-items: flex-start;
+        padding-top: max(28px, env(safe-area-inset-top, 0px));
+    }
+
+    .dmho-content {
+        flex: 0 1 auto;
+        min-height: auto;
+        max-width: 480px;
+        padding: 16px 24px 40px;
+    }
+
+    .dmho-header {
+        gap: 12px;
+        margin-bottom: clamp(32px, 7vh, 56px);
+    }
+
+    .dmho-scene {
+        flex: 0 1 auto;
+    }
+
+    .aht-pitch-title-outro {
+        font-size: 1.65rem;
+    }
+
+    .aht-pitch-subtitle-outro {
+        font-size: 1rem;
+    }
+
+    .dmho-content .aht-wrapper.aht-outro {
+        gap: 18px;
+        max-width: 380px;
+    }
+
+    .dmho-content .aht-wrapper.aht-outro .aht-person-icon {
+        width: 42px;
+    }
+
+    .dmho-content .aht-wrapper.aht-outro .aht-phone-area {
+        max-width: 210px;
+    }
+
+    .dmho-content .aht-wrapper.aht-outro .aht-phone {
+        max-width: 200px;
+    }
+
+    .dmho-content .aht-wrapper.aht-outro .aht-screen {
+        height: 420px;
+    }
+}
+
+@media screen and (max-width: 340px) {
+    .dmho-scene {
+        transform: scale(0.92);
+        transform-origin: center center;
+    }
+}

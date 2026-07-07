@@ -8,7 +8,7 @@ import './create_lobby.css';
 import { apiFetch } from '../utils/api';
 import FloatingLinesBackground from './FloatingLinesBackground';
 import TutorialMatching from '../Tutorials/tutorial-matching';
-import AttendeesHistoryTutorial from '../Tutorials/attendees_history_tutorial';
+import AttendeesHistoryTutorial, { MatchHistoryPitchHeader } from '../Tutorials/attendees_history_tutorial';
 import TutorialAttendeesPhone from '../Tutorials/tutorial-attendees-phone';
 import RoundDurationTutorial from '../Tutorials/round_duration_tutorial';
 import SponsorLogoTutorial from '../Tutorials/sponsor_logo_tutorial';
@@ -910,11 +910,7 @@ const CreateLobbyView = () => {
     // ── Render: Step 4 — Match History ──
     const renderStep4 = () => (
         <div className="step-container">
-            <h1 className="step-title">History of Connections</h1>
-            <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
-                They just <strong className="aht-header-green">save their email</strong> to
-                access their connections at the end of the session. Your <strong className="aht-header-green">organizer dashboard</strong> will have insights and analytics about your attendees!
-            </p>
+            <MatchHistoryPitchHeader variant="inline" />
             <div className="step5-reveal step5-reveal-step4-body">
                 <button className="step-cta" onClick={() => handleStep4Advance(true)}>
                     Enable <ArrowRight />
@@ -922,7 +918,7 @@ const CreateLobbyView = () => {
                 <button className="step-cta step-cta-secondary" onClick={() => handleStep4Advance(false)}>
                     Skip
                 </button>
-                <AttendeesHistoryTutorial />
+                <AttendeesHistoryTutorial variant="inline" />
             </div>
         </div>
     );
