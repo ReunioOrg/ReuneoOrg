@@ -10,7 +10,17 @@ import toast, { Toaster } from 'react-hot-toast';
 
 import { apiFetch } from '../utils/api';
 import { isInAppBrowser, shareImageBlob, downloadBlobAsFile } from '../utils/browserUtils';
-import { hasPlayedQrAnimation, markQrAnimationPlayed, clearQrAnimation, hasPlayedStartAnimation, markStartAnimationPlayed, clearStartAnimation } from '../utils/lobbyStorage';
+import {
+    hasPlayedQrAnimation,
+    markQrAnimationPlayed,
+    clearQrAnimation,
+    hasPlayedStartAnimation,
+    markStartAnimationPlayed,
+    clearStartAnimation,
+    hasSeenSpeakerTip,
+    markSpeakerTipSeen,
+    clearSpeakerTip,
+} from '../utils/lobbyStorage';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../cropImage';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -1256,6 +1266,8 @@ const AdminLobbyView = () => {
     const [inlineQrPulsing, setInlineQrPulsing] = useState(false);
     // True once the organizer taps the QR card in this page session (resets on refresh)
     const [qrTappedThisSession, setQrTappedThisSession] = useState(false);
+    const [speakerTipSeen, setSpeakerTipSeen] = useState(false);
+    const [showSpeakerTipModal, setShowSpeakerTipModal] = useState(false);
 
     // --- Free-trial onboarding demo state ---
     // demoMode: true when organizer is a first-time free-trial user
@@ -1378,6 +1390,28 @@ const AdminLobbyView = () => {
     const totalAttendeeCount = playerCount + inactivePlayerCount;
     const isQrState = lobbyState === 'checkin' && realPlayerCount < 2;
     const hideBelowQrInDemo = demoMode && demoStep === 'qr';
+
+    useEffect(() => {
+        if (!lobbyCode || lobbyCode === 'test') {
+            setSpeakerTipSeen(false);
+            return;
+        }
+        setSpeakerTipSeen(hasSeenSpeakerTip(lobbyCode));
+    }, [lobbyCode]);
+
+    const showSpeakerButton = isQrState && !demoMode && !speakerTipSeen;
+    const showSpeakerPulse = showSpeakerButton && qrTappedThisSession;
+    const showStartPulse = lobbyState === 'checkin' && (
+        realPlayerCount >= 2 || (qrTappedThisSession && speakerTipSeen)
+    );
+
+    const handleSpeakerTipDismiss = () => {
+        if (lobbyCode && lobbyCode !== 'test') {
+            markSpeakerTipSeen(lobbyCode);
+        }
+        setSpeakerTipSeen(true);
+        setShowSpeakerTipModal(false);
+    };
 
     // 90% attendee limit warning -- show once per lobby via sessionStorage
     useEffect(() => {
@@ -1727,6 +1761,7 @@ const AdminLobbyView = () => {
         if (response.ok) {
             clearQrAnimation(lobbyCode);
             clearStartAnimation(lobbyCode);
+            clearSpeakerTip(lobbyCode);
             if (demoMode && demoStep === 'endRound') {
                 navigate('/plan-selection');
             } else {
@@ -1966,6 +2001,31 @@ const AdminLobbyView = () => {
                     </div>
                 )}
 
+                {showSpeakerButton && (
+                    <div className="admin-speaker-tip-row">
+                        <button
+                            type="button"
+                            className="admin-speaker-tip-btn"
+                            onClick={() => setShowSpeakerTipModal(true)}
+                            aria-label="Never miss a round change — connect a speaker"
+                        >
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                                stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                aria-hidden="true">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                            </svg>
+                            {showSpeakerPulse && (
+                                <>
+                                    <span className="admin-speaker-ring admin-speaker-ring-1" />
+                                    <span className="admin-speaker-ring admin-speaker-ring-2" />
+                                </>
+                            )}
+                        </button>
+                    </div>
+                )}
+
                 {!hideBelowQrInDemo && lobbyState === 'checkin' && (
                     <div className="start-experience-header">
                         <h2 className="checkin-modal-title">2. Start the Experience</h2>
@@ -1984,7 +2044,7 @@ const AdminLobbyView = () => {
                     checkinTriggerRef={checkinTriggerRef}
                     suppressCheckinAutoOpen={false}
                     planInfo={planInfo}
-                    showStartPulse={lobbyState === 'checkin' && (realPlayerCount >= 2 || (realPlayerCount < 2 && qrTappedThisSession))}
+                    showStartPulse={showStartPulse}
                     onStartTutorial={() => {
                         if (hasPlayedStartAnimation(lobbyCode)) {
                             startModalTriggerRef.current?.();
@@ -2261,6 +2321,34 @@ const AdminLobbyView = () => {
 
             {/* Sound Prompt - same conditional rendering as lobby.jsx */}
             {(soundEnabled || !showSoundPrompt) || (lobbyState == "checkin") || (lobbyState == null) || isPlaying || demoMode ? null : <SoundPrompt onEnable={() => { loadSound(); setShowSoundPrompt(false); }} onDismiss={() => setShowSoundPrompt(false)} />}
+
+            {showSpeakerTipModal && (
+                <div className="progress-modal-overlay" onClick={handleSpeakerTipDismiss}>
+                    <div className="progress-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="confirm-modal-header">
+                            <h2 className="confirm-modal-title">Never miss a round change</h2>
+                            <p className="confirm-modal-subtitle">
+                                The round chime already plays on every attendee&apos;s phone. For extra peace of mind,
+                                connect your host device to a Bluetooth speaker so the whole room hears it too.
+                            </p>
+                            <p className="confirm-modal-fineprint">
+                                Optional, but great for larger or louder events.
+                                <br />
+                                Settings → Bluetooth on this device, then turn the volume up.
+                            </p>
+                        </div>
+                        <div className="confirm-modal-actions">
+                            <button
+                                type="button"
+                                className="confirm-modal-btn primary"
+                                onClick={handleSpeakerTipDismiss}
+                            >
+                                Sounds good
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Demo: prep popup during interrim, then force-push into attendee lobby */}
             <UserIsReadyAnimation

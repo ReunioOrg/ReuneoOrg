@@ -165,3 +165,35 @@ export const clearStartAnimation = (lobbyCode) => {
   if (!lobbyCode) return;
   localStorage.removeItem(startAnimKey(lobbyCode));
 };
+
+// ─── Speaker setup tip "seen" flag ────────────────────────────────────────────
+// Tracks whether the organizer acknowledged the Bluetooth speaker tip for a lobby.
+const SPEAKER_TIP_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days safety-net TTL
+
+const speakerTipKey = (lobbyCode) => `speaker_tip_seen_${lobbyCode}`;
+
+export const hasSeenSpeakerTip = (lobbyCode) => {
+  if (!lobbyCode) return false;
+  try {
+    const raw = localStorage.getItem(speakerTipKey(lobbyCode));
+    if (!raw) return false;
+    const { ts } = JSON.parse(raw);
+    if (Date.now() - ts > SPEAKER_TIP_TTL) {
+      localStorage.removeItem(speakerTipKey(lobbyCode));
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+export const markSpeakerTipSeen = (lobbyCode) => {
+  if (!lobbyCode) return;
+  localStorage.setItem(speakerTipKey(lobbyCode), JSON.stringify({ ts: Date.now() }));
+};
+
+export const clearSpeakerTip = (lobbyCode) => {
+  if (!lobbyCode) return;
+  localStorage.removeItem(speakerTipKey(lobbyCode));
+};
