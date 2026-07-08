@@ -1386,7 +1386,6 @@ const LobbyScreen = () => {
             logTagScroll('tryScrollToTags called', {
                 needsTagSelection,
                 tagAutoScrollDone: tagAutoScrollDoneRef.current,
-                showTutorial,
                 isSoundPromptBlocking,
                 hasTagsSectionRef: !!tagsSectionRef.current,
             });
@@ -1399,11 +1398,10 @@ const LobbyScreen = () => {
             return;
         }
 
-        if (!needsTagSelection || tagAutoScrollDoneRef.current || showTutorial || isSoundPromptBlocking) {
+        if (!needsTagSelection || tagAutoScrollDoneRef.current || isSoundPromptBlocking) {
             if (layoutDebugEnabled && needsTagSelection) {
                 const reason = !needsTagSelection ? 'tags_complete'
                     : tagAutoScrollDoneRef.current ? 'already_scrolled'
-                    : showTutorial ? 'tutorial_open'
                     : isSoundPromptBlocking ? 'sound_prompt'
                     : 'unknown';
                 logTagScroll('SCROLL_BLOCKED', { reason });
@@ -1417,8 +1415,8 @@ const LobbyScreen = () => {
             return;
         }
 
-        scrollToTagsSection(DEMO_TAG_PREP_SETTLE_MS);
-    }, [tagsState, serverselfTags, serverdesiringTags, showTutorial, soundEnabled, showSoundPrompt, lobbyState, isPlaying, layoutDebugEnabled, isDemoLobby, scrollToTagsSection]);
+        scrollToTagsSection(isDemoLobby ? DEMO_TAG_PREP_SETTLE_MS : 0);
+    }, [tagsState, serverselfTags, serverdesiringTags, soundEnabled, showSoundPrompt, lobbyState, isPlaying, layoutDebugEnabled, isDemoLobby, scrollToTagsSection]);
 
     // Eligible (tags complete): reset auto-scroll so a future incomplete state can scroll again
     useEffect(() => {
@@ -1503,7 +1501,7 @@ const LobbyScreen = () => {
         };
     }, [showDemoTagPrepOverlay, dismissDemoTagPrepAndScroll]);
 
-    // Retry after tutorial closes — primary moment users need to reach tag selection
+    // Fallback scroll retry when tags arrive after tutorial closes (common path fires via general effect)
     useEffect(() => {
         if (prevShowTutorialRef.current && !showTutorial) {
             if (layoutDebugEnabled) {
