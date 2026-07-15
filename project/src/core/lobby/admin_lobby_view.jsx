@@ -1967,9 +1967,15 @@ const AdminLobbyView = () => {
                 )}
                 {isQrState && (
                     <div className="inline-checkin-content">
-                        <h2 className="checkin-modal-title">1. People Scan to Join</h2>
+                        <h2 className="checkin-modal-title">
+                            {demoMode && demoStep === 'qr'
+                                ? 'See It In Action'
+                                : '1. People Scan to Join'}
+                        </h2>
                         <p className="checkin-modal-subtitle">
-                            Tell people to scan and listen to the app's instructions. Thats it!
+                            {demoMode && demoStep === 'qr'
+                                ? 'Tap to jump into a live pairing round and see what your attendees will experience.'
+                                : "Tell people to scan and listen to the app's instructions. Thats it!"}
                         </p>
                         {demoMode && demoStep === 'qr' && (
                             <div className="demo-tap-hint demo-tap-hint-qr">
@@ -1995,23 +2001,35 @@ const AdminLobbyView = () => {
                         }}>
                             <div className="inline-qr-pulse-container">
                                 <div className="checkin-modal-qr-card inline-qr-active">
-                                    <QRCodeSVG
-                                        value={`${window.location.origin}/lobby?code=${lobbyCode}`}
-                                        size={180}
-                                        level="H"
-                                        includeMargin={false}
-                                        bgColor="#ffffff"
-                                        fgColor="#1a1a2e"
-                                        id="inline-qr-svg"
-                                    />
-                                    <div className="checkin-modal-qr-download-hint inline-qr-hint-active">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                            <polyline points="7 10 12 15 17 10" />
-                                            <line x1="12" y1="15" x2="12" y2="3" />
-                                        </svg>
-                                        <span>{inlineQrCopied ? 'Saved!' : 'Tap to save/print'}</span>
-                                    </div>
+                                    {demoMode && demoStep === 'qr' ? (
+                                        <img
+                                            src="/assets/hand-qr-phone.svg"
+                                            alt="Preview the pairing experience"
+                                            width={180}
+                                            height={180}
+                                            style={{ display: 'block' }}
+                                        />
+                                    ) : (
+                                        <QRCodeSVG
+                                            value={`${window.location.origin}/lobby?code=${lobbyCode}`}
+                                            size={180}
+                                            level="H"
+                                            includeMargin={false}
+                                            bgColor="#ffffff"
+                                            fgColor="#1a1a2e"
+                                            id="inline-qr-svg"
+                                        />
+                                    )}
+                                    {!(demoMode && demoStep === 'qr') && (
+                                        <div className="checkin-modal-qr-download-hint inline-qr-hint-active">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                <polyline points="7 10 12 15 17 10" />
+                                                <line x1="12" y1="15" x2="12" y2="3" />
+                                            </svg>
+                                            <span>{inlineQrCopied ? 'Saved!' : 'Tap to save/print'}</span>
+                                        </div>
+                                    )}
                                 </div>
                                 {/* ambient always-on pulse rings — hidden once QR tapped (Start pulse takes over) */}
                                 {!qrTappedThisSession && (

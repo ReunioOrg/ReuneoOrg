@@ -1,3 +1,4 @@
 # Large media files — kept locally, not deployed via GitHub Pages
 assets/*.mp4
 assets/*.webm
+.DS_Store
