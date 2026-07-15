@@ -566,7 +566,7 @@ const NewOrganizerView = () => {
     // ── Render: Step 5 — Get Started ──
     const renderStep5 = () => (
         <div className="step-container step-container-signup">
-            <h1 className="step-title step-title-prompt">Get started for free.</h1>
+            <h1 className="step-title step-title-prompt">Create your free organizer account.</h1>
 
             {standardPairingNote && (
                 <p className="signup-pairing-note">Using standard pairing.</p>

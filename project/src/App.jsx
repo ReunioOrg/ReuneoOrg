@@ -1150,10 +1150,10 @@ const App = () => {
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/new_organizer', { state: { showGeneralTutorial: true } }); } }}
                 tabIndex={0}
                 role="button"
-                aria-label="Get Started"
+                aria-label="Host an Event"
               >
                 <div className="app-dock-icon"><OrganizerIcon /></div>
-                <span className="app-dock-label shiny-text">Get Started</span>
+                <span className="app-dock-label shiny-text">Host an Event</span>
               </div>
             </HoverBorderGlow>
           </div>
@@ -1373,10 +1373,10 @@ const App = () => {
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/new_organizer', { state: { showGeneralTutorial: true } }); } }}
                 tabIndex={0}
                 role="button"
-                aria-label="Get Started"
+                aria-label="Host an Event"
               >
                 <div className="app-dock-icon"><OrganizerIcon /></div>
-                <span className="app-dock-label shiny-text">Get Started</span>
+                <span className="app-dock-label shiny-text">Host an Event</span>
               </div>
             </HoverBorderGlow>
           </div>,
