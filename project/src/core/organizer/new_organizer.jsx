@@ -21,7 +21,7 @@ const DESCRIPTION_EXAMPLE_INTERVAL_MS = 4000;
 const DESCRIPTION_EXAMPLE_FADE_MS = 180;
 
 const DEMO_LOBBY_DEFAULTS = {
-    attendees: 25,
+    attendees: 15,
     minutes: '5',
     seconds: '0',
     show_table_numbers: true,
