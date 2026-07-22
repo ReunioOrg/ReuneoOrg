@@ -1462,7 +1462,7 @@
 
 .desktop-hero-header {
   position: absolute;
-  top: 50px;
+  top: 110px;
   left: 0;
   right: 0;
   z-index: 0;
@@ -1489,6 +1489,25 @@
     0 0 40px rgba(20, 77, 255, 0.06);
   letter-spacing: -0.02em;
   line-height: 1.2;
+  margin: 0;
+}
+
+.desktop-hero-pan-mask {
+  display: block;
+  overflow: hidden;
+}
+
+.desktop-hero-pan-mask--line2 {
+  margin-top: 0.08em;
+}
+
+.desktop-hero-pan-inner {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+.desktop-hero-accent {
+  color: #4b73ef;
 }
 
 .desktop-hero-heading-line2 {

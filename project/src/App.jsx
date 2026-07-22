@@ -19,7 +19,6 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 import LoginSignupLogoutButton from './core/Auth/LoginSignupLogoutButton';
 import PureSignupPage from './core/Auth/PureSignupPage';
 import { CommunityPageButton } from './core/community/mycf';
-import FloatingLinesBackground from './core/organizer/FloatingLinesBackground';
 import BorderGlow from './core/components/BorderGlow/BorderGlow';
 import HoverBorderGlow from './core/components/HoverBorderGlow/HoverBorderGlow';
 import AnimatedText from './core/components/AnimatedText/AnimatedText';
@@ -65,20 +64,20 @@ const GUEST_HEADLINE_PAN_TRANSITION = { duration: 0.26, ease: [0.25, 0.46, 0.45,
 /* ─── Landing Page: Features Section ─────────────────────────────────────── */
 const FEATURE_CARDS = [
   {
-    title: '10 x Connections',
-    description: 'Guarantees attendees can meet as many people as they want. You can customize pairing duration, interest matching, and much more!',
+    title: '10x Connections',
+    description: 'Guarantees attendees can meet as many people as they want. You choose the format, we do the rest.',
   },
   {
-    title: '0% Curation Work',
-    description: 'The first networking tool that lets the host take a breather. Just hit "Start" and watch the room light up.',
+    title: '0% Planning Required',
+    description: 'The only event format that lets the host do no work. Just hit "Start" and watch the room light up.',
   },
   {
-    title: '0% Friction',
-    description: 'No app download, no authentication required. Attendees scan a QR to join, insert a name & picture — that\'s it.',
+    title: '0% Setup',
+    description: ' No app, no downloads, no accounts to manage on your end either. Attendees scan a QR and they\'re in - you don\'t lift a finger.',
   },
   {
-    title: 'Social Bonding',
-    description: 'Pairs people into quality 1-1 conversations; forming bonds and real connections. Structured networking that strengthens community.',
+    title: 'Built-In Community',
+    description: 'Real conversations that turn a one-time crowd into people who come back next time - without you having to engineer that yourself',
   },
 ];
 
@@ -113,7 +112,7 @@ function FeaturesSection() {
         <div className="lp-features-header">
           <h2 className="lp-features-title">What We Provide.</h2>
           <p className="lp-features-subtitle">
-            Everyone is paired into quality, 1-1 connections; similar to &ldquo;speed networking&rdquo; but much smoother and simpler.
+            You bring the people, we bring the format. Everyone gets paired into quality 1-on-1 connections. It's smooth, simple, and fully hands-off for the host.
           </p>
         </div>
         <div className="lp-features-grid">
@@ -143,7 +142,7 @@ const JOIN_STEPS = [
   {
     number: '3',
     title: 'Selfie photo',
-    description: 'So their paired match can spot them across the room. Done — they\'re in.',
+    description: 'So their paired match can spot them across the room. Done, they\'re in!',
   },
 ];
 
@@ -359,6 +358,10 @@ const App = () => {
   const [mobileHomeNavReservePx, setMobileHomeNavReservePx] = useState(MOBILE_PAGE_NAV_BODY_RESERVE_PX);
   const [guestHeroShowLine2, setGuestHeroShowLine2] = useState(false);
   const [guestHeroShowSubheader, setGuestHeroShowSubheader] = useState(false);
+  const _desktopAlreadyScrolled = typeof window !== 'undefined' && window.scrollY > 50;
+  const [desktopHeroShowLine2, setDesktopHeroShowLine2] = useState(_desktopAlreadyScrolled);
+  const [desktopHeroShowSubheader, setDesktopHeroShowSubheader] = useState(_desktopAlreadyScrolled);
+  const [desktopHeroShowCTA, setDesktopHeroShowCTA] = useState(_desktopAlreadyScrolled);
   /** Viewport px: desired fixed `top` for mobile CTA at scrollY === 0; updated via layout measures. */
   const [mobileHeroCtaAnchorPx, setMobileHeroCtaAnchorPx] = useState(() =>
     typeof window !== 'undefined' ? Math.round(window.innerHeight * 0.33) : 296,
@@ -455,6 +458,12 @@ const App = () => {
     scheduleMobileHeroCtaAnchorMeasure();
     return undefined;
   }, [isDesktop, scheduleMobileHeroCtaAnchorMeasure, user, guestHeroShowLine2, guestHeroShowSubheader]);
+
+  useEffect(() => {
+    if (!desktopHeroShowSubheader || desktopHeroShowCTA) return;
+    const t = setTimeout(() => setDesktopHeroShowCTA(true), 650);
+    return () => clearTimeout(t);
+  }, [desktopHeroShowSubheader, desktopHeroShowCTA]);
 
   useLayoutEffect(() => {
     if (isDesktop) return undefined;
@@ -1114,65 +1123,97 @@ const App = () => {
 
   return (
     <>
-    {isDesktop && createPortal(<FloatingLinesBackground />, document.body)}
     {isDesktop && createPortal(
       <div className="desktop-hero-header">
-        <img
-          src="/assets/reuneo_test_14.png"
-          alt="Reuneo"
-          className="desktop-hero-logo"
-        />
-        <AnimatedText
-          text="Real Connections. Real Engagement."
-          className="desktop-hero-heading"
-          stagger={0.03}
-          duration={0.7}
-        />
-        <motion.p
-          className="desktop-hero-subheading"
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25, duration: 0.7, ease: 'easeOut' }}
-        >
-          Turn any social gathering into a community building experience!
-        </motion.p>
+        <h2 className="desktop-hero-heading" aria-label="Stop Planning. Start Hosting.">
+          <span className="desktop-hero-pan-mask">
+            <motion.span
+              className="desktop-hero-pan-inner"
+              initial={GUEST_HEADLINE_PAN_INITIAL}
+              animate={{ opacity: 1, x: 0 }}
+              transition={GUEST_HEADLINE_PAN_TRANSITION}
+              onAnimationComplete={() => setDesktopHeroShowLine2(true)}
+            >
+              <span className="desktop-hero-accent">Stop</span>
+              {' '}
+              Planning.
+            </motion.span>
+          </span>
+          {desktopHeroShowLine2 && (
+            <span className="desktop-hero-pan-mask desktop-hero-pan-mask--line2">
+              <motion.span
+                className="desktop-hero-pan-inner"
+                initial={GUEST_HEADLINE_PAN_INITIAL}
+                animate={{ opacity: 1, x: 0 }}
+                transition={GUEST_HEADLINE_PAN_TRANSITION}
+                onAnimationComplete={() => setDesktopHeroShowSubheader(true)}
+              >
+                <span className="desktop-hero-accent">Start</span>
+                {' '}
+                Hosting.
+              </motion.span>
+            </span>
+          )}
+        </h2>
+        {desktopHeroShowSubheader && (
+          <motion.p
+            className="desktop-hero-subheading"
+            initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+          >
+            Ready to run social events for any organization that wants engaged people
+          </motion.p>
+        )}
       </div>,
       document.body
     )}
-    {isDesktop && !showQRInstructionModal && createPortal(
+    {isDesktop && desktopHeroShowCTA && !showQRInstructionModal && createPortal(
       <>
         {permissions !== 'admin' && permissions !== 'organizer' && !userCurrentLobby && (
           <div className="desktop-create-wrapper" style={{ position: 'fixed', top: `${createButtonTop}px`, left: '50%', transform: 'translateX(-50%)', zIndex: 40, display: 'flex', justifyContent: 'center', alignItems: 'center', willChange: 'top' }}>
-            <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
-              <div
-                className="app-dock-item-standalone"
-                onClick={() => navigate('/new_organizer', { state: { showGeneralTutorial: true } })}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/new_organizer', { state: { showGeneralTutorial: true } }); } }}
-                tabIndex={0}
-                role="button"
-                aria-label="Host an Event"
-              >
-                <div className="app-dock-icon"><OrganizerIcon /></div>
-                <span className="app-dock-label shiny-text">Host an Event</span>
-              </div>
-            </HoverBorderGlow>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
+                <div
+                  className="app-dock-item-standalone"
+                  onClick={() => navigate('/new_organizer', { state: { showGeneralTutorial: true } })}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/new_organizer', { state: { showGeneralTutorial: true } }); } }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label="Host an Event"
+                >
+                  <div className="app-dock-icon"><OrganizerIcon /></div>
+                  <span className="app-dock-label shiny-text">Host an Event</span>
+                </div>
+              </HoverBorderGlow>
+            </motion.div>
           </div>
         )}
         {activeLobbies.length === 0 && (permissions === 'admin' || permissions === 'organizer') && (
           <div className="desktop-create-wrapper" style={{ position: 'fixed', top: `${createButtonTop}px`, left: '50%', transform: 'translateX(-50%)', zIndex: 40, display: 'flex', justifyContent: 'center', alignItems: 'center', willChange: 'top' }}>
-            <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
-              <div
-                className="app-dock-item-standalone"
-                onClick={handleCreateClick}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCreateClick(); } }}
-                tabIndex={0}
-                role="button"
-                aria-label="Create"
-              >
-                <div className="app-dock-icon"><OrganizerIcon /></div>
-                <span className="app-dock-label shiny-text">Create</span>
-              </div>
-            </HoverBorderGlow>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
+                <div
+                  className="app-dock-item-standalone"
+                  onClick={handleCreateClick}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCreateClick(); } }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label="Create"
+                >
+                  <div className="app-dock-icon"><OrganizerIcon /></div>
+                  <span className="app-dock-label shiny-text">Create</span>
+                </div>
+              </HoverBorderGlow>
+            </motion.div>
           </div>
         )}
         {(permissions === 'admin' || permissions === 'organizer') && activeLobbies.length > 0 && (
@@ -1222,7 +1263,7 @@ const App = () => {
       </>,
       document.body
     )}
-    {isDesktop && createPortal(<DesktopPhoneMockups />, document.body)}
+    {isDesktop && desktopHeroShowCTA && createPortal(<DesktopPhoneMockups />, document.body)}
     {!isDesktop && (
       <PageNavBar
         variant="home"
@@ -1245,12 +1286,6 @@ const App = () => {
       className={!isDesktop ? 'landing-hero-shell landing-hero-shell--mobile' : undefined}
       style={{ position: 'relative', height: 'var(--viewport-height)', overflow: 'hidden', zIndex: 2 }}
     >
-      {!isDesktop && (
-        <div className="landing-hero-shell--mobile-lines" aria-hidden="true">
-          <FloatingLinesBackground fullQuality />
-        </div>
-      )}
-
       {isDesktop && createPortal(<SiteNavBar />, document.body)}
 
       
@@ -1436,7 +1471,7 @@ const App = () => {
               <>
                 <h2
                   className="welcome-header-mobile welcome-header-mobile--guest"
-                  aria-label="Real Connections. Real Engagement. Host events that guarantee relationship building."
+                  aria-label="Stop Planning. Start Hosting."
                 >
                   <span className="welcome-header-mobile__guest-line welcome-header-mobile__pan-mask">
                     <motion.span
@@ -1446,9 +1481,9 @@ const App = () => {
                       transition={GUEST_HEADLINE_PAN_TRANSITION}
                       onAnimationComplete={() => setGuestHeroShowLine2(true)}
                     >
-                      <span className="welcome-header-mobile__accent">Real</span>
+                      <span className="welcome-header-mobile__accent">Stop</span>
                       {' '}
-                      Connections
+                      Planning.
                     </motion.span>
                   </span>
                   <br />
@@ -1461,21 +1496,21 @@ const App = () => {
                         transition={GUEST_HEADLINE_PAN_TRANSITION}
                         onAnimationComplete={() => setGuestHeroShowSubheader(true)}
                       >
-                        <span className="welcome-header-mobile__accent">Real</span>
+                        <span className="welcome-header-mobile__accent">Start</span>
                         {' '}
-                        Engagement
+                        Hosting.
                       </motion.span>
                     </span>
                   )}
                 </h2>
                 {guestHeroShowSubheader && (
                   <motion.p
-                    className="welcome-subheader-mobile welcome-subheader-mobile--cursive"
+                    className="welcome-subheader-mobile"
                     initial={{ clipPath: 'inset(0 100% 0 0)' }}
                     animate={{ clipPath: 'inset(0 0% 0 0)' }}
                     transition={{ duration: 1.35, ease: 'easeOut' }}
                   >
-                    Host events that guarantee relationship building
+                    Ready to run social events for any organization that wants engaged people
                   </motion.p>
                 )}
               </>
