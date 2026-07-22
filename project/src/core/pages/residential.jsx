@@ -213,6 +213,21 @@ function ActivityIcon({ type }) {
   }
 }
 
+const PROPERTY_VALUE_POINTS = [
+  {
+    title: 'Retention, not just events',
+    copy: 'Resident events are supposed to build loyalty. Reuneo turns one-off mixers into a reason residents renew - real connections, not just another flyer on the door.',
+  },
+  {
+    title: 'Zero lift for your team',
+    copy: 'No extra staff time, no setup headaches. Your team creates the event, hits start, and Reuneo runs the room - freeing your leasing team to focus on residents, not logistics.',
+  },
+  {
+    title: 'One platform, every property',
+    copy: "Whether it's one community or your whole portfolio, Reuneo scales the same way - one login, consistent experience, easy to roll out property by property.",
+  },
+];
+
 const ACTIVITIES = [
   {
     title: 'Girls Speed Friending',
@@ -439,6 +454,23 @@ const ResidentialPage = () => {
                 <h3>Everyone meets someone new</h3>
                 <p>Neighbor introductions on purpose, not left to chance.</p>
               </ScrollReveal>
+            </div>
+          </div>
+        </section>
+
+        {/* Property Value */}
+        <section className="res-property-value">
+          <div className="res-section-inner res-section-inner--wide">
+            <ScrollReveal as="h2" className="res-section-title res-section-title--left">
+              Built for property teams, not just residents
+            </ScrollReveal>
+            <div className="res-solution-points res-property-value-points">
+              {PROPERTY_VALUE_POINTS.map((point) => (
+                <ScrollReveal key={point.title} className="res-glass-card res-solution-point">
+                  <h3>{point.title}</h3>
+                  <p>{point.copy}</p>
+                </ScrollReveal>
+              ))}
             </div>
           </div>
         </section>

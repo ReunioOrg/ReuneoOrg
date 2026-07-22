@@ -276,6 +276,11 @@
   padding: 64px 0;
 }
 
+/* ─── Property Value ──────────────────────────────────────── */
+.res-property-value {
+  padding: 64px 0;
+}
+
 .res-solution-cta {
   display: flex;
   justify-content: center;
@@ -753,6 +758,15 @@
     margin: 0 -24px;
     padding-left: 32px;
     padding-right: 32px;
+  }
+
+  .res-property-value-points {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .res-property-value-points .res-solution-point {
+    flex: 1;
   }
 
   .res-activities-grid {
