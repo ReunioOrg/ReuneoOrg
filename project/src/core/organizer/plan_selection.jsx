@@ -91,6 +91,8 @@ const PlanSelection = () => {
     const location = useLocation();
     const { user, permissions, isLegacyOrganizer } = useContext(AuthContext);
 
+    const isB2C = location.pathname === '/plan-selection/b2c';
+
     const isUpgrade = !!location.state?.isUpgrade;
     const currentPlan = location.state?.currentPlan || null;
     const fromActiveLobby = !!location.state?.fromActiveLobby;
@@ -452,7 +454,7 @@ const PlanSelection = () => {
                 </div>
             ) : (
                 <p className="ps-page-subtitle">
-                    Real Connections. Real Engagement. Real Results.
+                    Every event is designed for one outcome: friendships that last past the event
                 </p>
             )}
 
@@ -467,349 +469,382 @@ const PlanSelection = () => {
                 </button>
             )}
 
-            {/* ── Billing Toggle (hidden when one-time option is disabled) ── */}
-            {SHOW_ONE_TIME_OPTION && (
-            <div className="ps-billing-toggle">
-                <button
-                    className={`ps-billing-option ${billingMode === 'single' ? 'ps-billing-active' : ''}`}
-                    onClick={() => setBillingMode('single')}
-                >
-                    One-Time
-                </button>
-                <button
-                    className={`ps-billing-option ${billingMode === 'monthly' ? 'ps-billing-active' : ''}`}
-                    onClick={() => setBillingMode('monthly')}
-                >
-                    Monthly
-                    <span className="ps-billing-badge">Best Value</span>
-                </button>
-                <div
-                    className="ps-billing-slider"
-                    style={{ transform: billingMode === 'monthly' ? 'translateX(100%)' : 'translateX(0)' }}
-                />
-            </div>
-            )}
-
-            {/* ── Quantity Selector (One-Time only) ── */}
-            {billingMode === 'single' && (
-                <div className="ps-global-quantity">
-                    <span className="ps-global-quantity-label">Activations per purchase:</span>
-                    <div className="ps-quantity-incrementer">
-                        <button
-                            className="ps-qty-btn"
-                            onClick={() => adjustQuantity(-1)}
-                            disabled={!!checkoutLoadingTier || singleQuantity <= 1}
-                        >
-                            &minus;
-                        </button>
-                        <span className="ps-qty-value">{singleQuantity}</span>
-                        <button
-                            className="ps-qty-btn"
-                            onClick={() => adjustQuantity(1)}
-                            disabled={!!checkoutLoadingTier || singleQuantity >= 3}
-                        >
-                            +
-                        </button>
-                    </div>
-                    {singleQuantity > 1 && (
-                        <span className="ps-global-quantity-discount">
-                            {Math.round((1 - bulkDiscount(singleQuantity)) * 100)}% bulk discount
-                        </span>
-                    )}
-                </div>
-            )}
-
-            {/* ── Error Banner ── */}
-            {checkoutError && (
-                <div className="ps-error-banner">
-                    <span>{checkoutError}</span>
-                    <button className="ps-error-dismiss" onClick={() => setCheckoutError(null)}>&times;</button>
-                </div>
-            )}
-
-            {/* ── Tier Cards ── */}
-            {isLoading ? (
-                <p className="ps-loading">Loading pricing...</p>
-            ) : (
+            {isB2C ? (
                 <>
-                    <div className="ps-tier-grid">
-                        {visibleTiers.map((tier, index) => {
-                            const price = getTierPrice(tier);
-                            const undiscounted = getUndiscountedPrice(tier);
-                            const qty = getQty();
-                            const hasSavings = qty > 1 && undiscounted > price;
-                            const current = isCurrentTier(tier);
-                            const disabled = isCtaDisabled(tier);
-                            const loading = checkoutLoadingTier === tier.lower;
-                            const label = loading ? 'Processing...' : getCtaLabel(tier);
-                            const isMostPopular = !current && index === 1;
-
-                            const sharedFeatures = [
-                                `Up to ${tier.upper} attendees per session`,
-                                'Interest and Random pairing modes',
-                                'Sponsor logo placement',
-                                'Match history for attendee follow-ups',
-                            ];
-
-                            const planFeatures = billingMode === 'single'
-                                ? [
-                                    { text: `${qty} activation${qty === 1 ? '' : 's'}`, included: true },
-                                    { text: 'Attendee analytics', included: false },
-                                    { text: 'Discounted attendee upgrades', included: false },
-                                ]
-                                : [
-                                    { text: '3 activations per month', included: true },
-                                    { text: 'Attendee analytics', included: true },
-                                    { text: 'Discounted attendee upgrades per event', included: true },
-                                ];
-
-                            return (
-                                <div
-                                    key={tier.lower}
-                                    className={[
-                                        'ps-tier-card',
-                                        current ? 'ps-tier-current' : '',
-                                        isMostPopular ? 'ps-tier-popular' : '',
-                                    ].filter(Boolean).join(' ')}
-                                >
-                                    {current && !isBuyMore(tier) && (
-                                        <div className="ps-tier-current-badge">Your Plan</div>
-                                    )}
-                                    {isMostPopular && (
-                                        <div className="ps-tier-popular-badge">Most Popular</div>
-                                    )}
-
-                                    <div className="ps-tier-plan-name">{getPlanName(tier)}</div>
-
-                                    <div className="ps-tier-attendee-label">
-                                        Up to <span className="ps-tier-attendee-count">{tier.upper}</span> attendees
-                                    </div>
-
-                                    <div className="ps-tier-price-section">
-                                        <div className="ps-tier-price">
-                                            <span className="ps-tier-dollar">$</span>
-                                            <span className="ps-tier-amount">{price}</span>
-                                            {billingMode === 'monthly' && (
-                                                <span className="ps-tier-period">/mo</span>
-                                            )}
-                                        </div>
-                                        {hasSavings && (
-                                            <div className="ps-tier-savings">
-                                                <span className="ps-tier-original">${undiscounted}</span>
-                                                <span className="ps-tier-savings-badge">
-                                                    {Math.round((1 - bulkDiscount(qty)) * 100)}% off
-                                                </span>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {billingMode === 'monthly' && (
-                                        <p className="ps-tier-cancel-note">
-                                            <CancelIcon /> Cancel anytime
-                                        </p>
-                                    )}
-
-                                    <div className="ps-tier-activations">
-                                        {billingMode === 'single'
-                                            ? `${qty} activation${qty === 1 ? '' : 's'}`
-                                            : '3 activations / month'
-                                        }
-                                    </div>
-
-                                    <ul className="ps-tier-features">
-                                        {sharedFeatures.map((f) => (
-                                            <li key={f} className="ps-feature-included">
-                                                <span className="ps-feature-icon"><CheckIcon /></span>{f}
-                                            </li>
-                                        ))}
-                                        {planFeatures.map((f) => (
-                                            <li key={f.text} className={f.included ? 'ps-feature-included' : 'ps-feature-excluded'}>
-                                                <span className="ps-feature-icon">{f.included ? <CheckIcon /> : <DashIcon />}</span>{f.text}
-                                            </li>
-                                        ))}
-                                    </ul>
-
-                                    <button
-                                        className={`ps-tier-cta ${disabled ? 'ps-tier-cta-disabled' : ''} ${loading ? 'ps-cta-loading' : ''}`}
-                                        disabled={disabled || !!checkoutLoadingTier || planLoading}
-                                        onClick={() => handleTierClick(tier)}
-                                    >
-                                        {label}
-                                    </button>
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    {SHOW_EXPAND_TIERS_BUTTON && hasHiddenTiers && (
+                    {/* ── Billing Toggle (hidden when one-time option is disabled) ── */}
+                    {SHOW_ONE_TIME_OPTION && (
+                    <div className="ps-billing-toggle">
                         <button
-                            className="ps-see-more-btn"
-                            onClick={() => setShowMoreTiers((v) => !v)}
+                            className={`ps-billing-option ${billingMode === 'single' ? 'ps-billing-active' : ''}`}
+                            onClick={() => setBillingMode('single')}
                         >
-                            {showMoreTiers ? 'Show less' : 'Up to 200 attendees'}
+                            One-Time
                         </button>
-                    )}
-                </>
-            )}
-
-            {/* ── Custom / Enterprise Block ── */}
-            <div className="ps-enterprise-banner">
-                <div className="ps-enterprise-content">
-                    <h3 className="ps-enterprise-title">Custom</h3>
-                    <p className="ps-enterprise-subtitle">
-                        Let&apos;s build a tailored plan for your organization
-                    </p>
-                    <ul className="ps-enterprise-features">
-                        <li><span className="ps-feature-icon">✓</span>150+ attendees</li>
-                        <li><span className="ps-feature-icon">✓</span>Enterprise features and integrations</li>
-                        <li><span className="ps-feature-icon">✓</span>Dedicated onboarding support</li>
-                        <li><span className="ps-feature-icon">✓</span>Partnerships</li>
-                    </ul>
-                </div>
-                <a
-                    href="https://calendly.com/julian-reuneo/30min"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ps-enterprise-cta"
-                >
-                    Schedule a Call
-                </a>
-            </div>
-
-            {/* ── Education Block ── */}
-            <div className="ps-enterprise-banner ps-education-banner">
-                <div className="ps-enterprise-content">
-                    <h3 className="ps-enterprise-title">Education</h3>
-                    <p className="ps-enterprise-subtitle">
-                        Special pricing for universities and schools
-                    </p>
-                </div>
-                {eduSubmitted ? (
-                    <div className="ps-edu-confirmed">
-                        <span className="ps-edu-confirmed-icon">✓</span>
-                        We&apos;ll be in touch!
-                    </div>
-                ) : eduShowInput ? (
-                    <div className="ps-edu-input-group">
-                        <input
-                            type="email"
-                            className="ps-edu-email-input"
-                            placeholder="you@university.edu"
-                            value={eduEmail}
-                            onChange={(e) => setEduEmail(e.target.value)}
-                            onKeyDown={(e) => { if (e.key === 'Enter') handleEduSubmit(); }}
-                            autoFocus
+                        <button
+                            className={`ps-billing-option ${billingMode === 'monthly' ? 'ps-billing-active' : ''}`}
+                            onClick={() => setBillingMode('monthly')}
+                        >
+                            Monthly
+                            <span className="ps-billing-badge">Best Value</span>
+                        </button>
+                        <div
+                            className="ps-billing-slider"
+                            style={{ transform: billingMode === 'monthly' ? 'translateX(100%)' : 'translateX(0)' }}
                         />
-                        <button
-                            className="ps-enterprise-cta ps-edu-submit-btn"
-                            disabled={eduSubmitting || !eduEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eduEmail.trim())}
-                            onClick={handleEduSubmit}
-                        >
-                            {eduSubmitting ? 'Sending...' : 'Submit'}
-                        </button>
                     </div>
-                ) : (
-                    <button
-                        className="ps-enterprise-cta"
-                        onClick={() => setEduShowInput(true)}
-                    >
-                        Get Started
-                    </button>
-                )}
-            </div>
+                    )}
 
-            {/* ── Compare Table (plan-type columns) ── */}
-            {!isLoading && (() => {
-                const selectedTier = visibleTiers.length > 0 ? visibleTiers[0] : null;
-                const attendeeLabel = selectedTier ? `Up to ${selectedTier.upper}` : 'Up to 200';
-                const activationsLabel = `${singleQuantity} per purchase`;
-
-                return (
-                    <div className="ps-compare-section">
-                        <h2 className="ps-compare-title">Compare Plans</h2>
-                        <div className="ps-compare-table-wrapper">
-                            <table className="ps-compare-table">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        {SHOW_ONE_TIME_OPTION && (
-                                        <th className={billingMode === 'single' ? 'ps-compare-highlight' : ''}>One-Time</th>
-                                        )}
-                                        <th className={billingMode === 'monthly' ? 'ps-compare-highlight' : ''}>Monthly</th>
-                                        <th>Custom</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Attendees per session</td>
-                                        {SHOW_ONE_TIME_OPTION && (
-                                        <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}>{attendeeLabel}</td>
-                                        )}
-                                        <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}>{attendeeLabel}</td>
-                                        <td>Custom</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Activations</td>
-                                        {SHOW_ONE_TIME_OPTION && (
-                                        <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}>{activationsLabel}</td>
-                                        )}
-                                        <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}>3 / month</td>
-                                        <td>Custom</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Interest &amp; Random pairing</td>
-                                        {SHOW_ONE_TIME_OPTION && (
-                                        <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
-                                        )}
-                                        <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
-                                        <td><span className="ps-compare-check">✓</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Sponsor logo</td>
-                                        {SHOW_ONE_TIME_OPTION && (
-                                        <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
-                                        )}
-                                        <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
-                                        <td><span className="ps-compare-check">✓</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Match history</td>
-                                        {SHOW_ONE_TIME_OPTION && (
-                                        <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
-                                        )}
-                                        <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
-                                        <td><span className="ps-compare-check">✓</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Attendee analytics</td>
-                                        {SHOW_ONE_TIME_OPTION && (
-                                        <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-x">—</span></td>
-                                        )}
-                                        <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
-                                        <td><span className="ps-compare-check">✓</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Discounted attendee upgrades</td>
-                                        {SHOW_ONE_TIME_OPTION && (
-                                        <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-x">—</span></td>
-                                        )}
-                                        <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
-                                        <td><span className="ps-compare-check">✓</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Dedicated support</td>
-                                        {SHOW_ONE_TIME_OPTION && (
-                                        <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-x">—</span></td>
-                                        )}
-                                        <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-x">—</span></td>
-                                        <td><span className="ps-compare-check">✓</span></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    {/* ── Quantity Selector (One-Time only) ── */}
+                    {billingMode === 'single' && (
+                        <div className="ps-global-quantity">
+                            <span className="ps-global-quantity-label">Activations per purchase:</span>
+                            <div className="ps-quantity-incrementer">
+                                <button
+                                    className="ps-qty-btn"
+                                    onClick={() => adjustQuantity(-1)}
+                                    disabled={!!checkoutLoadingTier || singleQuantity <= 1}
+                                >
+                                    &minus;
+                                </button>
+                                <span className="ps-qty-value">{singleQuantity}</span>
+                                <button
+                                    className="ps-qty-btn"
+                                    onClick={() => adjustQuantity(1)}
+                                    disabled={!!checkoutLoadingTier || singleQuantity >= 3}
+                                >
+                                    +
+                                </button>
+                            </div>
+                            {singleQuantity > 1 && (
+                                <span className="ps-global-quantity-discount">
+                                    {Math.round((1 - bulkDiscount(singleQuantity)) * 100)}% bulk discount
+                                </span>
+                            )}
                         </div>
+                    )}
+
+                    {/* ── Error Banner ── */}
+                    {checkoutError && (
+                        <div className="ps-error-banner">
+                            <span>{checkoutError}</span>
+                            <button className="ps-error-dismiss" onClick={() => setCheckoutError(null)}>&times;</button>
+                        </div>
+                    )}
+
+                    {/* ── Tier Cards ── */}
+                    {isLoading ? (
+                        <p className="ps-loading">Loading pricing...</p>
+                    ) : (
+                        <>
+                            <div className="ps-tier-grid">
+                                {visibleTiers.map((tier, index) => {
+                                    const price = getTierPrice(tier);
+                                    const undiscounted = getUndiscountedPrice(tier);
+                                    const qty = getQty();
+                                    const hasSavings = qty > 1 && undiscounted > price;
+                                    const current = isCurrentTier(tier);
+                                    const disabled = isCtaDisabled(tier);
+                                    const loading = checkoutLoadingTier === tier.lower;
+                                    const label = loading ? 'Processing...' : getCtaLabel(tier);
+                                    const isMostPopular = !current && index === 1;
+
+                                    const sharedFeatures = [
+                                        `Up to ${tier.upper} attendees per session`,
+                                        'Interest and Random pairing modes',
+                                        'Sponsor logo placement',
+                                        'Match history for attendee follow-ups',
+                                    ];
+
+                                    const planFeatures = billingMode === 'single'
+                                        ? [
+                                            { text: `${qty} activation${qty === 1 ? '' : 's'}`, included: true },
+                                            { text: 'Attendee analytics', included: false },
+                                            { text: 'Discounted attendee upgrades', included: false },
+                                        ]
+                                        : [
+                                            { text: '3 activations per month', included: true },
+                                            { text: 'Attendee analytics', included: true },
+                                            { text: 'Discounted attendee upgrades per event', included: true },
+                                        ];
+
+                                    return (
+                                        <div
+                                            key={tier.lower}
+                                            className={[
+                                                'ps-tier-card',
+                                                current ? 'ps-tier-current' : '',
+                                                isMostPopular ? 'ps-tier-popular' : '',
+                                            ].filter(Boolean).join(' ')}
+                                        >
+                                            {current && !isBuyMore(tier) && (
+                                                <div className="ps-tier-current-badge">Your Plan</div>
+                                            )}
+                                            {isMostPopular && (
+                                                <div className="ps-tier-popular-badge">Most Popular</div>
+                                            )}
+
+                                            <div className="ps-tier-plan-name">{getPlanName(tier)}</div>
+
+                                            <div className="ps-tier-attendee-label">
+                                                Up to <span className="ps-tier-attendee-count">{tier.upper}</span> attendees
+                                            </div>
+
+                                            <div className="ps-tier-price-section">
+                                                <div className="ps-tier-price">
+                                                    <span className="ps-tier-dollar">$</span>
+                                                    <span className="ps-tier-amount">{price}</span>
+                                                    {billingMode === 'monthly' && (
+                                                        <span className="ps-tier-period">/mo</span>
+                                                    )}
+                                                </div>
+                                                {hasSavings && (
+                                                    <div className="ps-tier-savings">
+                                                        <span className="ps-tier-original">${undiscounted}</span>
+                                                        <span className="ps-tier-savings-badge">
+                                                            {Math.round((1 - bulkDiscount(qty)) * 100)}% off
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {billingMode === 'monthly' && (
+                                                <p className="ps-tier-cancel-note">
+                                                    <CancelIcon /> Cancel anytime
+                                                </p>
+                                            )}
+
+                                            <div className="ps-tier-activations">
+                                                {billingMode === 'single'
+                                                    ? `${qty} activation${qty === 1 ? '' : 's'}`
+                                                    : '3 activations / month'
+                                                }
+                                            </div>
+
+                                            <ul className="ps-tier-features">
+                                                {sharedFeatures.map((f) => (
+                                                    <li key={f} className="ps-feature-included">
+                                                        <span className="ps-feature-icon"><CheckIcon /></span>{f}
+                                                    </li>
+                                                ))}
+                                                {planFeatures.map((f) => (
+                                                    <li key={f.text} className={f.included ? 'ps-feature-included' : 'ps-feature-excluded'}>
+                                                        <span className="ps-feature-icon">{f.included ? <CheckIcon /> : <DashIcon />}</span>{f.text}
+                                                    </li>
+                                                ))}
+                                            </ul>
+
+                                            <button
+                                                className={`ps-tier-cta ${disabled ? 'ps-tier-cta-disabled' : ''} ${loading ? 'ps-cta-loading' : ''}`}
+                                                disabled={disabled || !!checkoutLoadingTier || planLoading}
+                                                onClick={() => handleTierClick(tier)}
+                                            >
+                                                {label}
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            {SHOW_EXPAND_TIERS_BUTTON && hasHiddenTiers && (
+                                <button
+                                    className="ps-see-more-btn"
+                                    onClick={() => setShowMoreTiers((v) => !v)}
+                                >
+                                    {showMoreTiers ? 'Show less' : 'Up to 200 attendees'}
+                                </button>
+                            )}
+                        </>
+                    )}
+
+                    {/* ── Custom / Enterprise Block ── */}
+                    <div className="ps-enterprise-banner">
+                        <div className="ps-enterprise-content">
+                            <h3 className="ps-enterprise-title">Custom</h3>
+                            <p className="ps-enterprise-subtitle">
+                                Let&apos;s build a tailored plan for your organization
+                            </p>
+                            <ul className="ps-enterprise-features">
+                                <li><span className="ps-feature-icon">✓</span>150+ attendees</li>
+                                <li><span className="ps-feature-icon">✓</span>Enterprise features and integrations</li>
+                                <li><span className="ps-feature-icon">✓</span>Dedicated onboarding support</li>
+                                <li><span className="ps-feature-icon">✓</span>Partnerships</li>
+                            </ul>
+                        </div>
+                        <a
+                            href="https://calendly.com/julian-reuneo/30min"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ps-enterprise-cta"
+                        >
+                            Schedule a Call
+                        </a>
                     </div>
-                );
-            })()}
+
+                    {/* ── Education Block ── */}
+                    <div className="ps-enterprise-banner ps-education-banner">
+                        <div className="ps-enterprise-content">
+                            <h3 className="ps-enterprise-title">Education</h3>
+                            <p className="ps-enterprise-subtitle">
+                                Special pricing for universities and schools
+                            </p>
+                        </div>
+                        {eduSubmitted ? (
+                            <div className="ps-edu-confirmed">
+                                <span className="ps-edu-confirmed-icon">✓</span>
+                                We&apos;ll be in touch!
+                            </div>
+                        ) : eduShowInput ? (
+                            <div className="ps-edu-input-group">
+                                <input
+                                    type="email"
+                                    className="ps-edu-email-input"
+                                    placeholder="you@university.edu"
+                                    value={eduEmail}
+                                    onChange={(e) => setEduEmail(e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === 'Enter') handleEduSubmit(); }}
+                                    autoFocus
+                                />
+                                <button
+                                    className="ps-enterprise-cta ps-edu-submit-btn"
+                                    disabled={eduSubmitting || !eduEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eduEmail.trim())}
+                                    onClick={handleEduSubmit}
+                                >
+                                    {eduSubmitting ? 'Sending...' : 'Submit'}
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                className="ps-enterprise-cta"
+                                onClick={() => setEduShowInput(true)}
+                            >
+                                Get Started
+                            </button>
+                        )}
+                    </div>
+
+                    {/* ── Compare Table (plan-type columns) ── */}
+                    {!isLoading && (() => {
+                        const selectedTier = visibleTiers.length > 0 ? visibleTiers[0] : null;
+                        const attendeeLabel = selectedTier ? `Up to ${selectedTier.upper}` : 'Up to 200';
+                        const activationsLabel = `${singleQuantity} per purchase`;
+
+                        return (
+                            <div className="ps-compare-section">
+                                <h2 className="ps-compare-title">Compare Plans</h2>
+                                <div className="ps-compare-table-wrapper">
+                                    <table className="ps-compare-table">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                {SHOW_ONE_TIME_OPTION && (
+                                                <th className={billingMode === 'single' ? 'ps-compare-highlight' : ''}>One-Time</th>
+                                                )}
+                                                <th className={billingMode === 'monthly' ? 'ps-compare-highlight' : ''}>Monthly</th>
+                                                <th>Custom</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Attendees per session</td>
+                                                {SHOW_ONE_TIME_OPTION && (
+                                                <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}>{attendeeLabel}</td>
+                                                )}
+                                                <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}>{attendeeLabel}</td>
+                                                <td>Custom</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Activations</td>
+                                                {SHOW_ONE_TIME_OPTION && (
+                                                <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}>{activationsLabel}</td>
+                                                )}
+                                                <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}>3 / month</td>
+                                                <td>Custom</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Interest &amp; Random pairing</td>
+                                                {SHOW_ONE_TIME_OPTION && (
+                                                <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
+                                                )}
+                                                <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
+                                                <td><span className="ps-compare-check">✓</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Sponsor logo</td>
+                                                {SHOW_ONE_TIME_OPTION && (
+                                                <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
+                                                )}
+                                                <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
+                                                <td><span className="ps-compare-check">✓</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Match history</td>
+                                                {SHOW_ONE_TIME_OPTION && (
+                                                <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
+                                                )}
+                                                <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
+                                                <td><span className="ps-compare-check">✓</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Attendee analytics</td>
+                                                {SHOW_ONE_TIME_OPTION && (
+                                                <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-x">—</span></td>
+                                                )}
+                                                <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
+                                                <td><span className="ps-compare-check">✓</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Discounted attendee upgrades</td>
+                                                {SHOW_ONE_TIME_OPTION && (
+                                                <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-x">—</span></td>
+                                                )}
+                                                <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-check">✓</span></td>
+                                                <td><span className="ps-compare-check">✓</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Dedicated support</td>
+                                                {SHOW_ONE_TIME_OPTION && (
+                                                <td className={billingMode === 'single' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-x">—</span></td>
+                                                )}
+                                                <td className={billingMode === 'monthly' ? 'ps-compare-highlight-cell' : ''}><span className="ps-compare-x">—</span></td>
+                                                <td><span className="ps-compare-check">✓</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        );
+                    })()}
+                </>
+            ) : (
+                /* ── Book a Call tile (default non-B2C view) ── */
+                <div className="ps-enterprise-banner ps-book-a-call-banner">
+                    <div className="ps-enterprise-content">
+                        <h3 className="ps-enterprise-title">
+                            {pageMode === 'freeTrial' || pageMode === 'upgrade'
+                                ? 'Ready to upgrade?'
+                                : "Let's find the right plan for you"
+                            }
+                        </h3>
+                        <p className="ps-enterprise-subtitle">
+                            We&apos;ll put together a tailored plan that fits your organization&apos;s needs.
+                        </p>
+                        <ul className="ps-enterprise-features">
+                            <li><span className="ps-feature-icon">✓</span>Custom attendee capacity</li>
+                            <li><span className="ps-feature-icon">✓</span>Flexible billing options</li>
+                            <li><span className="ps-feature-icon">✓</span>Dedicated onboarding support</li>
+                            <li><span className="ps-feature-icon">✓</span>Enterprise features and integrations</li>
+                        </ul>
+                    </div>
+                    <a
+                        href="https://calendly.com/julian-reuneo/30min"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ps-enterprise-cta"
+                    >
+                        Schedule a Call
+                    </a>
+                </div>
+            )}
 
 
             {/* ── Upgrade Confirmation Modal ── */}

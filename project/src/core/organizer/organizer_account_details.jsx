@@ -119,6 +119,21 @@ const OrganizerAccountDetails = () => {
     }, []);
 
     const handleTileUpgrade = async (tier) => {
+        // Free trial users are routed to the simplified plan-selection page
+        // instead of directly to checkout, since B2C pricing is hidden.
+        if (planType === 'free_trial') {
+            navigate('/plan-selection', {
+                state: {
+                    isUpgrade: true,
+                    currentPlan: planDetails,
+                    lobbyCode: lobbyContext.lobbyCode,
+                    fromActiveLobby: lobbyContext.fromActiveLobby,
+                    lobbyState: lobbyContext.lobbyState,
+                },
+            });
+            return;
+        }
+
         setIsTileCheckingOut(true);
         setError('');
         try {
@@ -304,7 +319,10 @@ const OrganizerAccountDetails = () => {
                                     {PLAN_NAMES[nextTier.upper] ?? `Up to ${nextTier.upper}`}
                                 </div>
                                 <div className="account-next-plan-meta">
-                                    Up to {nextTier.upper} attendees &nbsp;·&nbsp; <strong>${nextTier.monthly_price}/mo</strong>
+                                    {planType === 'free_trial'
+                                        ? `Up to ${nextTier.upper} attendees`
+                                        : <>Up to {nextTier.upper} attendees &nbsp;·&nbsp; <strong>${nextTier.monthly_price}/mo</strong></>
+                                    }
                                 </div>
                                 <button
                                     className="account-next-plan-cta"
@@ -440,7 +458,10 @@ const OrganizerAccountDetails = () => {
                                             {PLAN_NAMES[nextTier.upper] ?? `Up to ${nextTier.upper}`}
                                         </div>
                                         <div className="account-next-plan-meta">
-                                            Up to {nextTier.upper} attendees &nbsp;·&nbsp; <strong>${nextTier.monthly_price}/mo</strong>
+                                            {planType === 'free_trial'
+                                                ? `Up to ${nextTier.upper} attendees`
+                                                : <>Up to {nextTier.upper} attendees &nbsp;·&nbsp; <strong>${nextTier.monthly_price}/mo</strong></>
+                                            }
                                         </div>
                                         <button
                                             className="account-next-plan-cta"
@@ -456,15 +477,18 @@ const OrganizerAccountDetails = () => {
                             <div className="account-button-group">
                                 {planDetails.subscription_status === 'active' || planDetails.subscription_status === 'trialing' ? (
                                     <button
-                                        onClick={() => navigate('/plan-selection', {
-                                            state: {
-                                                isUpgrade: true,
-                                                currentPlan: planDetails,
-                                                lobbyCode: lobbyContext.lobbyCode,
-                                                fromActiveLobby: lobbyContext.fromActiveLobby,
-                                                lobbyState: lobbyContext.lobbyState,
-                                            },
-                                        })}
+                                        onClick={() => navigate(
+                                            planType === 'free_trial' ? '/plan-selection' : '/plan-selection/b2c',
+                                            {
+                                                state: {
+                                                    isUpgrade: true,
+                                                    currentPlan: planDetails,
+                                                    lobbyCode: lobbyContext.lobbyCode,
+                                                    fromActiveLobby: lobbyContext.fromActiveLobby,
+                                                    lobbyState: lobbyContext.lobbyState,
+                                                },
+                                            }
+                                        )}
                                         className="account-primary-button"
                                     >
                                         Change Plan

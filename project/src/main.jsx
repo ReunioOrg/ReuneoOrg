@@ -52,6 +52,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/organizer-dashboard" element={<OrganizerDashboard />} />
           <Route path="/new_organizer" element={<NewOrganizer />} />
           <Route path="/plan-selection" element={<PlanSelection />} />
+          <Route path="/plan-selection/b2c" element={<PlanSelection />} />
           <Route path="/master_lobby_view" element={<MasterLobbyView />} />
           <Route path="/paired-player-history" element={<PairedPlayerHistory />} />
           <Route path="/post-event-auth" element={<PostEventAuth />} />
