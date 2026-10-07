@@ -5,11 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './PageNavBar.css';
 
 /** White wordmark for glass bar over hero video (transparent BG). */
-const MOBILE_HOME_GLASS_LOGO_SRC = '/assets/Reuneo%20(White%20-%20Horizontal).svg';
+const MOBILE_HOME_GLASS_LOGO_SRC = '/assets/Reuneo%20(White%20-%20Horizontal).svg?v=a';
 
 /** Color / dark horizontal wordmark for home past the video hero (light page sections). */
 const MOBILE_HOME_COLOR_HORIZONTAL_LOGO_SRC =
-  '/assets/Reuneo%20(Color%20-%20Horizontal).svg';
+  '/assets/Reuneo%20(Color%20-%20Horizontal).svg?v=a';
 
 /**
  * @typedef {'page' | 'home'} PageNavVariant
@@ -160,7 +160,7 @@ function PageNavBar({
                   onClick={() => { navigate('/'); closeMenu(); }}
                 />
                 <button type="button" className="page-menu-close" onClick={closeMenu} aria-label="Close menu">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18" />
                     <line x1="6" y1="6" x2="18" y2="18" />
                   </svg>

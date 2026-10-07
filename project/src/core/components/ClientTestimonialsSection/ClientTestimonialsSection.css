@@ -45,7 +45,7 @@
 
 .lp-t-subtitle {
   font-size: 17px;
-  color: #555;
+  color: #57534c;
   margin: 0 auto;
   max-width: 580px;
   line-height: 1.6;
@@ -72,7 +72,7 @@
 .lp-t-card {
   flex: 0 0 420px;
   background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(230, 232, 240, 0.8);
+  border: 1px solid rgba(224, 221, 214, 0.8);
   border-radius: 18px;
   padding: 30px 28px;
   display: flex;
@@ -130,7 +130,7 @@
 
 .lp-t-org {
   font-size: 13px;
-  color: #888;
+  color: #6e6a62;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
 }
