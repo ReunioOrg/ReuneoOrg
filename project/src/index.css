@@ -23,11 +23,11 @@
 
 a {
   font-weight: 500;
-  color: #144dff;
+  color: var(--accent);
   text-decoration: inherit;
 }
 a:hover {
-  color: #ffc614;
+  color: var(--accent-dark);
 }
 
 body {
@@ -54,7 +54,7 @@ h1 {
 
 
 h1, h2, h3, h4, label {
-  color: #144dff;
+  color: var(--accent);
 }
 
 
@@ -66,13 +66,13 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #144dff;
+  background-color: var(--accent);
   color: #ffffff;
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #ffc614;
+  border-color: var(--accent-dark);
 }
 button:focus,
 button:focus-visible {
@@ -128,6 +128,13 @@ button:focus-visible {
       0 8px 20px rgba(0, 0, 0, 0.25),
       inset 0 0 4px rgba(255, 255, 255, 0.08);
   }
+}
+
+/* Homepage ground only. html stays transparent so the browser paints the body
+   color across the page. Do not set this on html: body { background-color: inherit }
+   would then cover the desktop hero layers. */
+body.home-scroll {
+  background-color: var(--surface-ground);
 }
 
 /* Home page: make body the scroll container so portalled elements (phone mockups) scroll naturally */
