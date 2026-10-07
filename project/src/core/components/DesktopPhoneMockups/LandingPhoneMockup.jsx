@@ -59,11 +59,11 @@ export function PhoneMockup({ profile, slotIndex }) {
             isPlaying
             duration={600}
             initialRemainingTime={TIMER_STARTS[slotIndex]}
-            colors={['#64B5F6', '#2196F3', '#1976D2']}
+            colors={['#8a84f0', '#5b54e8', '#4a43c9']}
             colorsTime={[600, 300, 0]}
             size={86}
             strokeWidth={7}
-            trailColor="#f0f1f4"
+            trailColor="#f1f0ec"
             strokeLinecap="round"
             onComplete={() => ({ shouldRepeat: true })}
           >

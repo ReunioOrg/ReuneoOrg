@@ -995,8 +995,8 @@ const App = () => {
             >
               <defs>
                 <linearGradient id="qrIconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#144dff" />
-                  <stop offset="100%" stopColor="#8b5cf6" />
+                  <stop offset="0%" stopColor="#5b54e8" />
+                  <stop offset="100%" stopColor="#8a84f0" />
                 </linearGradient>
               </defs>
               <rect x="3" y="3" width="7" height="7" rx="1" fill="url(#qrIconGradient)" />
@@ -1294,7 +1294,7 @@ const App = () => {
         style={{
           position: 'relative',
           zIndex: 1,
-          color: isDesktop ? 'white' : '#1a1a2e',
+          color: isDesktop ? 'white' : '#1a1a1a',
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
@@ -1664,7 +1664,7 @@ const App = () => {
             transition: 'all 0.3s ease'
           }}>
             {isLoadingLobbies ? (
-              <div style={{ textAlign: 'center', color: '#374151' }}>
+              <div style={{ textAlign: 'center', color: '#3f3c37' }}>
                 <p>Loading your lobbies...</p>
               </div>
             ) : activeLobbies.length > 0 ? (

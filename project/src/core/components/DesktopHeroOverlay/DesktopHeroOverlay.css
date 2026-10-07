@@ -10,10 +10,10 @@
   position: absolute;
   font-size: 2.5rem;
   font-weight: 800;
-  color: #333;
+  color: #1a1a1a;
   text-shadow:
     0 2px 20px rgba(0, 0, 0, 0.08),
-    0 0 40px rgba(20, 77, 255, 0.06);
+    0 0 40px rgba(var(--accent-rgb), 0.06);
   letter-spacing: -0.02em;
   line-height: 1.2;
   white-space: nowrap;

@@ -49,7 +49,7 @@
 /* ── Screen — white lobby background fills the phone ── */
 .dpm-screen {
   width: 100%;
-  background: #f8f9fc;
+  background: #f1f0ec;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -66,7 +66,7 @@
 
 .dpm-lobby-pop-burst {
   display: inline-block;
-  color: #4b5563;
+  color: #57534c;
   font-weight: 700;
   font-size: 1.15rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -86,14 +86,14 @@
 
 .dpm-timer-time {
   font-size: 1.2rem;
-  color: #1a1a2e;
+  color: #1a1a1a;
   font-weight: 700;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .dpm-timer-label {
   font-size: 0.55rem;
-  color: #6b7280;
+  color: #6e6a62;
   font-weight: 500;
   margin-top: 2px;
 }
@@ -121,7 +121,7 @@
   bottom: -6px;
   left: 1px;
   right: 1px;
-  background: linear-gradient(135deg, #42A5F5 0%, #2196F3 30%, #1976D2 70%, #1565C0 100%);
+  background: linear-gradient(135deg, #8a84f0 0%, #5b54e8 30%, #4a43c9 70%, #3a34a3 100%);
   color: #ffffff;
   padding: 10px 20px;
   border-radius: 50px;
@@ -129,7 +129,7 @@
   font-weight: 600;
   font-size: 0.95rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.25);
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.25);
   letter-spacing: 0.02em;
   white-space: nowrap;
   overflow: hidden;
