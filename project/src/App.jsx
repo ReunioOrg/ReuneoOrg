@@ -1454,6 +1454,7 @@ const App = () => {
         {/* Consolidated header - either "Pair up" or "Welcome" based on user role */}
         <div
           ref={mobileHeroHeaderWrapRef}
+          data-mhero-header=""
           style={{ 
           position: 'absolute', 
           left: '50%', 
