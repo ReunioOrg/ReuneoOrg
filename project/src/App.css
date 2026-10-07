@@ -1218,8 +1218,9 @@
 }
 
 .site-nav-logo {
-  width: 72px;
-  height: 72px;
+  width: auto;
+  height: 28px;
+  max-width: 160px;
   object-fit: contain;
   cursor: pointer;
   transition: transform 0.2s ease;

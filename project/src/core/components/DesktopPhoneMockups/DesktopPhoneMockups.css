@@ -46,10 +46,10 @@
   animation: dpmPhoneIn 0.5s ease both;
 }
 
-/* ── Screen — white lobby background fills the phone ── */
+/* ── Screen — bright white, same on desktop and mobile. Page ground stays greige. ── */
 .dpm-screen {
   width: 100%;
-  background: #f1f0ec;
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
