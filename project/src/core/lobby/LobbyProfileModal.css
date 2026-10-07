@@ -24,7 +24,7 @@
     position: relative;
     box-shadow: 
         0 24px 80px rgba(0, 0, 0, 0.25),
-        0 8px 32px rgba(20, 77, 255, 0.08);
+        0 8px 32px rgba(var(--accent-rgb), 0.08);
 }
 
 /* Hide scrollbar but keep functionality */
@@ -43,7 +43,7 @@
     border-radius: 50%;
     border: none;
     background: transparent;
-    color: #9ca3af;
+    color: #a19c92;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -53,14 +53,14 @@
 
 .lobby-profile-modal-close:hover {
     background: rgba(0, 0, 0, 0.05);
-    color: #1a1a2e;
+    color: #1a1a1a;
 }
 
 /* Title */
 .lobby-profile-modal-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1a1a2e;
+    color: #1a1a1a;
     text-align: center;
     margin: 0 0 24px 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -74,7 +74,7 @@
     justify-content: center;
     padding: 40px 20px;
     gap: 12px;
-    color: #6b7280;
+    color: #6e6a62;
 }
 
 /* Form */
@@ -115,8 +115,8 @@
     height: 100%;
     border-radius: 50%;
     object-fit: cover;
-    border: 4px solid #144dff;
-    box-shadow: 0 4px 16px rgba(20, 77, 255, 0.2);
+    border: 4px solid #5b54e8;
+    box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.2);
 }
 
 .lobby-profile-image-edit {
@@ -140,7 +140,7 @@
 
 .lobby-profile-image-hint {
     font-size: 0.75rem;
-    color: #9ca3af;
+    color: #a19c92;
 }
 
 /* Crop Section */
@@ -156,7 +156,7 @@
     height: 250px;
     border-radius: 16px;
     overflow: hidden;
-    background: #1a1a2e;
+    background: #1a1a1a;
 }
 
 .lobby-profile-crop-actions {
@@ -175,7 +175,7 @@
 .lobby-profile-label {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #374151;
+    color: #3f3c37;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -184,40 +184,40 @@
 .lobby-profile-input {
     width: 100%;
     padding: 14px 16px;
-    border: 2px solid #e5e7eb;
+    border: 2px solid #e0ddd6;
     border-radius: 14px;
     font-size: 1rem;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: #1a1a2e;
+    color: #1a1a1a;
     background: #ffffff;
     transition: all 0.2s ease;
     outline: none;
 }
 
 .lobby-profile-input:focus {
-    border-color: #144dff;
-    box-shadow: 0 0 0 3px rgba(20, 77, 255, 0.1);
+    border-color: #5b54e8;
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
 }
 
 .lobby-profile-input::placeholder {
-    color: #9ca3af;
+    color: #a19c92;
 }
 
 .lobby-profile-input--readonly {
-    background: #f9fafb;
-    color: #6b7280;
+    background: #f8f7f4;
+    color: #6e6a62;
     cursor: not-allowed;
-    border-color: #e5e7eb;
+    border-color: #e0ddd6;
 }
 
 .lobby-profile-input--readonly:focus {
-    border-color: #e5e7eb;
+    border-color: #e0ddd6;
     box-shadow: none;
 }
 
 .lobby-profile-field-hint {
     font-size: 0.75rem;
-    color: #9ca3af;
+    color: #a19c92;
     padding-left: 4px;
 }
 
@@ -253,26 +253,26 @@
 }
 
 .lobby-profile-btn-primary {
-    background: linear-gradient(135deg, #144dff, #2979ff);
+    background: linear-gradient(135deg, #5b54e8, #5b54e8);
     color: #ffffff;
     border: none;
-    box-shadow: 0 4px 12px rgba(20, 77, 255, 0.25);
+    box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.25);
 }
 
 .lobby-profile-btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(20, 77, 255, 0.3);
+    box-shadow: 0 6px 16px rgba(var(--accent-rgb), 0.3);
 }
 
 .lobby-profile-btn-secondary {
     background: #ffffff;
-    color: #374151;
-    border: 2px solid #e5e7eb;
+    color: #3f3c37;
+    border: 2px solid #e0ddd6;
 }
 
 .lobby-profile-btn-secondary:hover {
-    background: #f9fafb;
-    border-color: #d1d5db;
+    background: #f8f7f4;
+    border-color: #c9c5bc;
 }
 
 /* Submit Button */
@@ -284,7 +284,7 @@
     width: 100%;
     padding: 16px;
     margin-top: 8px;
-    background: linear-gradient(135deg, #144dff, #2979ff);
+    background: linear-gradient(135deg, #5b54e8, #5b54e8);
     color: #ffffff;
     border: none;
     border-radius: 16px;
@@ -293,12 +293,12 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 16px rgba(20, 77, 255, 0.25);
+    box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.25);
 }
 
 .lobby-profile-submit:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(20, 77, 255, 0.35);
+    box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.35);
 }
 
 .lobby-profile-submit:active:not(:disabled) {
@@ -314,8 +314,8 @@
 .lobby-profile-spinner {
     width: 32px;
     height: 32px;
-    border: 3px solid #e5e7eb;
-    border-top-color: #144dff;
+    border: 3px solid #e0ddd6;
+    border-top-color: #5b54e8;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
