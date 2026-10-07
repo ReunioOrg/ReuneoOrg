@@ -1,0 +1,58 @@
+/* Palette A: indigo + greige. Single source of truth for color. */
+:root {
+  /* Brand */
+  --color-brand-50: #f3f2fd;
+  --color-brand-200: #e7e5fb;
+  --color-brand-400: #8a84f0;
+  --color-brand-500: #5b54e8;
+  --color-brand-700: #4a43c9;
+
+  /* Neutrals: warm greige */
+  --color-white: #ffffff;
+  --color-gray-50: #f8f7f4;
+  --color-gray-100: #f1f0ec;
+  --color-gray-200: #e0ddd6;
+  --color-gray-300: #c9c5bc;
+  --color-gray-400: #a19c92;
+  --color-gray-500: #6e6a62;
+  --color-gray-600: #57534c;
+  --color-gray-700: #3f3c37;
+  --color-gray-800: #2a2825;
+  --color-gray-900: #1a1a1a;
+
+  /* Band between page ground and the footer */
+  --color-band: #e9e7e1;
+
+  /* Semantic */
+  --color-success: #2e9d6a;
+  --color-success-strong: #1b7449;
+  --color-success-50: #e3f3ea;
+  --color-danger: #dc4a3f;
+  --color-danger-strong: #b8352c;
+  --color-danger-50: #fbe9e6;
+  --color-warning: #e8862a;
+  --color-warning-strong: #9a5a12;
+  --color-warning-50: #fbefdc;
+
+  /* Highlight: small celebratory accents only */
+  --color-highlight: #ffc614;
+  --color-highlight-50: #fff4cc;
+  --color-on-highlight: #1a1a1a;
+
+  /* RGB triplets for rgba(var(--accent-rgb), a) */
+  --accent-rgb: 91, 84, 232;
+  --accent-dark-rgb: 74, 67, 201;
+  --ink-rgb: 26, 26, 26;
+
+  /* Roles */
+  --surface-ground: var(--color-gray-100);
+  --surface-raised: var(--color-white);
+  --border-default: var(--color-gray-200);
+  --text-primary: var(--color-gray-900);
+  --text-secondary: var(--color-gray-500);
+  --accent: var(--color-brand-500);
+  --accent-dark: var(--color-brand-700);
+  --accent-tint: var(--color-brand-200);
+  --shadow-accent: 0 8px 24px rgba(var(--accent-rgb), 0.32);
+  --focus-ring: 0 0 0 3px rgba(var(--accent-rgb), 0.35);
+}
