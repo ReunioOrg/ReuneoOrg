@@ -1177,7 +1177,7 @@ const App = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
-              <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
+              <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#8a84f0', '#4a43c9']}>
                 <div
                   className="app-dock-item-standalone"
                   onClick={() => navigate('/new_organizer', { state: { showGeneralTutorial: true } })}
@@ -1200,7 +1200,7 @@ const App = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
-              <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
+              <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#8a84f0', '#4a43c9']}>
                 <div
                   className="app-dock-item-standalone"
                   onClick={handleCreateClick}
@@ -1228,8 +1228,8 @@ const App = () => {
               glowRadius={70}
               glowIntensity={3.2}
               coneSpread={50}
-              glowColor="270 85 80"
-              colors={['#a855f7', '#ec4899', '#6366f1']}
+              glowColor="244 80 73"
+              colors={['#8a84f0', '#5b54e8', '#4a43c9']}
               style={{ width: '100%' }}
             >
               <div
@@ -1401,7 +1401,7 @@ const App = () => {
               willChange: mobileHeroCtaPlacementReady ? 'top' : 'opacity',
             }}
           >
-            <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={12} bloomInset={3} duration={2800} spread={54} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
+            <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={12} bloomInset={3} duration={2800} spread={54} colors={['#ffffff', '#8a84f0', '#4a43c9']}>
               <div
                 className="app-dock-item-standalone"
                 onClick={() => navigate('/new_organizer', { state: { showGeneralTutorial: true } })}
@@ -1434,7 +1434,7 @@ const App = () => {
               willChange: mobileHeroCtaPlacementReady ? 'top' : 'opacity',
             }}
           >
-            <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={12} bloomInset={3} duration={2800} spread={54} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
+            <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={12} bloomInset={3} duration={2800} spread={54} colors={['#ffffff', '#8a84f0', '#4a43c9']}>
               <div
                 className="app-dock-item-standalone"
                 onClick={handleCreateClick}
@@ -1609,8 +1609,8 @@ const App = () => {
               glowRadius={50}
               glowIntensity={2}
               coneSpread={40}
-              glowColor="270 85 80"
-              colors={['#c084fc', '#f472b6', '#38bdf8']}
+              glowColor="244 80 73"
+              colors={['#c7c3f8', '#8a84f0', '#5b54e8']}
               style={{ width: '100%' }}
             >
             <div
@@ -1674,8 +1674,8 @@ const App = () => {
                 glowRadius={50}
                 glowIntensity={2}
                 coneSpread={40}
-                glowColor="270 85 80"
-                colors={['#c084fc', '#f472b6', '#38bdf8']}
+                glowColor="244 80 73"
+                colors={['#c7c3f8', '#8a84f0', '#5b54e8']}
                 style={{ width: '100%' }}
               >
               <div
