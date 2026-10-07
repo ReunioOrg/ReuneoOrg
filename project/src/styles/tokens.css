@@ -55,4 +55,19 @@
   --accent-tint: var(--color-brand-200);
   --shadow-accent: 0 8px 24px rgba(var(--accent-rgb), 0.32);
   --focus-ring: 0 0 0 3px rgba(var(--accent-rgb), 0.35);
+
+  /* Legacy names still referenced in lobby, admin, and post-event auth.
+     Only names with at least one use. */
+  --primary-color: var(--color-brand-500);
+  --primary-dark: var(--color-brand-700);
+  --text-dark: var(--color-gray-900);
+  --text-muted: var(--color-gray-500);
+  --bg-color: var(--color-gray-100);
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 8px 30px rgba(var(--accent-rgb), 0.15);
+  --card-bg: var(--color-white);
+  --danger-color: var(--color-danger);
+  --warning-color: var(--color-warning);
+  --info-color: var(--accent);
+  --dark-bg: var(--color-gray-800);
 }

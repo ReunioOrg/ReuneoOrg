@@ -1,15 +1,3 @@
-:root {
-    --primary-color: #2196F3;
-    --primary-dark: #1976D2;
-    --primary-light: #64B5F6;
-    --primary-hover: #42A5F5;
-    --bg-color: #f8f9fb;
-    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
-    --shadow-hover: 0 8px 30px rgba(33, 150, 243, 0.15);
-    --text-dark: #1a1a2e;
-    --text-muted: #6b7280;
-}
-
 .lobby-container {
     padding: 1rem 1.5rem 2rem;
     max-width: 1200px;
