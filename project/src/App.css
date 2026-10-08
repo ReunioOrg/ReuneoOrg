@@ -1898,8 +1898,8 @@
 
 /* Homepage only. Residential and speed-friending keep the shared card treatment. */
 body.home-scroll .lp-testimonials-section {
-  background: #f8f7f4;
-  border-top: 1px solid var(--border-default);
+  background: var(--surface-ground);
+  border-top: none;
   border-bottom: 1px solid var(--border-default);
 }
 
