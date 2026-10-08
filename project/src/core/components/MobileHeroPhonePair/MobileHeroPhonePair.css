@@ -49,3 +49,15 @@
 
 /* v5: phones sit right under the CTA (no bottom-anchoring gap) */
 .mhpp-root { align-items: flex-start; box-sizing: border-box; }
+
+/*
+ * The pair reuses .dpm-phone. Its large blur shadows (0 22px 50px / 0 6px 16px)
+ * are cut into a hard rectangle by .mhpp-viewport and .mhpp-root (overflow: hidden).
+ * Those clips also keep the scaled pair inside the hero, so they stay. Drop only
+ * the blur layers here and keep the 1px outline. Desktop phones are outside .mhpp-root.
+ */
+.mhpp-root .dpm-phone {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 0 0 1px #2c2c2e;
+}
