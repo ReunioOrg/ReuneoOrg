@@ -23,11 +23,11 @@
   height: 100%;
   background: linear-gradient(
     135deg,
-    #4b73ef 0%,
-    #2952d9 25%,
-    #1a3fc2 50%,
-    #2952d9 75%,
-    #4b73ef 100%
+    #5b54e8 0%,
+    #4a43c9 25%,
+    #3a34a3 50%,
+    #4a43c9 75%,
+    #5b54e8 100%
   );
   background-size: 400% 400%;
   animation: gradientShift 8s ease infinite;

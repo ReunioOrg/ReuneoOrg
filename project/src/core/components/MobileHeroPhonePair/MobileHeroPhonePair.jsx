@@ -4,25 +4,11 @@ import '../DesktopPhoneMockups/DesktopPhoneMockups.css';
 import './MobileHeroPhonePair.css';
 
 const MHPP_GAP_PX = 14;
-/** Below this hero-strip height we extra-crop vertically so tops clear the fixed landing CTA on SE-class layouts. */
-const MHPP_UNDER_CTA_STRIP_MAX_PX = 320;
-const MHPP_UNDER_CTA_TRIM_TIGHT = 0.88;
-
-/**
- * Fraction of each mockup’s height to show — scales with strip height so XR-class screens
- * reveal ~78%, compact phones stay nearer ~70%. Higher = lower crop line so the hero’s
- * rounded bottom clips chrome instead of leaving a flat band above the curve.
- */
-function mhppVerticalFraction(stripH) {
-  if (!Number.isFinite(stripH) || stripH < 80) return 0.7;
-  if (stripH >= 420) return 0.82;
-  if (stripH >= 340) return 0.78;
-  if (stripH >= 260) return 0.74;
-  if (stripH >= 200) return 0.7;
-  return 0.66;
-}
-
-/** Outer two phones from the desktop trio (indices 0 & 2), cropped + scaled for mobile hero */
+const MHPP_BTN_PAD_PX = 16;
+/** CTA gap below header (12) + button height (56), mirrors App.jsx constants */
+const MHPP_CTA_BLOCK_PX = 74;
+const MHPP_SECTION_GAP_PX = 28;
+/** Outer two phones from the desktop trio (indices 0 & 2), full-size side by side, scaled for mobile hero */
 export default function MobileHeroPhonePair() {
   const [sets] = useState(() => {
     const picked = shuffle(PROFILE_DATA).slice(0, 6);
@@ -82,15 +68,24 @@ export default function MobileHeroPhonePair() {
 
     const pw = phoneEl.offsetWidth;
     const ph = phoneEl.offsetHeight;
-    const clipW = (pw * 2) / 3;
-    const nw = clipW + MHPP_GAP_PX + clipW;
-    const frac = mhppVerticalFraction(stripH);
-    const underCtaTrim = stripH <= MHPP_UNDER_CTA_STRIP_MAX_PX ? MHPP_UNDER_CTA_TRIM_TIGHT : 1;
-    const nh = ph * frac * underCtaTrim;
-
-    /** Uniform scale so the whole cropped band fits — avoids SE chopping when width-only scale exceeds strip height */
-    const scale = Math.min(stripW / nw, stripH / nh);
+    /** Full phones side by side (no crop) + room for side buttons on both outer edges */
+    const clipW = pw + MHPP_BTN_PAD_PX * 2;
+    const nw = clipW * 2 + MHPP_GAP_PX;
+    const nh = ph + MHPP_BTN_PAD_PX;
+    /* v5: phones sit a normal section gap under the CTA; hero shell shrinks to fit (no dead band) */
+    const scale = (stripW * 0.94) / nw;
     const viewportH = nh * scale;
+    const hdr = document.querySelector('[data-mhero-header]');
+    const shell = root.closest('.landing-hero-shell');
+    const rootTop = root.getBoundingClientRect().top;
+    if (hdr) {
+      const pad = Math.max(0, hdr.getBoundingClientRect().bottom - rootTop + MHPP_CTA_BLOCK_PX + MHPP_SECTION_GAP_PX);
+      root.style.paddingTop = `${pad}px`;
+      if (shell) {
+        const shellTop = shell.getBoundingClientRect().top;
+        shell.style.height = `${Math.round(rootTop - shellTop + pad + viewportH + 20)}px`;
+      }
+    }
 
     setLayout({ scale, nw, nh, clipW, viewportH });
   }, []);
@@ -103,6 +98,8 @@ export default function MobileHeroPhonePair() {
 
     const ro = new ResizeObserver(() => updateLayout());
     ro.observe(root);
+    const hdrEl = document.querySelector('[data-mhero-header]');
+    if (hdrEl) ro.observe(hdrEl);
     return () => ro.disconnect();
   }, [updateLayout, activeSet, fadingOut, animKey]);
 
@@ -133,12 +130,12 @@ export default function MobileHeroPhonePair() {
             className={`mhpp-row${fadingOut ? ' mhpp-row--fade-out' : ''}`}
           >
             <div className="mhpp-clip" style={{ width: layout.clipW, height: layout.nh }}>
-              <div className="mhpp-shift mhpp-shift--left">
+              <div className="mhpp-shift">
                 <PhoneMockup profile={outerLeft} slotIndex={0} />
               </div>
             </div>
             <div className="mhpp-clip" style={{ width: layout.clipW, height: layout.nh }}>
-              <div className="mhpp-shift mhpp-shift--right">
+              <div className="mhpp-shift">
                 <PhoneMockup profile={outerRight} slotIndex={2} />
               </div>
             </div>

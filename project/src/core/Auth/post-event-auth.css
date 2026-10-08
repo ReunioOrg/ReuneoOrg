@@ -1,17 +1,4 @@
 /* Post Event Auth Page Styles - Modern Lobby Theme */
-:root {
-    --primary-color: #144dff;
-    --primary-dark: #1976D2;
-    --primary-light: #64B5F6;
-    --bg-color: #f8f9fb;
-    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
-    --shadow-hover: 0 8px 30px rgba(33, 150, 243, 0.15);
-    --text-dark: #1a1a2e;
-    --text-muted: #6b7280;
-    --card-bg: #ffffff;
-    --accent-gradient: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
-}
-
 .post-event-auth-container {
     padding: 1rem 1.5rem 2rem;
     width: 100%;

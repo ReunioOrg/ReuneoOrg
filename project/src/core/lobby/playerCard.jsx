@@ -52,7 +52,7 @@ const PlayerCard = ({ player }) => {
               bottom: '-6px',
               left: '1px',
               right: '1px',
-              background: 'linear-gradient(135deg, #42A5F5 0%, #2196F3 30%, #1976D2 70%, #1565C0 100%)',
+              background: 'linear-gradient(135deg, #8a84f0 0%, #5b54e8 30%, #4a43c9 70%, #3a34a3 100%)',
               color: 'white',
               padding: '14px 28px',
               borderRadius: '50px',
@@ -60,7 +60,7 @@ const PlayerCard = ({ player }) => {
               fontWeight: '600',
               fontSize: '1.2rem',
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              boxShadow: '0 4px 12px rgba(33, 150, 243, 0.25)',
+              boxShadow: '0 4px 12px rgba(var(--accent-rgb), 0.25)',
               letterSpacing: '0.02em'
             }}>
               {player.name}
@@ -70,7 +70,7 @@ const PlayerCard = ({ player }) => {
           <div style={{
             width: '350px',
             height: '450px',
-            backgroundColor: '#f0f1f4',
+            backgroundColor: '#f1f0ec',
             borderRadius: '28px',
             display: 'flex',
             flexDirection: 'column',
@@ -79,13 +79,13 @@ const PlayerCard = ({ player }) => {
             position: 'relative',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
           }}>
-            <p style={{ marginBottom: '60px', color: '#6b7280' }}>No image available</p>
+            <p style={{ marginBottom: '60px', color: '#6e6a62' }}>No image available</p>
             <div style={{
               position: 'absolute',
               bottom: '-6px',
               left: '1px',
               right: '1px',
-              background: 'linear-gradient(135deg, #42A5F5 0%, #2196F3 30%, #1976D2 70%, #1565C0 100%)',
+              background: 'linear-gradient(135deg, #8a84f0 0%, #5b54e8 30%, #4a43c9 70%, #3a34a3 100%)',
               color: 'white',
               padding: '14px 28px',
               borderRadius: '50px',
@@ -93,7 +93,7 @@ const PlayerCard = ({ player }) => {
               fontWeight: '600',
               fontSize: '1.2rem',
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              boxShadow: '0 4px 12px rgba(33, 150, 243, 0.25)',
+              boxShadow: '0 4px 12px rgba(var(--accent-rgb), 0.25)',
               letterSpacing: '0.02em'
             }}>
               {player.name}

@@ -54,8 +54,8 @@
 }
 
 .page-nav-links button:hover {
-  background: rgba(20, 77, 255, 0.08);
-  color: #144dff;
+  background: rgba(var(--accent-rgb), 0.08);
+  color: #5b54e8;
 }
 
 .page-nav-auth {
@@ -79,13 +79,13 @@
 }
 
 .page-nav-join:hover {
-  border-color: #144dff;
-  color: #144dff;
-  background: rgba(20, 77, 255, 0.06);
+  border-color: #5b54e8;
+  color: #5b54e8;
+  background: rgba(var(--accent-rgb), 0.06);
 }
 
 .page-nav-login {
-  background: linear-gradient(135deg, #144dff 0%, #6366f1 100%) !important;
+  background: linear-gradient(135deg, #5b54e8 0%, #4a43c9 100%) !important;
   color: white !important;
   border: none;
   padding: 7px 20px;
@@ -94,13 +94,13 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(20, 77, 255, 0.25);
+  box-shadow: 0 2px 8px rgba(var(--accent-rgb), 0.25);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .page-nav-login:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(20, 77, 255, 0.35);
+  box-shadow: 0 4px 14px rgba(var(--accent-rgb), 0.35);
 }
 
 .page-nav-profile-btn,
@@ -121,8 +121,8 @@
 }
 
 .page-nav-profile-btn:hover {
-  background: rgba(20, 77, 255, 0.08);
-  color: #144dff;
+  background: rgba(var(--accent-rgb), 0.08);
+  color: #5b54e8;
 }
 
 .page-nav-logout-btn {
@@ -160,7 +160,9 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-/* Home (/) mobile: pinned bar + smaller logo — sits above hero & scrollable grey sections */
+/* Home (/) mobile: pinned bar + smaller logo — sits above hero & scrollable grey sections.
+   Ground tint lives only on this home modifier. Glass-over-video (below) still wins
+   until the bar is past the hero. */
 .page-nav-bar-mobile--fixed-home {
   position: fixed;
   top: 0;
@@ -169,6 +171,10 @@
   padding-top: max(10px, env(safe-area-inset-top));
   padding-bottom: 10px;
   box-sizing: border-box;
+  background: rgba(241, 240, 236, 0.88);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .page-nav-bar-mobile--fixed-home .page-nav-logo {
@@ -176,8 +182,9 @@
   height: 48px;
 }
 
-/* Mobile home `/`: glass + white chrome — needs real pixels behind it (hero video to top of viewport). */
-.page-nav-bar-mobile.page-nav-bar-mobile--glass {
+/* Mobile home `/`: glass + white chrome — needs real pixels behind it (hero video to top of viewport).
+   Not applied once the bar is over the greige page, so the home modifier tint shows. */
+.page-nav-bar-mobile.page-nav-bar-mobile--glass:not(.page-nav-bar-mobile--past-video-hero) {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(18px) saturate(1.2);
   -webkit-backdrop-filter: blur(18px) saturate(1.2);
@@ -209,7 +216,7 @@
 
 /* Mobile home: past full-viewport hero (light sections) — same threshold as floating CTA */
 .page-nav-bar-mobile.page-nav-bar-mobile--glass.page-nav-bar-mobile--past-video-hero .page-nav-hamburger {
-  color: #1a1a2e;
+  color: #1a1a1a;
 }
 
 .page-nav-bar-mobile.page-nav-bar-mobile--glass.page-nav-bar-mobile--past-video-hero .page-nav-hamburger:hover {
@@ -221,7 +228,7 @@
 }
 
 .page-nav-bar-mobile:not(.page-nav-bar-mobile--glass) .page-nav-hamburger {
-  color: #1a1a2e;
+  color: #1a1a1a;
 }
 
 .page-nav-hamburger {
@@ -321,7 +328,7 @@
   text-align: left;
   font-size: 1.35rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: #1a1a1a;
   padding: 16px 12px;
   border-radius: 14px;
   cursor: pointer;
@@ -331,12 +338,12 @@
 }
 
 .page-menu-link:hover {
-  background: rgba(20, 77, 255, 0.06);
-  color: #144dff;
+  background: rgba(var(--accent-rgb), 0.06);
+  color: #5b54e8;
 }
 
 .page-menu-link:active {
-  background: rgba(20, 77, 255, 0.1);
+  background: rgba(var(--accent-rgb), 0.1);
   transform: scale(0.98);
 }
 

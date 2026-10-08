@@ -28,6 +28,12 @@
     white-space: nowrap;
 }
 
+/* Focused tags card is white. The overlay mask uses --bg-color, which is now
+   greige, so cover that panel with the raised surface instead. */
+.tags-section.focused .tags-phase-intro-overlay {
+    background: var(--surface-raised);
+}
+
 /* Responsive: scale down for smaller screens */
 @media (max-width: 480px) {
     .tags-phase-intro-text {

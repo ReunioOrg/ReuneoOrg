@@ -15,17 +15,17 @@
 }
 
 .animated-tag-list::-webkit-scrollbar-track {
-  background: #f8f9fb;
+  background: #f8f7f4;
   border-radius: 4px;
 }
 
 .animated-tag-list::-webkit-scrollbar-thumb {
-  background: #4b73ef;
+  background: #5b54e8;
   border-radius: 4px;
 }
 
 .animated-tag-list::-webkit-scrollbar-thumb:hover {
-  background: #3a5ecc;
+  background: #4a43c9;
 }
 
 .animated-tag-list.no-scrollbar::-webkit-scrollbar {
@@ -56,33 +56,33 @@
   justify-content: flex-start;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 500;
-  color: var(--text-dark, #1a1a2e);
-  background: #f8f9fb;
+  color: var(--text-dark, #1a1a1a);
+  background: #f8f7f4;
   border: 2px solid transparent;
 }
 
 .animated-tag-label:hover {
-  background: #f0f1f4;
+  background: #f1f0ec;
 }
 
 .animated-tag-label.focused {
-  background: #e8e9ec;
-  border-color: rgba(33, 150, 243, 0.3);
+  background: #e0ddd6;
+  border-color: rgba(var(--accent-rgb), 0.3);
 }
 
 .animated-tag-label.selected {
-  background: rgba(33, 150, 243, 0.1);
-  border-color: var(--primary-color, #2196F3);
+  background: rgba(var(--accent-rgb), 0.1);
+  border-color: var(--primary-color, #5b54e8);
 }
 
 .animated-tag-label.selected:hover {
-  background: rgba(33, 150, 243, 0.15);
+  background: rgba(var(--accent-rgb), 0.15);
 }
 
 .animated-tag-label input[type="checkbox"] {
   width: 20px;
   height: 20px;
-  accent-color: var(--primary-color, #2196F3);
+  accent-color: var(--primary-color, #5b54e8);
   border-radius: 6px;
   pointer-events: none;
   flex-shrink: 0;

@@ -43,33 +43,9 @@
   align-self: flex-start;
 }
 
-/*
- * Clips vs .dpm-phone rounded rect: radius on the top outer corners (toward the
- * pair gap) removes light wedges. Bottom inner corners stay square so the bezel
- * meets the horizontal crop / divider without an extra arc.
- */
-.mhpp-row .mhpp-clip:first-child {
-  border-top-right-radius: 35px;
-  -webkit-clip-path: inset(1px 0 0 0 round 0 35px 0 0);
-  clip-path: inset(1px 0 0 0 round 0 35px 0 0);
-}
+/* v4: full phones, no crop — padding leaves room for side buttons */
+.mhpp-clip { overflow: visible; display: flex; justify-content: center; padding-top: 8px; box-sizing: border-box; }
+.mhpp-shift { display: inline-block; vertical-align: top; }
 
-.mhpp-row .mhpp-clip:last-child {
-  border-top-left-radius: 35px;
-  -webkit-clip-path: inset(1px 0 0 0 round 35px 0 0 0);
-  clip-path: inset(1px 0 0 0 round 35px 0 0 0);
-}
-
-/* Hide outer third on the inward-facing edge of each mockup */
-.mhpp-shift--left {
-  transform: translateX(calc(-100% / 3));
-}
-
-.mhpp-shift {
-  display: inline-block;
-  vertical-align: top;
-}
-
-.mhpp-shift--right {
-  transform: none;
-}
+/* v5: phones sit right under the CTA (no bottom-anchoring gap) */
+.mhpp-root { align-items: flex-start; box-sizing: border-box; }

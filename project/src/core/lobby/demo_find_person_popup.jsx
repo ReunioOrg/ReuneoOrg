@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './user_is_ready_animation.css';
 import './demo_find_person_popup.css';
 
-const PersonIcon = ({ color = '#3b82f6' }) => (
+const PersonIcon = ({ color = '#5b54e8' }) => (
     <svg viewBox="0 0 32 80" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="16" cy="10" r="9" fill={color} />
         <rect x="5" y="26" width="22" height="48" rx="11" fill={color} />

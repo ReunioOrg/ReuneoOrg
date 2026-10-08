@@ -995,8 +995,8 @@ const App = () => {
             >
               <defs>
                 <linearGradient id="qrIconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#144dff" />
-                  <stop offset="100%" stopColor="#8b5cf6" />
+                  <stop offset="0%" stopColor="#5b54e8" />
+                  <stop offset="100%" stopColor="#8a84f0" />
                 </linearGradient>
               </defs>
               <rect x="3" y="3" width="7" height="7" rx="1" fill="url(#qrIconGradient)" />
@@ -1078,7 +1078,7 @@ const App = () => {
   const SiteNavBar = () => (
     <nav className="site-nav-bar">
       <img
-        src="/assets/reuneo_test_14.png"
+        src="/assets/Reuneo%20(Color%20-%20Horizontal).svg?v=a"
         alt="Reuneo Logo"
         className="site-nav-logo"
         onClick={() => navigate('/')}
@@ -1177,7 +1177,7 @@ const App = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
-              <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
+              <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#8a84f0', '#4a43c9']}>
                 <div
                   className="app-dock-item-standalone"
                   onClick={() => navigate('/new_organizer', { state: { showGeneralTutorial: true } })}
@@ -1200,7 +1200,7 @@ const App = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
-              <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
+              <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={18} bloomInset={4} duration={2800} spread={70} colors={['#ffffff', '#8a84f0', '#4a43c9']}>
                 <div
                   className="app-dock-item-standalone"
                   onClick={handleCreateClick}
@@ -1228,8 +1228,8 @@ const App = () => {
               glowRadius={70}
               glowIntensity={3.2}
               coneSpread={50}
-              glowColor="270 85 80"
-              colors={['#a855f7', '#ec4899', '#6366f1']}
+              glowColor="244 80 73"
+              colors={['#8a84f0', '#5b54e8', '#4a43c9']}
               style={{ width: '100%' }}
             >
               <div
@@ -1294,7 +1294,7 @@ const App = () => {
         style={{
           position: 'relative',
           zIndex: 1,
-          color: isDesktop ? 'white' : '#1a1a2e',
+          color: isDesktop ? 'white' : '#1a1a1a',
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
@@ -1401,7 +1401,7 @@ const App = () => {
               willChange: mobileHeroCtaPlacementReady ? 'top' : 'opacity',
             }}
           >
-            <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={12} bloomInset={3} duration={2800} spread={54} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
+            <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={12} bloomInset={3} duration={2800} spread={54} colors={['#ffffff', '#8a84f0', '#4a43c9']}>
               <div
                 className="app-dock-item-standalone"
                 onClick={() => navigate('/new_organizer', { state: { showGeneralTutorial: true } })}
@@ -1434,7 +1434,7 @@ const App = () => {
               willChange: mobileHeroCtaPlacementReady ? 'top' : 'opacity',
             }}
           >
-            <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={12} bloomInset={3} duration={2800} spread={54} colors={['#ffffff', '#a5b4fc', '#7c3aed']}>
+            <HoverBorderGlow borderRadius={18} borderWidth={2} bloomBlur={12} bloomInset={3} duration={2800} spread={54} colors={['#ffffff', '#8a84f0', '#4a43c9']}>
               <div
                 className="app-dock-item-standalone"
                 onClick={handleCreateClick}
@@ -1454,6 +1454,7 @@ const App = () => {
         {/* Consolidated header - either "Pair up" or "Welcome" based on user role */}
         <div
           ref={mobileHeroHeaderWrapRef}
+          data-mhero-header=""
           style={{ 
           position: 'absolute', 
           left: '50%', 
@@ -1609,8 +1610,8 @@ const App = () => {
               glowRadius={50}
               glowIntensity={2}
               coneSpread={40}
-              glowColor="270 85 80"
-              colors={['#c084fc', '#f472b6', '#38bdf8']}
+              glowColor="244 80 73"
+              colors={['#c7c3f8', '#8a84f0', '#5b54e8']}
               style={{ width: '100%' }}
             >
             <div
@@ -1664,7 +1665,7 @@ const App = () => {
             transition: 'all 0.3s ease'
           }}>
             {isLoadingLobbies ? (
-              <div style={{ textAlign: 'center', color: '#374151' }}>
+              <div style={{ textAlign: 'center', color: '#3f3c37' }}>
                 <p>Loading your lobbies...</p>
               </div>
             ) : activeLobbies.length > 0 ? (
@@ -1674,8 +1675,8 @@ const App = () => {
                 glowRadius={50}
                 glowIntensity={2}
                 coneSpread={40}
-                glowColor="270 85 80"
-                colors={['#c084fc', '#f472b6', '#38bdf8']}
+                glowColor="244 80 73"
+                colors={['#c7c3f8', '#8a84f0', '#5b54e8']}
                 style={{ width: '100%' }}
               >
               <div

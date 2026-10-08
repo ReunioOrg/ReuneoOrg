@@ -1,5 +1,3 @@
-import { CountdownCircleTimer } from 'react-countdown-circle-timer';
-
 export const PROFILE_DATA = [
   { img: '/assets/kate_rodriguez.png', name: 'Kate Rodriguez' },
   { img: '/assets/tony_chopper.jpg', name: 'Tony Chopper' },
@@ -19,7 +17,21 @@ export const PROFILE_DATA = [
   { img: '/assets/yolanda_soap.png', name: 'Yolanda Soap' },
 ];
 
-export const TIMER_STARTS = [480, 395, 512];
+/** Static per-slot screen content (no live timers) */
+export const SLOT_CONTENT = [
+  { table: 7, time: '6:12', tags: ['Software Developer', 'Investor'] },
+  { table: 3, time: '5:08', tags: ['Content Creator', 'Brand Manager'] },
+  { table: 12, time: '1:48', tags: ['Founder', 'Designer'] },
+];
+
+function DoubleArrow() {
+  return (
+    <svg className="dpm-tag-arrow" viewBox="0 0 28 12" aria-hidden="true">
+      <path d="M1 6h26M6 1L1 6l5 5M22 1l5 5-5 5" fill="none" stroke="currentColor"
+        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 export function shuffle(arr) {
   const a = [...arr];
@@ -47,6 +59,7 @@ export function preloadImages(profiles) {
 
 /** Pure render — shared by desktop row-of-three and mobile outer pair */
 export function PhoneMockup({ profile, slotIndex }) {
+  const slot = SLOT_CONTENT[slotIndex % SLOT_CONTENT.length];
   return (
     <div className="dpm-phone" style={{ animationDelay: `${slotIndex * 170}ms` }}>
       <div className="dpm-screen">
@@ -54,38 +67,19 @@ export function PhoneMockup({ profile, slotIndex }) {
           <span className="dpm-lobby-pop-burst">Go find {profile.name}!</span>
         </h2>
 
-        <div className="dpm-timer-wrap">
-          <CountdownCircleTimer
-            isPlaying
-            duration={600}
-            initialRemainingTime={TIMER_STARTS[slotIndex]}
-            colors={['#64B5F6', '#2196F3', '#1976D2']}
-            colorsTime={[600, 300, 0]}
-            size={86}
-            strokeWidth={7}
-            trailColor="#f0f1f4"
-            strokeLinecap="round"
-            onComplete={() => ({ shouldRepeat: true })}
-          >
-            {({ remainingTime }) => {
-              const mins = Math.floor(remainingTime / 60);
-              const secs = remainingTime % 60;
-              return (
-                <div className="dpm-timer-inner">
-                  <span className="dpm-timer-time">
-                    {mins}:{String(secs).padStart(2, '0')}
-                  </span>
-                  <span className="dpm-timer-label">time left</span>
-                </div>
-              );
-            }}
-          </CountdownCircleTimer>
+        <p className="dpm-table">AT TABLE: <span>{slot.table}</span></p>
+        <div className="dpm-time-pill">{slot.time} left</div>
+        <div className="dpm-tag-row">
+          <span>{slot.tags[0]}</span>
+          <DoubleArrow />
+          <span>{slot.tags[1]}</span>
         </div>
 
         <div className="dpm-player-wrap">
           <img src={profile.img} alt={profile.name} className="dpm-player-photo" />
           <div className="dpm-player-name-badge">{profile.name}</div>
         </div>
+        <span className="dpm-home-indicator" aria-hidden="true" />
       </div>
     </div>
   );
