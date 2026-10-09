@@ -112,8 +112,9 @@
 }
 
 .logo-image-nav {
-    width: 75px;
-    height: 75px;
+    width: auto;
+    height: 28px;
+    max-width: min(160px, 46vw);
     object-fit: contain;
 }
 
@@ -1948,8 +1949,9 @@
     }
 
     .logo-image-nav {
-        width: 76px;
-        height: 76px;
+        width: auto;
+        height: 26px;
+        max-width: min(140px, 46vw);
     }
 
     .step-content-wrapper {
@@ -2098,8 +2100,9 @@
     }
 
     .logo-image-nav {
-        width: 90px;
-        height: 90px;
+        width: auto;
+        height: 28px;
+        max-width: 180px;
     }
 
     .step-content-wrapper {

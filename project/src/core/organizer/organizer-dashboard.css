@@ -247,8 +247,9 @@ body:has(.organizer-dashboard) {
 }
 
 .dashboard-logo-img {
-    width: 75px;
-    height: 75px;
+    width: auto;
+    height: 28px;
+    max-width: min(160px, 46vw);
     object-fit: contain;
 }
 
@@ -1158,8 +1159,9 @@ body:has(.organizer-dashboard) {
     }
 
     .dashboard-logo-img {
-        width: 64px;
-        height: 64px;
+        width: auto;
+        height: 26px;
+        max-width: min(140px, 46vw);
     }
 
     .dashboard-hero {

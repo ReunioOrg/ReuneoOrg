@@ -7,8 +7,8 @@ import './PageNavBar.css';
 /** White wordmark for glass bar over hero video (transparent BG). */
 const MOBILE_HOME_GLASS_LOGO_SRC = '/assets/Reuneo%20(White%20-%20Horizontal).svg?v=a';
 
-/** Color / dark horizontal wordmark for home past the video hero (light page sections). */
-const MOBILE_HOME_COLOR_HORIZONTAL_LOGO_SRC =
+/** Indigo horizontal lockup used by the desktop homepage nav. */
+const COLOR_HORIZONTAL_LOGO_SRC =
   '/assets/Reuneo%20(Color%20-%20Horizontal).svg?v=a';
 
 /**
@@ -102,13 +102,10 @@ function PageNavBar({
   }
 
   const glassOverVideoHero = isHome && !pastVideoHero;
-  const mobileHomeHorizontalWordmark = glassOverVideoHero || (isHome && pastVideoHero);
 
   const mobileLogoSrc = glassOverVideoHero
     ? MOBILE_HOME_GLASS_LOGO_SRC
-    : isHome && pastVideoHero
-      ? MOBILE_HOME_COLOR_HORIZONTAL_LOGO_SRC
-      : '/assets/reuneo_test_14.png';
+    : COLOR_HORIZONTAL_LOGO_SRC;
 
   const mobileNavClass = [
     'page-nav-bar-mobile',
@@ -124,7 +121,7 @@ function PageNavBar({
         <img
           src={mobileLogoSrc}
           alt="Reuneo Logo"
-          className={`page-nav-logo${mobileHomeHorizontalWordmark ? ' page-nav-logo--mobile-horizontal' : ''}`}
+          className="page-nav-logo page-nav-logo--mobile-horizontal"
           onClick={() => navigate('/')}
         />
         <button type="button" className="page-nav-hamburger" onClick={() => setMenuOpen(true)} aria-label="Open menu">
@@ -154,7 +151,7 @@ function PageNavBar({
             >
               <div className="page-menu-header">
                 <img
-                  src="/assets/reuneo_test_14.png"
+                  src={COLOR_HORIZONTAL_LOGO_SRC}
                   alt="Reuneo Logo"
                   className="page-menu-logo"
                   onClick={() => { navigate('/'); closeMenu(); }}

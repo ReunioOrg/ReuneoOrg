@@ -438,7 +438,7 @@ const PlanSelection = () => {
                             <path d="M19 12H5" /><polyline points="12 19 5 12 12 5" />
                         </svg>
                     </button>
-                    <img src="/assets/reuneo_test_14.png" alt="Reuneo Logo" className="ps-logo-image" />
+                    <img src="/assets/Reuneo%20(Color%20-%20Horizontal).svg?v=a" alt="Reuneo Logo" className="ps-logo-image" />
                     <div className="ps-nav-placeholder" />
                 </nav>
             )}

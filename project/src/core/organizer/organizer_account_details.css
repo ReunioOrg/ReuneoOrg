@@ -70,8 +70,9 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    width: 72px;
-    height: auto;
+    width: auto;
+    height: 28px;
+    max-width: min(148px, 40vw);
     object-fit: contain;
     pointer-events: none;
 }
@@ -823,7 +824,8 @@
     }
 
     .account-logo {
-        width: 64px;
+        height: 26px;
+        max-width: min(130px, 40vw);
     }
 
     .account-header {
@@ -926,7 +928,8 @@
     }
 
     .account-logo {
-        width: 90px;
+        height: 28px;
+        max-width: 160px;
     }
 
     .account-home-button,

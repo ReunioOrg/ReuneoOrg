@@ -647,7 +647,7 @@ const NewOrganizerView = () => {
                         <path d="M21 12L15 18L21 24" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                 </button>
-                <img src="/assets/reuneo_test_14.png" alt="Reuneo Logo" className="logo-image-nav" />
+                <img src="/assets/Reuneo%20(Color%20-%20Horizontal).svg?v=a" alt="Reuneo Logo" className="logo-image-nav" />
                 {!isDescriptionStep && currentStep < 5 && visitedSteps.has(currentStep + 1) ? (
                     <button className="nav-arrow" onClick={handleNext} aria-label="Next">
                         <svg width="36" height="36" viewBox="0 0 36 36" fill="none">

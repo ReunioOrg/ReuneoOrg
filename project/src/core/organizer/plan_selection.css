@@ -65,8 +65,9 @@
 .ps-nav-arrow:active { transform: scale(0.95); }
 
 .ps-logo-image {
-    width: 60px;
-    height: 60px;
+    width: auto;
+    height: 26px;
+    max-width: min(150px, 46vw);
     object-fit: contain;
 }
 
@@ -1148,8 +1149,9 @@
     }
 
     .ps-logo-image {
-        width: 48px;
-        height: 48px;
+        width: auto;
+        height: 26px;
+        max-width: min(140px, 46vw);
     }
 
     .ps-page-title {
@@ -1255,8 +1257,9 @@
 
 @media (min-width: 769px) {
     .ps-logo-image {
-        width: 72px;
-        height: 72px;
+        width: auto;
+        height: 28px;
+        max-width: 160px;
     }
 
     /* Push sticky pill below the 60px PageNavBar so it never hides behind it */

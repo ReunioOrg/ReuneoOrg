@@ -132,8 +132,9 @@
 }
 
 .admin-view-logo-img {
-    max-width: 85px;
-    height: auto;
+    width: auto;
+    height: 26px;
+    max-width: 130px;
     object-fit: contain;
 }
 

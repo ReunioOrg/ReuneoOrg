@@ -282,7 +282,7 @@ const OrganizerAccountDetails = () => {
             <div className="account-nav-row">
                 <button onClick={() => navigate('/')} className="account-home-button">Home</button>
                 <img
-                    src="/assets/reuneo_test_14.png"
+                    src="/assets/Reuneo%20(Color%20-%20Horizontal).svg?v=a"
                     alt="Reuneo Logo"
                     className="account-logo"
                 />
