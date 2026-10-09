@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import './cooler_general_match_event_flow.css';
+import { palette } from '../../styles/colors.js';
 import AnimationProgressFooter from '../components/AnimationProgressFooter';
 import {
     ORGANIZER_TAG_MATCH_HEADER,
@@ -57,7 +58,7 @@ const SCENES = [
     { id: 'lets-go', duration: 1400 },         // 27
 ];
 
-const PersonIcon = ({ color = '#3b82f6' }) => (
+const PersonIcon = ({ color = palette.accent }) => (
     <svg viewBox="0 0 32 80" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="16" cy="10" r="9" fill={color} />
         <rect x="5" y="26" width="22" height="48" rx="11" fill={color} />
