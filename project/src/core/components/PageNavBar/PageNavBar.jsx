@@ -68,7 +68,7 @@ function PageNavBar({
     return (
       <nav className="page-nav-bar">
         <img
-          src="/assets/reuneo_test_14.png"
+          src={COLOR_HORIZONTAL_LOGO_SRC}
           alt="Reuneo Logo"
           className="page-nav-logo"
           onClick={() => navigate('/')}
