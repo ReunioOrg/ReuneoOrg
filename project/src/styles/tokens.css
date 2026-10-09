@@ -2,6 +2,7 @@
 :root {
   /* Brand */
   --color-brand-50: #f3f2fd;
+  --color-brand-150: #dcd9f8; /* decision 2: lavender hover, one step darker than brand-200 */
   --color-brand-200: #e7e5fb;
   --color-brand-300: #c7c3f8;
   --color-brand-400: #8a84f0;

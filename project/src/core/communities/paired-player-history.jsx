@@ -6,6 +6,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import './paired-player-history.css';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { apiFetch } from '../utils/api';
+import { getSocialIconColor, palette } from '../../styles/colors';
 import { FaInstagram, FaFacebookF, FaLinkedinIn, FaEnvelope, FaPhone, FaGlobe, FaTiktok, FaSnapchatGhost } from 'react-icons/fa';
 
 // Inline Loading Spinner for list items (uses existing CSS)
@@ -49,16 +50,16 @@ const SOCIAL_PLATFORM_ORDER = ['phone', 'email', 'website', 'instagram', 'facebo
 // Helper function: Get display info for each social platform
 const getSocialPlatformInfo = (platform) => {
     const platforms = {
-        instagram: { label: 'Instagram', Icon: FaInstagram, color: '#4b7ef0', displayPrefix: '@' },
-        facebook: { label: 'Facebook', Icon: FaFacebookF, color: '#4b7ef0', displayPrefix: '@' },
-        email: { label: 'Email', Icon: FaEnvelope, color: '#4b7ef0', displayPrefix: '' },
-        phone: { label: 'Phone', Icon: FaPhone, color: '#4b7ef0', displayPrefix: '' },
-        website: { label: 'Website', Icon: FaGlobe, color: '#4b7ef0', displayPrefix: '' },
-        linkedin: { label: 'LinkedIn', Icon: FaLinkedinIn, color: '#4b7ef0', displayPrefix: '' },
-        tiktok: { label: 'TikTok', Icon: FaTiktok, color: '#4b7ef0', displayPrefix: '@' },
-        snapchat: { label: 'Snapchat', Icon: FaSnapchatGhost, color: '#4b7ef0', displayPrefix: '@' }
+        instagram: { label: 'Instagram', Icon: FaInstagram, color: getSocialIconColor('instagram'), displayPrefix: '@' },
+        facebook: { label: 'Facebook', Icon: FaFacebookF, color: getSocialIconColor('facebook'), displayPrefix: '@' },
+        email: { label: 'Email', Icon: FaEnvelope, color: getSocialIconColor('email'), displayPrefix: '' },
+        phone: { label: 'Phone', Icon: FaPhone, color: getSocialIconColor('phone'), displayPrefix: '' },
+        website: { label: 'Website', Icon: FaGlobe, color: getSocialIconColor('website'), displayPrefix: '' },
+        linkedin: { label: 'LinkedIn', Icon: FaLinkedinIn, color: getSocialIconColor('linkedin'), displayPrefix: '' },
+        tiktok: { label: 'TikTok', Icon: FaTiktok, color: getSocialIconColor('tiktok'), displayPrefix: '@' },
+        snapchat: { label: 'Snapchat', Icon: FaSnapchatGhost, color: getSocialIconColor('snapchat'), displayPrefix: '@' }
     };
-    return platforms[platform] || { label: platform, Icon: FaGlobe, color: '#4b7ef0', displayPrefix: '' };
+    return platforms[platform] || { label: platform, Icon: FaGlobe, color: getSocialIconColor('website'), displayPrefix: '' };
 };
 
 // Helper function: Build clickable URL for each social platform
@@ -738,8 +739,8 @@ const PairedPlayerHistory = () => {
                     toast.success('Saved', {
                         duration: 1000,
                         style: {
-                            background: '#144dff',
-                            color: 'white',
+                            background: palette.accent,
+                            color: palette.white,
                             borderRadius: '8px',
                             padding: '12px 20px',
                             fontSize: '0.9rem',
@@ -911,8 +912,8 @@ const PairedPlayerHistory = () => {
                     toast.success('Saved', {
                         duration: 1000,
                         style: {
-                            background: '#144dff',
-                            color: 'white',
+                            background: palette.accent,
+                            color: palette.white,
                             borderRadius: '8px',
                             padding: '12px 20px',
                             fontSize: '0.9rem',
@@ -1143,7 +1144,7 @@ const PairedPlayerHistory = () => {
                                                             className="social-icon-link"
                                                             title="Contact"
                                                         >
-                                                            <FaGlobe size={18} color="#4b7ef0" />
+                                                            <FaGlobe size={18} color={getSocialIconColor('website')} />
                                                         </a>
                                                     )}
                                                 </div>

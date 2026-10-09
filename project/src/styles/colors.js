@@ -14,6 +14,7 @@ export const palette = {
   textSecondary: '#6e6a62',
   textFaint: '#a19c92',
   brand50: '#f3f2fd',
+  brand150: '#dcd9f8',
   brand200: '#e7e5fb',
   brand300: '#c7c3f8',
   accentLight: '#8a84f0',
@@ -81,7 +82,7 @@ export const hoverBorderGlowDefaults = {
 
 /**
  * One social-icon color map. Brand colors stay; email and website use accent.
- * Not wired into pages yet — later stages replace the duplicated maps.
+ * Wired into post-event auth, paired-player history, and the attendees-history tutorial.
  */
 export const socialIconColors = {
   instagram: '#E4405F',
@@ -132,7 +133,7 @@ export function getTagTone(tag) {
 export const timerColors = [palette.accentLight, palette.accent, palette.accentDark];
 export const timerTrail = palette.surfaceGround;
 
-/** react-hot-toast icon and body colors (N7). Wired in a later stage. */
+/** react-hot-toast icon and body colors (N7). Body is the toast background. */
 export const toastColors = {
   success: palette.success,
   danger: palette.danger,

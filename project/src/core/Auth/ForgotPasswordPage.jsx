@@ -110,9 +110,9 @@ const ForgotPasswordPage = () => {
                     className="back-arrow-button"
                     aria-label="Back to signup"
                 >
-                    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-                        <circle cx="18" cy="18" r="17" stroke="#374151" strokeWidth="1.5" fill="rgba(255,255,255,0.8)"/>
-                        <path d="M21 12L15 18L21 24" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <svg className="wizard-nav-arrow" width="36" height="36" viewBox="0 0 36 36" fill="none">
+                        <circle cx="18" cy="18" r="17" strokeWidth="1.5"/>
+                        <path d="M21 12L15 18L21 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                 </button>
             ) : (

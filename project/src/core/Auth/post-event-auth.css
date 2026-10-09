@@ -13,7 +13,7 @@
     position: relative;
 }
 
-.homescreen-button {
+.post-event-auth-container .homescreen-button {
     position: fixed;
     top: 16px;
     left: 16px;
@@ -25,10 +25,10 @@
     justify-content: center;
     align-items: center;
     padding: 0 20px;
-    background: var(--text-dark);
+    background: var(--accent-tint);
     border: none;
     border-radius: 20px;
-    color: #ffffff;
+    color: var(--accent-dark);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 600;
     font-size: 0.875rem;
@@ -39,21 +39,22 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.homescreen-button:hover {
-    background: #2d2d44;
+.post-event-auth-container .homescreen-button:hover {
+    background: var(--color-brand-150);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.homescreen-button:active {
+.post-event-auth-container .homescreen-button:active {
     transform: translateY(0);
-    background: var(--text-dark);
+    background: var(--accent-tint);
+    color: var(--accent-dark);
 }
 
 .post-event-auth-header {
     text-align: center;
     width: 100%;
-    color: #4b6cc4;
+    color: var(--accent);
     font-size: 1.75rem;
     letter-spacing: -0.01em;
     line-height: 1.2;
@@ -121,11 +122,11 @@
 .step-input {
     width: 100%;
     padding: 14px 16px;
-    border: 1.5px solid #e5e7eb;
+    border: 1.5px solid var(--border-default);
     border-radius: 14px;
     font-size: 1rem;
     transition: all 0.2s ease;
-    background: #f9fafb;
+    background: var(--color-gray-50);
     box-sizing: border-box;
     margin-bottom: 0;
     min-height: 48px;
@@ -136,21 +137,102 @@
 .step-input:focus {
     border-color: var(--primary-color);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.12);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.35);
     background: #ffffff;
 }
 
 .step-input::placeholder {
-    color: #9ca3af;
+    color: var(--color-gray-400);
 }
 
-.primary-button {
+.step-input.step-input-locked {
+    background-color: var(--color-gray-50);
+    color: var(--color-gray-400);
+    cursor: not-allowed;
+    border-color: var(--border-default);
+}
+
+.required-mark {
+    color: var(--color-danger);
+}
+
+.verified-chip {
+    color: var(--color-success);
+    font-size: 0.75rem;
+    margin-left: 8px;
+    font-weight: 600;
+    background: var(--color-success-50);
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.magic-sent-title {
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.magic-sent-lead {
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.magic-sent-email {
+    background: var(--color-gray-50);
+    border: 1.5px solid var(--border-default);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
+    word-break: break-all;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.magic-sent-email.magic-sent-email-tight {
+    margin-bottom: 20px;
+}
+
+.magic-sent-follow {
+    color: var(--text-primary);
+    margin-bottom: 24px;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.magic-sent-note {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 28px;
+    line-height: 1.5;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.claim-error-banner {
+    color: var(--color-danger);
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    background-color: var(--color-danger-50);
+    border-radius: 10px;
+    font-weight: 500;
+    text-align: left;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.post-event-auth-container .primary-button {
     width: 100%;
     padding: 16px 24px;
     border-radius: 16px;
     border: none;
-    background: var(--text-dark);
-    color: white;
+    background: var(--accent-tint);
+    color: var(--accent-dark);
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
@@ -159,18 +241,19 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.primary-button:hover:not(:disabled) {
-    background: #2d2d44;
+.post-event-auth-container .primary-button:hover:not(:disabled) {
+    background: var(--color-brand-150);
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
-.primary-button:active:not(:disabled) {
+.post-event-auth-container .primary-button:active:not(:disabled) {
     transform: translateY(0);
-    background: var(--text-dark);
+    background: var(--accent-tint);
+    color: var(--accent-dark);
 }
 
-.primary-button:disabled {
+.post-event-auth-container .primary-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
@@ -292,8 +375,8 @@
 }
 
 .email-confirm-modal-email {
-    background: #f9fafb;
-    border: 1.5px solid #e5e7eb;
+    background: var(--color-gray-50);
+    border: 1.5px solid var(--border-default);
     border-radius: 12px;
     padding: 14px 18px;
     font-size: 1rem;
@@ -322,13 +405,13 @@
 }
 
 .email-confirm-btn-yes {
-    background: var(--text-dark);
-    color: white;
+    background: var(--accent-tint);
+    color: var(--accent-dark);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .email-confirm-btn-yes:hover:not(:disabled) {
-    background: #2d2d44;
+    background: var(--color-brand-150);
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
@@ -339,13 +422,13 @@
 }
 
 .email-confirm-btn-no {
-    background: #f0f1f4;
+    background: var(--color-gray-50);
     color: var(--text-dark);
     border: none;
 }
 
 .email-confirm-btn-no:hover:not(:disabled) {
-    background: #e8e9ec;
+    background: var(--color-gray-200);
     transform: translateY(-1px);
 }
 
@@ -390,7 +473,7 @@
         margin: 0.3rem 0;
     }
 
-    .homescreen-button {
+    .post-event-auth-container .homescreen-button {
         top: 12px;
         left: 12px;
         min-width: 70px;
@@ -405,7 +488,7 @@
         border-radius: 12px;
     }
 
-    .primary-button {
+    .post-event-auth-container .primary-button {
         padding: 14px 20px;
         border-radius: 14px;
     }
@@ -466,7 +549,7 @@
 .social-links-section {
     margin-top: 28px;
     padding-top: 24px;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border-default);
 }
 
 .social-links-header {
@@ -499,7 +582,7 @@
 .social-link-helper {
     display: block;
     font-size: 0.75rem;
-    color: #9ca3af;
+    color: var(--color-gray-400);
     margin-top: 6px;
     font-style: italic;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -522,7 +605,7 @@
     scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
-    scrollbar-color: rgba(20, 77, 255, 0.55) rgba(20, 77, 255, 0.12);
+    scrollbar-color: rgba(var(--accent-rgb), 0.55) rgba(var(--accent-rgb), 0.12);
 }
 
 .social-selector-list::-webkit-scrollbar {
@@ -530,19 +613,19 @@
 }
 
 .social-selector-list::-webkit-scrollbar-track {
-    background: rgba(20, 77, 255, 0.12);
+    background: rgba(var(--accent-rgb), 0.12);
     border-radius: 10px;
     margin: 6px 0;
 }
 
 .social-selector-list::-webkit-scrollbar-thumb {
-    background: rgba(20, 77, 255, 0.55);
+    background: rgba(var(--accent-rgb), 0.55);
     border-radius: 10px;
     min-height: 36px;
 }
 
 .social-selector-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(20, 77, 255, 0.7);
+    background: rgba(var(--accent-rgb), 0.7);
 }
 
 /* Item wrapper */
@@ -563,7 +646,7 @@
     font-weight: 500;
     font-size: 1rem;
     color: var(--text-dark);
-    background: #f0f1f4;
+    background: var(--color-gray-50);
     border: 2px solid transparent;
     box-sizing: border-box;
     user-select: none;
@@ -575,7 +658,7 @@
 }
 
 .social-selector-item.selected {
-    background: rgba(20, 77, 255, 0.08);
+    background: rgba(var(--accent-rgb), 0.08);
     border-color: var(--primary-color);
 }
 
@@ -584,7 +667,7 @@
     width: 24px;
     height: 24px;
     border-radius: 7px;
-    border: 2px solid #d1d5db;
+    border: 2px solid var(--border-default);
     background: #ffffff;
     display: flex;
     align-items: center;

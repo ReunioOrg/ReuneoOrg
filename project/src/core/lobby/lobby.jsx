@@ -16,6 +16,7 @@ import { storeLobbyCode, clearLobbyStorage, refreshLobbyTimestamp } from '../uti
 import { CommunityPageButton } from '../community/mycf';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { apiFetch } from '../utils/api';
+import { timerColors, timerTrail } from '../../styles/colors';
 import { motion, AnimatePresence } from 'framer-motion';
 import AnimatedTagList from './animated_tag_list';
 import ProfileDropdown from './ProfileDropdown';
@@ -858,54 +859,18 @@ const LobbyScreen = () => {
 
     const SoundPrompt = () => {
         return (
-            <div style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                backdropFilter: 'blur(4px)',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                zIndex: 1100
-            }}>
-                <div style={{
-                    backgroundColor: '#ffffff',
-                    padding: '32px 28px',
-                    borderRadius: '24px',
-                    position: 'relative',
-                    minWidth: '300px',
-                    maxWidth: '340px',
-                    boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2)',
-                    textAlign: 'center'
-                }}>
-                    <button 
+            <div className="sound-prompt-overlay">
+                <div className="sound-prompt-card">
+                    <button
+                        className="sound-prompt-close"
                         onClick={() => setShowSoundPrompt(false)}
-                        style={{
-                            color: '#ffffff',
-                            position: 'absolute',
-                            right: '12px',
-                            top: '12px',
-                            border: 'none',
-                            background: 'transparent',
-                            fontSize: '10px',
-                            cursor: 'pointer',
-                            width: '10px',
-                            height: '10px',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: 0
-                        }}
                     >
                         ✕
                     </button>
-                    <h2 style={{ marginTop: '8px', marginBottom: '8px', color: '#1a1a1a', fontWeight: 700, fontSize: '1.25rem', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>Sound is Important</h2>
-                    <p style={{ color: '#6e6a62', fontSize: '0.9rem', marginBottom: '4px' }}>Raise your volume for the best experience</p>
-                    <button 
+                    <h2 className="sound-prompt-title">Sound is Important</h2>
+                    <p className="sound-prompt-text">Raise your volume for the best experience</p>
+                    <button
+                        className="sound-prompt-enable"
                         onClick={() => {
                             if (lobbyState === "checkin") {
                                 loadAmbientSound();
@@ -913,20 +878,6 @@ const LobbyScreen = () => {
                                 loadSound();
                             }
                             setShowSoundPrompt(false);
-                        }}
-                        style={{
-                            padding: '14px 32px',
-                            marginTop: '20px',
-                            backgroundColor: '#1a1a1a',
-                            color: '#ffffff',
-                            border: 'none',
-                            borderRadius: '16px',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            fontSize: '1rem',
-                            fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
-                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                            transition: 'all 0.2s ease'
                         }}
                     >
                         Enable Sound
@@ -1646,7 +1597,7 @@ const LobbyScreen = () => {
                         }}
                     />
                 </div>
-                {/* <p style={{color: '#5b54e8', fontSize: '0.8rem', fontWeight: '600', textAlign: 'center', marginTop: '0.5rem'}}>
+                {/* <p style={{color: 'accent', fontSize: '0.8rem', fontWeight: '600', textAlign: 'center', marginTop: '0.5rem'}}>
                     TimeToSkip: {roundPosition.current}
                     <br />
                     Lenth of Audio File: {audioRef.current.duration}
@@ -1768,11 +1719,11 @@ const LobbyScreen = () => {
                                         isPlaying={lobbyState === "active"}
                                         duration={roundDuration || 300}
                                         initialRemainingTime={roundTimeLeft || 0}
-                                        colors={["#8a84f0", "#5b54e8", "#4a43c9"]}
+                                        colors={timerColors}
                                         colorsTime={[roundDuration || 300, (roundDuration || 300) / 2, 0]}
                                         size={100}
                                         strokeWidth={8}
-                                        trailColor="#f1f0ec"
+                                        trailColor={timerTrail}
                                         strokeLinecap="round"
                                         onComplete={() => {
                                             fetchLobbyData();
@@ -1787,10 +1738,10 @@ const LobbyScreen = () => {
                                             const secs = Math.floor(validTime % 60);
                                             return (
                                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                                    <span style={{ fontSize: '1.5rem', color: '#1a1a1a', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+                                                    <span className="lobby-timer-value">
                                                         {mins}:{String(secs).padStart(2, '0')}
                                                     </span>
-                                                    <span style={{ fontSize: '0.65rem', color: '#6e6a62', fontWeight: 500, marginTop: '2px' }}>time left</span>
+                                                    <span className="lobby-timer-caption">time left</span>
                                                 </div>
                                             );
                                         }}
@@ -1945,7 +1896,7 @@ const LobbyScreen = () => {
                                 <h4>I am:</h4>
                                 <div className="tag-list">
                                     {serverselfTags.map(tag => (
-                                        <span key={`self-${tag}`} className="tag-item" style={{color: '#1a1a1a'}}>{tag}</span>
+                                        <span key={`self-${tag}`} className="tag-item">{tag}</span>
                                     ))}
                                 </div>
                             </div>
@@ -1955,7 +1906,7 @@ const LobbyScreen = () => {
                                 <h4>Looking for:</h4>
                                 <div className="tag-list">
                                     {serverdesiringTags.map(tag => (
-                                        <span key={`desiring-${tag}`} className="tag-item" style={{color: '#1a1a1a'}}>{tag}</span>
+                                        <span key={`desiring-${tag}`} className="tag-item">{tag}</span>
                                     ))}
                                 </div>
                             </div>
@@ -2023,7 +1974,7 @@ const LobbyScreen = () => {
 
                             {/* Tag Selection Groups */}
                             <div className={`tag-group ${selectionPhase === 'self' ? 'active' : 'hidden'}`}>
-                                <h2 style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", color: '#1a1a1a' }}>Who are you?</h2>
+                                <h2 className="tag-phase-heading">Who are you?</h2>
                                 {isDemoLobby && (
                                     <p className="demo-tag-selection-subheader">Select tags to see how pairing works.</p>
                                 )}
@@ -2039,7 +1990,7 @@ const LobbyScreen = () => {
                             </div>
 
                             <div className={`tag-group ${selectionPhase === 'desiring' ? 'active' : 'hidden'}`} ref={desiringTagsRef}>
-                                <h2 style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", color: '#1a1a1a' }}>Who do you want to meet?</h2>
+                                <h2 className="tag-phase-heading">Who do you want to meet?</h2>
                                 {isDemoLobby && (
                                     <p className="demo-tag-selection-subheader">Select tags to see how pairing works.</p>
                                 )}
@@ -2062,13 +2013,7 @@ const LobbyScreen = () => {
                                 {selectionPhase === 'self' ? 'Continue' : 'Save'}
                             </button>
                             {tagLimitWarning && (
-                                <div style={{
-                                    color: '#5b54e8',
-                                    textAlign: 'center',
-                                    marginTop: '1rem',
-                                    fontSize: '0.9rem',
-                                    fontWeight: '600'
-                                }}>
+                                <div className="tag-limit-warning">
                                     {tagLimitWarning}
                                 </div>
                             )}
