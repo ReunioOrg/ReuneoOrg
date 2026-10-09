@@ -14,7 +14,7 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
     image: null,
     imagePreview: userProfile?.image_data
       ? `data:image/jpeg;base64,${userProfile.image_data}`
-      : '/assets/fakeprofile.png', // Default profile image
+      : '/assets/default-avatar-indigo.svg', // Default profile image
     croppedImage: null
   });
   
@@ -194,7 +194,7 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
                   formData.croppedImage ? formData.croppedImage :
                   formData.imagePreview ? formData.imagePreview :
                   userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` :
-                  '/assets/fakeprofile.png'
+                  '/assets/default-avatar-indigo.svg'
                 }
                 alt="Profile preview"
                 style={{

@@ -106,7 +106,7 @@ button {
 }
 
 .form-group input {
-  color: var(--accent);
+  color: var(--text-primary);
   background-color: #ffffff;
   width: 100%;
   padding: 12px;
@@ -232,7 +232,7 @@ button {
 }
 
 .profile-creation-overlay .profile-editor-input {
-  color: var(--accent);
+  color: var(--text-primary);
   background-color: color-mix(in srgb, var(--color-white) 90%, transparent);
   border: 2px solid var(--border-default);
 }

@@ -40,7 +40,7 @@ const formatImageData = (imageData) => {
     if (imageData) {
         return `data:image/jpeg;base64,${imageData}`;
     }
-    return '/assets/fakeprofile.png';
+    return '/assets/default-avatar-indigo.svg';
 };
 
 // Social links platform order (matches post-event-auth.jsx)
@@ -1100,7 +1100,7 @@ const PairedPlayerHistory = () => {
                                                     src={imageSrc} 
                                                     alt={partner.name || 'Partner'} 
                                                     onError={(e) => {
-                                                        e.target.src = '/assets/fakeprofile.png';
+                                                        e.target.src = '/assets/default-avatar-indigo.svg';
                                                     }}
                                                 />
                                             </div>
