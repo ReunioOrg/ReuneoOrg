@@ -11,10 +11,10 @@
   justify-content: space-between;
   padding: 0 32px;
   height: 60px;
-  background: rgba(248, 249, 252, 0.85);
+  background: color-mix(in srgb, var(--surface-ground) 85%, transparent);
   backdrop-filter: blur(16px) saturate(1.4);
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--border-default);
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
 }
 
@@ -154,10 +154,10 @@
 }
 
 .page-nav-bar-mobile:not(.page-nav-bar-mobile--glass) {
-  background: rgba(248, 249, 252, 0.9);
+  background: color-mix(in srgb, var(--surface-ground) 90%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--border-default);
 }
 
 /* Home (/) mobile: pinned bar + smaller logo — sits above hero & scrollable grey sections.

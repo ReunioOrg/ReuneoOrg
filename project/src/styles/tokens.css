@@ -3,6 +3,7 @@
   /* Brand */
   --color-brand-50: #f3f2fd;
   --color-brand-200: #e7e5fb;
+  --color-brand-300: #c7c3f8;
   --color-brand-400: #8a84f0;
   --color-brand-500: #5b54e8;
   --color-brand-700: #4a43c9;
@@ -42,6 +43,7 @@
   /* RGB triplets for rgba(var(--accent-rgb), a) */
   --accent-rgb: 91, 84, 232;
   --accent-dark-rgb: 74, 67, 201;
+  --accent-light-rgb: 138, 132, 240;
   --ink-rgb: 26, 26, 26;
 
   /* Roles */
@@ -52,6 +54,7 @@
   --text-secondary: var(--color-gray-500);
   --accent: var(--color-brand-500);
   --accent-dark: var(--color-brand-700);
+  --accent-light: var(--color-brand-400);
   --accent-tint: var(--color-brand-200);
   --shadow-accent: 0 8px 24px rgba(var(--accent-rgb), 0.32);
   --focus-ring: 0 0 0 3px rgba(var(--accent-rgb), 0.35);
@@ -70,4 +73,28 @@
   --warning-color: var(--color-warning);
   --info-color: var(--accent);
   --dark-bg: var(--color-gray-800);
+
+  /* Third-party network brands. Email and website icons use --accent. */
+  --social-instagram: #E4405F;
+  --social-facebook: #1877F2;
+  --social-whatsapp: #25D366;
+  --social-linkedin: #0A66C2;
+  --social-tiktok: #000000;
+  --social-snapchat: #F7D600;
+
+  /* Attendee tag washes. Same saturation and lightness; --text-primary on each
+     (white text is under 4.5:1). Mirrored in styles/colors.js. */
+  --tag-indigo: #908bd0;
+  --tag-violet: #a48bd0;
+  --tag-purple: #c08bd0;
+  --tag-magenta: #d08bb7;
+  --tag-rose: #d08b99;
+  --tag-coral: #d09d8b;
+  --tag-amber: #d0b08b;
+  --tag-olive: #b9d08b;
+  --tag-sage: #8bd0b0;
+  --tag-teal: #8bd0c9;
+  --tag-sky: #8bb9d0;
+  --tag-periwinkle: #8ba0d0;
+  --tag-text: var(--text-primary);
 }
