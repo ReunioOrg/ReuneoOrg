@@ -571,7 +571,7 @@
 .cmef-greet-text {
     font-size: 15px;
     font-weight: 800;
-    color: #333;
+    color: var(--text-primary);
     letter-spacing: -0.02em;
     text-shadow:
         0 2px 20px rgba(0, 0, 0, 0.08),
@@ -859,7 +859,7 @@
     display: inline-block;
     font-size: 28px;
     font-weight: 800;
-    color: #333;
+    color: var(--text-primary);
     letter-spacing: -0.02em;
     line-height: 1.2;
     text-shadow: none;
@@ -942,7 +942,7 @@
 .cmef-convo-word {
     font-size: 18px;
     font-weight: 800;
-    color: #333;
+    color: var(--text-primary);
     letter-spacing: -0.02em;
     line-height: 1.2;
     opacity: 1;

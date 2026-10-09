@@ -7,21 +7,24 @@ import FloatingLinesBackground from './FloatingLinesBackground';
 import PageNavBar from '../components/PageNavBar/PageNavBar';
 import SiteSocialFooter from '../components/SiteSocialFooter/SiteSocialFooter';
 import { FaInstagram, FaFacebookF, FaLinkedinIn, FaEnvelope, FaPhone, FaGlobe, FaTiktok, FaSnapchatGhost, FaCopy } from 'react-icons/fa';
+import { getSocialIconColor, getTagTone } from '../../styles/colors';
+
+const DASHBOARD_PLACEHOLDER_AVATAR = '/assets/default-avatar-indigo.svg';
 
 const SOCIAL_PLATFORM_ORDER = ['phone', 'email', 'website', 'instagram', 'facebook', 'linkedin', 'tiktok', 'snapchat'];
 
 const getSocialPlatformInfo = (platform) => {
     const platforms = {
-        instagram: { label: 'Instagram', Icon: FaInstagram, color: '#E4405F', displayPrefix: '@' },
-        facebook: { label: 'Facebook', Icon: FaFacebookF, color: '#1877F2', displayPrefix: '@' },
-        email: { label: 'Email', Icon: FaEnvelope, color: '#4b7ef0', displayPrefix: '' },
-        phone: { label: 'Phone', Icon: FaPhone, color: '#25D366', displayPrefix: '' },
-        website: { label: 'Website', Icon: FaGlobe, color: '#4b7ef0', displayPrefix: '' },
-        linkedin: { label: 'LinkedIn', Icon: FaLinkedinIn, color: '#0A66C2', displayPrefix: '' },
-        tiktok: { label: 'TikTok', Icon: FaTiktok, color: '#000000', displayPrefix: '@' },
-        snapchat: { label: 'Snapchat', Icon: FaSnapchatGhost, color: '#F7D600', displayPrefix: '@' }
+        instagram: { label: 'Instagram', Icon: FaInstagram, color: getSocialIconColor('instagram'), displayPrefix: '@' },
+        facebook: { label: 'Facebook', Icon: FaFacebookF, color: getSocialIconColor('facebook'), displayPrefix: '@' },
+        email: { label: 'Email', Icon: FaEnvelope, color: getSocialIconColor('email'), displayPrefix: '' },
+        phone: { label: 'Phone', Icon: FaPhone, color: getSocialIconColor('phone'), displayPrefix: '' },
+        website: { label: 'Website', Icon: FaGlobe, color: getSocialIconColor('website'), displayPrefix: '' },
+        linkedin: { label: 'LinkedIn', Icon: FaLinkedinIn, color: getSocialIconColor('linkedin'), displayPrefix: '' },
+        tiktok: { label: 'TikTok', Icon: FaTiktok, color: getSocialIconColor('tiktok'), displayPrefix: '@' },
+        snapchat: { label: 'Snapchat', Icon: FaSnapchatGhost, color: getSocialIconColor('snapchat'), displayPrefix: '@' }
     };
-    return platforms[platform] || { label: platform, Icon: FaGlobe, color: '#4b7ef0', displayPrefix: '' };
+    return platforms[platform] || { label: platform, Icon: FaGlobe, color: getSocialIconColor('website'), displayPrefix: '' };
 };
 
 const buildSocialLinkUrl = (platform, value) => {
@@ -52,24 +55,10 @@ const LoadingSpinner = ({ size = 60, className = '' }) => {
     );
 };
 
-const TAG_COLORS = [
-    '#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6',
-    '#ef4444', '#14b8a6', '#f97316', '#a855f7', '#06b6d4', '#84cc16',
-];
-
-const getTagColor = (tag) => {
-    if (!tag) return TAG_COLORS[0];
-    let hash = 0;
-    for (let i = 0; i < tag.length; i++) {
-        hash = tag.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return TAG_COLORS[Math.abs(hash) % TAG_COLORS.length];
-};
-
 const TagPill = React.memo(({ tag }) => {
-    const color = getTagColor(tag);
+    const tone = getTagTone(tag);
     return (
-        <span className="attendee-modal-tag-pill" style={{ background: color }}>
+        <span className="attendee-modal-tag-pill" style={{ background: tone.background, color: tone.text }}>
             {tag}
         </span>
     );
@@ -557,9 +546,9 @@ const CommunityAttendeesCarousel = ({ attendees = [], navigate }) => {
                                         <div className="attendees-avatarWrap" aria-hidden="true">
                                             <img
                                                 className="attendees-avatarImg"
-                                                src={imageUrl || "/assets/fallback_image_avatar_11.png"}
+                                                src={imageUrl || DASHBOARD_PLACEHOLDER_AVATAR}
                                                 alt=""
-                                                onError={(e) => { e.target.src = "/assets/fallback_image_avatar_11.png"; }}
+                                                onError={(e) => { e.target.src = DASHBOARD_PLACEHOLDER_AVATAR; }}
                                             />
                                         </div>
                                         <div className="attendees-name" title={attendee.name}>
@@ -649,9 +638,9 @@ const CommunityAttendeesCarousel = ({ attendees = [], navigate }) => {
                                                             <div className="attendee-modal-profile-img-wrapper">
                                                                 <img
                                                                     className="attendee-modal-profile-img"
-                                                                    src={details.image_data || "/assets/fallback_image_avatar_11.png"}
+                                                                    src={details.image_data || DASHBOARD_PLACEHOLDER_AVATAR}
                                                                     alt={details.name}
-                                                                    onError={(e) => { e.target.src = "/assets/fallback_image_avatar_11.png"; }}
+                                                                    onError={(e) => { e.target.src = DASHBOARD_PLACEHOLDER_AVATAR; }}
                                                                 />
                                                             </div>
                                                             <div className="attendee-modal-profile-footer">
@@ -670,7 +659,7 @@ const CommunityAttendeesCarousel = ({ attendees = [], navigate }) => {
                                                                 <span className="attendee-modal-stat-value">{details.rounds_paired}</span>
                                                                 <div className="attendee-modal-staggered-icons">
                                                                     {[...Array(4)].map((_, i) => (
-                                                                        <img key={i} className="attendee-modal-staggered-icon" src="/assets/fallback_image_avatar_11.png" alt="" />
+                                                                        <img key={i} className="attendee-modal-staggered-icon" src={DASHBOARD_PLACEHOLDER_AVATAR} alt="" />
                                                                     ))}
                                                                 </div>
                                                             </div>
@@ -703,7 +692,7 @@ const CommunityAttendeesCarousel = ({ attendees = [], navigate }) => {
                                                             <h3 className="attendee-modal-tags-label">contact info:</h3>
                                                             {details.email && (
                                                                 <div className="attendee-modal-email-row">
-                                                                    <FaEnvelope size={14} color="#4b7ef0" />
+                                                                    <FaEnvelope size={14} color={getSocialIconColor('email')} />
                                                                     <a href={`mailto:${details.email}`} className="attendee-modal-email-value">
                                                                         {details.email}
                                                                     </a>
@@ -837,8 +826,8 @@ const OrganizerDashboard = () => {
                 <div className="dashboard-nav-bar">
                     <button className="dashboard-nav-back" onClick={() => navigate('/')} aria-label="Back">
                         <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-                            <circle cx="18" cy="18" r="17" stroke="#374151" strokeWidth="1.5" fill="rgba(255,255,255,0.8)"/>
-                            <path d="M21 12L15 18L21 24" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <circle cx="18" cy="18" r="17" stroke="currentColor" strokeWidth="1.5"/>
+                            <path d="M21 12L15 18L21 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                     </button>
                     <img

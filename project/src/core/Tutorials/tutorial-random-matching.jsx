@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { palette } from '../../styles/colors';
 import './tutorial-random-matching.css';
 
 const SCENES = [
@@ -24,7 +25,7 @@ const CHAT_BLURBS = [
     { text: "Same!",           left: 8,  top: 58, delay: 1.15 },
 ];
 
-const PersonIcon = ({ color = '#3b82f6' }) => (
+const PersonIcon = ({ color = palette.accent }) => (
     <svg viewBox="0 0 48 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="24" cy="10" r="9" fill={color} />
         <rect x="10" y="23" width="28" height="40" rx="14" fill={color} />

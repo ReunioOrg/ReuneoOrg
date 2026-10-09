@@ -5,6 +5,7 @@ import { useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './admin_lobby_view.css';
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
+import { palette, timerColors, timerTrail } from '../../styles/colors';
 import { QRCodeSVG } from 'qrcode.react';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -129,7 +130,7 @@ const generateStyledQRCodeImage = (svgElement, code) => {
         const ctx = canvas.getContext('2d');
 
         // Set white background
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = palette.white;
         ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
         // Load logo image
@@ -152,7 +153,7 @@ const generateStyledQRCodeImage = (svgElement, code) => {
 
                 // Divider tight under logo
                 const divider1Y = logoY + logoHeight + 12;
-                ctx.strokeStyle = '#d1d5db';
+                ctx.strokeStyle = palette.borderDefault;
                 ctx.lineWidth = 1.5;
                 ctx.beginPath();
                 ctx.moveTo(margin + 40, divider1Y);
@@ -173,7 +174,7 @@ const generateStyledQRCodeImage = (svgElement, code) => {
                 const contentStart = contentAreaTop + (contentAreaBottom - contentAreaTop - contentHeight) / 2;
 
                 // Header line 1
-                ctx.fillStyle = '#1a1a2e';
+                ctx.fillStyle = palette.textPrimary;
                 ctx.font = `700 ${headerFontSize}px ${font}`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'top';
@@ -183,7 +184,7 @@ const generateStyledQRCodeImage = (svgElement, code) => {
                 // Header line 2
                 const subY = contentStart + headerFontSize + 10;
                 ctx.font = `500 ${subFontSize}px ${font}`;
-                ctx.fillStyle = '#4b5563';
+                ctx.fillStyle = palette.textSecondary;
                 ctx.letterSpacing = '0.5px';
                 ctx.fillText('Listen to the tutorial!', canvasWidth / 2, subY);
                 ctx.letterSpacing = '0px';
@@ -206,7 +207,7 @@ const generateStyledQRCodeImage = (svgElement, code) => {
                 ctx.lineTo(bx, by + r);
                 ctx.arcTo(bx, by, bx + r, by, r);
                 ctx.closePath();
-                ctx.strokeStyle = '#e5e7eb';
+                ctx.strokeStyle = palette.borderDefault;
                 ctx.lineWidth = 2;
                 ctx.stroke();
 
@@ -216,7 +217,7 @@ const generateStyledQRCodeImage = (svgElement, code) => {
                 const footerY = canvasHeight - margin - 10;
                 ctx.textBaseline = 'bottom';
                 ctx.textAlign = 'center';
-                ctx.fillStyle = '#6b7280';
+                ctx.fillStyle = palette.textSecondary;
                 ctx.font = `600 20px ${font}`;
                 ctx.letterSpacing = '1px';
                 const labelText = 'BACKUP CODE: ';
@@ -229,7 +230,7 @@ const generateStyledQRCodeImage = (svgElement, code) => {
                 ctx.textAlign = 'left';
                 ctx.fillText(labelText, startX, footerY);
                 ctx.font = `700 20px ${monoFont}`;
-                ctx.fillStyle = '#1a1a2e';
+                ctx.fillStyle = palette.textPrimary;
                 ctx.fillText(code, startX + labelWidth, footerY);
                 ctx.letterSpacing = '0px';
 
@@ -472,8 +473,8 @@ const LobbyProgressBar = ({ lobbyState, playerCount, onStart, onEnd, lobbyCode, 
                                             size={180}
                                             level="H"
                                             includeMargin={false}
-                                            bgColor="#ffffff"
-                                            fgColor="#1a1a2e"
+                                            bgColor={palette.white}
+                                            fgColor={palette.textPrimary}
                                             id="modal-qr-svg"
                                         />
                                         <div className="checkin-modal-qr-download-hint">
@@ -708,7 +709,7 @@ const SoundPrompt = ({ onEnable, onDismiss }) => {
         <div className="sound-prompt-overlay">
             <div className="sound-prompt-modal">
                 <div className="sound-prompt-icon">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2196F3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
                         <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
                         <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
@@ -1842,12 +1843,12 @@ const AdminLobbyView = () => {
                         Reset Lobby Timer
                     </button>
                 )}
-                <div className="admin-view-nav-bar" style={tutorialMode ? { zIndex: 10001, background: '#f8f9fb' } : undefined}>
+                <div className={`admin-view-nav-bar${tutorialMode ? ' admin-view-nav-bar--tutorial' : ''}`} style={tutorialMode ? { zIndex: 10001 } : undefined}>
                     <button className="admin-nav-back" onClick={() => navigate('/')} aria-label="Home">
                         <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
-                            <circle cx="18" cy="18" r="17" fill="#3b3b3b"/>
-                            <path d="M11 19.5L18 13L25 19.5" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M13 18V25H16.5V21.5H19.5V25H23V18" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <circle cx="18" cy="18" r="17" fill="var(--text-primary)"/>
+                            <path d="M11 19.5L18 13L25 19.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M13 18V25H16.5V21.5H19.5V25H23V18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                     </button>
                     <img 
@@ -2015,8 +2016,8 @@ const AdminLobbyView = () => {
                                             size={180}
                                             level="H"
                                             includeMargin={false}
-                                            bgColor="#ffffff"
-                                            fgColor="#1a1a2e"
+                                            bgColor={palette.white}
+                                            fgColor={palette.textPrimary}
                                             id="inline-qr-svg"
                                         />
                                     )}
@@ -2059,7 +2060,7 @@ const AdminLobbyView = () => {
                             aria-label="Never miss a round change — connect a speaker"
                         >
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-                                stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                                 aria-hidden="true">
                                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
                                 <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
@@ -2159,11 +2160,11 @@ const AdminLobbyView = () => {
                                     isPlaying={lobbyState === "active"}
                                     duration={roundDuration}
                                     initialRemainingTime={lobbyTimer}
-                                    colors={["#64B5F6", "#2196F3", "#1976D2"]}
+                                    colors={timerColors}
                                     colorsTime={[roundDuration, roundDuration / 2, 0]}
                                     size={90}
                                     strokeWidth={8}
-                                    trailColor="#f0f1f4"
+                                    trailColor={timerTrail}
                                     onComplete={() => {
                                         return { shouldRepeat: false };
                                     }}
@@ -2175,10 +2176,10 @@ const AdminLobbyView = () => {
                                         const secs = Math.floor(validTime % 60);
                                         return (
                                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                                <span style={{ fontSize: '1.35rem', color: '#1a1a2e', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+                                                <span style={{ fontSize: '1.35rem', color: 'var(--text-primary)', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
                                                     {mins}:{String(secs).padStart(2, '0')}
                                                 </span>
-                                                <span style={{ fontSize: '0.6rem', color: '#6b7280', fontWeight: 500, marginTop: '2px' }}>time left</span>
+                                                <span style={{ fontSize: '0.6rem', color: 'var(--text-secondary)', fontWeight: 500, marginTop: '2px' }}>time left</span>
                                             </div>
                                         );
                                     }}
@@ -2220,9 +2221,9 @@ const AdminLobbyView = () => {
                                                     />
                                                     <span className="player-dots-badge">
                                                         <svg width="14" height="4" viewBox="0 0 14 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <circle cx="2" cy="2" r="1.5" fill="#6b7280"/>
-                                                            <circle cx="7" cy="2" r="1.5" fill="#6b7280"/>
-                                                            <circle cx="12" cy="2" r="1.5" fill="#6b7280"/>
+                                                            <circle cx="2" cy="2" r="1.5" fill="currentColor"/>
+                                                            <circle cx="7" cy="2" r="1.5" fill="currentColor"/>
+                                                            <circle cx="12" cy="2" r="1.5" fill="currentColor"/>
                                                         </svg>
                                                     </span>
                                                 </div>
@@ -2257,9 +2258,9 @@ const AdminLobbyView = () => {
                                                     />
                                                     <span className="player-dots-badge">
                                                         <svg width="14" height="4" viewBox="0 0 14 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <circle cx="2" cy="2" r="1.5" fill="#6b7280"/>
-                                                            <circle cx="7" cy="2" r="1.5" fill="#6b7280"/>
-                                                            <circle cx="12" cy="2" r="1.5" fill="#6b7280"/>
+                                                            <circle cx="2" cy="2" r="1.5" fill="currentColor"/>
+                                                            <circle cx="7" cy="2" r="1.5" fill="currentColor"/>
+                                                            <circle cx="12" cy="2" r="1.5" fill="currentColor"/>
                                                         </svg>
                                                     </span>
                                                 </div>
@@ -2317,9 +2318,9 @@ const AdminLobbyView = () => {
                                             />
                                             <span className="player-dots-badge">
                                                 <svg width="14" height="4" viewBox="0 0 14 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <circle cx="2" cy="2" r="1.5" fill="#6b7280"/>
-                                                    <circle cx="7" cy="2" r="1.5" fill="#6b7280"/>
-                                                    <circle cx="12" cy="2" r="1.5" fill="#6b7280"/>
+                                                    <circle cx="2" cy="2" r="1.5" fill="currentColor"/>
+                                                    <circle cx="7" cy="2" r="1.5" fill="currentColor"/>
+                                                    <circle cx="12" cy="2" r="1.5" fill="currentColor"/>
                                                 </svg>
                                             </span>
                                         </div>

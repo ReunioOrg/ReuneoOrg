@@ -82,7 +82,8 @@ export const hoverBorderGlowDefaults = {
 
 /**
  * One social-icon color map. Brand colors stay; email and website use accent.
- * Wired into post-event auth, paired-player history, and the attendees-history tutorial.
+ * Wired into post-event auth, paired-player history, the attendees-history
+ * tutorial, the organizer dashboard, and the match-history tutorial.
  */
 export const socialIconColors = {
   instagram: '#E4405F',
@@ -103,7 +104,7 @@ export function getSocialIconColor(platform) {
 /**
  * Softer 12-tone tag set (N9). Same hash as the dashboard picker.
  * White text is under 4.5:1 on every wash, so text is text-primary.
- * Not wired into the dashboard yet.
+ * Wired into the organizer dashboard tag pills.
  */
 export const tagPalette = [
   { id: 'indigo', background: '#908bd0', text: palette.textPrimary },
@@ -129,7 +130,7 @@ export function getTagTone(tag) {
   return tagPalette[Math.abs(hash) % tagPalette.length];
 }
 
-/** Player-lobby timer ramp. Admin timers switch to this in a later stage. */
+/** Timer ramp for the player lobby, the admin lobby, and the check-in tutorial. */
 export const timerColors = [palette.accentLight, palette.accent, palette.accentDark];
 export const timerTrail = palette.surfaceGround;
 
