@@ -231,7 +231,7 @@ form ~ .login-primary-button {
 
 .logo-image {
     width: 90px;
-    height: auto;
+    height: 90px;
     margin-bottom: 0.5rem;
     object-fit: contain;
     z-index: 1;
@@ -370,5 +370,6 @@ form ~ .login-primary-button {
     
     .logo-image {
         width: 75px;
+        height: 75px;
     }
 }

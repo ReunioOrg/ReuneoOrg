@@ -138,8 +138,9 @@
 }
 
 .history-logo img {
+    width: 72px;
     max-width: 72px;
-    height: auto;
+    height: 72px;
     object-fit: contain;
 }
 
@@ -754,7 +755,9 @@
     }
 
     .history-logo img {
+        width: 60px;
         max-width: 60px;
+        height: 60px;
     }
 
     .profile-incomplete-modal-content {

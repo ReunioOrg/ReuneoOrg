@@ -686,7 +686,7 @@ const PureSignupPage = () => {
             </button>
 
             <img 
-                src="/assets/reuneo_test_14.png"
+                src="/assets/Reuneo (Color - Horizontal).svg?v=a"
                 alt="Reunio Logo"
                 className="logo-image"
                 style={{ marginTop: '-1.5rem' }}

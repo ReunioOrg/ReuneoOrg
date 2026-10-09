@@ -594,7 +594,7 @@
 
 .ps-tier-cta-disabled {
     background: var(--color-gray-200);
-    color: var(--color-gray-400);
+    color: var(--color-gray-600);
     box-shadow: none;
     cursor: default;
 }
@@ -723,8 +723,8 @@
     max-width: 560px;
     padding: 48px 40px 44px;
     margin-top: 40px;
-    background: linear-gradient(160deg, rgba(255, 255, 255, 0.97) 0%, rgba(232, 240, 255, 0.97) 100%);
-    border: 1.5px solid rgba(var(--accent-rgb), 0.12);
+    background: var(--color-white);
+    border: 1.5px solid var(--border-default);
     box-shadow: 0 8px 40px rgba(var(--accent-rgb), 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
@@ -757,8 +757,8 @@
 /* ── Education Banner ────────────────────────── */
 
 .ps-education-banner {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.97) 0%, rgba(236, 245, 255, 0.97) 100%);
-    border: 1.5px solid rgba(59, 130, 246, 0.18);
+    background: var(--color-white);
+    border: 1.5px solid var(--border-default);
 }
 
 .ps-edu-input-group {

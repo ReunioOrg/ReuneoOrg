@@ -411,7 +411,7 @@
 /* Logo styles */
 .pure-signup .logo-image {
     width: 90px;
-    height: auto;
+    height: 90px;
     margin-bottom: 0.5rem;
     object-fit: contain;
     z-index: 1;

@@ -157,7 +157,7 @@
 }
 
 .verified-chip {
-    color: var(--color-success);
+    color: var(--color-success-strong);
     font-size: 0.75rem;
     margin-left: 8px;
     font-weight: 600;
@@ -215,7 +215,7 @@
 }
 
 .claim-error-banner {
-    color: var(--color-danger);
+    color: var(--color-danger-strong);
     font-size: 0.85rem;
     margin-bottom: 16px;
     padding: 10px 14px;

@@ -674,11 +674,11 @@ const PostEventAuth = () => {
                 marginBottom: '0'
             }}>
                 <img 
-                    src="/assets/reuneo_test_14.png"
+                    src="/assets/Reuneo (Color - Horizontal).svg?v=a"
                     alt="Reuneo Logo"
                     style={{
-                        maxWidth: '85px',
-                        height: 'auto',
+                        width: '85px',
+                        height: '85px',
                         objectFit: 'contain'
                     }}
                 />
