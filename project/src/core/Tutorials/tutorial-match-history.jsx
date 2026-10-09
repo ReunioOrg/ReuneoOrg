@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaEnvelope, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
+import { getSocialIconColor } from '../../styles/colors';
 import './tutorial-match-history.css';
 
 const SAMPLE_DATA = {
@@ -7,9 +8,9 @@ const SAMPLE_DATA = {
     image: '/assets/stock-woman-cropped.png',
     starRating: 4,
     socialLinks: [
-        { platform: 'email', value: 'kate_rodriguez@gmail.com', Icon: FaEnvelope, color: '#4b7ef0', prefix: '' },
-        { platform: 'instagram', value: '@ kate656', Icon: FaInstagram, color: '#E4405F', prefix: '' },
-        { platform: 'linkedin', value: '@ kate_consultant_atx', Icon: FaLinkedinIn, color: '#0A66C2', prefix: '' },
+        { platform: 'email', value: 'kate_rodriguez@gmail.com', Icon: FaEnvelope, color: getSocialIconColor('email'), prefix: '' },
+        { platform: 'instagram', value: '@ kate656', Icon: FaInstagram, color: getSocialIconColor('instagram'), prefix: '' },
+        { platform: 'linkedin', value: '@ kate_consultant_atx', Icon: FaLinkedinIn, color: getSocialIconColor('linkedin'), prefix: '' },
     ],
 };
 

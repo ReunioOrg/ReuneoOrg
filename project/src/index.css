@@ -36,7 +36,11 @@ body {
   justify-content: center;
   min-height: var(--viewport-height);
   width: 100%;
-  background-color: inherit;
+  /* Greige ground for every page, including the desktop area around the
+     390px column. Homepage sets the same color on body.home-scroll.
+     Do not move this to html: body { background-color: inherit } would
+     then cover the desktop hero layers. */
+  background-color: var(--surface-ground);
 }
 
 /* Mobile-first viewport container system */

@@ -7,6 +7,7 @@ import ClientTestimonialsSection from '../components/ClientTestimonialsSection/C
 import ResidentialHeroTutorial from '../components/ResidentialHeroTutorial/ResidentialHeroTutorial';
 import SpeedFriendingMatchingTutorial from '../components/SpeedFriendingMatchingTutorial/SpeedFriendingMatchingTutorial';
 import HoverBorderGlow from '../components/HoverBorderGlow/HoverBorderGlow';
+import { hoverBorderGlowDefaults } from '../../styles/colors.js';
 import './speed-friending.css';
 
 const PAGE_TITLE = 'Speed Friending Event Platform - Automate Rotations & Matching | Reuneo';
@@ -289,7 +290,7 @@ const GET_STARTED_GLOW_PROPS = {
   bloomInset: 2,
   duration: 2800,
   spread: 42,
-  colors: ['#ffffff', '#a5b4fc', '#7c3aed'],
+  colors: hoverBorderGlowDefaults.colors,
 };
 
 function GetStartedButton({ onClick, className = '' }) {

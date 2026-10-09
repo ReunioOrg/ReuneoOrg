@@ -11,16 +11,17 @@
   justify-content: space-between;
   padding: 0 32px;
   height: 60px;
-  background: rgba(248, 249, 252, 0.85);
+  background: color-mix(in srgb, var(--surface-ground) 85%, transparent);
   backdrop-filter: blur(16px) saturate(1.4);
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--border-default);
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
 }
 
 .page-nav-logo {
-  width: 72px;
-  height: 72px;
+  width: auto;
+  height: 28px;
+  max-width: 160px;
   object-fit: contain;
   cursor: pointer;
   transition: transform 0.2s ease;
@@ -154,10 +155,10 @@
 }
 
 .page-nav-bar-mobile:not(.page-nav-bar-mobile--glass) {
-  background: rgba(248, 249, 252, 0.9);
+  background: color-mix(in srgb, var(--surface-ground) 90%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--border-default);
 }
 
 /* Home (/) mobile: pinned bar + smaller logo — sits above hero & scrollable grey sections.
@@ -192,7 +193,8 @@
   box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.04);
 }
 
-/* Horizontal SVG wordmarks on mobile home (white over video / color past hero) — keeps bar height unchanged vs square PNG */
+/* Horizontal SVG wordmarks — home (white over video / color past hero) and every other mobile bar */
+.page-nav-bar-mobile .page-nav-logo--mobile-horizontal,
 .page-nav-bar-mobile--glass.page-nav-bar-mobile--fixed-home .page-nav-logo--mobile-horizontal,
 .page-nav-bar-mobile--fixed-home.page-nav-bar-mobile--past-video-hero .page-nav-logo--mobile-horizontal {
   width: auto;
@@ -279,8 +281,9 @@
 }
 
 .page-menu-logo {
-  width: 52px;
-  height: 52px;
+  width: auto;
+  height: 26px;
+  max-width: min(150px, 55vw);
   object-fit: contain;
   cursor: pointer;
   transition: transform 0.2s ease;

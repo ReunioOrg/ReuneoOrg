@@ -52,13 +52,13 @@ export const TutorialSlide2 = ({ isActive }) => {
         <div className="slide2-arrow-section">
           <div className="slide2-chevron-group">
             <svg className="slide2-chevron slide2-chevron-1" width="26" height="26" viewBox="0 0 24 24" fill="none">
-              <path d="M15 18L9 12L15 6" stroke="#5b54e8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <svg className="slide2-chevron slide2-chevron-2" width="26" height="26" viewBox="0 0 24 24" fill="none">
-              <path d="M15 18L9 12L15 6" stroke="#5b54e8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <svg className="slide2-chevron slide2-chevron-3" width="26" height="26" viewBox="0 0 24 24" fill="none">
-              <path d="M15 18L9 12L15 6" stroke="#5b54e8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
         </div>
@@ -67,8 +67,8 @@ export const TutorialSlide2 = ({ isActive }) => {
         <div className="slide2-slider-section">
           {/* Volume loud icon at top */}
           <svg className="slide2-volume-icon" width="26" height="26" viewBox="0 0 24 24" fill="none">
-            <path d="M11 5L6 9H2v6h4l5 4V5z" fill="#5b54e8" stroke="#5b54e8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07" stroke="#5b54e8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M11 5L6 9H2v6h4l5 4V5z" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
 
           <div className={`slide2-number ${progress >= 1 ? 'slide2-number-complete' : ''}`}>
@@ -86,9 +86,9 @@ export const TutorialSlide2 = ({ isActive }) => {
 
           {/* Volume muted icon at bottom */}
           <svg className="slide2-volume-icon" width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M11 5L6 9H2v6h4l5 4V5z" fill="#5b54e8" stroke="#5b54e8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <line x1="23" y1="9" x2="17" y2="15" stroke="#5b54e8" strokeWidth="2" strokeLinecap="round"/>
-            <line x1="17" y1="9" x2="23" y2="15" stroke="#5b54e8" strokeWidth="2" strokeLinecap="round"/>
+            <path d="M11 5L6 9H2v6h4l5 4V5z" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <line x1="23" y1="9" x2="17" y2="15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            <line x1="17" y1="9" x2="23" y2="15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
         </div>
       </div>
@@ -222,9 +222,9 @@ const TutorialEmailSlide = ({ isActive, onEmailSubmit, onSkip, onClaimTriggered 
       <div className="slide-email-layout">
         <div className="slide-email-content">
           <div className="slide-email-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M22 4L12 14.01l-3-3" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg className="tutorial-success-check" width="48" height="48" viewBox="0 0 24 24" fill="none">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M22 4L12 14.01l-3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
           <h2 className="slide-email-header">Check Your Email</h2>
@@ -251,8 +251,8 @@ const TutorialEmailSlide = ({ isActive, onEmailSubmit, onSkip, onClaimTriggered 
         <div className="slide-email-content">
           <div className="slide-email-icon">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="#5b54e8" strokeWidth="1.5"/>
-              <path d="M12 8v4M12 16h.01" stroke="#5b54e8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M12 8v4M12 16h.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
           <h2 className="slide-email-header">Welcome Back</h2>
@@ -285,7 +285,7 @@ const TutorialEmailSlide = ({ isActive, onEmailSubmit, onSkip, onClaimTriggered 
         <button className="slide-email-skip" onClick={onSkip} aria-label="Opt out">
           <span className="slide-email-skip-text">Opt out</span>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M9 18l6-6-6-6" stroke="#a19c92" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
       </div>
@@ -298,8 +298,8 @@ const TutorialEmailSlide = ({ isActive, onEmailSubmit, onSkip, onClaimTriggered 
       <div className="slide-email-content">
         <div className="slide-email-icon">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-            <rect x="2" y="4" width="20" height="16" rx="3" stroke="#5b54e8" strokeWidth="1.5" />
-            <path d="M2 7l10 7 10-7" stroke="#5b54e8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <rect x="2" y="4" width="20" height="16" rx="3" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M2 7l10 7 10-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
         <h2 className="slide-email-header">Save Your Connections</h2>
@@ -338,7 +338,7 @@ const TutorialEmailSlide = ({ isActive, onEmailSubmit, onSkip, onClaimTriggered 
       <button className="slide-email-skip" onClick={onSkip} aria-label="Opt out">
         <span className="slide-email-skip-text">Opt out</span>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M9 18l6-6-6-6" stroke="#a19c92" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>
     </div>

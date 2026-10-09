@@ -1,9 +1,12 @@
 import { useRef, useEffect } from 'react';
 import './BorderGlow.css';
+import { borderGlowDefaults, hexToHslString, palette } from '../../../styles/colors.js';
+
+const ACCENT_HSL = hexToHslString(palette.accent).split(' ').map(Number);
 
 function parseHSL(hslStr) {
   const match = hslStr.match(/([\d.]+)\s*([\d.]+)%?\s*([\d.]+)%?/);
-  if (!match) return { h: 40, s: 80, l: 80 };
+  if (!match) return { h: ACCENT_HSL[0], s: ACCENT_HSL[1], l: ACCENT_HSL[2] };
   return { h: parseFloat(match[1]), s: parseFloat(match[2]), l: parseFloat(match[3]) };
 }
 
@@ -37,13 +40,13 @@ const BorderGlow = ({
   children,
   className = '',
   edgeSensitivity = 30,
-  glowColor = '40 80 80',
+  glowColor = borderGlowDefaults.glowColor,
   backgroundColor = 'transparent',
   borderRadius = 28,
   glowRadius = 40,
   glowIntensity = 1.0,
   coneSpread = 25,
-  colors = ['#c084fc', '#f472b6', '#38bdf8'],
+  colors = borderGlowDefaults.colors,
   fillOpacity = 0,
   duration = 2000,
   style: userStyle = {},

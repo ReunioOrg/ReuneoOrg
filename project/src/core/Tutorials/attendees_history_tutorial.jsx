@@ -1,8 +1,9 @@
 import React from 'react';
 import { FaInstagram, FaLinkedinIn, FaEnvelope, FaFacebookF, FaPhone } from 'react-icons/fa';
 import './attendees_history_tutorial.css';
+import { getSocialIconColor, palette } from '../../styles/colors';
 
-const PersonIcon = ({ color = '#3b82f6' }) => (
+const PersonIcon = ({ color = palette.accent }) => (
     <svg viewBox="0 0 32 80" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="16" cy="10" r="9" fill={color} />
         <rect x="5" y="26" width="22" height="48" rx="11" fill={color} />
@@ -47,8 +48,8 @@ const MOCK_TILES = [
         date: '04/02/26',
         stars: 5,
         socials: [
-            { Icon: FaInstagram, color: '#4b7ef0' },
-            { Icon: FaLinkedinIn, color: '#4b7ef0' },
+            { Icon: FaInstagram, color: getSocialIconColor('instagram') },
+            { Icon: FaLinkedinIn, color: getSocialIconColor('linkedin') },
         ],
     },
     {
@@ -57,8 +58,8 @@ const MOCK_TILES = [
         date: '04/02/26',
         stars: 4,
         socials: [
-            { Icon: FaEnvelope, color: '#4b7ef0' },
-            { Icon: FaFacebookF, color: '#4b7ef0' },
+            { Icon: FaEnvelope, color: getSocialIconColor('email') },
+            { Icon: FaFacebookF, color: getSocialIconColor('facebook') },
         ],
     },
     {
@@ -67,8 +68,8 @@ const MOCK_TILES = [
         date: '03/28/26',
         stars: 5,
         socials: [
-            { Icon: FaPhone, color: '#4b7ef0' },
-            { Icon: FaInstagram, color: '#4b7ef0' },
+            { Icon: FaPhone, color: getSocialIconColor('phone') },
+            { Icon: FaInstagram, color: getSocialIconColor('instagram') },
         ],
     },
     {
@@ -77,8 +78,8 @@ const MOCK_TILES = [
         date: '03/28/26',
         stars: 4,
         socials: [
-            { Icon: FaLinkedinIn, color: '#4b7ef0' },
-            { Icon: FaEnvelope, color: '#4b7ef0' },
+            { Icon: FaLinkedinIn, color: getSocialIconColor('linkedin') },
+            { Icon: FaEnvelope, color: getSocialIconColor('email') },
         ],
     },
     {
@@ -87,8 +88,8 @@ const MOCK_TILES = [
         date: '03/21/26',
         stars: 5,
         socials: [
-            { Icon: FaInstagram, color: '#4b7ef0' },
-            { Icon: FaFacebookF, color: '#4b7ef0' },
+            { Icon: FaInstagram, color: getSocialIconColor('instagram') },
+            { Icon: FaFacebookF, color: getSocialIconColor('facebook') },
         ],
     },
 ];

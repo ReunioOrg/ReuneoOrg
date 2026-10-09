@@ -47,7 +47,7 @@
     height: 110px;
     border-radius: 50%;
     overflow: hidden;
-    border: 3px solid #4b7ef0;
+    border: 3px solid var(--accent);
     flex-shrink: 0;
 }
 
@@ -62,7 +62,7 @@
 .tutorial-mh-example-label {
     font-size: 0.8rem;
     font-style: italic;
-    color: #6b7280;
+    color: var(--text-secondary);
     text-align: center;
     padding-bottom: 0.25rem;
 }
@@ -72,7 +72,7 @@
 .tutorial-mh-name {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #4b7ef0;
+    color: var(--accent);
     text-align: center;
 }
 
@@ -89,7 +89,7 @@
 .tutorial-mh-stars-question {
     font-size: 1rem;
     font-weight: 600;
-    color: #4b7ef0;
+    color: var(--accent);
 }
 
 .tutorial-mh-stars-row {
@@ -100,7 +100,7 @@
 
 .tutorial-mh-star {
     font-size: 1.6rem;
-    color: #d1d5db;
+    color: var(--border-default);
     transition: color 0.3s ease, transform 0.3s ease;
     line-height: 1;
 }
@@ -113,7 +113,7 @@
 .tutorial-mh-stars-disclaimer {
     font-size: 0.75rem;
     font-style: italic;
-    color: rgba(15, 23, 42, 0.6);
+    color: rgba(var(--ink-rgb), 0.6);
 }
 
 /* ── Share Contact Toggle ── */
@@ -129,7 +129,7 @@
 .tutorial-mh-share-question {
     font-size: 1rem;
     font-weight: 600;
-    color: #4b7ef0;
+    color: var(--accent);
 }
 
 .tutorial-mh-share-buttons {
@@ -142,10 +142,10 @@
 .tutorial-mh-share-btn {
     flex: 1;
     padding: 0.5rem 1rem;
-    border: 2px solid #4b7ef0;
+    border: 2px solid var(--accent);
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.9);
-    color: #4b7ef0;
+    color: var(--accent);
     font-size: 0.95rem;
     font-weight: 600;
     cursor: default;
@@ -153,7 +153,7 @@
 }
 
 .tutorial-mh-share-btn.tutorial-mh-share-selected {
-    background: #4b7ef0;
+    background: var(--accent);
     color: white;
 }
 
@@ -162,7 +162,7 @@
 .tutorial-mh-contact-section {
     width: 100%;
     padding-top: 0.75rem;
-    border-top: 1px solid rgba(75, 126, 240, 0.1);
+    border-top: 1px solid rgba(var(--accent-rgb), 0.1);
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
@@ -171,7 +171,7 @@
 .tutorial-mh-contact-header {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #4b7ef0;
+    color: var(--accent);
     margin-bottom: 0.25rem;
 }
 
@@ -180,7 +180,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
-    background: rgba(75, 126, 240, 0.05);
+    background: rgba(var(--accent-rgb), 0.05);
     border-radius: 8px;
     text-decoration: none;
 }
@@ -192,7 +192,7 @@
 }
 
 .tutorial-mh-social-value {
-    color: #4b7ef0;
+    color: var(--accent);
     font-size: 0.85rem;
     font-weight: 500;
     overflow: hidden;

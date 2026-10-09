@@ -14,7 +14,7 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
     image: null,
     imagePreview: userProfile?.image_data
       ? `data:image/jpeg;base64,${userProfile.image_data}`
-      : '/assets/fakeprofile.png', // Default profile image
+      : '/assets/default-avatar-indigo.svg', // Default profile image
     croppedImage: null
   });
   
@@ -119,7 +119,6 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
       left: 0,
       width: '100%',
       height: '100%',
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
@@ -128,33 +127,23 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
       <div className="profile-creation-modal" style={{
         width: '70%',
         maxWidth: '500px',
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
         borderRadius: '20px',
         padding: '2rem',
-        boxShadow: '0 10px 30px rgba(20,77,255,0.15)',
-        position: 'relative',
-        border: '1px solid rgba(20,77,255,0.1)'
+        position: 'relative'
       }}>
         {/* Close Button */}
-        <button onClick={onClose} style={{
+        <button onClick={onClose} className="profile-editor-close" style={{
           position: 'absolute',
           top: '1.2rem',
           right: '1.2rem',
-          background: 'none',
-          border: 'none',
           fontSize: '1.8rem',
           cursor: 'pointer',
-          color: '#144dff',
-          transition: 'transform 0.3s ease',
-          '&:hover': {
-            transform: 'scale(1.1)'
-          }
+          transition: 'transform 0.3s ease'
         }}>×</button>
         
         {/* Header */}
-        <h2 style={{
+        <h2 className="profile-editor-title" style={{
           fontSize: 'clamp(1.8rem, 6vw, 2.5rem)',
-          color: '#144dff',
           textAlign: 'center',
           marginBottom: '2rem',
           fontWeight: '600'
@@ -171,53 +160,41 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
             flexDirection: 'column',
             gap: '0.8rem'
           }}>
-            <label style={{
-              color: '#144dff',
+            <label className="profile-editor-label" style={{
               fontWeight: '500',
               fontSize: '1rem'
             }}>Your Name</label>
             <input
               type="text"
+              className="profile-editor-input"
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
               style={{
                 width: '100%',
                 padding: '12px',
                 borderRadius: '12px',
-                border: '2px solid #e0e0e0',
                 fontSize: '0.9rem',
-                transition: 'all 0.3s ease',
-                backgroundColor: 'rgba(255,255,255,0.9)',
-                '&:focus': {
-                  borderColor: '#144dff',
-                  outline: 'none',
-                  boxShadow: '0 0 0 3px rgba(20,77,255,0.1)'
-                }
+                transition: 'all 0.3s ease'
               }}
             />
           </div>
 
           {/* Current Profile Image or Cropped Preview */}
           {!isCropping && (
-            <div style={{
+            <div className="profile-editor-avatar" style={{
               width: '250px',
               height: '250px',
               margin: '0 auto',
               borderRadius: '20%',
               overflow: 'hidden',
-              border: '7px solid #144dff',
-              boxShadow: '0 8px 25px rgba(20,77,255,0.2)',
-              transition: 'transform 0.3s ease',
-              '&:hover': {
-                transform: 'scale(1.02)'
-              }
+              transition: 'transform 0.3s ease'
             }}>
               <img
                 src={
                   formData.croppedImage ? formData.croppedImage :
                   formData.imagePreview ? formData.imagePreview :
                   userProfile?.image_data ? `data:image/jpeg;base64,${userProfile.image_data}` :
-                  '/assets/fakeprofile.png'
+                  '/assets/default-avatar-indigo.svg'
                 }
                 alt="Profile preview"
                 style={{
@@ -240,21 +217,15 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
             />
             <label
               htmlFor="image-upload"
+              className="profile-editor-primary"
               style={{
                 padding: '0.8rem 1.2rem',
-                background: 'linear-gradient(45deg, #144dff, #2979ff)',
-                color: 'white',
                 borderRadius: '25px',
                 cursor: 'pointer',
                 display: 'inline-block',
                 fontSize: '0.9rem',
                 fontWeight: '600',
-                boxShadow: '0 4px 15px rgba(20,77,255,0.2)',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 6px 20px rgba(20,77,255,0.3)'
-                }
+                transition: 'all 0.3s ease'
               }}
             >
               Upload New Image
@@ -272,14 +243,12 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
               alignItems: 'center',
               gap: '1.2rem'
             }}>
-              <div style={{
+              <div className="profile-editor-crop-frame" style={{
                 position: 'relative',
                 width: '250px',
                 height: '250px',
                 borderRadius: '20%',
-                overflow: 'hidden',
-                border: '7px solid #144dff',
-                boxShadow: '0 8px 25px rgba(20,77,255,0.2)'
+                overflow: 'hidden'
               }}>
                 <Cropper
                   image={formData.imagePreview}
@@ -298,6 +267,7 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
               }}>
                 <button
                   type="button"
+                  className="profile-editor-cancel"
                   onClick={() => {
                     setIsCropping(false);
                     // Don't clear the preview if we already have a cropped image
@@ -311,15 +281,9 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
                   style={{
                     padding: '0.8rem 1.2rem',
                     borderRadius: '25px',
-                    border: '2px solid #144dff',
-                    background: 'white',
-                    color: '#144dff',
                     fontWeight: '600',
                     cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      background: 'rgba(20,77,255,0.1)'
-                    }
+                    transition: 'all 0.3s ease'
                   }}
                 >
                   Cancel
@@ -342,21 +306,13 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
                       console.error('Error cropping image:', error);
                     }
                   }}
-                  className={`save-profile-button ${showSaveAnimation ? 'glow-bounce' : ''}`}
+                  className={`save-profile-button profile-editor-primary ${showSaveAnimation ? 'glow-bounce' : ''}`}
                   style={{
                     padding: '0.8rem 1.2rem',
                     borderRadius: '25px',
-                    border: 'none',
-                    background: 'linear-gradient(45deg, #144dff, #2979ff)',
-                    color: 'white',
                     fontWeight: '600',
                     cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 15px rgba(20,77,255,0.2)',
-                    '&:hover': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 6px 20px rgba(20,77,255,0.3)'
-                    }
+                    transition: 'all 0.3s ease'
                   }}
                 >
                   Save Cropped Image
@@ -368,23 +324,15 @@ const ProfileCreation = ({ onSubmit, onClose, existingProfile }) => {
           {/* Save Profile Button */}
           <button
             type="submit"
-            className={`save-profile-button ${showSaveAnimation ? 'glow-bounce' : ''}`}
+            className={`save-profile-button profile-editor-primary ${showSaveAnimation ? 'glow-bounce' : ''}`}
             style={{
               padding: '1rem',
-              background: 'linear-gradient(45deg, #144dff, #2979ff)',
-              color: 'white',
-              border: 'none',
               borderRadius: '25px',
               fontSize: '1.1rem',
               fontWeight: '600',
               cursor: 'pointer',
               marginTop: '1rem',
-              boxShadow: '0 4px 15px rgba(20,77,255,0.2)',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 20px rgba(20,77,255,0.3)'
-              }
+              transition: 'all 0.3s ease'
             }}
           >
             Save Profile

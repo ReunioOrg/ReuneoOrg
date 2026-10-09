@@ -20,9 +20,9 @@
   --hbg-bloom-inset: 4px;
   --hbg-duration: 3000ms;
   --hbg-spread: 60deg;
-  --hbg-color-1: #ffffff;
-  --hbg-color-2: #a5b4fc;
-  --hbg-color-3: #7c3aed;
+  --hbg-color-1: var(--color-white);
+  --hbg-color-2: var(--accent-light);
+  --hbg-color-3: var(--accent-dark);
 
   position: relative;
   display: inline-flex;

@@ -7,6 +7,7 @@ import { FaInstagram, FaFacebookF, FaLinkedinIn, FaEnvelope, FaPhone, FaGlobe, F
 import './post-event-auth.css';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { apiFetch } from '../utils/api';
+import { getSocialIconColor, toastColors, palette } from '../../styles/colors';
 
 // ============================================================
 // FEATURE FLAG: Toggle email authentication mode
@@ -21,14 +22,14 @@ const ENABLE_MAGIC_LINK = true;
 // Social platform config — drives both the scroll selector and the input fields
 // Order: phone, email, website, instagram, facebook, tiktok, snapchat
 const SOCIAL_PLATFORMS = [
-    { key: 'phone',     label: 'Phone',     Icon: FaPhone,          color: '#25D366', placeholder: '+1 (555) 123-4567', type: 'tel',   stripAt: false },
-    { key: 'email',     label: 'Email',     Icon: FaEnvelope,       color: '#4b7ef0', placeholder: 'you@example.com',   type: 'email', stripAt: false },
-    { key: 'website',   label: 'Website',   Icon: FaGlobe,          color: '#4b7ef0', placeholder: 'https://yourwebsite.com', type: 'text', stripAt: false },
-    { key: 'instagram', label: 'Instagram', Icon: FaInstagram,      color: '#E4405F', placeholder: '@username',          type: 'text',  stripAt: true },
-    { key: 'facebook',  label: 'Facebook',  Icon: FaFacebookF,      color: '#1877F2', placeholder: '@username',          type: 'text',  stripAt: true },
-    { key: 'linkedin',  label: 'LinkedIn',  Icon: FaLinkedinIn,     color: '#0A66C2', placeholder: 'john-smith',              type: 'text',  stripAt: false },
-    { key: 'tiktok',    label: 'TikTok',    Icon: FaTiktok,         color: '#000000', placeholder: '@username',          type: 'text',  stripAt: true },
-    { key: 'snapchat',  label: 'Snapchat',  Icon: FaSnapchatGhost,  color: '#F7D600', placeholder: '@username',          type: 'text',  stripAt: true },
+    { key: 'phone',     label: 'Phone',     Icon: FaPhone,          color: getSocialIconColor('phone'), placeholder: '+1 (555) 123-4567', type: 'tel',   stripAt: false },
+    { key: 'email',     label: 'Email',     Icon: FaEnvelope,       color: getSocialIconColor('email'), placeholder: 'you@example.com',   type: 'email', stripAt: false },
+    { key: 'website',   label: 'Website',   Icon: FaGlobe,          color: getSocialIconColor('website'), placeholder: 'https://yourwebsite.com', type: 'text', stripAt: false },
+    { key: 'instagram', label: 'Instagram', Icon: FaInstagram,      color: getSocialIconColor('instagram'), placeholder: '@username',          type: 'text',  stripAt: true },
+    { key: 'facebook',  label: 'Facebook',  Icon: FaFacebookF,      color: getSocialIconColor('facebook'), placeholder: '@username',          type: 'text',  stripAt: true },
+    { key: 'linkedin',  label: 'LinkedIn',  Icon: FaLinkedinIn,     color: getSocialIconColor('linkedin'), placeholder: 'john-smith',              type: 'text',  stripAt: false },
+    { key: 'tiktok',    label: 'TikTok',    Icon: FaTiktok,         color: getSocialIconColor('tiktok'), placeholder: '@username',          type: 'text',  stripAt: true },
+    { key: 'snapchat',  label: 'Snapchat',  Icon: FaSnapchatGhost,  color: getSocialIconColor('snapchat'), placeholder: '@username',          type: 'text',  stripAt: true },
 ];
 
 // Infinite-loop scroll selector for choosing which social platforms to share
@@ -576,35 +577,13 @@ const PostEventAuth = () => {
                     }}>
                         📧
                     </div>
-                    <h2 style={{ 
-                        color: '#1a1a2e', 
-                        marginBottom: '12px',
-                        fontSize: '1.4rem',
-                        fontWeight: '700',
-                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-                    }}>
+                    <h2 className="magic-sent-title">
                         Check Your Email!
                     </h2>
-                    <p style={{ 
-                        color: '#1a1a2e', 
-                        marginBottom: '20px',
-                        lineHeight: '1.6',
-                        fontSize: '0.95rem',
-                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-                    }}>
+                    <p className="magic-sent-lead">
                         We sent a magic link to
                     </p>
-                    <div style={{
-                        background: '#f9fafb',
-                        border: '1.5px solid #e5e7eb',
-                        borderRadius: '12px',
-                        padding: '14px 18px',
-                        marginBottom: '28px',
-                        fontWeight: '600',
-                        color: '#1a1a2e',
-                        wordBreak: 'break-all',
-                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-                    }}>
+                    <div className="magic-sent-email">
                         {email}
                     </div>
                     <LoadingSpinner size={40} />
@@ -626,53 +605,19 @@ const PostEventAuth = () => {
                     }}>
                         🔗
                     </div>
-                    <h2 style={{ 
-                        color: '#1a1a2e', 
-                        marginBottom: '12px',
-                        fontSize: '1.4rem',
-                        fontWeight: '700',
-                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-                    }}>
+                    <h2 className="magic-sent-title">
                         Check Your Email!
                     </h2>
-                    <p style={{ 
-                        color: '#1a1a2e', 
-                        marginBottom: '20px',
-                        lineHeight: '1.6',
-                        fontSize: '0.95rem',
-                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-                    }}>
+                    <p className="magic-sent-lead">
                         We sent a verification link to
                     </p>
-                    <div style={{
-                        background: '#f9fafb',
-                        border: '1.5px solid #e5e7eb',
-                        borderRadius: '12px',
-                        padding: '14px 18px',
-                        marginBottom: '20px',
-                        fontWeight: '600',
-                        color: '#1a1a2e',
-                        wordBreak: 'break-all',
-                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-                    }}>
+                    <div className="magic-sent-email magic-sent-email-tight">
                         {email}
                     </div>
-                    <p style={{ 
-                        color: '#1a1a2e', 
-                        marginBottom: '24px',
-                        lineHeight: '1.6',
-                        fontSize: '0.95rem',
-                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-                    }}>
+                    <p className="magic-sent-follow">
                         Click the link to link your matches to your existing account.
                     </p>
-                    <p style={{ 
-                        color: '#6b7280', 
-                        fontSize: '0.85rem',
-                        marginBottom: '28px',
-                        lineHeight: '1.5',
-                        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-                    }}>
+                    <p className="magic-sent-note">
                         The link expires in 24 hours.
                         <br />
                         Don't see it? Check your spam folder.
@@ -692,8 +637,8 @@ const PostEventAuth = () => {
         <div className="post-event-auth-container">
             <Toaster position="top-center" toastOptions={{
                 style: {
-                    background: '#1a1a2e',
-                    color: 'white',
+                    background: toastColors.body,
+                    color: palette.white,
                     borderRadius: '12px',
                     padding: '12px 20px',
                     fontSize: '0.9rem',
@@ -702,14 +647,14 @@ const PostEventAuth = () => {
                 },
                 success: {
                     iconTheme: {
-                        primary: '#10b981',
-                        secondary: 'white'
+                        primary: toastColors.success,
+                        secondary: palette.white
                     }
                 },
                 error: {
                     iconTheme: {
-                        primary: '#ef4444',
-                        secondary: 'white'
+                        primary: toastColors.danger,
+                        secondary: palette.white
                     }
                 }
             }} />
@@ -729,11 +674,11 @@ const PostEventAuth = () => {
                 marginBottom: '0'
             }}>
                 <img 
-                    src="/assets/reuneo_test_14.png"
+                    src="/assets/Reuneo (Color - Horizontal).svg?v=a"
                     alt="Reuneo Logo"
                     style={{
-                        maxWidth: '85px',
-                        height: 'auto',
+                        width: '85px',
+                        height: '85px',
                         objectFit: 'contain'
                     }}
                 />
@@ -768,17 +713,9 @@ const PostEventAuth = () => {
 
                     <div style={{ marginTop: simplifiedFlow ? '0' : '20px', position: 'relative' }}>
                         <label className="step-label">
-                            Email <span style={{ color: '#ef4444' }}>*</span>
+                            Email <span className="required-mark">*</span>
                             {isEmailVerified && (
-                                <span style={{ 
-                                    color: '#10b981', 
-                                    fontSize: '0.75rem', 
-                                    marginLeft: '8px',
-                                    fontWeight: '600',
-                                    background: 'rgba(16, 185, 129, 0.1)',
-                                    padding: '2px 8px',
-                                    borderRadius: '6px'
-                                }}>
+                                <span className="verified-chip">
                                     ✓ Verified
                                 </span>
                             )}
@@ -799,15 +736,9 @@ const PostEventAuth = () => {
                             onChange={(e) => setEmail(e.target.value)}
                             onFocus={handleEmailFocus}
                             placeholder="Enter your email"
-                            className="step-input"
+                            className={`step-input${isEmailVerified ? ' step-input-locked' : ''}`}
                             required
                             disabled={isEmailVerified}
-                            style={isEmailVerified ? {
-                                backgroundColor: '#f3f4f6',
-                                color: '#9ca3af',
-                                cursor: 'not-allowed',
-                                borderColor: '#e5e7eb'
-                            } : {}}
                         />
                     </div>
 
@@ -916,17 +847,7 @@ const PostEventAuth = () => {
                         <div className="email-confirm-modal-email">{email}</div>
                         
                         {claimError && (
-                            <div style={{ 
-                                color: '#b91c1c', 
-                                fontSize: '0.85rem', 
-                                marginBottom: '16px',
-                                padding: '10px 14px',
-                                backgroundColor: 'rgba(185, 28, 28, 0.08)',
-                                borderRadius: '10px',
-                                fontWeight: '500',
-                                textAlign: 'left',
-                                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-                            }}>
+                            <div className="claim-error-banner">
                                 {claimError}
                             </div>
                         )}

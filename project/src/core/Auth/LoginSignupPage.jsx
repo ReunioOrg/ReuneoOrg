@@ -118,7 +118,7 @@ const LoginSignupPage = () => {
 
                 {!isDesktop && (
                     <img 
-                        src="/assets/reuneo_test_11.png"
+                        src="/assets/Reuneo (Color - Horizontal).svg?v=a"
                         alt="Reunio Logo"
                         className="logo-image"
                     />

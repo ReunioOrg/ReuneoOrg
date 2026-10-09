@@ -282,7 +282,7 @@ const OrganizerAccountDetails = () => {
             <div className="account-nav-row">
                 <button onClick={() => navigate('/')} className="account-home-button">Home</button>
                 <img
-                    src="/assets/reuneo_test_14.png"
+                    src="/assets/Reuneo%20(Color%20-%20Horizontal).svg?v=a"
                     alt="Reuneo Logo"
                     className="account-logo"
                 />
@@ -347,7 +347,6 @@ const OrganizerAccountDetails = () => {
                             {planDetails.subscription_status && (
                                 <div className="account-plan-status">
                                     <div className={`account-plan-status-dot ${planDetails.subscription_status !== 'active' ? 'status-' + planDetails.subscription_status : ''}`}
-                                         style={planDetails.subscription_status !== 'active' ? { background: planDetails.subscription_status === 'trialing' ? '#3b82f6' : planDetails.subscription_status === 'past_due' ? '#f59e0b' : '#ef4444', boxShadow: 'none' } : {}}
                                     />
                                     <span className="account-plan-status-text">
                                         {planDetails.subscription_status.charAt(0).toUpperCase() + planDetails.subscription_status.slice(1)}
@@ -439,7 +438,7 @@ const OrganizerAccountDetails = () => {
                                     {planDetails.cancel_at_period_end && (
                                         <div className="account-billing-row">
                                             <span className="account-billing-label">Status</span>
-                                            <span className="account-billing-value" style={{ color: '#f59e0b' }}>
+                                            <span className="account-billing-value account-cancels-note">
                                                 Cancels at period end
                                             </span>
                                         </div>

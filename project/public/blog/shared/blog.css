@@ -1,10 +1,10 @@
 /* Reuneo Blog — shared static page styles */
 :root {
-  --blog-bg: #f8f9fc;
-  --blog-text: #1a1a2e;
-  --blog-muted: #64748b;
-  --blog-accent: #144dff;
-  --blog-accent-2: #7c3aed;
+  --blog-bg: #f1f0ec;
+  --blog-text: #1a1a1a;
+  --blog-muted: #6e6a62;
+  --blog-accent: #5b54e8;
+  --blog-accent-2: #4a43c9;
   --blog-card: rgba(255, 255, 255, 0.95);
   --blog-radius: 14px;
   --blog-max: 760px;
@@ -16,7 +16,9 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* Same declared stack as the React app (:root in src/index.css). Inter is
+     not linked in index.html, so this resolves to the same fallback. */
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   background: var(--blog-bg);
   color: var(--blog-text);
   line-height: 1.7;
@@ -40,31 +42,39 @@ body {
 }
 
 .blog-logo-link img {
-  height: 77px;
+  height: 28px;
   width: auto;
+  max-width: 160px;
+  object-fit: contain;
   display: block;
 }
 
 .blog-header-cta {
   display: inline-block;
-  padding: 8px 20px;
-  background: linear-gradient(135deg, var(--blog-accent) 0%, var(--blog-accent-2) 100%);
+  padding: 7px 20px;
+  background: #5b54e8;
   color: #fff;
   text-decoration: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 600;
   font-size: 0.9rem;
   border-radius: 10px;
-  transition: opacity 0.15s ease;
+  box-shadow: 0 2px 8px rgba(91, 84, 232, 0.25);
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.blog-header-cta:hover { opacity: 0.88; }
+.blog-header-cta:hover {
+  background: #4a43c9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(91, 84, 232, 0.35);
+}
 
 /* ── Hero banner ─────────────────────────────────── */
 .blog-hero {
-  background: linear-gradient(135deg, #f0f4ff 0%, #f5f0ff 100%);
+  background: #f1f0ec;
   padding: 56px 24px 48px;
   text-align: center;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  border-bottom: 1px solid #e0ddd6;
 }
 
 .blog-category-tag {
@@ -73,8 +83,8 @@ body {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--blog-accent);
-  background: rgba(20, 77, 255, 0.08);
+  color: var(--blog-accent-2);
+  background: rgba(91, 84, 232, 0.08);
   border-radius: 6px;
   padding: 4px 10px;
   margin-bottom: 16px;
@@ -145,7 +155,7 @@ body {
 
 /* ── Callout tip ─────────────────────────────────── */
 .blog-tip {
-  background: linear-gradient(135deg, rgba(20,77,255,0.06) 0%, rgba(124,58,237,0.06) 100%);
+  background: linear-gradient(135deg, rgba(91,84,232,0.06) 0%, rgba(74,67,201,0.06) 100%);
   border-left: 4px solid var(--blog-accent);
   border-radius: 0 var(--blog-radius) var(--blog-radius) 0;
   padding: 16px 22px;
@@ -164,7 +174,7 @@ body {
 }
 
 .blog-activity-card {
-  background: #f8f9fc;
+  background: #ffffff;
   border: 1px solid rgba(0,0,0,0.07);
   border-radius: 10px;
   padding: 18px 20px;
@@ -188,7 +198,7 @@ body {
   margin-top: 44px;
   padding: 36px 32px;
   border-top: 1px solid rgba(0,0,0,0.08);
-  background: linear-gradient(135deg, rgba(20,77,255,0.04) 0%, rgba(124,58,237,0.04) 100%);
+  background: linear-gradient(135deg, rgba(91,84,232,0.04) 0%, rgba(74,67,201,0.04) 100%);
   border-radius: 0 0 var(--blog-radius) var(--blog-radius);
   margin-left: -40px;
   margin-right: -40px;
@@ -230,13 +240,13 @@ body {
   font-weight: 700;
   font-size: 1rem;
   border-radius: 12px;
-  box-shadow: 0 4px 18px rgba(20,77,255,0.28);
+  box-shadow: 0 4px 18px rgba(91,84,232,0.28);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .blog-cta-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(20,77,255,0.38);
+  box-shadow: 0 6px 24px rgba(91,84,232,0.38);
 }
 
 /* ── FAQ ─────────────────────────────────────────── */
@@ -343,8 +353,8 @@ body {
 .blog-hub-hero {
   text-align: center;
   padding: 64px 24px 48px;
-  background: linear-gradient(135deg, #f0f4ff 0%, #f5f0ff 100%);
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  background: #f1f0ec;
+  border-bottom: 1px solid #e0ddd6;
 }
 
 .blog-hub-hero h1 {

@@ -41,7 +41,7 @@ export function renderMatchingArrowPath(arrow, markerId) {
                     <path
                         d="M 1 1 L 7 4 L 1 7"
                         fill="none"
-                        stroke="rgba(160, 190, 220, 0.6)"
+                        stroke="rgba(var(--accent-light-rgb), 0.6)"
                         strokeWidth="1.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -51,7 +51,7 @@ export function renderMatchingArrowPath(arrow, markerId) {
             <path
                 d={d}
                 fill="none"
-                stroke="rgba(160, 190, 220, 0.55)"
+                stroke="rgba(var(--accent-light-rgb), 0.55)"
                 strokeWidth="2"
                 strokeLinecap="round"
                 markerEnd={`url(#${markerId})`}

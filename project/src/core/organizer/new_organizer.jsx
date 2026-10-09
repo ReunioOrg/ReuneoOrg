@@ -549,7 +549,7 @@ const NewOrganizerView = () => {
                         <button className="step-cta step-cta-secondary" disabled>
                             Continue <ArrowRight />
                         </button>
-                        <p style={{ fontSize: '0.8rem', color: '#888', textAlign: 'center', marginTop: '8px' }}>
+                        <p className="hint-faint">
                             Add at least 2 categories to enable interest matching
                         </p>
                     </>
@@ -642,17 +642,17 @@ const NewOrganizerView = () => {
             {/* Navigation Bar */}
             <div className={`step-nav-bar${isDescriptionStep ? ' step-nav-bar-prompt' : ''}`}>
                 <button className="nav-arrow" onClick={handleBack} aria-label="Back">
-                    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-                        <circle cx="18" cy="18" r="17" stroke="#374151" strokeWidth="1.5" fill="rgba(255,255,255,0.8)"/>
-                        <path d="M21 12L15 18L21 24" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <svg className="wizard-nav-arrow" width="36" height="36" viewBox="0 0 36 36" fill="none">
+                        <circle cx="18" cy="18" r="17" strokeWidth="1.5"/>
+                        <path d="M21 12L15 18L21 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                 </button>
-                <img src="/assets/reuneo_test_14.png" alt="Reuneo Logo" className="logo-image-nav" />
+                <img src="/assets/Reuneo%20(Color%20-%20Horizontal).svg?v=a" alt="Reuneo Logo" className="logo-image-nav" />
                 {!isDescriptionStep && currentStep < 5 && visitedSteps.has(currentStep + 1) ? (
                     <button className="nav-arrow" onClick={handleNext} aria-label="Next">
-                        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-                            <circle cx="18" cy="18" r="17" stroke="#374151" strokeWidth="1.5" fill="rgba(255,255,255,0.8)"/>
-                            <path d="M15 12L21 18L15 24" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <svg className="wizard-nav-arrow" width="36" height="36" viewBox="0 0 36 36" fill="none">
+                            <circle cx="18" cy="18" r="17" strokeWidth="1.5"/>
+                            <path d="M15 12L21 18L15 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                     </button>
                 ) : (
