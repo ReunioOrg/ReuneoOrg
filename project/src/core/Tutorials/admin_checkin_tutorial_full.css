@@ -1263,12 +1263,12 @@
     display: flex;
     gap: 6px;
     width: 100%;
-    background: #ffffff;
+    background: transparent;
     border-radius: 14px;
     padding: 6px;
     box-sizing: border-box;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow: none;
+    border: none;
     flex-shrink: 0;
 }
 

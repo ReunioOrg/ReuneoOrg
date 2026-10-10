@@ -27,8 +27,8 @@ body {
 
 /* ── Header ─────────────────────────────────────── */
 .blog-header {
-  background: #fff;
-  border-bottom: 1px solid rgba(0,0,0,0.07);
+  background: var(--blog-bg);
+  border-bottom: 1px solid #e0ddd6;
   padding: 18px 24px;
   display: flex;
   align-items: center;
@@ -53,8 +53,10 @@ body {
   display: inline-block;
   padding: 7px 20px;
   background: #5b54e8;
+  background-image: none;
   color: #fff;
   text-decoration: none;
+  /* Same family, size, and weight as the homepage Login button (.site-nav-login). */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 600;
   font-size: 0.9rem;
@@ -65,6 +67,7 @@ body {
 
 .blog-header-cta:hover {
   background: #4a43c9;
+  background-image: none;
   transform: translateY(-1px);
   box-shadow: 0 4px 14px rgba(91, 84, 232, 0.35);
 }
@@ -198,7 +201,7 @@ body {
   margin-top: 44px;
   padding: 36px 32px;
   border-top: 1px solid rgba(0,0,0,0.08);
-  background: linear-gradient(135deg, rgba(91,84,232,0.04) 0%, rgba(74,67,201,0.04) 100%);
+  background: transparent;
   border-radius: 0 0 var(--blog-radius) var(--blog-radius);
   margin-left: -40px;
   margin-right: -40px;

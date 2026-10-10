@@ -14,8 +14,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0 12px;
-    margin-top: -1.5rem;
+    /* The old square wordmark was ~85px tall, so margin-top: -1.5rem only
+       tucked transparent padding. The 26px color lockup made that negative
+       margin clip the home button, logo, and settings control. */
+    padding: 10px 12px 6px;
+    margin-top: 0;
     position: relative;
 }
 
@@ -1286,7 +1289,7 @@
     align-items: center;
     width: 100%;
     z-index: 10;
-    background: var(--color-white);
+    background: var(--surface-ground);
     padding: 0.35rem 0 0.6rem 0;
     margin-bottom: -1.4rem;
 }

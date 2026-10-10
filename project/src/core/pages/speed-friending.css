@@ -433,11 +433,9 @@
 /* ─── Timing (first 30 min) ───────────────────────────────── */
 .sf-timing {
   padding: 72px 0;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-  border-top: 1px solid rgba(255, 255, 255, 0.7);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+  background: var(--surface-ground);
+  border-top: none;
+  border-bottom: none;
 }
 
 .sf-timing-body {
@@ -501,11 +499,9 @@
 /* ─── Activities ──────────────────────────────────────────── */
 .sf-activities {
   padding: 80px 0 72px;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-  border-top: 1px solid rgba(255, 255, 255, 0.7);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+  background: var(--surface-ground);
+  border-top: none;
+  border-bottom: none;
 }
 
 .sf-activities-header {
@@ -639,11 +635,9 @@
 /* ─── Trust strip ─────────────────────────────────────────── */
 .sf-trust {
   padding: 72px 0;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-  border-top: 1px solid rgba(255, 255, 255, 0.7);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+  background: var(--surface-ground);
+  border-top: none;
+  border-bottom: none;
 }
 
 .sf-trust-header {
@@ -811,21 +805,17 @@
     padding: 26px 22px;
   }
 
-  .sf-timing {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-
-  .sf-activities {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-
+  .sf-timing,
+  .sf-activities,
   .sf-trust {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    background: var(--surface-ground);
   }
+}
+
+.speed-friending-page .lp-testimonials-section {
+  background: var(--surface-ground);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-top: none;
+  border-bottom: none;
 }

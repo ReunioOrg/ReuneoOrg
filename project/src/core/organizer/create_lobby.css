@@ -873,6 +873,14 @@
 .icon-accent {
     color: var(--accent);
 }
+/* Opaque greige so floating lines cannot show through heading and hint text. */
+.create-lobby-background .step-title,
+.create-lobby-background .step-subtitle,
+.create-lobby-background .input-hint,
+.create-lobby-background .duration-label {
+    background: var(--surface-ground);
+}
+
 .input-hint.input-hint-danger {
     color: var(--color-danger);
 }
