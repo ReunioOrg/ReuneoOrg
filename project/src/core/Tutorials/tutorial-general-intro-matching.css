@@ -8,7 +8,7 @@
     position: fixed;
     inset: 0;
     z-index: 9999;
-    background: #f8f9fc;
+    background: var(--surface-ground);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -56,7 +56,7 @@
 .gim-header-text {
     font-size: 19px;
     font-weight: 700;
-    color: #6b7280;
+    color: var(--text-secondary);
     letter-spacing: 0.01em;
     line-height: 1.35;
     animation: gimHeaderFadeIn 0.5s ease 0.2s both;
@@ -254,7 +254,7 @@
 .gim-blurb-text {
     font-size: 12px;
     font-weight: 800;
-    color: #2563eb;
+    color: var(--accent);
     letter-spacing: 0.01em;
     white-space: nowrap;
 }
@@ -271,7 +271,7 @@
     pointer-events: none;
     opacity: 0;
     font-size: 9px;
-    color: #93c5fd;
+    color: var(--color-brand-300);
     animation: gimSparkleSettle 0.6s ease-out both;
 }
 
@@ -284,7 +284,7 @@
     bottom: -6px;
     left: -6px;
     font-size: 7px;
-    color: #bfdbfe;
+    color: var(--color-brand-300);
 }
 
 @keyframes gimSparkleSettle {
@@ -372,18 +372,18 @@
 .gim-label-text {
     font-size: 13px;
     font-weight: 500;
-    color: #374151;
+    color: var(--color-gray-700);
     letter-spacing: 0.01em;
 }
 
 .gim-label-tag {
     font-size: 13px;
     font-weight: 600;
-    color: #0f1729;
+    color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     padding: 5px 16px;
-    border: 1.5px solid #d1d5db;
+    border: 1.5px solid var(--border-default);
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.9);
 }
@@ -427,8 +427,8 @@
 }
 
 .gim-tag-highlight-purple {
-    background: #7c3aed;
-    border-color: #7c3aed;
+    background: var(--accent-light);
+    border-color: var(--accent-light);
     color: #ffffff;
     transition: background 0.2s ease-out, border-color 0.2s ease-out, color 0.2s ease-out;
 }
@@ -537,7 +537,7 @@
 .gim-match-text {
     font-size: 15px;
     font-weight: 800;
-    color: #144dff;
+    color: var(--accent);
     letter-spacing: 0.02em;
     white-space: nowrap;
     opacity: 0;
@@ -559,12 +559,12 @@
     animation: gimSparklePopFade 0.8s ease-out forwards;
 }
 
-.gim-sp-1 { top: -16px; left: -8px;   font-size: 14px; color: #93c5fd; animation-delay: 0.06s; }
-.gim-sp-2 { top: -20px; right: -6px;  font-size: 17px; color: #60a5fa; animation-delay: 0.16s; }
-.gim-sp-3 { top: 50%;   left: -16px;  font-size: 10px; color: #bfdbfe; animation-delay: 0.1s; }
-.gim-sp-4 { top: 50%;   right: -14px; font-size: 12px; color: #93c5fd; animation-delay: 0.2s; }
-.gim-sp-5 { top: -10px; left: 42%;    font-size: 9px;  color: #dbeafe; animation-delay: 0.03s; }
-.gim-sp-6 { bottom: -12px; left: 38%; font-size: 11px; color: #60a5fa; animation-delay: 0.26s; }
+.gim-sp-1 { top: -16px; left: -8px;   font-size: 14px; color: var(--color-brand-300); animation-delay: 0.06s; }
+.gim-sp-2 { top: -20px; right: -6px;  font-size: 17px; color: var(--accent-light); animation-delay: 0.16s; }
+.gim-sp-3 { top: 50%;   left: -16px;  font-size: 10px; color: var(--color-brand-300); animation-delay: 0.1s; }
+.gim-sp-4 { top: 50%;   right: -14px; font-size: 12px; color: var(--color-brand-300); animation-delay: 0.2s; }
+.gim-sp-5 { top: -10px; left: 42%;    font-size: 9px;  color: var(--color-brand-200); animation-delay: 0.03s; }
+.gim-sp-6 { bottom: -12px; left: 38%; font-size: 11px; color: var(--accent-light); animation-delay: 0.26s; }
 
 @keyframes gimSparklePopFade {
     0%   { opacity: 0; transform: scale(0) rotate(0deg); }

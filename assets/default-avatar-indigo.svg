@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+  <defs>
+    <clipPath id="default-avatar-clip">
+      <circle cx="250" cy="250" r="250"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#default-avatar-clip)">
+    <rect width="500" height="500" fill="#5b54e8"/>
+    <path fill="#f1f0ec" d="M250 252C220 252 175 276 142 322C100 384 66 460 44 570L456 570C434 460 400 384 358 322C325 276 280 252 250 252Z"/>
+    <circle cx="250" cy="188" r="80" fill="#f1f0ec"/>
+  </g>
+</svg>

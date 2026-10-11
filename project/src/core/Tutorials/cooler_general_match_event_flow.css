@@ -9,7 +9,7 @@
     position: fixed;
     inset: 0;
     z-index: 9999;
-    background: #f8f9fc;
+    background: var(--surface-ground);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -46,9 +46,9 @@
     z-index: 50;
     padding: 8px 16px;
     border-radius: 20px;
-    border: 1px solid #d1d5db;
-    background: #f8f9fc;
-    color: #d1d5db;
+    border: 1px solid var(--border-default);
+    background: var(--surface-ground);
+    color: var(--color-gray-400);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -68,8 +68,8 @@
 }
 
 .cmef-skip:hover {
-    color: #9ca3af;
-    border-color: #9ca3af;
+    color: var(--color-gray-500);
+    border-color: var(--color-gray-400);
 }
 
 .cmef-skip-arrow {
@@ -127,14 +127,14 @@
     left: auto;
     bottom: auto;
     transform: none;
-    border-color: #9ca3af;
+    border-color: var(--color-gray-400);
     background: rgba(255, 255, 255, 0.92);
-    color: #6b7280;
+    color: var(--text-secondary);
 }
 
 .cmef-skip.cmef-skip-centered:hover {
-    color: #374151;
-    border-color: #6b7280;
+    color: var(--color-gray-700);
+    border-color: var(--text-secondary);
 }
 
 /* ── Layout Wrapper ──────────────────────────────── */
@@ -173,12 +173,12 @@
 .cmef-header-text {
     font-size: 24px;
     font-weight: 900;
-    color: #1a1a2e;
+    color: var(--text-primary);
     letter-spacing: -0.03em;
     line-height: 1.15;
     text-shadow:
         0 2px 24px rgba(0, 0, 0, 0.1),
-        0 0 48px rgba(20, 77, 255, 0.08);
+        0 0 48px rgba(var(--accent-rgb), 0.08);
     animation: cmefHeaderFadeIn 0.5s ease 0.2s both;
 }
 
@@ -316,7 +316,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: #3b82f6;
+    background: var(--accent);
     border-radius: 20px;
     padding: 10px 8px;
     gap: 6px;
@@ -362,7 +362,7 @@
     position: absolute;
     inset: 0;
     z-index: 10;
-    background: #f8f9fc;
+    background: var(--surface-ground);
     opacity: 0;
     transition: opacity 1s ease;
     pointer-events: none;
@@ -411,13 +411,13 @@
 .cmef-find-label {
     font-size: 20px;
     font-weight: 500;
-    color: #374151;
+    color: var(--color-gray-700);
 }
 
 .cmef-find-name {
     font-size: 22px;
     font-weight: 800;
-    color: #111827;
+    color: var(--text-primary);
 }
 
 /* ── Confetti Burst ──────────────────────────────── */
@@ -436,12 +436,12 @@
     left: 0;
 }
 
-.cmef-c1 { width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; animation: cmefC1 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.cmef-c1 { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: cmefC1 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 .cmef-c2 { width: 6px; height: 10px; border-radius: 2px; background: #f59e0b; animation: cmefC2 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.04s both; }
 .cmef-c3 { width: 7px; height: 7px; border-radius: 50%; background: #f87171; animation: cmefC3 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.08s both; }
 .cmef-c4 { width: 6px; height: 9px; border-radius: 2px; background: #34d399; animation: cmefC4 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.02s both; }
-.cmef-c5 { width: 8px; height: 8px; border-radius: 50%; background: #8b5cf6; animation: cmefC5 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.06s both; }
-.cmef-c6 { width: 5px; height: 8px; border-radius: 2px; background: #60a5fa; animation: cmefC6 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both; }
+.cmef-c5 { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-dark); animation: cmefC5 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.06s both; }
+.cmef-c6 { width: 5px; height: 8px; border-radius: 2px; background: var(--accent-light); animation: cmefC6 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both; }
 .cmef-c7 { width: 7px; height: 7px; border-radius: 50%; background: #fbbf24; animation: cmefC7 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s both; }
 .cmef-c8 { width: 6px; height: 9px; border-radius: 2px; background: #fb923c; animation: cmefC8 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.03s both; }
 
@@ -571,11 +571,11 @@
 .cmef-greet-text {
     font-size: 15px;
     font-weight: 800;
-    color: #333;
+    color: var(--text-primary);
     letter-spacing: -0.02em;
     text-shadow:
         0 2px 20px rgba(0, 0, 0, 0.08),
-        0 0 40px rgba(20, 77, 255, 0.06);
+        0 0 40px rgba(var(--accent-rgb), 0.06);
 }
 
 .cmef-greet-left {
@@ -620,10 +620,10 @@
     animation: cmefSparkleFloat 0.9s ease-out both;
 }
 
-.cmef-gs-1 { top: -14px; left: -6px; color: #93c5fd; animation-delay: 0.08s; }
-.cmef-gs-2 { top: -16px; right: -4px; font-size: 15px; color: #60a5fa; animation-delay: 0.18s; }
-.cmef-gs-3 { bottom: -10px; left: 30%; font-size: 9px; color: #bfdbfe; animation-delay: 0.12s; }
-.cmef-gs-4 { top: 50%; right: -10px; font-size: 10px; color: #93c5fd; animation-delay: 0.22s; }
+.cmef-gs-1 { top: -14px; left: -6px; color: var(--color-brand-300); animation-delay: 0.08s; }
+.cmef-gs-2 { top: -16px; right: -4px; font-size: 15px; color: var(--accent-light); animation-delay: 0.18s; }
+.cmef-gs-3 { bottom: -10px; left: 30%; font-size: 9px; color: var(--accent-tint); animation-delay: 0.12s; }
+.cmef-gs-4 { top: 50%; right: -10px; font-size: 10px; color: var(--color-brand-300); animation-delay: 0.22s; }
 
 @keyframes cmefSparkleFloat {
     0%   { opacity: 0; transform: scale(0) rotate(0deg); }
@@ -776,7 +776,7 @@
 }
 
 .cmef-blue-header {
-    color: #1a1a2e;
+    color: var(--text-primary);
     font-size: 24px;
     text-align: center;
     line-height: 1.2;
@@ -806,7 +806,7 @@
 .cmef-event-circle {
     width: 320px;
     height: 320px;
-    border: 2px dashed #f8f9fc;
+    border: 2px dashed var(--surface-ground);
     border-radius: 50%;
     position: relative;
     display: flex;
@@ -822,18 +822,18 @@
     transform: translateY(-50%);
     width: 16px;
     height: 72px;
-    background: #f8f9fc;
+    background: var(--surface-ground);
     z-index: 0;
 }
 
 .cmef-event-label {
     font-size: 14px;
     font-weight: 800;
-    color: #3b82f6;
+    color: var(--accent);
     letter-spacing: -0.02em;
     text-shadow:
         0 2px 20px rgba(0, 0, 0, 0.08),
-        0 0 40px rgba(20, 77, 255, 0.06);
+        0 0 40px rgba(var(--accent-rgb), 0.06);
     opacity: 1;
     transition: opacity 0.5s ease;
 }
@@ -859,7 +859,7 @@
     display: inline-block;
     font-size: 28px;
     font-weight: 800;
-    color: #333;
+    color: var(--text-primary);
     letter-spacing: -0.02em;
     line-height: 1.2;
     text-shadow: none;
@@ -921,7 +921,7 @@
     position: absolute;
     inset: 0;
     z-index: 15;
-    background: rgba(248, 249, 252, 0.78);
+    background: color-mix(in srgb, var(--surface-ground) 78%, transparent);
     opacity: 1;
     transition: opacity 0.6s ease;
 }
@@ -942,13 +942,13 @@
 .cmef-convo-word {
     font-size: 18px;
     font-weight: 800;
-    color: #333;
+    color: var(--text-primary);
     letter-spacing: -0.02em;
     line-height: 1.2;
     opacity: 1;
     text-shadow:
         0 2px 20px rgba(0, 0, 0, 0.08),
-        0 0 40px rgba(20, 77, 255, 0.06);
+        0 0 40px rgba(var(--accent-rgb), 0.06);
 }
 
 @keyframes cmefConvoPop {
@@ -959,7 +959,7 @@
 }
 
 .cmef-convo-overlay.cmef-convo-light {
-    background: rgba(248, 249, 252, 0.78);
+    background: color-mix(in srgb, var(--surface-ground) 78%, transparent);
 }
 
 .cmef-convo-text-layer {
@@ -978,7 +978,7 @@
 .cmef-convo-glow .cmef-convo-word {
     text-shadow:
         0 2px 20px rgba(0, 0, 0, 0.08),
-        0 0 40px rgba(20, 77, 255, 0.06);
+        0 0 40px rgba(var(--accent-rgb), 0.06);
 }
 
 /* ══════════════════════════════════════════════════
@@ -989,7 +989,7 @@
     position: absolute;
     width: 16px;
     height: 16px;
-    background: #3b82f6;
+    background: var(--accent);
     border-radius: 50%;
     transform: translate(-50%, -50%);
     z-index: 2;
@@ -1028,7 +1028,7 @@
 .cmef-arrivals-text {
     font-size: 9px;
     font-weight: 700;
-    color: #6b7280;
+    color: var(--text-secondary);
     text-transform: uppercase;
     line-height: 1.2;
     text-align: center;
@@ -1044,7 +1044,7 @@
 .cmef-arrivals-arrow {
     width: 28px;
     height: 2px;
-    background: #3b82f6;
+    background: var(--accent);
     position: relative;
     opacity: 0;
     transition: opacity 0.4s ease;
@@ -1068,8 +1068,8 @@
     top: 50%;
     width: 7px;
     height: 7px;
-    border-left: 2px solid #3b82f6;
-    border-bottom: 2px solid #3b82f6;
+    border-left: 2px solid var(--accent);
+    border-bottom: 2px solid var(--accent);
     transform: translateY(-50%) rotate(45deg);
 }
 

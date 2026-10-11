@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { palette } from '../../styles/colors';
 import './tutorial-general-intro-matching.css';
 
 const SCENES = [
@@ -47,7 +48,7 @@ const CHAT_BLURBS = [
 const FINALE_FILL_POSITIONS = [75, 70, 65, 60, 55, 50, 45, 40, 35, 30, 25, 20, 15, 10, 5];
 const FINALE_FILL_HOPPERS = new Set([75, 65, 55, 45, 35, 25, 15, 5]);
 
-const PersonIcon = ({ color = '#144dff' }) => (
+const PersonIcon = ({ color = palette.accent }) => (
     <svg viewBox="0 0 48 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="24" cy="12" r="9" fill={color} />
         <polygon points="24,14 5,60 43,60" fill={color} />
@@ -175,7 +176,7 @@ const TutorialGeneralIntroMatching = ({ isVisible, onComplete }) => {
                         <path
                             d="M 1 1 L 7 4 L 1 7"
                             fill="none"
-                            stroke="rgba(160, 190, 220, 0.6)"
+                            stroke="rgba(var(--accent-light-rgb), 0.6)"
                             strokeWidth="1.5"
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -185,7 +186,7 @@ const TutorialGeneralIntroMatching = ({ isVisible, onComplete }) => {
                 <path
                     d={d}
                     fill="none"
-                    stroke="rgba(160, 190, 220, 0.55)"
+                    stroke="rgba(var(--accent-light-rgb), 0.55)"
                     strokeWidth="2"
                     strokeLinecap="round"
                     markerEnd={`url(#${markerId})`}

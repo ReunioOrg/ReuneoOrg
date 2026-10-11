@@ -74,7 +74,7 @@
 .aht-person-label {
     font-size: 13px;
     font-weight: 600;
-    color: #4b5563;
+    color: var(--text-secondary);
     opacity: 0;
     animation: ahtLabelFadeIn 0.5s ease-out 0.6s forwards;
     white-space: nowrap;
@@ -113,7 +113,7 @@
 .aht-phone {
     width: 100%;
     max-width: 240px;
-    background: #374151;
+    background: var(--color-gray-700);
     border-radius: 36px;
     padding: 0 10px 8px;
     box-shadow:
@@ -129,7 +129,7 @@
 .aht-notch {
     width: 80px;
     height: 24px;
-    background: #1f2937;
+    background: var(--text-primary);
     border-radius: 0 0 14px 14px;
     flex-shrink: 0;
 }
@@ -148,7 +148,7 @@
 
 .aht-screen {
     width: 100%;
-    background: #f9fafb;
+    background: var(--surface-ground);
     border-radius: 4px 4px 26px 26px;
     overflow: hidden;
     position: relative;
@@ -191,7 +191,7 @@
 .aht-screen-title {
     font-size: 13px;
     font-weight: 700;
-    color: #1a1a2e;
+    color: var(--text-primary);
     text-align: center;
     margin: 0 0 6px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -228,7 +228,7 @@
     overflow: hidden;
     border: 2px solid rgba(0, 0, 0, 0.04);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    background: #f0f1f4;
+    background: var(--color-gray-50);
 }
 
 .aht-tile-img img {
@@ -241,7 +241,7 @@
 .aht-tile-name {
     font-size: 11px;
     font-weight: 700;
-    color: #1a1a2e;
+    color: var(--text-primary);
     margin-top: 4px;
     text-align: center;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -250,7 +250,7 @@
 .aht-tile-date {
     font-size: 8px;
     font-weight: 500;
-    color: #9ca3af;
+    color: var(--color-gray-400);
     margin-top: 1px;
 }
 
@@ -269,7 +269,7 @@
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: #f3f4f6;
+    background: var(--color-gray-50);
     border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
@@ -284,7 +284,7 @@
 .aht-tile-rating-label {
     font-size: 8px;
     font-weight: 600;
-    color: #1a1a2e;
+    color: var(--text-primary);
     margin-bottom: 2px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
@@ -297,7 +297,7 @@
 
 .aht-star {
     font-size: 14px;
-    color: #d1d5db;
+    color: var(--border-default);
     line-height: 1;
 }
 
@@ -308,14 +308,14 @@
 .aht-tile-disclaimer {
     font-size: 7px;
     font-style: italic;
-    color: #9ca3af;
+    color: var(--color-gray-400);
     margin-top: 1px;
 }
 
 .aht-tile-share-label {
     font-size: 8px;
     font-weight: 600;
-    color: #1a1a2e;
+    color: var(--text-primary);
     margin-top: 6px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
@@ -331,16 +331,16 @@
     font-weight: 600;
     padding: 3px 14px;
     border-radius: 6px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-default);
     background: #ffffff;
-    color: #374151;
+    color: var(--color-gray-700);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .aht-share-yes {
-    background: #4b73ef;
+    background: var(--accent);
     color: #ffffff;
-    border-color: #4b73ef;
+    border-color: var(--accent);
 }
 
 /* ══════════════════════════════════════════════════

@@ -3,24 +3,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  background: var(--surface-ground);
   padding: 20px;
 }
 
 .auth-success-card {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--color-white);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-default);
   border-radius: 24px;
   padding: 48px;
   text-align: center;
   max-width: 400px;
   width: 100%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .auth-success-card h2 {
-  color: #ffffff;
+  color: var(--text-primary);
   font-size: 1.75rem;
   font-weight: 700;
   margin: 24px 0 12px 0;
@@ -28,7 +28,7 @@
 }
 
 .auth-success-card p {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
   font-size: 1rem;
   margin: 0 0 24px 0;
   line-height: 1.5;
@@ -38,8 +38,8 @@
 .auth-success-spinner {
   width: 60px;
   height: 60px;
-  border: 3px solid rgba(255, 255, 255, 0.1);
-  border-top-color: #144dff;
+  border: 3px solid rgba(var(--accent-rgb), 0.15);
+  border-top-color: var(--accent);
   border-radius: 50%;
   margin: 0 auto;
   animation: spin 1s linear infinite;
@@ -55,7 +55,7 @@
 .auth-success-checkmark {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #144dff, #535bf2);
+  background: var(--accent);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -64,7 +64,7 @@
   font-size: 40px;
   color: white;
   animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  box-shadow: 0 10px 40px rgba(20, 77, 255, 0.4);
+  box-shadow: 0 10px 40px rgba(var(--accent-rgb), 0.35);
 }
 
 @keyframes popIn {
@@ -78,11 +78,11 @@
   }
 }
 
-/* Error X */
+/* Error X — decision 3, danger token */
 .auth-success-error {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #ff4444, #cc0000);
+  background: var(--color-danger);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -91,7 +91,7 @@
   font-size: 40px;
   color: white;
   animation: shake 0.5s ease-in-out;
-  box-shadow: 0 10px 40px rgba(255, 68, 68, 0.3);
+  box-shadow: 0 10px 40px rgba(220, 74, 63, 0.3);
 }
 
 @keyframes shake {
@@ -104,7 +104,7 @@
 
 /* Button */
 .auth-success-button {
-  background: linear-gradient(135deg, #144dff, #535bf2);
+  background: var(--accent);
   color: white;
   border: none;
   padding: 14px 32px;
@@ -117,8 +117,9 @@
 }
 
 .auth-success-button:hover {
+  background: var(--accent-dark);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(20, 77, 255, 0.4);
+  box-shadow: 0 8px 25px rgba(var(--accent-rgb), 0.4);
 }
 
 .auth-success-button:active {

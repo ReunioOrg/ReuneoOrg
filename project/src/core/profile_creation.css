@@ -38,8 +38,8 @@ button {
   margin-top: 15px;
   padding: 10px 20px;
   font-size: 16px;
-  background-color: #144dff;
-  color: white;
+  background-color: var(--accent);
+  color: var(--color-white);
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -49,7 +49,7 @@ button {
 }
 
 .save-crop-button:hover {
-  background-color: #0e36c7;
+  background-color: var(--accent-dark);
 }
 
 .profile-image-preview {
@@ -66,7 +66,7 @@ button {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -74,19 +74,21 @@ button {
 }
 
 .profile-creation-modal {
-  background-color: white;
+  background-color: color-mix(in srgb, var(--surface-raised) 95%, transparent);
   padding: 2rem;
   border-radius: 8px;
   width: 90%;
   max-width: 500px;
   position: relative;
+  border: 1px solid rgba(var(--accent-rgb), 0.1);
+  box-shadow: 0 10px 30px rgba(var(--accent-rgb), 0.15);
 }
 
 .close-button {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  color: #144dff;
+  color: var(--accent);
   background: none;
   border: none;
   font-size: 1.5rem;
@@ -104,7 +106,7 @@ button {
 }
 
 .form-group input {
-  color: #144dff;
+  color: var(--text-primary);
   background-color: #ffffff;
   width: 100%;
   padding: 12px;
@@ -127,8 +129,8 @@ button {
 }
 
 .submit-button {
-  background-color: #144dff                                ;
-  color: white;
+  background-color: var(--accent);
+  color: var(--color-white);
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
@@ -138,7 +140,7 @@ button {
 }
 
 .submit-button:hover {
-  background-color: #0056b3;
+  background-color: var(--accent-dark);
 }
 
 
@@ -146,8 +148,8 @@ button {
   position: fixed;
   top: 1rem;
   right: 1rem;
-  background-color: #144dff;
-  color: white;
+  background-color: var(--accent);
+  color: var(--color-white);
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
@@ -156,7 +158,7 @@ button {
 }
 
 .profile-button:hover {
-  background-color: #0056b3;
+  background-color: var(--accent-dark);
 }
 
 
@@ -191,13 +193,13 @@ button {
 .save-profile-button.glow-bounce:hover {
   animation: none;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(20,77,255,0.3);
+  box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.3);
 }
 
 .save-button {
   padding: 1rem;
-  background: linear-gradient(45deg, #144dff, #2979ff);
-  color: white;
+  background: var(--accent);
+  color: var(--color-white);
   border: none;
   border-radius: 25px;
   font-size: 1.1rem;
@@ -209,9 +211,47 @@ button {
 
 .save-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(20,77,255,0.3);
+  box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.3);
 }
 
 .save-button-active {
   animation: bounce 2s infinite, glow 2s infinite;
+}
+
+/* Live homepage profile editor. Scoped so these colors do not leak. */
+
+.profile-creation-overlay .profile-editor-close {
+  color: var(--accent);
+  background: none;
+  border: none;
+}
+
+.profile-creation-overlay .profile-editor-title,
+.profile-creation-overlay .profile-editor-label {
+  color: var(--accent);
+}
+
+.profile-creation-overlay .profile-editor-input {
+  color: var(--text-primary);
+  background-color: color-mix(in srgb, var(--color-white) 90%, transparent);
+  border: 2px solid var(--border-default);
+}
+
+.profile-creation-overlay .profile-editor-avatar,
+.profile-creation-overlay .profile-editor-crop-frame {
+  border: 7px solid var(--accent);
+  box-shadow: 0 8px 25px rgba(var(--accent-rgb), 0.2);
+}
+
+.profile-creation-overlay .profile-editor-primary {
+  background: var(--accent);
+  color: var(--color-white);
+  border: none;
+  box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.2);
+}
+
+.profile-creation-overlay .profile-editor-cancel {
+  background: var(--color-white);
+  color: var(--accent);
+  border: 2px solid var(--accent);
 }

@@ -10,6 +10,16 @@ import {
   Vector2,
   Clock
 } from 'three';
+import { hexToVec3, palette } from '../../styles/colors.js';
+
+function vec3Literal(hex) {
+  const [r, g, b] = hexToVec3(hex);
+  return `vec3(${r.toFixed(6)}, ${g.toFixed(6)}, ${b.toFixed(6)})`;
+}
+
+const LINE_INDIGO = vec3Literal(palette.accent);
+const LINE_LAVENDER = vec3Literal(palette.accentLight);
+const CLEAR_GREIGE = vec3Literal(palette.surfaceGround);
 
 const vertexShader = `
 precision highp float;
@@ -54,8 +64,8 @@ uniform vec2 parallaxOffset;
 uniform vec3 lineGradient[8];
 uniform int lineGradientCount;
 
-const vec3 PINK  = vec3(233.0, 71.0, 245.0) / 255.0;
-const vec3 BLUE  = vec3(47.0,  75.0, 162.0) / 255.0;
+const vec3 LAVENDER = ${LINE_LAVENDER};
+const vec3 INDIGO   = ${LINE_INDIGO};
 
 mat2 rotate(float r) {
   return mat2(cos(r), sin(r), -sin(r), cos(r));
@@ -65,8 +75,8 @@ vec3 background_color(vec2 uv) {
   vec3 col = vec3(0.0);
   float y = sin(uv.x - 0.2) * 0.3 - 0.1;
   float m = uv.y - y;
-  col += mix(BLUE, vec3(0.0), smoothstep(0.0, 1.0, abs(m)));
-  col += mix(PINK, vec3(0.0), smoothstep(0.0, 1.0, abs(m - 0.8)));
+  col += mix(INDIGO, vec3(0.0), smoothstep(0.0, 1.0, abs(m)));
+  col += mix(LAVENDER, vec3(0.0), smoothstep(0.0, 1.0, abs(m - 0.8)));
   return col * 0.5;
 }
 
@@ -173,7 +183,7 @@ void main() {
   vec4 color = vec4(0.0);
   mainImage(color, gl_FragCoord.xy);
 
-  vec3 bg = vec3(0.973, 0.976, 0.988);
+  vec3 bg = ${CLEAR_GREIGE};
   vec3 lineCol = color.rgb * 1.43;
 
   float peak = max(lineCol.r, max(lineCol.g, lineCol.b));
@@ -184,16 +194,6 @@ void main() {
 `;
 
 const MAX_GRADIENT_STOPS = 8;
-
-function hexToVec3(hex) {
-  let v = hex.replace('#', '');
-  if (v.length === 3) v = v[0]+v[0]+v[1]+v[1]+v[2]+v[2];
-  return new Vector3(
-    parseInt(v.slice(0, 2), 16) / 255,
-    parseInt(v.slice(2, 4), 16) / 255,
-    parseInt(v.slice(4, 6), 16) / 255
-  );
-}
 
 export default function FloatingLinesBackground({ fullQuality = false }) {
   const containerRef = useRef(null);

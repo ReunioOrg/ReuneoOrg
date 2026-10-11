@@ -39,7 +39,7 @@
 .res-hero-tutorial .act-embedded-root .cmef-blue-header {
   font-size: clamp(0.95rem, 2vw, 1.05rem);
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--text-primary);
   letter-spacing: -0.01em;
   line-height: 1.5;
   text-shadow: none;
@@ -83,13 +83,13 @@
   opacity: 1;
   text-shadow:
     0 2px 20px rgba(0, 0, 0, 0.08),
-    0 0 40px rgba(20, 77, 255, 0.06);
+    0 0 40px rgba(var(--accent-rgb), 0.06);
 }
 
 .res-hero-tutorial .act-embedded-root .cmef-convo-glow .cmef-convo-word {
   text-shadow:
     0 2px 20px rgba(0, 0, 0, 0.08),
-    0 0 40px rgba(20, 77, 255, 0.06);
+    0 0 40px rgba(var(--accent-rgb), 0.06);
 }
 
 .res-hero-tutorial .act-embedded-root .cmef-convo-text {

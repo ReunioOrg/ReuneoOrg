@@ -597,37 +597,25 @@ const PureSignupPage = () => {
             <AnimatePresence>
                 {showReclaimModal && faceMatchResult && (
                     <motion.div
-                        className="modal-overlay"
+                        className="reclaim-overlay"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        style={{
-                            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                            backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            padding: '20px',
-                        }}
                     >
                         <motion.div
+                            className="reclaim-card"
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            style={{
-                                background: 'linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%)',
-                                borderRadius: '20px',
-                                padding: '32px 28px', maxWidth: '380px', width: '100%',
-                                textAlign: 'center', color: '#333',
-                                boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-                            }}
                         >
                             {!faceMatchResult.has_email ? (
                                 <>
-                                    <h3 style={{ marginBottom: '12px', fontSize: '1.15rem', color: '#4b73ef' }}>
+                                    <h3 className="reclaim-title">
                                         Welcome back!
                                     </h3>
-                                    <p style={{ color: '#6b7280', fontSize: '0.95rem', lineHeight: '1.5' }}>
+                                    <p className="reclaim-body">
                                         It looks like you already have an account as{' '}
-                                        <strong style={{ color: '#1a1a2e' }}>{faceMatchResult.matched_display_name}</strong>.
+                                        <strong className="reclaim-name">{faceMatchResult.matched_display_name}</strong>.
                                         We'll get you back in.
                                     </p>
                                     <button
@@ -640,24 +628,21 @@ const PureSignupPage = () => {
                                 </>
                             ) : (
                                 <>
-                                    <h3 style={{ marginBottom: '12px', fontSize: '1.15rem', color: '#4b73ef' }}>
+                                    <h3 className="reclaim-title">
                                         Welcome back!
                                     </h3>
                                     {!reclaimEmailSent ? (
                                         <>
-                                            <p style={{ color: '#6b7280', fontSize: '0.95rem', lineHeight: '1.5' }}>
+                                            <p className="reclaim-body">
                                                 It looks like you already have an account as{' '}
-                                                <strong style={{ color: '#1a1a2e' }}>{faceMatchResult.matched_display_name}</strong>.
+                                                <strong className="reclaim-name">{faceMatchResult.matched_display_name}</strong>.
                                                 To reclaim it, we'll send a verification link to:
                                             </p>
-                                            <p style={{
-                                                color: '#4b73ef', fontWeight: 600,
-                                                fontSize: '1rem', margin: '14px 0',
-                                            }}>
+                                            <p className="reclaim-email">
                                                 {faceMatchResult.email}
                                             </p>
                                             {reclaimError && (
-                                                <p style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '8px' }}>
+                                                <p className="reclaim-error">
                                                     {reclaimError}
                                                 </p>
                                             )}
@@ -671,7 +656,7 @@ const PureSignupPage = () => {
                                         </>
                                     ) : (
                                         <>
-                                            <p style={{ color: '#16a34a', fontSize: '0.95rem', lineHeight: '1.5', marginTop: '8px' }}>
+                                            <p className="reclaim-sent">
                                                 Link sent! Check your inbox at{' '}
                                                 <strong>{faceMatchResult.email}</strong>{' '}
                                                 and click the link to get back in.
@@ -683,12 +668,8 @@ const PureSignupPage = () => {
 
                             {!reclaimEmailSent && (
                                 <button
+                                    className="reclaim-dismiss"
                                     onClick={handleDismissReclaim}
-                                    style={{
-                                        marginTop: '16px', background: 'none', border: 'none',
-                                        color: '#9ca3af', fontSize: '0.85rem', cursor: 'pointer',
-                                        textDecoration: 'underline',
-                                    }}
                                 >
                                     This isn't me — create a new account
                                 </button>
@@ -705,7 +686,7 @@ const PureSignupPage = () => {
             </button>
 
             <img 
-                src="/assets/reuneo_test_14.png"
+                src="/assets/Reuneo (Color - Horizontal).svg?v=a"
                 alt="Reunio Logo"
                 className="logo-image"
                 style={{ marginTop: '-1.5rem' }}

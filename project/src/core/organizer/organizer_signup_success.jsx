@@ -212,7 +212,7 @@ const OrganizerSignupSuccess = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
                 >
-                    <img src="/assets/reuneo_test_14.png" alt="Reuneo" className="oss-logo" />
+                    <img src="/assets/Reuneo (Color - Horizontal).svg?v=a" alt="Reuneo" className="oss-logo" />
 
                     <div className="oss-icon-wrap">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none"

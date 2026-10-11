@@ -6,6 +6,7 @@ import SiteSocialFooter from '../components/SiteSocialFooter/SiteSocialFooter';
 import ClientTestimonialsSection from '../components/ClientTestimonialsSection/ClientTestimonialsSection';
 import ResidentialHeroTutorial from '../components/ResidentialHeroTutorial/ResidentialHeroTutorial';
 import HoverBorderGlow from '../components/HoverBorderGlow/HoverBorderGlow';
+import { hoverBorderGlowDefaults } from '../../styles/colors.js';
 import './residential.css';
 
 const PAGE_TITLE = 'Resident Events & Icebreakers for Apartment Communities | Reuneo';
@@ -301,7 +302,7 @@ const GET_STARTED_GLOW_PROPS = {
   bloomInset: 2,
   duration: 2800,
   spread: 42,
-  colors: ['#ffffff', '#a5b4fc', '#7c3aed'],
+  colors: hoverBorderGlowDefaults.colors,
 };
 
 function GetStartedButton({ onClick, className = '' }) {

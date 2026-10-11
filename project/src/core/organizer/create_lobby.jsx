@@ -644,7 +644,7 @@ const CreateLobbyView = () => {
     );
 
     const EditIcon = () => (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#144dff"
+        <svg className="icon-accent" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -652,7 +652,7 @@ const CreateLobbyView = () => {
     );
 
     const CheckIcon = () => (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#144dff"
+        <svg className="icon-accent" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12"/>
         </svg>
@@ -715,7 +715,7 @@ const CreateLobbyView = () => {
             <div className="step-container">
                 <h1 className="step-title">Conversation Duration</h1>
                 <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
-                    We recommend <strong style={{ color: '#0f1729' }}>{recommended} minutes</strong>. This includes
+                    We recommend <strong className="emphasis-ink">{recommended} minutes</strong>. This includes
                     buffer time for people to end prior conversations and move onto their next person
                 </p>
                 <div className="duration-edit-wrapper">
@@ -873,7 +873,7 @@ const CreateLobbyView = () => {
                             <button className="step-cta step-cta-secondary" disabled>
                                 Continue <ArrowRight />
                             </button>
-                            <p style={{ fontSize: '0.8rem', color: '#888', textAlign: 'center', marginTop: '8px' }}>
+                            <p className="hint-faint">
                                 Add at least 2 categories to enable interest matching
                             </p>
                         </>
@@ -932,13 +932,13 @@ const CreateLobbyView = () => {
                 <h1 className="step-title">Sponsor Logo (optional)</h1>
                 <p className="step-subtitle" style={{ fontWeight: 600, fontStyle: 'normal' }}>
                     {hasLogo
-                        ? <>Estimated logo watch time: <strong style={{ color: '#0f1729' }}>{(parseInt(attendees) || 0) * 5} minutes</strong> - (5 min per person)</>
+                        ? <>Estimated logo watch time: <strong className="emphasis-ink">{(parseInt(attendees) || 0) * 5} minutes</strong> - (5 min per person)</>
                         : 'People spend 30 seconds looking at their screen to find who they paired with, and get paired up 10 times in an event (on average)'
                     }
                 </p>
                 {!hasLogo && (
                     <div className="sponsor-upload-area">
-                        <span className="sponsor-label">Estimated logo watch time: <strong style={{ color: '#0f1729' }}>{(parseInt(attendees) || 0) * 5} minutes</strong> - (5 min per person)</span>
+                        <span className="sponsor-label">Estimated logo watch time: <strong className="emphasis-ink">{(parseInt(attendees) || 0) * 5} minutes</strong> - (5 min per person)</span>
                         {renderLogoUpload()}
                     </div>
                 )}
@@ -1132,7 +1132,7 @@ const CreateLobbyView = () => {
                                         className="form-input review-inline-input" autoComplete="off"
                                         placeholder="Enter lobby code" />
                                     {lobbyCode && !validateLobbyCode(lobbyCode) && (
-                                        <div className="input-hint" style={{ color: '#dc2626' }}>
+                                        <div className="input-hint input-hint-danger">
                                             Min 2 chars, lowercase letters and numbers only
                                         </div>
                                     )}
@@ -1203,7 +1203,7 @@ const CreateLobbyView = () => {
                 {!isLoading && <SparkleIcon />}
             </button>
             {(isLegacyOrganizer || permissions === 'admin') && !isLoading && !validateLobbyCode(lobbyCode) && (
-                <p className="input-hint" style={{ color: '#dc2626', textAlign: 'center', marginTop: '8px', fontSize: '13px' }}>
+                <p className="input-hint input-hint-danger" style={{ textAlign: 'center', marginTop: '8px', fontSize: '13px' }}>
                     Lobby code must be at least 2 characters, lowercase letters and numbers only
                 </p>
             )}
@@ -1233,17 +1233,17 @@ const CreateLobbyView = () => {
             {/* Navigation Bar */}
             <div className="step-nav-bar">
                 <button className="nav-arrow" onClick={handleBack} aria-label="Back">
-                    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-                        <circle cx="18" cy="18" r="17" stroke="#374151" strokeWidth="1.5" fill="rgba(255,255,255,0.8)"/>
-                        <path d="M21 12L15 18L21 24" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <svg className="wizard-nav-arrow" width="36" height="36" viewBox="0 0 36 36" fill="none">
+                        <circle cx="18" cy="18" r="17" strokeWidth="1.5"/>
+                        <path d="M21 12L15 18L21 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                 </button>
-                <img src="/assets/reuneo_test_14.png" alt="Reuneo Logo" className="logo-image-nav" />
+                <img src="/assets/Reuneo%20(Color%20-%20Horizontal).svg?v=a" alt="Reuneo Logo" className="logo-image-nav" />
                 {currentStep < 6 && visitedSteps.has(currentStep + 1) ? (
                     <button className="nav-arrow" onClick={handleNext} aria-label="Next">
-                        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-                            <circle cx="18" cy="18" r="17" stroke="#374151" strokeWidth="1.5" fill="rgba(255,255,255,0.8)"/>
-                            <path d="M15 12L21 18L15 24" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <svg className="wizard-nav-arrow" width="36" height="36" viewBox="0 0 36 36" fill="none">
+                            <circle cx="18" cy="18" r="17" strokeWidth="1.5"/>
+                            <path d="M15 12L21 18L15 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                     </button>
                 ) : (

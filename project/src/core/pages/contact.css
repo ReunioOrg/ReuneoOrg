@@ -1,7 +1,7 @@
 /* ─── Page shell ──────────────────────────────────────────── */
 .contact-page {
   min-height: var(--viewport-height, 100vh);
-  background: #f8f9fc;
+  background: var(--surface-ground);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -33,7 +33,7 @@
 .contact-hero-title {
   font-size: clamp(2.4rem, 5vw, 3.8rem);
   font-weight: 800;
-  color: #1a1a2e;
+  color: var(--text-primary);
   margin: 0 0 16px;
   letter-spacing: -0.03em;
   line-height: 1.1;
@@ -41,7 +41,7 @@
 
 .contact-hero-sub {
   font-size: 1.1rem;
-  color: #64748b;
+  color: var(--text-secondary);
   margin: 0;
   font-weight: 450;
 }
@@ -93,13 +93,13 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.09em;
-  color: #144dff;
+  color: var(--accent);
   margin-bottom: 4px;
 }
 
 .contact-info-value {
   font-size: 0.92rem;
-  color: #1a1a2e;
+  color: var(--text-primary);
   font-weight: 500;
   text-decoration: none;
   word-break: break-word;
@@ -107,7 +107,7 @@
 
 a.contact-info-value:hover {
   text-decoration: underline;
-  color: #144dff;
+  color: var(--accent);
 }
 
 /* ─── Form card ───────────────────────────────────────────── */
@@ -128,7 +128,7 @@ a.contact-info-value:hover {
 .contact-form-heading {
   font-size: 1.4rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--text-primary);
   margin: 0 0 28px;
   letter-spacing: -0.02em;
 }
@@ -155,22 +155,22 @@ a.contact-info-value:hover {
 .contact-label {
   font-size: 0.8rem;
   font-weight: 650;
-  color: #475569;
+  color: var(--text-secondary);
   letter-spacing: 0.01em;
 }
 
 .contact-required {
-  color: #144dff;
+  color: var(--accent);
 }
 
 .contact-input,
 .contact-textarea {
-  background: #f8f9fc;
+  background: var(--surface-ground);
   border: 1.5px solid rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   padding: 12px 14px;
   font-size: 0.95rem;
-  color: #1a1a2e;
+  color: var(--text-primary);
   font-family: inherit;
   transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
   outline: none;
@@ -180,14 +180,14 @@ a.contact-info-value:hover {
 
 .contact-input::placeholder,
 .contact-textarea::placeholder {
-  color: #a0aec0;
+  color: var(--color-gray-400);
 }
 
 .contact-input:focus,
 .contact-textarea:focus {
-  border-color: #144dff;
+  border-color: var(--accent);
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(20, 77, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
 }
 
 .contact-textarea {
@@ -204,28 +204,28 @@ a.contact-info-value:hover {
   gap: 8px;
   padding: 14px 32px;
   border-radius: 50px;
-  border: 1.5px solid #4b73ef;
-  background: linear-gradient(180deg, #5b82f7 0%, #4b73ef 100%);
+  border: 1.5px solid var(--accent);
+  background: var(--accent);
   color: #fff;
   font-size: 0.95rem;
   font-weight: 650;
   cursor: pointer;
   letter-spacing: 0.01em;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 16px rgba(75, 115, 239, 0.3), inset 0 0 0 1.5px rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.3), inset 0 0 0 1.5px rgba(255, 255, 255, 0.25);
   -webkit-tap-highlight-color: transparent;
 }
 
 .contact-submit:hover:not(:disabled) {
-  background: linear-gradient(180deg, #4d72e8 0%, #3d63d9 100%);
-  border-color: #3d63d9;
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(75, 115, 239, 0.4), inset 0 0 0 1.5px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 24px rgba(var(--accent-rgb), 0.4), inset 0 0 0 1.5px rgba(255, 255, 255, 0.3);
 }
 
 .contact-submit:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: 0 2px 10px rgba(75, 115, 239, 0.25), inset 0 0 0 1.5px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 10px rgba(var(--accent-rgb), 0.25), inset 0 0 0 1.5px rgba(255, 255, 255, 0.2);
 }
 
 .contact-submit:disabled {
@@ -257,8 +257,8 @@ a.contact-info-value:hover {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: rgba(20, 77, 255, 0.1);
-  color: #144dff;
+  background: rgba(var(--accent-rgb), 0.1);
+  color: var(--accent);
   font-size: 1.6rem;
   display: flex;
   align-items: center;
@@ -270,21 +270,21 @@ a.contact-info-value:hover {
 .contact-success-title {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .contact-success-sub {
   font-size: 0.95rem;
-  color: #64748b;
+  color: var(--text-secondary);
   margin: 0;
 }
 
 .contact-send-another {
   background: none;
-  border: 1.5px solid rgba(20, 77, 255, 0.3);
+  border: 1.5px solid rgba(var(--accent-rgb), 0.3);
   border-radius: 999px;
-  color: #144dff;
+  color: var(--accent);
   padding: 10px 24px;
   font-size: 0.88rem;
   font-weight: 650;
@@ -294,8 +294,8 @@ a.contact-info-value:hover {
 }
 
 .contact-send-another:hover {
-  background: rgba(20, 77, 255, 0.06);
-  border-color: rgba(20, 77, 255, 0.5);
+  background: rgba(var(--accent-rgb), 0.06);
+  border-color: rgba(var(--accent-rgb), 0.5);
 }
 
 /* ─── Privacy Policy section ──────────────────────────────── */
@@ -315,14 +315,14 @@ a.contact-info-value:hover {
 .contact-privacy-title {
   font-size: clamp(1.6rem, 3vw, 2.2rem);
   font-weight: 800;
-  color: #1a1a2e;
+  color: var(--text-primary);
   margin: 0 0 6px;
   letter-spacing: -0.025em;
 }
 
 .contact-privacy-updated {
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: var(--color-gray-400);
   margin: 0 0 40px;
   font-weight: 500;
 }
@@ -346,7 +346,7 @@ a.contact-info-value:hover {
 .contact-privacy-section-heading {
   font-size: 1rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--text-primary);
   margin: 0 0 10px;
   letter-spacing: -0.01em;
   display: flex;
@@ -355,14 +355,14 @@ a.contact-info-value:hover {
 }
 
 .contact-privacy-num {
-  color: #144dff;
+  color: var(--accent);
   font-variant-numeric: tabular-nums;
   min-width: 18px;
 }
 
 .contact-privacy-body {
   font-size: 0.92rem;
-  color: #475569;
+  color: var(--text-secondary);
   line-height: 1.7;
 }
 
@@ -383,7 +383,7 @@ a.contact-info-value:hover {
 }
 
 .contact-privacy-body a {
-  color: #144dff;
+  color: var(--accent);
   text-decoration: none;
 }
 

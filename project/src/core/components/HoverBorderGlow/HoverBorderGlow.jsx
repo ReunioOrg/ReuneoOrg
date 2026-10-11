@@ -1,4 +1,5 @@
 import './HoverBorderGlow.css';
+import { hoverBorderGlowDefaults } from '../../../styles/colors.js';
 
 /**
  * HoverBorderGlow — a bright "comet" of color that orbits the border
@@ -18,7 +19,7 @@ const HoverBorderGlow = ({
   bloomInset = 4,
   duration = 3000,
   spread = 60,
-  colors = ['#ffffff', '#a5b4fc', '#7c3aed'],
+  colors = hoverBorderGlowDefaults.colors,
   style: userStyle = {},
 }) => {
   const [c1, c2, c3] = colors;
@@ -33,9 +34,9 @@ const HoverBorderGlow = ({
         '--hbg-bloom-inset': `${bloomInset}px`,
         '--hbg-duration': `${duration}ms`,
         '--hbg-spread': `${spread}deg`,
-        '--hbg-color-1': c1 || '#ffffff',
-        '--hbg-color-2': c2 || '#a5b4fc',
-        '--hbg-color-3': c3 || '#7c3aed',
+        '--hbg-color-1': c1 || hoverBorderGlowDefaults.colors[0],
+        '--hbg-color-2': c2 || hoverBorderGlowDefaults.colors[1],
+        '--hbg-color-3': c3 || hoverBorderGlowDefaults.colors[2],
         ...userStyle,
       }}
     >

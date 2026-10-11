@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './tutorial-matching.css';
+import { palette } from '../../styles/colors.js';
 
 const SCENES = [
     { id: 'enter', duration: 2000 },                    // 0
@@ -45,7 +46,7 @@ const CHAT_BLURBS = [
     { text: "Same!",           left: 8,  top: 58, delay: 1.15 },
 ];
 
-const PersonIcon = ({ color = '#3b82f6' }) => (
+const PersonIcon = ({ color = palette.accent }) => (
     <svg viewBox="0 0 48 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="24" cy="10" r="9" fill={color} />
         <rect x="10" y="23" width="28" height="40" rx="14" fill={color} />
@@ -234,9 +235,9 @@ const TutorialMatching = ({ isVisible, onComplete, mode = 'overlay', tags, playb
                         orient="auto"
                     >
                         <path
+                            className="tm-match-arrow"
                             d="M 1 1 L 7 4 L 1 7"
                             fill="none"
-                            stroke="rgba(160, 190, 220, 0.6)"
                             strokeWidth="1.5"
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -244,9 +245,9 @@ const TutorialMatching = ({ isVisible, onComplete, mode = 'overlay', tags, playb
                     </marker>
                 </defs>
                 <path
+                    className="tm-match-arrow"
                     d={d}
                     fill="none"
-                    stroke="rgba(160, 190, 220, 0.55)"
                     strokeWidth="2"
                     strokeLinecap="round"
                     markerEnd={`url(#${markerId})`}

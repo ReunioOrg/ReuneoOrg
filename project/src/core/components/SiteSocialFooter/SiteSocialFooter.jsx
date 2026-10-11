@@ -1,7 +1,7 @@
 import './SiteSocialFooter.css';
 
 const INSTAGRAM_URL = 'https://www.instagram.com/reuneo.app/';
-const LINKEDIN_URL = 'https://www.linkedin.com/in/julianvazquezjimenez/';
+const LINKEDIN_URL = 'https://www.linkedin.com/company/reuneo-speednetworking/';
 
 function IconInstagram({ className }) {
   return (
@@ -63,7 +63,7 @@ function SiteSocialFooter() {
           href={LINKEDIN_URL}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Julian Vazquez Jimenez on LinkedIn"
+          aria-label="Reuneo on LinkedIn"
         >
           <IconLinkedIn className="site-social-footer-svg" />
         </a>

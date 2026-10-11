@@ -5,9 +5,10 @@ import '../lobby/how_to_tutorial.css';
 import UserIsReadyAnimation from '../lobby/user_is_ready_animation';
 import { TutorialSlide2, TutorialSlide3 } from '../lobby/how_to_tutorial';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
+import { palette, timerColors, timerTrail } from '../../styles/colors';
 import CoolerGeneralMatchEventFlow from './cooler_general_match_event_flow';
 
-const PersonIcon = ({ color = '#3b82f6' }) => (
+const PersonIcon = ({ color = palette.accent }) => (
     <svg viewBox="0 0 32 80" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="16" cy="10" r="9" fill={color} />
         <rect x="5" y="26" width="22" height="48" rx="11" fill={color} />
@@ -33,23 +34,23 @@ const ScanPhone = () => (
 const TableWithQR = ({ className }) => (
     <div className={`act-table-group${className ? ' ' + className : ''}`}>
         <svg viewBox="0 0 120 150" fill="none" xmlns="http://www.w3.org/2000/svg" className="act-table-svg">
-            <line x1="58" y1="8" x2="78" y2="58" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" />
-            <rect x="18" y="2" width="55" height="58" rx="4" fill="#ffffff" stroke="#3b82f6" strokeWidth="2.5" />
-            <text x="45" y="16" textAnchor="middle" fill="#3b82f6" fontSize="9" fontWeight="800"
+            <line x1="58" y1="8" x2="78" y2="58" stroke={palette.accent} strokeWidth="2.5" strokeLinecap="round" />
+            <rect x="18" y="2" width="55" height="58" rx="4" fill="white" stroke={palette.accent} strokeWidth="2.5" />
+            <text x="45" y="16" textAnchor="middle" fill={palette.accent} fontSize="9" fontWeight="800"
                   fontFamily="-apple-system, BlinkMacSystemFont, sans-serif">SCAN ME</text>
-            <rect x="27" y="20" width="36" height="34" rx="2" fill="#1a1a2e" />
-            <rect x="30" y="23" width="9" height="9" rx="1.5" fill="#ffffff" />
-            <rect x="31.5" y="24.5" width="6" height="6" rx="0.5" fill="#1a1a2e" />
-            <rect x="51" y="23" width="9" height="9" rx="1.5" fill="#ffffff" />
-            <rect x="52.5" y="24.5" width="6" height="6" rx="0.5" fill="#1a1a2e" />
-            <rect x="30" y="39" width="9" height="9" rx="1.5" fill="#ffffff" />
-            <rect x="31.5" y="40.5" width="6" height="6" rx="0.5" fill="#1a1a2e" />
-            <rect x="44" y="35" width="4" height="4" fill="#ffffff" />
-            <rect x="51" y="39" width="5" height="5" fill="#ffffff" />
-            <rect x="44" y="43" width="5" height="4" fill="#ffffff" />
-            <rect x="2" y="65" width="116" height="13" rx="4" fill="#3b82f6" />
-            <rect x="10" y="78" width="9" height="55" rx="3" fill="#3b82f6" />
-            <rect x="101" y="78" width="9" height="55" rx="3" fill="#3b82f6" />
+            <rect x="27" y="20" width="36" height="34" rx="2" fill={palette.textPrimary} />
+            <rect x="30" y="23" width="9" height="9" rx="1.5" fill="white" />
+            <rect x="31.5" y="24.5" width="6" height="6" rx="0.5" fill={palette.textPrimary} />
+            <rect x="51" y="23" width="9" height="9" rx="1.5" fill="white" />
+            <rect x="52.5" y="24.5" width="6" height="6" rx="0.5" fill={palette.textPrimary} />
+            <rect x="30" y="39" width="9" height="9" rx="1.5" fill="white" />
+            <rect x="31.5" y="40.5" width="6" height="6" rx="0.5" fill={palette.textPrimary} />
+            <rect x="44" y="35" width="4" height="4" fill="white" />
+            <rect x="51" y="39" width="5" height="5" fill="white" />
+            <rect x="44" y="43" width="5" height="4" fill="white" />
+            <rect x="2" y="65" width="116" height="13" rx="4" fill={palette.accent} />
+            <rect x="10" y="78" width="9" height="55" rx="3" fill={palette.accent} />
+            <rect x="101" y="78" width="9" height="55" rx="3" fill={palette.accent} />
         </svg>
     </div>
 );
@@ -57,7 +58,7 @@ const TableWithQR = ({ className }) => (
 const CTAButton = ({ onClick }) => (
     <div className="act-cta-wrapper" onClick={onClick}>
         <button className="act-cta-btn" aria-label="Continue">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff"
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white"
                  strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14" />
                 <path d="M12 5l7 7-7 7" />
@@ -210,7 +211,7 @@ const MockPhotoStep = ({ active, onDone }) => {
                 {!showPhoto ? (
                     <div className="act-mock-upload-placeholder">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                             stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                             stroke={palette.textFaint} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
                             <circle cx="12" cy="13" r="4" />
                         </svg>
@@ -654,7 +655,7 @@ const MockLobbyView = ({ active, customTags, hasTags, showTableNumbers }) => {
             {/* Table number — only if enabled */}
             {showTableNumbers && (
                 <div className="act-table-number">
-                    <h3 style={{ color: '#4b73ef' }}>at table: 5</h3>
+                    <h3 style={{ color: palette.accent }}>at table: 5</h3>
                 </div>
             )}
 
@@ -665,11 +666,11 @@ const MockLobbyView = ({ active, customTags, hasTags, showTableNumbers }) => {
                     isPlaying={active}
                     duration={96}
                     initialRemainingTime={81}
-                    colors={['#64B5F6', '#2196F3', '#1976D2']}
+                    colors={timerColors}
                     colorsTime={[96, 48, 0]}
                     size={100}
                     strokeWidth={8}
-                    trailColor="#f0f1f4"
+                    trailColor={timerTrail}
                     strokeLinecap="round"
                 >
                     {({ remainingTime }) => {
@@ -678,8 +679,8 @@ const MockLobbyView = ({ active, customTags, hasTags, showTableNumbers }) => {
                         const secs = real % 60;
                         return (
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                <span style={{ fontSize: '1.35rem', color: '#1a1a2e', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>{mins}:{String(secs).padStart(2, '0')}</span>
-                                <span style={{ fontSize: '0.6rem', color: '#6b7280', fontWeight: 500, marginTop: '2px' }}>time left</span>
+                                <span style={{ fontSize: '1.35rem', color: palette.textPrimary, fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>{mins}:{String(secs).padStart(2, '0')}</span>
+                                <span style={{ fontSize: '0.6rem', color: 'var(--text-secondary)', fontWeight: 500, marginTop: '2px' }}>time left</span>
                             </div>
                         );
                     }}
@@ -736,7 +737,7 @@ const MockTonyLobbyView = ({ active, customTags, hasTags, showTableNumbers }) =>
             {/* Table number — only if enabled */}
             {showTableNumbers && (
                 <div className="act-table-number">
-                    <h3 style={{ color: '#4b73ef' }}>at table: 5</h3>
+                    <h3 style={{ color: palette.accent }}>at table: 5</h3>
                 </div>
             )}
 
@@ -747,11 +748,11 @@ const MockTonyLobbyView = ({ active, customTags, hasTags, showTableNumbers }) =>
                     isPlaying={active}
                     duration={96}
                     initialRemainingTime={76.5}
-                    colors={['#64B5F6', '#2196F3', '#1976D2']}
+                    colors={timerColors}
                     colorsTime={[96, 48, 0]}
                     size={100}
                     strokeWidth={8}
-                    trailColor="#f0f1f4"
+                    trailColor={timerTrail}
                     strokeLinecap="round"
                 >
                     {({ remainingTime }) => {
@@ -760,8 +761,8 @@ const MockTonyLobbyView = ({ active, customTags, hasTags, showTableNumbers }) =>
                         const secs = real % 60;
                         return (
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                <span style={{ fontSize: '1.35rem', color: '#1a1a2e', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>{mins}:{String(secs).padStart(2, '0')}</span>
-                                <span style={{ fontSize: '0.6rem', color: '#6b7280', fontWeight: 500, marginTop: '2px' }}>time left</span>
+                                <span style={{ fontSize: '1.35rem', color: palette.textPrimary, fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>{mins}:{String(secs).padStart(2, '0')}</span>
+                                <span style={{ fontSize: '0.6rem', color: 'var(--text-secondary)', fontWeight: 500, marginTop: '2px' }}>time left</span>
                             </div>
                         );
                     }}

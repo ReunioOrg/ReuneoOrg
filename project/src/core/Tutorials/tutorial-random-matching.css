@@ -8,7 +8,7 @@
     position: fixed;
     inset: 0;
     z-index: 9999;
-    background: #f8f9fc;
+    background: var(--surface-ground);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -30,9 +30,9 @@
     z-index: 50;
     padding: 8px 16px;
     border-radius: 20px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--border-default);
     background: rgba(255, 255, 255, 0.9);
-    color: #6b7280;
+    color: var(--text-secondary);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -73,7 +73,7 @@
 .rmt-header-text {
     font-size: 19px;
     font-weight: 700;
-    color: #6b7280;
+    color: var(--text-secondary);
     letter-spacing: 0.01em;
     line-height: 1.35;
     animation: rmtHeaderFadeIn 0.5s ease 0.2s both;
@@ -325,11 +325,11 @@
 .rmt-blurb-text {
     font-size: 12px;
     font-weight: 800;
-    color: #3b82f6;
+    color: var(--accent);
     letter-spacing: -0.02em;
     line-height: 1.2;
     white-space: nowrap;
-    text-shadow: 0 2px 10px rgba(59, 130, 246, 0.12);
+    text-shadow: 0 2px 10px rgba(var(--accent-rgb), 0.12);
 }
 
 @keyframes rmtBlurbPop {
@@ -355,12 +355,12 @@
     left: 0;
 }
 
-.rmt-c1 { width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; animation: rmtC1 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.rmt-c1 { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: rmtC1 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 .rmt-c2 { width: 6px; height: 10px; border-radius: 2px; background: #f59e0b; animation: rmtC2 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.04s both; }
 .rmt-c3 { width: 7px; height: 7px; border-radius: 50%; background: #f87171; animation: rmtC3 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.08s both; }
 .rmt-c4 { width: 6px; height: 9px; border-radius: 2px; background: #34d399; animation: rmtC4 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.02s both; }
-.rmt-c5 { width: 8px; height: 8px; border-radius: 50%; background: #8b5cf6; animation: rmtC5 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.06s both; }
-.rmt-c6 { width: 5px; height: 8px; border-radius: 2px; background: #60a5fa; animation: rmtC6 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both; }
+.rmt-c5 { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-light); animation: rmtC5 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.06s both; }
+.rmt-c6 { width: 5px; height: 8px; border-radius: 2px; background: var(--accent-light); animation: rmtC6 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both; }
 .rmt-c7 { width: 7px; height: 7px; border-radius: 50%; background: #fbbf24; animation: rmtC7 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s both; }
 .rmt-c8 { width: 6px; height: 9px; border-radius: 2px; background: #fb923c; animation: rmtC8 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.03s both; }
 
@@ -419,11 +419,11 @@
 .rmt-match-text {
     font-size: 15px;
     font-weight: 800;
-    color: #3b82f6;
+    color: var(--accent);
     letter-spacing: -0.02em;
     line-height: 1.2;
     white-space: nowrap;
-    text-shadow: 0 2px 10px rgba(59, 130, 246, 0.12);
+    text-shadow: 0 2px 10px rgba(var(--accent-rgb), 0.12);
     opacity: 0;
     animation: rmtMatchPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
