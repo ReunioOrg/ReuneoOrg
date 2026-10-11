@@ -24,6 +24,8 @@ import LobbyProfileModal from './LobbyProfileModal';
 import TagsPhaseIntroOverlay from './tags_phase_intro_overlay';
 
 const AVAILABLE_TAGS = []; // Remove hardcoded tags
+// Traced from players_display_icon3.png. The PNG stays; this silhouette is filled with currentColor.
+const PLAYERS_DISPLAY_ICON_PATH = "M1320 4353 c-68 -12 -192 -57 -247 -90 -132 -81 -219 -177 -284 -317 -88 -189 -75 -444 34 -636 43 -76 178 -209 257 -253 121 -66 187 -82 345 -82 120 0 149 3 207 23 65 23 67 24 88 78 52 128 195 296 313 369 63 39 65 42 76 94 32 158 -10 364 -103 504 -71 106 -194 211 -303 258 -110 47 -278 70 -383 52z M3380 4325 c-115 -35 -210 -93 -301 -185 -90 -91 -160 -218 -185 -340 -17 -78 -15 -252 3 -297 4 -12 35 -39 69 -61 117 -76 222 -196 293 -338 45 -90 57 -99 176 -125 193 -41 414 11 571 137 111 89 186 196 231 329 23 70 27 96 27 210 1 150 -12 203 -77 329 -76 147 -225 275 -383 331 -67 23 -99 28 -209 31 -117 4 -139 2 -215 -21z M2322 3410 c-306 -80 -521 -358 -522 -673 0 -301 195 -568 485 -664 68 -23 98 -27 205 -27 104 -1 137 3 200 22 226 71 401 246 472 472 19 63 23 96 22 200 0 107 -4 136 -27 205 -63 190 -181 326 -365 419 -130 66 -322 84 -470 46z M681 3044 c-299 -277 -503 -747 -505 -1164 l-1 -134 100 -28 c230 -65 634 -131 848 -140 l78 -3 38 92 c88 213 233 425 398 584 l99 95 -24 59 c-44 108 -63 204 -65 318 -2 103 -3 108 -22 103 -11 -3 -61 -11 -111 -17 -238 -29 -492 56 -670 224 -45 42 -84 77 -87 77 -2 0 -37 -30 -76 -66z M4168 3041 c-202 -201 -520 -287 -800 -216 l-28 7 0 -103 c0 -115 -23 -230 -64 -322 l-25 -57 122 -122 c81 -81 147 -160 195 -231 72 -105 161 -274 197 -370 10 -27 24 -51 30 -53 19 -8 330 24 497 51 142 22 451 91 513 115 24 9 25 13 25 96 0 320 -128 713 -320 986 -61 87 -249 289 -267 287 -4 0 -38 -31 -75 -68z M1778 2144 c-160 -135 -319 -370 -416 -615 -67 -167 -118 -415 -124 -598 l-3 -105 60 -18 c216 -65 494 -118 759 -145 196 -19 623 -22 816 -4 259 23 567 78 804 143 l79 22 -6 125 c-22 442 -198 862 -479 1138 -108 107 -110 108 -136 73 -32 -42 -147 -132 -223 -174 -251 -137 -550 -141 -809 -11 -80 40 -173 109 -228 169 l-42 45 -52 -45z";
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
 const MAX_TAGS_ALLOWED = 5; // Maximum number of tags allowed for both self and desiring tags
 const useEffectTime=5000;
@@ -1820,11 +1822,16 @@ const LobbyScreen = () => {
                         <div className="player-count-widget">
                             <div className="player-count-icon">
                                 <div className="icon-pulse"></div>
-                                <img 
-                                    src="/assets/players_display_icon3.png" 
-                                    alt="Players in lobby" 
-                                    className="player-count-img" 
-                                />
+                                <svg
+                                    className="player-count-img icon-accent"
+                                    viewBox="0 0 500 500"
+                                    role="img"
+                                    aria-label="Players in lobby"
+                                >
+                                    <g transform="translate(0,500) scale(0.1,-0.1)" fill="currentColor">
+                                        <path d={PLAYERS_DISPLAY_ICON_PATH} />
+                                    </g>
+                                </svg>
                             </div>
                             <div className="player-count-info">
                                 <span className="player-count-number">{player_count}</span>
@@ -1846,7 +1853,7 @@ const LobbyScreen = () => {
                                         
                                         // Use cached images for all users including current user
                                         if (DISABLE_LOBBY_PROFILE_IMAGES) {
-                                            profileImageSrc = "/assets/avatar_8.png";
+                                            profileImageSrc = "/assets/default-avatar-indigo.svg";
                                         } else {
                                             const availableUsernames = currentUsernamesRef.current;
                                             const usernameForThisSlot = availableUsernames[index];
@@ -1854,7 +1861,7 @@ const LobbyScreen = () => {
                                             if (usernameForThisSlot && profileImagesCache.current[usernameForThisSlot]) {
                                                 profileImageSrc = `data:image/jpeg;base64,${profileImagesCache.current[usernameForThisSlot]}`;
                                             } else {
-                                                profileImageSrc = "/assets/avatar_8.png";
+                                                profileImageSrc = "/assets/default-avatar-indigo.svg";
                                             }
                                         }
                                         

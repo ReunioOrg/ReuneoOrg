@@ -881,6 +881,13 @@
     background: var(--surface-ground);
 }
 
+/* Opaque greige tile behind each duration field. The input itself stays white. */
+.create-lobby-background .duration-input-group {
+    background: var(--surface-ground);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
 .input-hint.input-hint-danger {
     color: var(--color-danger);
 }

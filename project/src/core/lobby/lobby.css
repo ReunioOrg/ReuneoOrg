@@ -827,6 +827,11 @@
     z-index: 2;
 }
 
+.player-count-img.icon-accent {
+    color: var(--accent);
+    display: block;
+}
+
 .player-count-info {
     display: flex;
     flex-direction: column;
