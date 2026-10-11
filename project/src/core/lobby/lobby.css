@@ -752,8 +752,8 @@
 .player-count-widget {
     display: flex;
     align-items: center;
-    background: var(--surface-raised);
-    border: 1px solid var(--border-default);
+    background: var(--surface-ground);
+    border: 1px solid var(--color-gray-300);
     border-radius: 20px;
     padding: 10px 18px;
     transition: all 0.3s ease;
