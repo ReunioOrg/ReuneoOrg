@@ -1,7 +1,7 @@
 import './SiteSocialFooter.css';
 
 const INSTAGRAM_URL = 'https://www.instagram.com/reuneo.app/';
-const LINKEDIN_URL = 'https://www.linkedin.com/in/julianvazquezjimenez/';
+const LINKEDIN_URL = 'https://www.linkedin.com/company/reuneo-speednetworking/home/?viewAsMember=true';
 
 function IconInstagram({ className }) {
   return (
