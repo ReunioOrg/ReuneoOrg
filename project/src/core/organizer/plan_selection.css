@@ -551,7 +551,7 @@
 }
 
 .ps-feature-excluded {
-    color: var(--color-gray-400);
+    color: var(--text-secondary);
 }
 
 .ps-feature-excluded .ps-feature-icon {

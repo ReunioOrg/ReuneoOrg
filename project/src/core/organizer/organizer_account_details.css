@@ -403,7 +403,7 @@
 
 .account-billing-label {
     font-size: 0.82rem;
-    color: var(--color-gray-400);
+    color: var(--text-secondary);
     font-weight: 500;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
@@ -800,8 +800,8 @@
 .plan-badge-free_trial { background: rgba(var(--accent-rgb), 0.1); color: var(--accent); }
 .status-active   { color: #22c55e; font-weight: 600; }
 .status-trialing { color: var(--accent); font-weight: 600; }
-.status-past_due { color: var(--color-warning); font-weight: 600; }
-.status-canceled { color: var(--color-danger); font-weight: 600; }
+.status-past_due { color: var(--color-warning-strong); font-weight: 600; }
+.status-canceled { color: var(--color-danger-strong); font-weight: 600; }
 
 /* ── Mobile ── */
 @media screen and (max-width: 480px) {
@@ -1310,6 +1310,7 @@
 .account-invoice-download-btn:hover {
     background: var(--color-brand-200);
     border-color: var(--accent-light);
+    color: var(--accent-dark);
 }
 
 @media (max-width: 768px) {
@@ -1340,5 +1341,5 @@
     background: var(--color-warning);
 }
 .account-cancels-note {
-    color: var(--color-warning);
+    color: var(--color-warning-strong);
 }

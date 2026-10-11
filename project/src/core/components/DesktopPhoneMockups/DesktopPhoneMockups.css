@@ -120,7 +120,7 @@
 }
 .dpm-table span { color: #5b54e8; }
 .dpm-time-pill {
-  margin-top: 10px; background: var(--accent-tint); color: #5b54e8; font-weight: 700;
+  margin-top: 10px; background: var(--accent-tint); color: var(--accent-dark); font-weight: 700;
   font-size: 0.82rem; padding: 5px 13px; border-radius: 999px;
 }
 .dpm-tag-row {
