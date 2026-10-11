@@ -46,7 +46,7 @@
   border: none;
   font-size: 0.92rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-gray-700);
   cursor: pointer;
   padding: 6px 14px;
   border-radius: 10px;
@@ -68,8 +68,8 @@
 
 .page-nav-join {
   background: none;
-  color: #374151;
-  border: 1.5px solid rgba(55, 65, 81, 0.35);
+  color: var(--color-gray-700);
+  border: 1.5px solid rgba(63, 60, 55, 0.35);
   padding: 6px 16px;
   border-radius: 10px;
   font-size: 0.9rem;
@@ -118,7 +118,7 @@
 }
 
 .page-nav-profile-btn {
-  color: #374151;
+  color: var(--color-gray-700);
 }
 
 .page-nav-profile-btn:hover {
@@ -127,7 +127,7 @@
 }
 
 .page-nav-logout-btn {
-  color: #94a3b8;
+  color: var(--color-gray-400);
 }
 
 .page-nav-logout-btn:hover {
