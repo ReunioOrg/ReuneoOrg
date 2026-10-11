@@ -1125,7 +1125,7 @@ const App = () => {
     <>
     {isDesktop && createPortal(
       <div className="desktop-hero-header">
-        <h2 className="desktop-hero-heading" aria-label="Stop Planning. Start Hosting.">
+        <h2 className="desktop-hero-heading" aria-label="Stop Planning. Start Winning.">
           <span className="desktop-hero-pan-mask">
             <motion.span
               className="desktop-hero-pan-inner"
@@ -1150,7 +1150,7 @@ const App = () => {
               >
                 <span className="desktop-hero-accent">Start</span>
                 {' '}
-                Hosting.
+                Winning.
               </motion.span>
             </span>
           )}
@@ -1162,7 +1162,7 @@ const App = () => {
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
           >
-            Ready to run social events for any organization that wants engaged people
+            Ready to run event content that wins over attendees every time
           </motion.p>
         )}
       </div>,
@@ -1184,10 +1184,10 @@ const App = () => {
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/new_organizer', { state: { showGeneralTutorial: true } }); } }}
                   tabIndex={0}
                   role="button"
-                  aria-label="Host an Event"
+                  aria-label="Learn More"
                 >
                   <div className="app-dock-icon"><OrganizerIcon /></div>
-                  <span className="app-dock-label shiny-text">Host an Event</span>
+                  <span className="app-dock-label shiny-text">Learn More</span>
                 </div>
               </HoverBorderGlow>
             </motion.div>
@@ -1408,10 +1408,10 @@ const App = () => {
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/new_organizer', { state: { showGeneralTutorial: true } }); } }}
                 tabIndex={0}
                 role="button"
-                aria-label="Host an Event"
+                aria-label="Learn More"
               >
                 <div className="app-dock-icon"><OrganizerIcon /></div>
-                <span className="app-dock-label shiny-text">Host an Event</span>
+                <span className="app-dock-label shiny-text">Learn More</span>
               </div>
             </HoverBorderGlow>
           </div>,
@@ -1472,7 +1472,7 @@ const App = () => {
               <>
                 <h2
                   className="welcome-header-mobile welcome-header-mobile--guest"
-                  aria-label="Stop Planning. Start Hosting."
+                  aria-label="Stop Planning. Start Winning."
                 >
                   <span className="welcome-header-mobile__guest-line welcome-header-mobile__pan-mask">
                     <motion.span
@@ -1499,7 +1499,7 @@ const App = () => {
                       >
                         <span className="welcome-header-mobile__accent">Start</span>
                         {' '}
-                        Hosting.
+                        Winning.
                       </motion.span>
                     </span>
                   )}
@@ -1511,7 +1511,7 @@ const App = () => {
                     animate={{ clipPath: 'inset(0 0% 0 0)' }}
                     transition={{ duration: 1.35, ease: 'easeOut' }}
                   >
-                    Ready to run social events for any organization that wants engaged people
+                    Ready to run event content that wins over attendees every time
                   </motion.p>
                 )}
               </>
