@@ -1845,24 +1845,19 @@
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.11);
 }
 
-/* Staggered entrance — only first 4 (original set) animate; duplicates skip */
-.lp-t-animate-in .lp-t-card--1 { animation: lpFadeInUp 0.8s ease-out 0.35s forwards; }
-.lp-t-animate-in .lp-t-card--2 { animation: lpFadeInUp 0.8s ease-out 0.52s forwards; }
-.lp-t-animate-in .lp-t-card--3 { animation: lpFadeInUp 0.8s ease-out 0.69s forwards; }
-.lp-t-animate-in .lp-t-card--4 { animation: lpFadeInUp 0.8s ease-out 0.86s forwards; }
-
 /* ── Avatar ── */
 .lp-t-avatar {
   flex-shrink: 0;
 }
 
 .lp-t-avatar-img {
-  width: 72px;
-  height: 72px;
-  border-radius: 14px;
-  object-fit: cover;
+  width: 200px;
+  height: 84px;
+  border-radius: 10px;
+  object-fit: contain;
+  object-position: left center;
   display: block;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  background: #fff;
 }
 
 /* ── Quote ── */
@@ -2071,9 +2066,8 @@ body.home-scroll .lp-t-card {
   }
 
   .lp-t-avatar-img {
-    width: 56px;
-    height: 56px;
-    border-radius: 10px;
+    width: 160px;
+    height: 68px;
   }
 
   .lp-t-quote {

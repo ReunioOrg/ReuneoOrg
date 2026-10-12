@@ -1,32 +1,66 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './ClientTestimonialsSection.css';
 
+const logo = (filename) => `/assets/clients/${encodeURIComponent(filename)}`;
+
 const TESTIMONIALS = [
   {
-    img: 'https://dl.dropboxusercontent.com/scl/fi/7vu0tjapuvp1y7tqi2yrq/alana-strong-image.jpg?rlkey=v4iwoaqaqi9pikku0zh1ho5py&st=egydhle6&dl=0',
-    quote: '"When I first tried it, I only intended on using it for 20 min - we ran it for the whole event. It\'s a 10/10."',
-    name: 'Alana S.',
-    org: 'The Woodlands Womens Collective',
-  },
-  {
-    img: 'https://dl.dropboxusercontent.com/scl/fi/hdu8amnbdo861l78vev8i/terrance-txstate-image.jpg?rlkey=19sr0dicibg4e0i6jdzzjcgyc&st=yvpo6sq8&dl=0',
-    quote: '"I wish this was used for all networking events - it helps new people get plugged in right away."',
-    name: 'Terrance M.',
-    org: 'Texas State University',
-  },
-  {
-    img: 'https://dl.dropboxusercontent.com/scl/fi/o8ve4n1thxhdkhw4h50rx/jodie-profile-image.jpg?rlkey=9rh3lvruiwvewchwfxa6p9b2j&st=7hlte795&dl=0',
-    quote: '"It\'s contagious - in the best way possible. It\'s the highlight for most of my socials."',
+    img: logo('ATX GirlHangouts.png'),
+    quote: '"We only intended to use it for 20 min. It lasted for the whole event. It\'s a 10/10."',
     name: 'Jodie R.',
     org: 'ATX GirlHangouts',
   },
   {
-    img: 'https://dl.dropboxusercontent.com/scl/fi/tf0h5aszqedhj3q4un5ln/kristinagarza-utrgv-image.jpg?rlkey=mmtzg0sttjxy3xv6l0c4tqi38&st=slzh36p2&dl=0',
-    quote: '"It\'s one of the best networking tools I\'ve ever used."',
+    img: logo('Texas State University.png'),
+    quote: '"It helps new people get plugged in right away."',
+    name: 'Terrance M.',
+    org: 'Texas State University',
+  },
+  {
+    img: logo('Georgia State University.png'),
+    quote: '"Our 150-person event was smooth. People were so immersed."',
+    name: 'Zayreton S.',
+    org: 'Georgia State University',
+  },
+  {
+    img: logo('The Woodlands Womens Collective.png'),
+    quote: '"It\'s contagious in the best way possible. It\'s always a highlight for my events."',
+    name: 'Alana S.',
+    org: 'The Woodlands Womens Collective',
+  },
+  {
+    img: logo('Turnout.png'),
+    quote: '"Event content is tedious, but they\'ve perfected it. Everyone just wants to meet each other."',
+    name: 'Dan K.',
+    org: 'Turnout',
+  },
+  {
+    img: logo('Big Sister AI.png'),
+    quote: '"The best ice-breaker at our sales events."',
+    name: 'Valentyn Y.',
+    org: 'Big Sister AI',
+  },
+  {
+    img: logo('Leadership McAllen.png'),
+    quote: '"People talk about it even after the event. The experience is that memorable."',
     name: 'Kristina G.',
     org: 'Leadership McAllen',
   },
+  {
+    img: logo('Prairie View AM University.png'),
+    quote: '"Magic in a box, literally."',
+    name: 'Marques M.',
+    org: 'Prairie View A&M University',
+  },
+  {
+    img: logo('Amigos Meet.png'),
+    quote: '"It\'s my secret tool in the Miami social scene."',
+    name: 'Stephanie P.',
+    org: 'Amigos Meet',
+  },
 ];
+
+const VISIBLE_TESTIMONIALS = TESTIMONIALS;
 
 function ClientTestimonialsSection({ subtitle }) {
   const sectionRef = useRef(null);
@@ -95,7 +129,7 @@ function ClientTestimonialsSection({ subtitle }) {
     };
   }, []);
 
-  const doubled = [...TESTIMONIALS, ...TESTIMONIALS];
+  const doubled = [...VISIBLE_TESTIMONIALS, ...VISIBLE_TESTIMONIALS];
 
   return (
     <section
@@ -116,7 +150,8 @@ function ClientTestimonialsSection({ subtitle }) {
           {doubled.map((t, i) => (
             <div
               key={i}
-              className={`lp-t-card${animateIn ? ` lp-t-card--${(i % TESTIMONIALS.length) + 1}` : ''}`}
+              className={`lp-t-card${animateIn ? ' lp-t-card--in' : ''}`}
+              style={{ animationDelay: `${0.35 + (i % VISIBLE_TESTIMONIALS.length) * 0.17}s` }}
             >
               <div className="lp-t-avatar">
                 <img src={t.img} alt={t.name} className="lp-t-avatar-img" />
