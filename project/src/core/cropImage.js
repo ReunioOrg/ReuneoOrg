@@ -4,6 +4,7 @@ export default async function getCroppedImg(imageSrc, crop, options) {
   console.log('Image source being cropped:', imageSrc); // Log the image source
   const background = options && options.background;
   const quality = options && options.quality;
+  const mimeType = (options && options.mimeType) || 'image/jpeg';
   return new Promise((resolve, reject) => {
     const image = new Image();
 
@@ -32,9 +33,11 @@ export default async function getCroppedImg(imageSrc, crop, options) {
       );
 
       try {
-        const base64Image = quality == null
-          ? canvas.toDataURL('image/jpeg') // Convert canvas to base64
-          : canvas.toDataURL('image/jpeg', quality);
+        const base64Image = mimeType === 'image/jpeg'
+          ? (quality == null
+            ? canvas.toDataURL('image/jpeg') // Convert canvas to base64
+            : canvas.toDataURL('image/jpeg', quality))
+          : canvas.toDataURL(mimeType);
         resolve(base64Image);
       } catch (error) {
         reject(new Error('Error converting canvas to base64'));

@@ -24,6 +24,8 @@ import {
 } from '../utils/lobbyStorage';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../cropImage';
+import { canvasHasTransparentPixel, imageSourceHasTransparentPixel, logoDataUrl } from '../utils/logoDataUrl';
+import '../utils/logoCrop.css';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AdminCheckinTutorialFull from '../Tutorials/admin_checkin_tutorial_full';
 import AdminSettingsDropdown from './AdminSettingsDropdown';
@@ -787,7 +789,7 @@ const EditLobbyModal = ({ isOpen, onClose, lobbyCode, currentTags, currentShowTa
                 .then(res => res.json())
                 .then(data => {
                     if (data.logo_icon) {
-                        setExistingLogo(`data:image/jpeg;base64,${data.logo_icon}`);
+                        setExistingLogo(logoDataUrl(data.logo_icon));
                     } else {
                         setExistingLogo(null);
                     }
@@ -847,6 +849,11 @@ const EditLobbyModal = ({ isOpen, onClose, lobbyCode, currentTags, currentShowTa
                 }
                 canvas.width = width;
                 canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                if (canvasHasTransparentPixel(canvas)) {
+                    resolve(canvas.toDataURL('image/png'));
+                    return;
+                }
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0, width, height);
@@ -890,10 +897,10 @@ const EditLobbyModal = ({ isOpen, onClose, lobbyCode, currentTags, currentShowTa
     const handleSaveLogoCrop = async () => {
         try {
             setIsLogoProcessing(true);
-            const croppedImage = await getCroppedImg(logoPreview, logoCropArea, {
-                background: '#ffffff',
-                quality: 0.92,
-            });
+            const hasTransparency = await imageSourceHasTransparentPixel(logoPreview);
+            const croppedImage = await getCroppedImg(logoPreview, logoCropArea, hasTransparency
+                ? { mimeType: 'image/png' }
+                : { background: '#ffffff', quality: 0.92, mimeType: 'image/jpeg' });
             setLogoCroppedImage(croppedImage);
             setIsLogoCropping(false);
             setIsLogoProcessing(false);
@@ -1099,7 +1106,7 @@ const EditLobbyModal = ({ isOpen, onClose, lobbyCode, currentTags, currentShowTa
                         <>
                             {currentLogoDisplay && !isLogoCropping && (
                                 <div className="edit-lobby-logo-preview">
-                                    <img src={currentLogoDisplay} alt="Logo preview" className="edit-lobby-logo-img" />
+                                    <img src={logoDataUrl(currentLogoDisplay)} alt="Logo preview" className="edit-lobby-logo-img" />
                                     <button type="button" onClick={handleRemoveLogo} className="edit-lobby-logo-remove">×</button>
                                 </div>
                             )}
@@ -1125,7 +1132,8 @@ const EditLobbyModal = ({ isOpen, onClose, lobbyCode, currentTags, currentShowTa
                                     <div className="edit-lobby-crop-area">
                                         <Cropper image={logoPreview} crop={logoCrop} zoom={logoZoom} aspect={1}
                                             onCropChange={setLogoCrop} onZoomChange={setLogoZoom}
-                                            onCropComplete={handleLogoCropComplete} />
+                                            onCropComplete={handleLogoCropComplete}
+                                            classes={{ containerClassName: 'logo-crop-checkerboard', cropAreaClassName: 'logo-crop-frame' }} />
                                     </div>
                                     <div className="edit-lobby-crop-controls">
                                         <button type="button" onClick={handleSaveLogoCrop}

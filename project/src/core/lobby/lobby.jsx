@@ -16,6 +16,7 @@ import { storeLobbyCode, clearLobbyStorage, refreshLobbyTimestamp } from '../uti
 import { CommunityPageButton } from '../community/mycf';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { apiFetch } from '../utils/api';
+import { logoDataUrl } from '../utils/logoDataUrl';
 import { timerColors, timerTrail } from '../../styles/colors';
 import { motion, AnimatePresence } from 'framer-motion';
 import AnimatedTagList from './animated_tag_list';
@@ -1700,7 +1701,7 @@ const LobbyScreen = () => {
                     {logoDataRef.current && (
                         <div className="sponsor-logo">
                             <img 
-                                src={`data:image/jpeg;base64,${logoDataRef.current}`}
+                                src={logoDataUrl(logoDataRef.current)}
                                 alt="Sponsor Logo"
                                 style={{
                                     width: '100px',
