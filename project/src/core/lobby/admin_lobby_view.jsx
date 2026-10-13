@@ -847,8 +847,10 @@ const EditLobbyModal = ({ isOpen, onClose, lobbyCode, currentTags, currentShowTa
                 }
                 canvas.width = width;
                 canvas.height = height;
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL('image/jpeg', 0.7));
+                resolve(canvas.toDataURL('image/jpeg', 0.92));
             };
             img.src = URL.createObjectURL(file);
         });
@@ -888,7 +890,10 @@ const EditLobbyModal = ({ isOpen, onClose, lobbyCode, currentTags, currentShowTa
     const handleSaveLogoCrop = async () => {
         try {
             setIsLogoProcessing(true);
-            const croppedImage = await getCroppedImg(logoPreview, logoCropArea);
+            const croppedImage = await getCroppedImg(logoPreview, logoCropArea, {
+                background: '#ffffff',
+                quality: 0.92,
+            });
             setLogoCroppedImage(croppedImage);
             setIsLogoCropping(false);
             setIsLogoProcessing(false);
