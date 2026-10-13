@@ -1211,6 +1211,9 @@
     padding: 0 1rem;
     box-sizing: border-box;
     justify-content: center;
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 /* When timer is present - use space-between layout */
@@ -1223,11 +1226,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 .sponsor-logo img {
     display: block;
     border-radius: 12px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 /* Email Backup Modal Styles */

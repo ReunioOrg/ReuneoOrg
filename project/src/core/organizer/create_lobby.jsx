@@ -4,6 +4,8 @@ import { useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../cropImage';
+import { canvasHasTransparentPixel, imageSourceHasTransparentPixel, logoDataUrl } from '../utils/logoDataUrl';
+import '../utils/logoCrop.css';
 import './create_lobby.css';
 import { apiFetch } from '../utils/api';
 import FloatingLinesBackground from './FloatingLinesBackground';
@@ -100,7 +102,7 @@ const CreateLobbyView = () => {
             if (data.logo_url) setLogoUrl(data.logo_url);
 
             const savedLogo = localStorage.getItem('reuneo_plan_logo');
-            if (savedLogo) setLogoCroppedImage(savedLogo);
+            if (savedLogo) setLogoCroppedImage(logoDataUrl(savedLogo));
 
             if (data.selected_tab === 'custom') {
                 setStep3View('tags');
@@ -428,7 +430,14 @@ const CreateLobbyView = () => {
                 canvas.width = width;
                 canvas.height = height;
                 ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL('image/jpeg', 0.7));
+                if (canvasHasTransparentPixel(canvas)) {
+                    resolve(canvas.toDataURL('image/png'));
+                    return;
+                }
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', 0.92));
             };
             img.src = URL.createObjectURL(file);
         });
@@ -468,7 +477,10 @@ const CreateLobbyView = () => {
     const handleSaveLogoCrop = async () => {
         try {
             setIsLogoProcessing(true);
-            const croppedImage = await getCroppedImg(logoPreview, logoCropArea);
+            const hasTransparency = await imageSourceHasTransparentPixel(logoPreview);
+            const croppedImage = await getCroppedImg(logoPreview, logoCropArea, hasTransparency
+                ? { mimeType: 'image/png' }
+                : { background: '#ffffff', quality: 0.92, mimeType: 'image/jpeg' });
             setLogoCroppedImage(croppedImage);
             setIsLogoCropping(false);
             setIsLogoProcessing(false);
@@ -604,7 +616,8 @@ const CreateLobbyView = () => {
                     <div className="logo-crop-area">
                         <Cropper image={logoPreview} crop={logoCrop} zoom={logoZoom} aspect={1}
                             onCropChange={setLogoCrop} onZoomChange={setLogoZoom}
-                            onCropComplete={handleLogoCropComplete} />
+                            onCropComplete={handleLogoCropComplete}
+                            classes={{ containerClassName: 'logo-crop-checkerboard', cropAreaClassName: 'logo-crop-frame' }} />
                     </div>
                     <div className="logo-crop-controls">
                         <button type="button" onClick={handleSaveLogoCrop}
@@ -619,7 +632,7 @@ const CreateLobbyView = () => {
             {logoCroppedImage && !isLogoCropping && (
                 <div className="logo-preview-container">
                     <div className="logo-preview">
-                        <img src={logoCroppedImage} alt="Logo preview" className="logo-preview-image" />
+                        <img src={logoDataUrl(logoCroppedImage)} alt="Logo preview" className="logo-preview-image" />
                         <button type="button" onClick={handleRemoveLogo}
                             className="logo-remove-button">×</button>
                     </div>
@@ -957,7 +970,7 @@ const CreateLobbyView = () => {
                 {hasLogo && (
                     <SponsorLogoTutorial
                         key="slt"
-                        logoSrc={logoCroppedImage}
+                        logoSrc={logoDataUrl(logoCroppedImage)}
                         minutes={minutes}
                         seconds={seconds}
                     />
@@ -1186,7 +1199,7 @@ const CreateLobbyView = () => {
                         <div className="review-section-content">
                             <span className="review-value-secondary">sponsor logo</span>
                             {logoCroppedImage ? (
-                                <img src={logoCroppedImage} alt="Sponsor logo" className="review-logo-thumbnail" />
+                                <img src={logoDataUrl(logoCroppedImage)} alt="Sponsor logo" className="review-logo-thumbnail" />
                             ) : (
                                 <span className="review-value-primary">No sponsor logo</span>
                             )}
