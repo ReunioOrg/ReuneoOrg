@@ -405,7 +405,7 @@ const LawPage = () => {
               <p className="law-price">$500</p>
               <p className="law-price-unit">per conversation.</p>
             </div>
-            <p className="law-price-note">8 to 10 qualified conversations in 1 hour.</p>
+            <p className="law-price-note">10 qualified conversations in 1 hour.</p>
           </Reveal>
         </section>
 
