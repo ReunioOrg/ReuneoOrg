@@ -169,9 +169,26 @@
 .dpm-screen { padding-bottom: 14px; }
 .dpm-player-wrap { margin-bottom: 32px; }
 
-/* Static call sites (no rotation, no entrance fade). Homepage never sets this class. */
-.dpm-phone--static,
-.dpm-phone--static .dpm-player-wrap {
+/* In-flow single phone. Homepage keeps .dpm-wrapper (absolute, three-up). */
+.dpm-single {
+  position: relative;
+  width: max-content;
+  margin: 0 auto;
+}
+
+/* First paint on the single phone: the page wrapper owns the load entrance. */
+.dpm-single-hold .dpm-phone,
+.dpm-single-hold .dpm-player-wrap {
   opacity: 1;
   animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dpm-single .dpm-phone,
+  .dpm-single .dpm-player-wrap,
+  .dpm-single .dpm-row {
+    animation: none;
+    opacity: 1;
+    transition: none;
+  }
 }

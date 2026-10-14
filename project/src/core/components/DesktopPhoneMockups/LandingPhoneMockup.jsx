@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 export const PROFILE_DATA = [
   { img: '/assets/kate_rodriguez.png', name: 'Kate Rodriguez' },
   { img: '/assets/tony_chopper.jpg', name: 'Tony Chopper' },
@@ -57,21 +59,11 @@ export function preloadImages(profiles) {
   );
 }
 
-/** Sarah Ramirez — the homepage pairing screen ("Go find {name}!"). */
-export const SARAH_RAMIREZ_PROFILE = PROFILE_DATA.find((p) => p.name === 'Sarah Ramirez');
-
-/**
- * Pure render — shared by the desktop row-of-three, the mobile outer pair,
- * and static call sites. `staticScreen` skips the entrance animation so a
- * single phone can sit still. Omit it and the homepage rotation is unchanged.
- */
-export function PhoneMockup({ profile, slotIndex, staticScreen = false }) {
+/** Pure render — shared by desktop row-of-three and mobile outer pair */
+export function PhoneMockup({ profile, slotIndex, animationDelayMs }) {
   const slot = SLOT_CONTENT[slotIndex % SLOT_CONTENT.length];
   return (
-    <div
-      className={`dpm-phone${staticScreen ? ' dpm-phone--static' : ''}`}
-      style={staticScreen ? undefined : { animationDelay: `${slotIndex * 170}ms` }}
-    >
+    <div className="dpm-phone" style={{ animationDelay: `${animationDelayMs ?? slotIndex * 170}ms` }}>
       <div className="dpm-screen">
         <h2 className="dpm-lobby-header">
           <span className="dpm-lobby-pop-burst">Go find {profile.name}!</span>
@@ -94,3 +86,12 @@ export function PhoneMockup({ profile, slotIndex, staticScreen = false }) {
     </div>
   );
 }
+
+PhoneMockup.propTypes = {
+  profile: PropTypes.shape({
+    img: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  }).isRequired,
+  slotIndex: PropTypes.number.isRequired,
+  animationDelayMs: PropTypes.number,
+};

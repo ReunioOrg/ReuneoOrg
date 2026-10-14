@@ -8,8 +8,6 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  -webkit-font-smoothing: antialiased;
 }
 
 .law-page > .page-nav-bar,
@@ -106,46 +104,9 @@
 }
 
 .law-phone {
-  position: relative;
   width: max-content;
-  margin: 18px auto 20px;
-}
-
-.law-example {
-  position: absolute;
-  top: -14px;
-  left: 50%;
-  z-index: 3;
-  transform: translateX(-50%);
-  padding: 5px 10px;
-  border: 1px solid var(--border-default);
-  border-radius: 999px;
-  background: var(--surface-raised);
-  color: var(--text-secondary);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.law-host-pill {
-  position: absolute;
-  bottom: -18px;
-  left: 50%;
-  z-index: 4;
-  transform: translateX(-50%);
-  padding: 11px 18px;
-  border: 1px solid var(--border-default);
-  border-radius: 999px;
-  background: var(--surface-raised);
-  color: var(--text-primary);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  line-height: 1;
-  white-space: nowrap;
-  box-shadow: 0 10px 28px rgba(26, 26, 26, 0.08);
+  margin: 0 auto;
+  justify-self: end;
 }
 
 /* ─── Problem ─────────────────────────────────────────────── */
@@ -186,27 +147,35 @@
 /* ─── How it works ────────────────────────────────────────── */
 
 .law-how {
-  padding: 24px 0 120px;
+  padding: 24px 0 0;
 }
 
 .law-steps {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 48px;
+  gap: 20px;
   margin: 8px 0 0;
   padding: 0;
   list-style: none;
 }
 
+.law-tile {
+  margin: 0;
+  padding: 28px 26px 32px;
+  border: 1px solid var(--border-default);
+  border-radius: 22px;
+  background: var(--surface-raised);
+  box-sizing: border-box;
+}
+
 .law-num {
   display: block;
-  margin-bottom: 18px;
+  margin: 0 0 14px;
   color: var(--text-primary);
-  font-family: ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }
 
 .law-steps p {
@@ -221,7 +190,7 @@
 /* ─── Pillars ─────────────────────────────────────────────── */
 
 .law-pillars {
-  padding: 0 0 120px;
+  padding: 20px 0 120px;
 }
 
 .law-pillar-grid {
@@ -231,14 +200,6 @@
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-.law-pillar {
-  margin: 0;
-  padding: 32px 28px 36px;
-  border: 1px solid var(--border-default);
-  border-radius: 22px;
-  background: var(--surface-raised);
 }
 
 .law-pillar--meetings {
@@ -278,11 +239,10 @@
 .law-price {
   margin: 0;
   color: var(--accent);
-  font-family: ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
   font-size: clamp(80px, 8vw, 128px);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.045em;
   line-height: 0.86;
 }
 
@@ -397,7 +357,17 @@
   }
 
   .law-phone {
-    margin-top: 36px;
+    margin-top: 12px;
+    justify-self: center;
+  }
+
+  .law-steps,
+  .law-pillar-grid {
+    gap: 16px;
+  }
+
+  .law-pillars {
+    padding-top: 16px;
   }
 
   .law-problem {
@@ -417,7 +387,10 @@
     font-size: 32px;
   }
 
-  .law-how,
+  .law-how {
+    padding-bottom: 0;
+  }
+
   .law-pillars,
   .law-pricing {
     padding-bottom: 72px;

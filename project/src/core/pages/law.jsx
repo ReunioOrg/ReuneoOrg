@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import { motion, useReducedMotion } from 'framer-motion';
 import PageNavBar from '../components/PageNavBar/PageNavBar';
 import SiteSocialFooter from '../components/SiteSocialFooter/SiteSocialFooter';
-import { PhoneMockup, SARAH_RAMIREZ_PROFILE } from '../components/DesktopPhoneMockups/LandingPhoneMockup.jsx';
-import '../components/DesktopPhoneMockups/DesktopPhoneMockups.css';
+import DesktopPhoneMockups from '../components/DesktopPhoneMockups/DesktopPhoneMockups';
 import './law.css';
 
 const PAGE_TITLE = 'Reuneo for Startup Law Firms';
@@ -163,6 +164,126 @@ function BookCall() {
   );
 }
 
+const EASE = [0.22, 1, 0.36, 1];
+
+function useQuietMotion() {
+  const librarySays = useReducedMotion();
+  const [reduce] = useState(() => (
+    typeof window !== 'undefined'
+    && typeof window.matchMedia === 'function'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ));
+  return Boolean(librarySays) || reduce;
+}
+
+const MOTION_TAG = {
+  div: motion.div,
+  p: motion.p,
+  h1: motion.h1,
+  h2: motion.h2,
+  li: motion.li,
+  ol: motion.ol,
+  ul: motion.ul,
+  dl: motion.dl,
+};
+
+function Reveal({ as = 'div', className, children, delay = 0, y = 14 }) {
+  const reduce = useQuietMotion();
+  const Tag = as;
+  if (reduce) return <Tag className={className}>{children}</Tag>;
+  const MotionTag = MOTION_TAG[as] || motion.div;
+  return (
+    <MotionTag
+      className={className}
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.45 }}
+      transition={{ duration: 0.62, delay, ease: EASE }}
+    >
+      {children}
+    </MotionTag>
+  );
+}
+
+const rowVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.04 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE } },
+};
+
+function RevealRow({ as = 'div', className, children }) {
+  const reduce = useQuietMotion();
+  const Tag = as;
+  if (reduce) return <Tag className={className}>{children}</Tag>;
+  const MotionTag = MOTION_TAG[as] || motion.div;
+  return (
+    <MotionTag
+      className={className}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.2 }}
+      variants={rowVariants}
+    >
+      {children}
+    </MotionTag>
+  );
+}
+
+function RevealItem({ as = 'div', className, children }) {
+  const reduce = useQuietMotion();
+  const Tag = as;
+  if (reduce) return <Tag className={className}>{children}</Tag>;
+  const MotionTag = MOTION_TAG[as] || motion.div;
+  return (
+    <MotionTag className={className} variants={itemVariants}>
+      {children}
+    </MotionTag>
+  );
+}
+
+Reveal.propTypes = {
+  as: PropTypes.string,
+  className: PropTypes.string,
+  children: PropTypes.node,
+  delay: PropTypes.number,
+  y: PropTypes.number,
+};
+
+RevealRow.propTypes = {
+  as: PropTypes.string,
+  className: PropTypes.string,
+  children: PropTypes.node,
+};
+
+RevealItem.propTypes = {
+  as: PropTypes.string,
+  className: PropTypes.string,
+  children: PropTypes.node,
+};
+
+function LawPhone() {
+  const reduce = useQuietMotion();
+  return (
+    <motion.div
+      className="law-phone"
+      aria-hidden="true"
+      initial={reduce ? false : { opacity: 0, y: 22, scale: 0.965 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={
+        reduce
+          ? { duration: 0 }
+          : { type: 'spring', stiffness: 230, damping: 26, mass: 0.85, delay: 0.12 }
+      }
+    >
+      <DesktopPhoneMockups singleRotating />
+    </motion.div>
+  );
+}
+
 const LawPage = () => {
   useLawPageMeta();
 
@@ -174,102 +295,101 @@ const LawPage = () => {
         <section className="law-hero">
           <div className="law-wrap law-hero-grid">
             <div className="law-hero-copy">
-              <p className="law-eyebrow">FOR STARTUP LAW FIRMS · AUSTIN</p>
-              <h1>Meet the founders before they pick their lawyer.</h1>
-              <p className="law-hero-body">
+              <Reveal as="p" className="law-eyebrow" y={8}>FOR STARTUP LAW FIRMS · AUSTIN</Reveal>
+              <Reveal as="h1" delay={0.06}>Meet the founders before they pick their lawyer.</Reveal>
+              <Reveal as="p" className="law-hero-body" delay={0.12} y={10}>
                 Sponsor a founder event and we pair your partners 1-on-1 with the best-fit founders in the room. Up to 10 conversations each.
-              </p>
-              <BookCall />
+              </Reveal>
+              <Reveal delay={0.18} y={10}>
+                <BookCall />
+              </Reveal>
             </div>
-            <div className="law-phone">
-              <span className="law-example">Example</span>
-              <div aria-hidden="true">
-                <PhoneMockup profile={SARAH_RAMIREZ_PROFILE} slotIndex={0} staticScreen />
-              </div>
-              <span className="law-host-pill">Hosted by Your Firm</span>
-            </div>
+            <LawPhone />
           </div>
         </section>
 
         <section className="law-problem" aria-label="The problem">
-          <div className="law-wrap">
-            <p>You&apos;ve sponsored the pitch night.</p>
-            <p>Logo on the slide. Table by the door.</p>
-            <p>The right founders were in the room.</p>
-            <p>You just never met them.</p>
-          </div>
+          <RevealRow className="law-wrap">
+            <RevealItem as="p">You&apos;ve sponsored the pitch night.</RevealItem>
+            <RevealItem as="p">Logo on the slide. Table by the door.</RevealItem>
+            <RevealItem as="p">The right founders were in the room.</RevealItem>
+            <RevealItem as="p">You just never met them.</RevealItem>
+          </RevealRow>
         </section>
 
         <section className="law-reframe">
           <div className="law-wrap">
-            <h2>
+            <Reveal as="h2">
               Sponsorship buys you visibility.
               <br />
               Reuneo makes it buy you meetings.
-            </h2>
+            </Reveal>
           </div>
         </section>
 
         <section className="law-how">
           <div className="law-wrap">
-            <h2 className="law-eyebrow">HOW IT WORKS</h2>
-            <ol className="law-steps">
+            <Reveal as="h2" className="law-eyebrow" y={8}>HOW IT WORKS</Reveal>
+            <RevealRow as="ol" className="law-steps">
               {STEPS.map((step) => (
-                <li key={step.n}>
+                <RevealItem as="li" key={step.n} className="law-tile">
                   <span className="law-num">{step.n}</span>
                   <p>{step.text}</p>
-                </li>
+                </RevealItem>
               ))}
-            </ol>
+            </RevealRow>
           </div>
         </section>
 
         <section className="law-pillars" aria-label="What you get">
           <div className="law-wrap">
-            <ul className="law-pillar-grid">
+            <RevealRow as="ul" className="law-pillar-grid">
               {PILLARS.map((pillar) => (
-                <li
+                <RevealItem
+                  as="li"
                   key={pillar.key}
-                  className={`law-pillar${pillar.tint ? ' law-pillar--meetings' : ''}`}
+                  className={`law-tile law-pillar${pillar.tint ? ' law-pillar--meetings' : ''}`}
                 >
                   <h3>{pillar.label}</h3>
                   <p>{pillar.text}</p>
-                </li>
+                </RevealItem>
               ))}
-            </ul>
+            </RevealRow>
           </div>
         </section>
 
         <section className="law-pricing">
-          <div className="law-wrap law-pricing-grid">
+          <Reveal className="law-wrap law-pricing-grid" y={16}>
             <div>
               <h2 className="law-eyebrow">PRICING</h2>
               <p className="law-price">$500</p>
               <p className="law-price-unit">per conversation.</p>
             </div>
             <p className="law-price-note">8 to 10 qualified conversations in 1 hour.</p>
-          </div>
+          </Reveal>
         </section>
 
         <section className="law-faq">
           <div className="law-wrap">
-            <h2 className="law-eyebrow">FAQ</h2>
-            <dl className="law-faq-list">
+            <Reveal as="h2" className="law-eyebrow" y={8}>FAQ</Reveal>
+            <RevealRow as="dl" className="law-faq-list">
               {FAQ_ITEMS.map((item) => (
-                <div key={item.question} className="law-faq-row">
+                <RevealItem as="div" key={item.question} className="law-faq-row">
                   <dt>{item.question}</dt>
                   <dd>{item.answer}</dd>
-                </div>
+                </RevealItem>
               ))}
-            </dl>
+            </RevealRow>
           </div>
         </section>
 
         <section className="law-close">
           <div className="law-wrap law-close-inner">
-            <h2>Tell us which event you&apos;re sponsoring next.</h2>
-            <p>We&apos;ll show you what can happen.</p>
-            <BookCall />
+            <Reveal as="h2">Tell us which event you&apos;re sponsoring next.</Reveal>
+            <Reveal as="p" delay={0.08} y={10}>We&apos;ll show you what can happen.</Reveal>
+            <Reveal delay={0.14} y={10}>
+              <BookCall />
+            </Reveal>
           </div>
         </section>
       </main>
