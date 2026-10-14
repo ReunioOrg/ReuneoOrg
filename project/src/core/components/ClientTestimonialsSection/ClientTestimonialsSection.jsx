@@ -60,9 +60,21 @@ const TESTIMONIALS = [
   },
 ];
 
-const VISIBLE_TESTIMONIALS = TESTIMONIALS;
+function moveAtxGirlHangoutsAfterTurnout(list) {
+  const atxIndex = list.findIndex((item) => item.org === 'ATX GirlHangouts');
+  const turnoutIndex = list.findIndex((item) => item.org === 'Turnout');
+  if (atxIndex < 0 || turnoutIndex < 0) return list;
+  const next = list.slice();
+  const [atx] = next.splice(atxIndex, 1);
+  const insertAt = next.findIndex((item) => item.org === 'Turnout') + 1;
+  next.splice(insertAt, 0, atx);
+  return next;
+}
 
-function ClientTestimonialsSection({ subtitle }) {
+function ClientTestimonialsSection({ subtitle, placeAtxAfterTurnout = false, homeSpacing = false }) {
+  const visibleTestimonials = placeAtxAfterTurnout
+    ? moveAtxGirlHangoutsAfterTurnout(TESTIMONIALS)
+    : TESTIMONIALS;
   const sectionRef = useRef(null);
   const carouselRef = useRef(null);
   const rafRef = useRef(null);
@@ -129,16 +141,16 @@ function ClientTestimonialsSection({ subtitle }) {
     };
   }, []);
 
-  const doubled = [...VISIBLE_TESTIMONIALS, ...VISIBLE_TESTIMONIALS];
+  const doubled = [...visibleTestimonials, ...visibleTestimonials];
 
   return (
     <section
       ref={sectionRef}
-      className={`lp-testimonials-section${animateIn ? ' lp-t-animate-in' : ''}`}
+      className={`lp-testimonials-section${homeSpacing ? ' lp-testimonials-section--home' : ''}${animateIn ? ' lp-t-animate-in' : ''}`}
     >
       <div className={`lp-testimonials-header${animateIn ? ' lp-t-header-in' : ''}`}>
         <h2 className="lp-t-title">What our clients are saying.</h2>
-        <p className="lp-t-subtitle">{subtitle}</p>
+        {subtitle ? <p className="lp-t-subtitle">{subtitle}</p> : null}
       </div>
       <div
         ref={carouselRef}
@@ -151,7 +163,7 @@ function ClientTestimonialsSection({ subtitle }) {
             <div
               key={i}
               className={`lp-t-card${animateIn ? ' lp-t-card--in' : ''}`}
-              style={{ animationDelay: `${0.35 + (i % VISIBLE_TESTIMONIALS.length) * 0.17}s` }}
+              style={{ animationDelay: `${0.35 + (i % visibleTestimonials.length) * 0.17}s` }}
             >
               <div className="lp-t-avatar">
                 <img src={t.img} alt={t.name} className="lp-t-avatar-img" />
