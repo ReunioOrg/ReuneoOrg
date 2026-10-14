@@ -1553,7 +1553,7 @@
 
 .lp-features-section {
   width: 100%;
-  padding: 90px 40px 100px;
+  padding: 90px 40px 64px;
   box-sizing: border-box;
   position: relative;
 }
@@ -1958,7 +1958,7 @@ body.home-scroll .lp-t-card {
 @media (max-width: 768px) {
   /* ── Features ── */
   .lp-features-section {
-    padding: 60px 20px 70px;
+    padding: 60px 20px 44px;
   }
 
   .lp-features-title {
