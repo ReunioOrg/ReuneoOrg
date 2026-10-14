@@ -69,12 +69,12 @@ const FEATURE_CARDS = [
     description: 'Guarantees attendees can meet as many people as they want. You choose the format, we do the rest.',
   },
   {
-    title: '0% Planning Required',
-    description: 'The only event format that lets the host do no work. Just hit "Start" and watch the room light up.',
-  },
-  {
     title: '0% Setup',
     description: ' No app, no downloads, no accounts to manage on your end either. Attendees scan a QR and they\'re in - you don\'t lift a finger.',
+  },
+  {
+    title: 'Meeting the right people faster',
+    description: 'Saving time, and getting more face-time. Real conversations, real people',
   },
   {
     title: 'Built-In Community',
@@ -132,18 +132,18 @@ function FeaturesSection() {
 const JOIN_STEPS = [
   {
     number: '1',
-    title: 'Attendees scan your QR code',
-    description: 'Guests point their phone camera at the room\'s QR code — no app download, no sign-up.',
+    title: 'Scan a QR code',
+    description: 'Get plugged in right away, no app to download',
   },
   {
     number: '2',
-    title: 'Name',
-    description: 'Any name they choose, typed in seconds. That\'s the only info required.',
+    title: 'Get paired up',
+    description: 'They spot their match across the room, or right next to them. That\'s the fun!',
   },
   {
     number: '3',
-    title: 'Selfie photo',
-    description: 'So their paired match can spot them across the room. Done, they\'re in!',
+    title: 'Maximum connections for everyone',
+    description: 'Meeting the right people faster, the best event content',
   },
 ];
 
@@ -987,7 +987,7 @@ const App = () => {
     <>
     {isDesktop && createPortal(
       <div className="desktop-hero-header">
-        <h2 className="desktop-hero-heading" aria-label="Stop Planning. Start Winning.">
+        <h2 className="desktop-hero-heading" aria-label="Stop Stressing. Start Winning.">
           <span className="desktop-hero-pan-mask">
             <motion.span
               className="desktop-hero-pan-inner"
@@ -998,7 +998,7 @@ const App = () => {
             >
               <span className="desktop-hero-accent">Stop</span>
               {' '}
-              Planning.
+              Stressing.
             </motion.span>
           </span>
           {desktopHeroShowLine2 && (
@@ -1024,7 +1024,7 @@ const App = () => {
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
           >
-            Ready to run event content that wins over attendees every time
+            Ready to run event content that wins over attendees, making the right people meet faster
           </motion.p>
         )}
       </div>,
@@ -1334,7 +1334,7 @@ const App = () => {
               <>
                 <h2
                   className="welcome-header-mobile welcome-header-mobile--guest"
-                  aria-label="Stop Planning. Start Winning."
+                  aria-label="Stop Stressing. Start Winning."
                 >
                   <span className="welcome-header-mobile__guest-line welcome-header-mobile__pan-mask">
                     <motion.span
@@ -1346,7 +1346,7 @@ const App = () => {
                     >
                       <span className="welcome-header-mobile__accent">Stop</span>
                       {' '}
-                      Planning.
+                      Stressing.
                     </motion.span>
                   </span>
                   <br />
@@ -1373,7 +1373,7 @@ const App = () => {
                     animate={{ clipPath: 'inset(0 0% 0 0)' }}
                     transition={{ duration: 1.35, ease: 'easeOut' }}
                   >
-                    Ready to run event content that wins over attendees every time
+                    Ready to run event content that wins over attendees, making the right people meet faster
                   </motion.p>
                 )}
               </>
@@ -1595,8 +1595,8 @@ const App = () => {
     {isDesktop && createPortal(
       <>
         <FeaturesSection />
+        <ClientTestimonialsSection placeAtxAfterTurnout subtitle="Outsource the time, focus, and energy needed to run quality networking at your events." />
         <StepsSection />
-        <ClientTestimonialsSection subtitle="Outsource the time, focus, and energy needed to run quality networking at your events." />
         <SiteSocialFooter />
       </>,
       document.body
@@ -1604,8 +1604,8 @@ const App = () => {
     {!isDesktop && (
       <div className="mobile-sections-wrapper landing-mobile-sections">
         <FeaturesSection />
+        <ClientTestimonialsSection placeAtxAfterTurnout subtitle="Outsource the time, focus, and energy needed to run quality networking at your events." />
         <StepsSection />
-        <ClientTestimonialsSection subtitle="Outsource the time, focus, and energy needed to run quality networking at your events." />
         <SiteSocialFooter />
       </div>
     )}
