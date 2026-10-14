@@ -140,6 +140,16 @@
   text-align: center;
 }
 
+/* Carousel only. Track padding is 16px / 24px, so the section
+   padding lands on the same 84px rhythm as .law-band. */
+.law-page .lp-testimonials-section {
+  padding: 68px 0 60px;
+  background: transparent;
+  border: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
 /* ─── Shared cards ────────────────────────────────────────── */
 
 .law-card {
@@ -405,6 +415,12 @@
 
   .law-band {
     padding: 64px 0;
+  }
+
+  /* Track padding is 12px / 20px on mobile. */
+  .law-page .lp-testimonials-section {
+    padding: 52px 0 44px;
+    background: transparent;
   }
 
   .law-problem {

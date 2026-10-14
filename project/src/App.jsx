@@ -1595,7 +1595,7 @@ const App = () => {
     {isDesktop && createPortal(
       <>
         <FeaturesSection />
-        <ClientTestimonialsSection placeAtxAfterTurnout homeSpacing />
+        <ClientTestimonialsSection homeSpacing />
         <StepsSection />
         <SiteSocialFooter />
       </>,
@@ -1604,7 +1604,7 @@ const App = () => {
     {!isDesktop && (
       <div className="mobile-sections-wrapper landing-mobile-sections">
         <FeaturesSection />
-        <ClientTestimonialsSection placeAtxAfterTurnout homeSpacing />
+        <ClientTestimonialsSection homeSpacing />
         <StepsSection />
         <SiteSocialFooter />
       </div>
