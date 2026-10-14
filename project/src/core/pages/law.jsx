@@ -59,22 +59,58 @@ const STEPS = [
   },
 ];
 
+function IconMeetings() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="3" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  );
+}
+
+function IconPresence() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="13" rx="2" />
+      <path d="M8 21h8" />
+      <path d="M12 17v4" />
+    </svg>
+  );
+}
+
+function IconProof() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M8 6h12" />
+      <path d="M8 12h12" />
+      <path d="M8 18h12" />
+      <path d="M4 6h.01" />
+      <path d="M4 12h.01" />
+      <path d="M4 18h.01" />
+    </svg>
+  );
+}
+
 const PILLARS = [
   {
     key: 'meetings',
     label: 'MEETINGS',
     text: 'Up to 10 six-minute 1:1s per partner.',
-    tint: true,
+    Icon: IconMeetings,
   },
   {
     key: 'presence',
     label: 'PRESENCE',
     text: 'Your firm hosts the networking. Name on every screen.',
+    Icon: IconPresence,
   },
   {
     key: 'proof',
     label: 'PROOF',
     text: 'A list of every founder you met. No badge scans.',
+    Icon: IconProof,
   },
 ];
 
@@ -233,13 +269,17 @@ function RevealRow({ as = 'div', className, children }) {
   );
 }
 
-function RevealItem({ as = 'div', className, children }) {
+function RevealItem({ as = 'div', className, children, lift = false }) {
   const reduce = useQuietMotion();
   const Tag = as;
   if (reduce) return <Tag className={className}>{children}</Tag>;
   const MotionTag = MOTION_TAG[as] || motion.div;
   return (
-    <MotionTag className={className} variants={itemVariants}>
+    <MotionTag
+      className={className}
+      variants={itemVariants}
+      whileHover={lift ? { y: -4, transition: { duration: 0.35, ease: EASE } } : undefined}
+    >
       {children}
     </MotionTag>
   );
@@ -263,6 +303,7 @@ RevealItem.propTypes = {
   as: PropTypes.string,
   className: PropTypes.string,
   children: PropTypes.node,
+  lift: PropTypes.bool,
 };
 
 function LawPhone() {
@@ -295,12 +336,11 @@ const LawPage = () => {
         <section className="law-hero">
           <div className="law-wrap law-hero-grid">
             <div className="law-hero-copy">
-              <Reveal as="p" className="law-eyebrow" y={8}>FOR STARTUP LAW FIRMS · AUSTIN</Reveal>
-              <Reveal as="h1" delay={0.06}>Meet the founders before they pick their lawyer.</Reveal>
-              <Reveal as="p" className="law-hero-body" delay={0.12} y={10}>
+              <Reveal as="h1">Meet the founders before they pick their lawyer.</Reveal>
+              <Reveal as="p" className="law-hero-body" delay={0.08} y={10}>
                 Sponsor a founder event and we pair your partners 1-on-1 with the best-fit founders in the room. Up to 10 conversations each.
               </Reveal>
-              <Reveal delay={0.18} y={10}>
+              <Reveal delay={0.14} y={10}>
                 <BookCall />
               </Reveal>
             </div>
@@ -308,7 +348,7 @@ const LawPage = () => {
           </div>
         </section>
 
-        <section className="law-problem" aria-label="The problem">
+        <section className="law-band law-problem" aria-label="The problem">
           <RevealRow className="law-wrap">
             <RevealItem as="p">You&apos;ve sponsored the pitch night.</RevealItem>
             <RevealItem as="p">Logo on the slide. Table by the door.</RevealItem>
@@ -317,7 +357,7 @@ const LawPage = () => {
           </RevealRow>
         </section>
 
-        <section className="law-reframe">
+        <section className="law-band law-reframe">
           <div className="law-wrap">
             <Reveal as="h2">
               Sponsorship buys you visibility.
@@ -327,13 +367,16 @@ const LawPage = () => {
           </div>
         </section>
 
-        <section className="law-how">
+        <section className="law-band law-how">
           <div className="law-wrap">
             <Reveal as="h2" className="law-eyebrow" y={8}>HOW IT WORKS</Reveal>
             <RevealRow as="ol" className="law-steps">
-              {STEPS.map((step) => (
-                <RevealItem as="li" key={step.n} className="law-tile">
-                  <span className="law-num">{step.n}</span>
+              {STEPS.map((step, index) => (
+                <RevealItem as="li" key={step.n} className="law-card law-step" lift>
+                  <div className="law-step-index">
+                    <span className="law-num">{step.n}</span>
+                    {index < STEPS.length - 1 ? <span className="law-rail" aria-hidden="true" /> : null}
+                  </div>
                   <p>{step.text}</p>
                 </RevealItem>
               ))}
@@ -341,15 +384,12 @@ const LawPage = () => {
           </div>
         </section>
 
-        <section className="law-pillars" aria-label="What you get">
+        <section className="law-band law-pillars" aria-label="What you get">
           <div className="law-wrap">
             <RevealRow as="ul" className="law-pillar-grid">
               {PILLARS.map((pillar) => (
-                <RevealItem
-                  as="li"
-                  key={pillar.key}
-                  className={`law-tile law-pillar${pillar.tint ? ' law-pillar--meetings' : ''}`}
-                >
+                <RevealItem as="li" key={pillar.key} className="law-card law-pillar" lift>
+                  <span className="law-icon" aria-hidden="true"><pillar.Icon /></span>
                   <h3>{pillar.label}</h3>
                   <p>{pillar.text}</p>
                 </RevealItem>
@@ -358,7 +398,7 @@ const LawPage = () => {
           </div>
         </section>
 
-        <section className="law-pricing">
+        <section className="law-band law-pricing">
           <Reveal className="law-wrap law-pricing-grid" y={16}>
             <div>
               <h2 className="law-eyebrow">PRICING</h2>
@@ -369,7 +409,7 @@ const LawPage = () => {
           </Reveal>
         </section>
 
-        <section className="law-faq">
+        <section className="law-band law-faq">
           <div className="law-wrap">
             <Reveal as="h2" className="law-eyebrow" y={8}>FAQ</Reveal>
             <RevealRow as="dl" className="law-faq-list">
@@ -383,7 +423,7 @@ const LawPage = () => {
           </div>
         </section>
 
-        <section className="law-close">
+        <section className="law-band law-close">
           <div className="law-wrap law-close-inner">
             <Reveal as="h2">Tell us which event you&apos;re sponsoring next.</Reveal>
             <Reveal as="p" delay={0.08} y={10}>We&apos;ll show you what can happen.</Reveal>
