@@ -1,15 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
 import './ClientTestimonialsSection.css';
 
 const logo = (filename) => `/assets/clients/${encodeURIComponent(filename)}`;
 
 const TESTIMONIALS = [
-  {
-    img: logo('ATX GirlHangouts.png'),
-    quote: '"We only intended to use it for 20 min. It lasted for the whole event. It\'s a 10/10."',
-    name: 'Jodie R.',
-    org: 'ATX GirlHangouts',
-  },
   {
     img: logo('Texas State University.png'),
     quote: '"It helps new people get plugged in right away."',
@@ -33,6 +28,12 @@ const TESTIMONIALS = [
     quote: '"Event content is tedious, but they\'ve perfected it. Everyone just wants to meet each other."',
     name: 'Dan K.',
     org: 'Turnout',
+  },
+  {
+    img: logo('ATX GirlHangouts.png'),
+    quote: '"We only intended to use it for 20 min. It lasted for the whole event. It\'s a 10/10."',
+    name: 'Jodie R.',
+    org: 'ATX GirlHangouts',
   },
   {
     img: logo('Big Sister AI.png'),
@@ -60,21 +61,7 @@ const TESTIMONIALS = [
   },
 ];
 
-function moveAtxGirlHangoutsAfterTurnout(list) {
-  const atxIndex = list.findIndex((item) => item.org === 'ATX GirlHangouts');
-  const turnoutIndex = list.findIndex((item) => item.org === 'Turnout');
-  if (atxIndex < 0 || turnoutIndex < 0) return list;
-  const next = list.slice();
-  const [atx] = next.splice(atxIndex, 1);
-  const insertAt = next.findIndex((item) => item.org === 'Turnout') + 1;
-  next.splice(insertAt, 0, atx);
-  return next;
-}
-
-function ClientTestimonialsSection({ subtitle, placeAtxAfterTurnout = false, homeSpacing = false }) {
-  const visibleTestimonials = placeAtxAfterTurnout
-    ? moveAtxGirlHangoutsAfterTurnout(TESTIMONIALS)
-    : TESTIMONIALS;
+function ClientTestimonialsSection({ subtitle, hideHeader = false, homeSpacing = false }) {
   const sectionRef = useRef(null);
   const carouselRef = useRef(null);
   const rafRef = useRef(null);
@@ -141,17 +128,20 @@ function ClientTestimonialsSection({ subtitle, placeAtxAfterTurnout = false, hom
     };
   }, []);
 
-  const doubled = [...visibleTestimonials, ...visibleTestimonials];
+  const doubled = [...TESTIMONIALS, ...TESTIMONIALS];
 
   return (
     <section
       ref={sectionRef}
       className={`lp-testimonials-section${homeSpacing ? ' lp-testimonials-section--home' : ''}${animateIn ? ' lp-t-animate-in' : ''}`}
+      aria-label={hideHeader ? 'Client testimonials' : undefined}
     >
-      <div className={`lp-testimonials-header${animateIn ? ' lp-t-header-in' : ''}`}>
-        <h2 className="lp-t-title">What our clients are saying.</h2>
-        {subtitle ? <p className="lp-t-subtitle">{subtitle}</p> : null}
-      </div>
+      {hideHeader ? null : (
+        <div className={`lp-testimonials-header${animateIn ? ' lp-t-header-in' : ''}`}>
+          <h2 className="lp-t-title">What our clients are saying.</h2>
+          {subtitle ? <p className="lp-t-subtitle">{subtitle}</p> : null}
+        </div>
+      )}
       <div
         ref={carouselRef}
         className="lp-t-carousel"
@@ -163,7 +153,7 @@ function ClientTestimonialsSection({ subtitle, placeAtxAfterTurnout = false, hom
             <div
               key={i}
               className={`lp-t-card${animateIn ? ' lp-t-card--in' : ''}`}
-              style={{ animationDelay: `${0.35 + (i % visibleTestimonials.length) * 0.17}s` }}
+              style={{ animationDelay: `${0.35 + (i % TESTIMONIALS.length) * 0.17}s` }}
             >
               <div className="lp-t-avatar">
                 <img src={t.img} alt={t.name} className="lp-t-avatar-img" />
@@ -180,5 +170,11 @@ function ClientTestimonialsSection({ subtitle, placeAtxAfterTurnout = false, hom
     </section>
   );
 }
+
+ClientTestimonialsSection.propTypes = {
+  subtitle: PropTypes.string,
+  hideHeader: PropTypes.bool,
+  homeSpacing: PropTypes.bool,
+};
 
 export default ClientTestimonialsSection;

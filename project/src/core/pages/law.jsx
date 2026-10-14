@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import PageNavBar from '../components/PageNavBar/PageNavBar';
 import SiteSocialFooter from '../components/SiteSocialFooter/SiteSocialFooter';
 import DesktopPhoneMockups from '../components/DesktopPhoneMockups/DesktopPhoneMockups';
+import ClientTestimonialsSection from '../components/ClientTestimonialsSection/ClientTestimonialsSection';
 import './law.css';
 
 const PAGE_TITLE = 'Reuneo for Startup Law Firms';
@@ -366,6 +367,10 @@ const LawPage = () => {
             </Reveal>
           </div>
         </section>
+
+        <Reveal className="law-clients" y={16}>
+          <ClientTestimonialsSection hideHeader />
+        </Reveal>
 
         <section className="law-band law-how">
           <div className="law-wrap">
