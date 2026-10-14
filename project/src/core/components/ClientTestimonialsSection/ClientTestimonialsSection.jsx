@@ -71,7 +71,7 @@ function moveAtxGirlHangoutsAfterTurnout(list) {
   return next;
 }
 
-function ClientTestimonialsSection({ subtitle, placeAtxAfterTurnout = false }) {
+function ClientTestimonialsSection({ subtitle, placeAtxAfterTurnout = false, homeSpacing = false }) {
   const visibleTestimonials = placeAtxAfterTurnout
     ? moveAtxGirlHangoutsAfterTurnout(TESTIMONIALS)
     : TESTIMONIALS;
@@ -146,11 +146,11 @@ function ClientTestimonialsSection({ subtitle, placeAtxAfterTurnout = false }) {
   return (
     <section
       ref={sectionRef}
-      className={`lp-testimonials-section${animateIn ? ' lp-t-animate-in' : ''}`}
+      className={`lp-testimonials-section${homeSpacing ? ' lp-testimonials-section--home' : ''}${animateIn ? ' lp-t-animate-in' : ''}`}
     >
       <div className={`lp-testimonials-header${animateIn ? ' lp-t-header-in' : ''}`}>
         <h2 className="lp-t-title">What our clients are saying.</h2>
-        <p className="lp-t-subtitle">{subtitle}</p>
+        {subtitle ? <p className="lp-t-subtitle">{subtitle}</p> : null}
       </div>
       <div
         ref={carouselRef}

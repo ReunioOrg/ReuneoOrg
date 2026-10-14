@@ -69,12 +69,12 @@ const FEATURE_CARDS = [
     description: 'Guarantees attendees can meet as many people as they want. You choose the format, we do the rest.',
   },
   {
-    title: '0% Setup',
-    description: ' No app, no downloads, no accounts to manage on your end either. Attendees scan a QR and they\'re in - you don\'t lift a finger.',
-  },
-  {
     title: 'Meeting the right people faster',
     description: 'Saving time, and getting more face-time. Real conversations, real people',
+  },
+  {
+    title: '0% Setup',
+    description: ' No app, no downloads, no accounts to manage on your end either. Attendees scan a QR and they\'re in - you don\'t lift a finger.',
   },
   {
     title: 'Built-In Community',
@@ -1595,7 +1595,7 @@ const App = () => {
     {isDesktop && createPortal(
       <>
         <FeaturesSection />
-        <ClientTestimonialsSection placeAtxAfterTurnout subtitle="Outsource the time, focus, and energy needed to run quality networking at your events." />
+        <ClientTestimonialsSection placeAtxAfterTurnout homeSpacing />
         <StepsSection />
         <SiteSocialFooter />
       </>,
@@ -1604,7 +1604,7 @@ const App = () => {
     {!isDesktop && (
       <div className="mobile-sections-wrapper landing-mobile-sections">
         <FeaturesSection />
-        <ClientTestimonialsSection placeAtxAfterTurnout subtitle="Outsource the time, focus, and energy needed to run quality networking at your events." />
+        <ClientTestimonialsSection placeAtxAfterTurnout homeSpacing />
         <StepsSection />
         <SiteSocialFooter />
       </div>
