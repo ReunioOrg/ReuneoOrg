@@ -168,3 +168,10 @@
 /* v5: shorter phone, tight bottom (pill -> 30px -> screen edge), same on mobile */
 .dpm-screen { padding-bottom: 14px; }
 .dpm-player-wrap { margin-bottom: 32px; }
+
+/* Static call sites (no rotation, no entrance fade). Homepage never sets this class. */
+.dpm-phone--static,
+.dpm-phone--static .dpm-player-wrap {
+  opacity: 1;
+  animation: none;
+}

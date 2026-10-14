@@ -57,11 +57,21 @@ export function preloadImages(profiles) {
   );
 }
 
-/** Pure render — shared by desktop row-of-three and mobile outer pair */
-export function PhoneMockup({ profile, slotIndex }) {
+/** Sarah Ramirez — the homepage pairing screen ("Go find {name}!"). */
+export const SARAH_RAMIREZ_PROFILE = PROFILE_DATA.find((p) => p.name === 'Sarah Ramirez');
+
+/**
+ * Pure render — shared by the desktop row-of-three, the mobile outer pair,
+ * and static call sites. `staticScreen` skips the entrance animation so a
+ * single phone can sit still. Omit it and the homepage rotation is unchanged.
+ */
+export function PhoneMockup({ profile, slotIndex, staticScreen = false }) {
   const slot = SLOT_CONTENT[slotIndex % SLOT_CONTENT.length];
   return (
-    <div className="dpm-phone" style={{ animationDelay: `${slotIndex * 170}ms` }}>
+    <div
+      className={`dpm-phone${staticScreen ? ' dpm-phone--static' : ''}`}
+      style={staticScreen ? undefined : { animationDelay: `${slotIndex * 170}ms` }}
+    >
       <div className="dpm-screen">
         <h2 className="dpm-lobby-header">
           <span className="dpm-lobby-pop-burst">Go find {profile.name}!</span>
