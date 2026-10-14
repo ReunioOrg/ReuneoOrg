@@ -33,6 +33,7 @@ import TutorialPage from './core/pages/tutorial.jsx'
 import ContactPage from './core/pages/contact.jsx'
 import ResidentialPage from './core/pages/residential.jsx'
 import SpeedFriendingPage from './core/pages/speed-friending.jsx'
+import LawPage from './core/pages/law.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
@@ -64,6 +65,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/residential" element={<ResidentialPage />} />
           <Route path="/speed-friending" element={<SpeedFriendingPage />} />
+          <Route path="/law" element={<LawPage />} />
           {/* <Route path="/cofounders" element={<MyCF />} /> */}
         </Routes>
         </DemoMatchHistoryOutroProvider>

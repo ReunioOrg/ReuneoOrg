@@ -168,3 +168,27 @@
 /* v5: shorter phone, tight bottom (pill -> 30px -> screen edge), same on mobile */
 .dpm-screen { padding-bottom: 14px; }
 .dpm-player-wrap { margin-bottom: 32px; }
+
+/* In-flow single phone. Homepage keeps .dpm-wrapper (absolute, three-up). */
+.dpm-single {
+  position: relative;
+  width: max-content;
+  margin: 0 auto;
+}
+
+/* First paint on the single phone: the page wrapper owns the load entrance. */
+.dpm-single-hold .dpm-phone,
+.dpm-single-hold .dpm-player-wrap {
+  opacity: 1;
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dpm-single .dpm-phone,
+  .dpm-single .dpm-player-wrap,
+  .dpm-single .dpm-row {
+    animation: none;
+    opacity: 1;
+    transition: none;
+  }
+}
