@@ -1,0 +1,55 @@
+.edit-matching-pill-row {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+/* The avatars card uses a negative bottom margin on small screens, which
+   would pull this pill up into the grid. Offset only that case. */
+@media (max-width: 768px) {
+    .lobby-profiles-container + .edit-matching-pill-row {
+        margin-top: 31px;
+    }
+}
+
+.edit-matching-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 16px;
+    margin: 0;
+    background: var(--color-white);
+    color: var(--text-primary);
+    border: 1.5px solid var(--color-gray-200);
+    border-radius: 999px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.edit-matching-pill:hover {
+    background: var(--color-gray-50);
+}
+
+.edit-matching-pill:active {
+    background: var(--color-gray-100);
+}
+
+.edit-matching-pill:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+}
+
+.edit-matching-pill-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: var(--accent-dark);
+}

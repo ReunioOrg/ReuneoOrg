@@ -187,85 +187,6 @@
     transform: translateY(-1px);
 }
 
-.tags-section {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1rem;
-    margin: 1rem 0;
-    position: relative;
-    overflow: hidden;
-}
-
-
-/* Tags Focus Overlay - dims the page to focus on tag selection */
-.tags-focus-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(3px);
-    z-index: 500;
-    pointer-events: none;
-}
-
-/* Elevated tags section when overlay is active */
-.tags-section.focused {
-    position: relative;
-    z-index: 501;
-    background: transparent;
-    border-radius: 20px;
-    padding: 1.5rem;
-    box-shadow: none;
-}
-
-.tag-group {
-    background: #ffffff;
-    padding: 1.5rem;
-    border-radius: 20px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    transition: all 0.3s ease;
-    text-align: center;
-    border: 1px solid rgba(0, 0, 0, 0.04);
-}
-
-.tag-group:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-}
-
-.tag-group h3 {
-    margin-bottom: 1.5rem;
-    color: var(--text-dark);
-    font-size: 1.2rem;
-    font-weight: 700;
-    text-align: center;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* Demo tag lobby: covers pre-tag lobby while layout settles (z-index below sound prompt at 1100) */
-.demo-tag-prep-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.95);
-    z-index: 1050;
-}
-
-.demo-tag-selection-subheader {
-    font-size: 0.85rem;
-    color: #57534c;
-    text-align: center;
-    margin: -0.5rem 0 1rem;
-    line-height: 1.45;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
 .bounce-wrapper {
     animation: bounce 1.5s ease-in-out infinite;
     margin-bottom: -1.5rem;
@@ -277,18 +198,6 @@
     }
     50% {
         transform: translateY(-7px);
-    }
-}
-
-@keyframes physicsHop {
-    0% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-12px);
-    }
-    100% {
-        transform: translateY(0);
     }
 }
 
@@ -410,34 +319,6 @@
 .leave-lobby-button:active {
     transform: translateY(0);
     background: #1a1a1a;
-}
-
-.missing-tags-button {
-    width: auto;
-    min-width: 160px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 1rem auto 0 auto;
-    padding: 0 24px;
-    border-radius: 20px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 0.875rem;
-    transition: all 0.2s ease;
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    animation: physicsHop 1s ease-out infinite;
-}
-
-.missing-tags-button:hover {
-    background: linear-gradient(135deg, #dc2626, #b91c1c);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
 }
 
 .how-to-tutorial-button {
@@ -1084,123 +965,6 @@
   animation: lobbyPopBurst 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
-/* Progress Bar Styles */
-.progress-bar-container {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 1.5rem;
-    background: transparent;
-    padding: 8px;
-    border-radius: 16px;
-    box-shadow: none;
-    border: none;
-}
-
-.self-progress-bar-tab,
-.desiring-progress-bar-tab {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 16px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-weight: 600;
-    font-size: 0.85rem;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    position: relative;
-    overflow: hidden;
-    background: var(--surface-raised);
-    border: 1px solid var(--border-default);
-    box-sizing: border-box;
-    color: var(--text-dark);
-}
-
-.self-progress-bar-tab:hover,
-.desiring-progress-bar-tab:hover {
-    background: #e0ddd6;
-}
-
-.self-progress-bar-tab.active,
-.desiring-progress-bar-tab.active {
-    background: #1a1a1a;
-    color: #ffffff;
-    border-color: transparent;
-}
-
-.self-progress-bar-tab.complete,
-.desiring-progress-bar-tab.complete {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    color: #ffffff;
-    border-color: transparent;
-}
-
-.self-progress-bar-tab.complete.active,
-.desiring-progress-bar-tab.complete.active {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    color: #ffffff;
-    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.3);
-}
-
-.self-progress-bar-tab.complete::after,
-.desiring-progress-bar-tab.complete::after {
-    content: '✓';
-    position: absolute;
-    top: 4px;
-    right: 6px;
-    font-size: 0.75rem;
-    color: white;
-}
-
-/* Tag Selection Button */
-.tag-selection-button {
-    width: 100%;
-    padding: 14px 24px;
-    margin-top: 0.5rem;
-    background: #1a1a1a;
-    color: white;
-    border: none;
-    border-radius: 16px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.tag-selection-button:hover {
-    background: #2a2825;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-}
-
-.tag-selection-button:active {
-    transform: translateY(0);
-    background: #1a1a1a;
-}
-
-/* Tag Group Transitions */
-.tag-group {
-    opacity: 1;
-    transform: translateX(0);
-    transition: all 0.3s ease;
-}
-
-.tag-group.hidden {
-    display: none;
-    opacity: 0;
-    transform: translateX(100%);
-}
-
-.tag-group.active {
-    display: block;
-    opacity: 1;
-    transform: translateX(0);
-}
-
 /* Timer and Sponsor Container Styles */
 .timer-sponsor-container {
     display: flex;
@@ -1796,15 +1560,3 @@
     margin-top: 2px;
 }
 
-.tag-phase-heading {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: var(--text-primary);
-}
-
-.tag-limit-warning {
-    color: var(--accent);
-    text-align: center;
-    margin-top: 1rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-}

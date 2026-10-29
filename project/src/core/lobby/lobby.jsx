@@ -19,20 +19,17 @@ import { apiFetch } from '../utils/api';
 import { logoDataUrl } from '../utils/logoDataUrl';
 import { timerColors, timerTrail } from '../../styles/colors';
 import { motion, AnimatePresence } from 'framer-motion';
-import AnimatedTagList from './animated_tag_list';
 import ProfileDropdown from './ProfileDropdown';
 import LobbyProfileModal from './LobbyProfileModal';
-import TagsPhaseIntroOverlay from './tags_phase_intro_overlay';
+import TagPickerModal from './TagPickerModal';
+import EditMatchingPill from './EditMatchingPill';
+import { canSaveTags, interpretProfileSave, profileTagsToRequest, readPollWorkTags, trustPollFields } from './tagSelection';
 
 const AVAILABLE_TAGS = []; // Remove hardcoded tags
 // Traced from players_display_icon3.png. The PNG stays; this silhouette is filled with currentColor.
 const PLAYERS_DISPLAY_ICON_PATH = "M1320 4353 c-68 -12 -192 -57 -247 -90 -132 -81 -219 -177 -284 -317 -88 -189 -75 -444 34 -636 43 -76 178 -209 257 -253 121 -66 187 -82 345 -82 120 0 149 3 207 23 65 23 67 24 88 78 52 128 195 296 313 369 63 39 65 42 76 94 32 158 -10 364 -103 504 -71 106 -194 211 -303 258 -110 47 -278 70 -383 52z M3380 4325 c-115 -35 -210 -93 -301 -185 -90 -91 -160 -218 -185 -340 -17 -78 -15 -252 3 -297 4 -12 35 -39 69 -61 117 -76 222 -196 293 -338 45 -90 57 -99 176 -125 193 -41 414 11 571 137 111 89 186 196 231 329 23 70 27 96 27 210 1 150 -12 203 -77 329 -76 147 -225 275 -383 331 -67 23 -99 28 -209 31 -117 4 -139 2 -215 -21z M2322 3410 c-306 -80 -521 -358 -522 -673 0 -301 195 -568 485 -664 68 -23 98 -27 205 -27 104 -1 137 3 200 22 226 71 401 246 472 472 19 63 23 96 22 200 0 107 -4 136 -27 205 -63 190 -181 326 -365 419 -130 66 -322 84 -470 46z M681 3044 c-299 -277 -503 -747 -505 -1164 l-1 -134 100 -28 c230 -65 634 -131 848 -140 l78 -3 38 92 c88 213 233 425 398 584 l99 95 -24 59 c-44 108 -63 204 -65 318 -2 103 -3 108 -22 103 -11 -3 -61 -11 -111 -17 -238 -29 -492 56 -670 224 -45 42 -84 77 -87 77 -2 0 -37 -30 -76 -66z M4168 3041 c-202 -201 -520 -287 -800 -216 l-28 7 0 -103 c0 -115 -23 -230 -64 -322 l-25 -57 122 -122 c81 -81 147 -160 195 -231 72 -105 161 -274 197 -370 10 -27 24 -51 30 -53 19 -8 330 24 497 51 142 22 451 91 513 115 24 9 25 13 25 96 0 320 -128 713 -320 986 -61 87 -249 289 -267 287 -4 0 -38 -31 -75 -68z M1778 2144 c-160 -135 -319 -370 -416 -615 -67 -167 -118 -415 -124 -598 l-3 -105 60 -18 c216 -65 494 -118 759 -145 196 -19 623 -22 816 -4 259 23 567 78 804 143 l79 22 -6 125 c-22 442 -198 862 -479 1138 -108 107 -110 108 -136 73 -32 -42 -147 -132 -223 -174 -251 -137 -550 -141 -809 -11 -80 40 -173 109 -228 169 l-42 45 -52 -45z";
 const MAX_VISIBLE_PROFILES = 9; // Adjust this number to experiment with different limits
-const MAX_TAGS_ALLOWED = 5; // Maximum number of tags allowed for both self and desiring tags
 const useEffectTime=5000;
-const DEMO_TAG_PREP_POLL_MS = 1000;
-const DEMO_TAG_PREP_SETTLE_MS = 150;
-const DEMO_TAG_PREP_MAX_WAIT_MS = 3000;
 const DEMO_ROUND1_VIEW_MS = 12000;
 const DEMO_ROUND2_VIEW_MS = 10000;
 const DEMO_ROUND3_VIEW_MS = 4000;
@@ -40,17 +37,9 @@ const DEMO_HOST_RETURN_POPUP_MS = 4000;
 // Temporarily disable lobby profile image fetching to prevent backend overload
 const DISABLE_LOBBY_PROFILE_IMAGES = false;
 
-// Filter console with [LOBBY-LAYOUT] or [TAG-SCROLL] during demo tag-shift debugging
+// Filter console with [LOBBY-LAYOUT] during demo layout debugging
 const logLobbyLayout = (event, details = {}) => {
     console.log('[LOBBY-LAYOUT]', event, {
-        ms: Math.round(performance.now()),
-        scrollY: Math.round(window.scrollY),
-        ...details,
-    });
-};
-
-const logTagScroll = (event, details = {}) => {
-    console.log('[TAG-SCROLL]', event, {
         ms: Math.round(performance.now()),
         scrollY: Math.round(window.scrollY),
         ...details,
@@ -61,20 +50,9 @@ const LobbyScreen = () => {
     const playat=Math.floor(9*60);
     
     const [tagsState, setTagsState] = useState([]);
-    const [selectionPhase, setSelectionPhase] = useState('self');
-    const [tagLimitWarning, setTagLimitWarning] = useState('');
-    const tagAutoScrollDoneRef = useRef(false);
-    const tagScrollTimerRef = useRef(null);
-    const prevShowTutorialRef = useRef(false);
-    const desiringTagsRef = useRef(null);
-    const continueButtonRef = useRef(null);
-    const tagsSectionRef = useRef(null);
     const [showReadyAnimation, setShowReadyAnimation] = useState(false);
+    const [readyAnimationText, setReadyAnimationText] = useState(null);
     const isReadyAnimating = useRef(false);
-    const [tagsCompleted, setTagsCompleted] = useState(false);
-    const [showTagsFocusOverlay, setShowTagsFocusOverlay] = useState(false);
-    const [showPhaseIntro, setShowPhaseIntro] = useState(false);
-    const phaseIntroTimeoutRef = useRef(null);
     const [isSessionEnding, setIsSessionEnding] = useState(false);
     
     const { audioRef, error, playSound, loadSound, loadAmbientSound, switchToMainTrack, seekTo, cancelSound, checkSound, soundEnabled, setSoundEnabled, isPlaying } = usePlaySound();
@@ -91,13 +69,21 @@ const LobbyScreen = () => {
     const [showDemoFindPersonPopup, setShowDemoFindPersonPopup] = useState(false);
     const [showDemoFastForward, setShowDemoFastForward] = useState(false);
     const [showDemoHostReturn, setShowDemoHostReturn] = useState(false);
-    // Demo tag lobbies only: white prep overlay until layout stable, then scroll once
-    const [showDemoTagPrepOverlay, setShowDemoTagPrepOverlay] = useState(false);
-    const demoTagPrepCompleteRef = useRef(false);
-    const demoTagPrepSettleTimerRef = useRef(null);
-    const demoTagPrepFallbackTimerRef = useRef(null);
-    const demoTutorialCompleteRef = useRef(false);
     const [eligibleForPairing, setEligibleForPairing] = useState(false);
+    const eligibleForPairingRef = useRef(false);
+    const [requiresTags, setRequiresTags] = useState(false);
+    const requiresTagsRef = useRef(false);
+    const [lobbyPollReceived, setLobbyPollReceived] = useState(false);
+    const pollReceivedRef = useRef(false);
+    const lobbyPollSeqRef = useRef(0);
+    const lastSaveResolvedSeqRef = useRef(0);
+    const savingTagsRef = useRef(false);
+    const [tagModalOpen, setTagModalOpen] = useState(false);
+    const [tagModalMode, setTagModalMode] = useState('required');
+    const [tutorialGateReady, setTutorialGateReady] = useState(false);
+    const tagModalOpenRef = useRef(false);
+    const queuedOverlaysRef = useRef([]);
+    const presentOrQueueOverlayRef = useRef(() => {});
     const [player_count, setPlayerCount] = useState(null);
     useGetLobbyMetadata(setPlayerCount, null, lobbyCode);
     const { user, userProfile, checkAuth, permissions, isAuthLoading, authLoadingMessage, emailVerified, userEmail } = useContext(AuthContext);
@@ -139,40 +125,44 @@ const LobbyScreen = () => {
 
     useEffect(() => {
         const checkParams = async () => {
-            const params = new URLSearchParams(window.location.search);
-            const codeParam = params.get('code') || code;
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const codeParam = params.get('code') || code;
 
-            const isDemoLobby = params.get('demo') === 'true';
-            if (isDemoLobby) {
-                demoModeRef.current = true;
-            }
-
-            if (codeParam) {
-                setLobbyCode(codeParam);
-                // Store lobby code in localStorage for "return to lobby" feature
-                storeLobbyCode(codeParam);
-
-                // Wait for lobby setup data (including enable_match_history) before showing tutorial
-                await fetchLobbySetupData(codeParam);
-
-                // Check if the user has seen the tutorial for this specific lobby
-                const lobbyTutorialKey = `hasSeenTutorial_${codeParam}`;
-                const hasSeenLobbyTutorial = localStorage.getItem(lobbyTutorialKey);
-                const isAuthenticated = !!localStorage.getItem('access_token');
-                
-                console.log("Tutorial check:", { 
-                    codeParam, 
-                    lobbyTutorialKey, 
-                    hasSeenLobbyTutorial,
-                    isAuthenticated,
-                    isDemoLobby,
-                });
-                
-                // Demo flow: full attendee tutorial in lobby (admin QR animation is trimmed to scan-only)
-                if (!hasSeenLobbyTutorial && isAuthenticated) {
-                    setShowTutorial(true);
-                    localStorage.setItem(lobbyTutorialKey, 'true');
+                const isDemoLobby = params.get('demo') === 'true';
+                if (isDemoLobby) {
+                    demoModeRef.current = true;
                 }
+
+                if (codeParam) {
+                    setLobbyCode(codeParam);
+                    // Store lobby code in localStorage for "return to lobby" feature
+                    storeLobbyCode(codeParam);
+
+                    // Wait for lobby setup data (including enable_match_history) before showing tutorial
+                    await fetchLobbySetupData(codeParam);
+
+                    // Check if the user has seen the tutorial for this specific lobby
+                    const lobbyTutorialKey = `hasSeenTutorial_${codeParam}`;
+                    const hasSeenLobbyTutorial = localStorage.getItem(lobbyTutorialKey);
+                    const isAuthenticated = !!localStorage.getItem('access_token');
+                    
+                    console.log("Tutorial check:", { 
+                        codeParam, 
+                        lobbyTutorialKey, 
+                        hasSeenLobbyTutorial,
+                        isAuthenticated,
+                        isDemoLobby,
+                    });
+                    
+                    // Demo flow: full attendee tutorial in lobby (admin QR animation is trimmed to scan-only)
+                    if (!hasSeenLobbyTutorial && isAuthenticated) {
+                        setShowTutorial(true);
+                        localStorage.setItem(lobbyTutorialKey, 'true');
+                    }
+                }
+            } finally {
+                setTutorialGateReady(true);
             }
         };
         checkParams();
@@ -219,9 +209,6 @@ const LobbyScreen = () => {
 
     // const playat=220;
     const isFetchingCounter=useRef(0);
-
-    const [selfTags, setSelfTags] = useState(null);
-    const [desiringTags, setDesiringTags] = useState(null);
 
     const [serverselfTags, setServerselfTags] = useState([]);
     const [serverdesiringTags, setServerdesiringTags] = useState([]);
@@ -292,19 +279,31 @@ const LobbyScreen = () => {
     }
 
     async function define_profile_info(self_tags, desiring_tags){
-        const response = await apiFetch('/set_profile_info', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                tags_work: self_tags,
-                tags_desiring_work: desiring_tags
-            })
-        });
+        try {
+            const response = await apiFetch('/set_profile_info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(profileTagsToRequest(self_tags, desiring_tags))
+            });
 
-        const data = await response.json();
-        console.log("SET PROFILE INFO:", data);
+            let data = null;
+            try {
+                data = await response.json();
+            } catch {
+                return { ok: false, error: 'Something went wrong. Try again.' };
+            }
+
+            const result = interpretProfileSave(response.status, data);
+            if (result.ok) {
+                console.log("SET PROFILE INFO:", data);
+            }
+            return result;
+        } catch (error) {
+            console.error("SET PROFILE INFO failed:", error);
+            return { ok: false, error: 'Something went wrong. Try again.' };
+        }
     }
 
     const fetchProfileImages = async (usernamesToFetch) => {
@@ -441,6 +440,7 @@ const LobbyScreen = () => {
 
     // Modify the fetchLobbyData function to include match detection
     async function fetchLobbyData(){
+        const requestSeq = ++lobbyPollSeqRef.current;
         try {
             isFetchingCounter.current+=1;
             if (isFetchingCounter.current>5) {
@@ -510,7 +510,7 @@ const LobbyScreen = () => {
                         lobbyState: data.lobby_state,
                     });
                 }
-                setTagsState(data.custom_tags);
+                setTagsState(Array.isArray(data.custom_tags) ? data.custom_tags : []);
                 setLobbyState(data.lobby_state);
                 setLobbyCreatorUsername(data.lobby_creator_username);
                 setRoundDuration(data.lobby_duration);
@@ -547,17 +547,37 @@ const LobbyScreen = () => {
                 
                 setTableNumber(data.table_number);
 
-                // Set Tags
-                if ((data.player_tags!=null) && (data.player_tags.tags_work!=null)) {
-                    setServerselfTags(data.player_tags.tags_work);
-                }
-                if ((data.player_tags!=null) && (data.player_tags.desiring_tags_work!=null)) {
-                    setServerdesiringTags(data.player_tags.desiring_tags_work);
+                // Ignore tags and eligibility from any poll that started before the
+                // last save resolved, and while a save is in flight, so a 5s poll
+                // cannot clobber an edit or reopen the modal mid-save.
+                const trustSaveSensitive = trustPollFields(
+                    requestSeq,
+                    lastSaveResolvedSeqRef.current,
+                    savingTagsRef.current
+                );
+                if (trustSaveSensitive) {
+                    const polledTags = readPollWorkTags(data.player_tags);
+                    if (polledTags.self != null) setServerselfTags(polledTags.self);
+                    if (polledTags.desiring != null) setServerdesiringTags(polledTags.desiring);
+                    if (data.eligible_for_pairing !== undefined) {
+                        eligibleForPairingRef.current = data.eligible_for_pairing;
+                        setEligibleForPairing(data.eligible_for_pairing);
+                    }
                 }
 
-                if (data.eligible_for_pairing !== undefined) {
-                    setEligibleForPairing(data.eligible_for_pairing);
+                if (typeof data.requires_tags === 'boolean') {
+                    requiresTagsRef.current = data.requires_tags;
+                    setRequiresTags(data.requires_tags);
                 }
+
+                if (!pollReceivedRef.current) {
+                    pollReceivedRef.current = true;
+                    setLobbyPollReceived(true);
+                }
+
+                const eligibleNow = trustSaveSensitive
+                    ? !!data.eligible_for_pairing
+                    : !!eligibleForPairingRef.current;
         
                 // Audio switchover: when leaving checkin, switch from ambient loop to main track
                 // Uses a ref (not state) so it works correctly in the stale polling closure
@@ -662,8 +682,7 @@ const LobbyScreen = () => {
                         // Demo R1: skip match overlay so find-person popup gets full focus
                         if (!isDemoRound1Purgatory && !showTutorialRef.current) {
                             console.log('Purgatory pairing - triggering animation');
-                            isAnimating.current = true;
-                            setShowMatchAnimation(true);
+                            presentOrQueueOverlayRef.current('match');
                         } else if (isDemoRound1Purgatory) {
                             console.log('Demo R1 purgatory - skipping match animation for find-person popup');
                         } else {
@@ -673,11 +692,10 @@ const LobbyScreen = () => {
                         // Demo R1: find-your-person popup once eligible + purgatory paired
                         if (
                             isDemoRound1Purgatory &&
-                            data.eligible_for_pairing &&
+                            eligibleNow &&
                             !demoFindPersonPopupShownRef.current
                         ) {
-                            demoFindPersonPopupShownRef.current = true;
-                            setShowDemoFindPersonPopup(true);
+                            presentOrQueueOverlayRef.current('findPerson');
                         }
                         
                         // Play notification sound to alert user of purgatory match (always, even during tutorial)
@@ -710,8 +728,7 @@ const LobbyScreen = () => {
                         const isDemoRound3TagMatch =
                             demoModeRef.current && (data.current_round || 1) === 3;
                         if (!isDemoRound3TagMatch) {
-                            isAnimating.current = true;
-                            setShowMatchAnimation(true);
+                            presentOrQueueOverlayRef.current('match');
                         }
                     }
                     
@@ -748,7 +765,7 @@ const LobbyScreen = () => {
                 }
                 
                 // --- Demo mode: timed fast-forward and exit logic ---
-                if (demoModeRef.current && data.lobby_state === 'active' && data.eligible_for_pairing) {
+                if (demoModeRef.current && data.lobby_state === 'active' && eligibleNow) {
                     const currentRound = data.current_round || 1;
                     if (!demoRoundTimerStartedRef.current.has(currentRound)) {
                         demoRoundTimerStartedRef.current.add(currentRound);
@@ -890,168 +907,6 @@ const LobbyScreen = () => {
         );
     };
 
-    const handleTagChange = (tagType, tag) => {
-        if (selfTags==null) {
-            setSelfTags(serverselfTags);
-        }
-        if (desiringTags==null) {
-            setDesiringTags(serverdesiringTags);
-        }
-
-        const currentTags = tagType === 'self' ? selfTags : desiringTags;
-        const isAdding = !currentTags?.includes(tag);
-
-        if (isAdding && currentTags?.length >= MAX_TAGS_ALLOWED) {
-            setTagLimitWarning('Reached tag limit for this section');
-            // Scroll to continue/save button
-            setTimeout(() => {
-                continueButtonRef.current?.scrollIntoView({ 
-                    behavior: 'smooth',
-                    block: 'center'
-                });
-            }, 100);
-            // Clear warning after 3 seconds
-            setTimeout(() => {
-                setTagLimitWarning('');
-            }, 3000);
-            return;
-        }
-
-        if (tagType === 'self') {
-            setSelfTags(prev => 
-                prev.includes(tag) 
-                    ? prev.filter(t => t !== tag)
-                    : [...prev, tag]
-            );
-        } else {
-            setDesiringTags(prev => 
-                prev.includes(tag) 
-                    ? prev.filter(t => t !== tag)
-                    : [...prev, tag]
-            );
-        }
-    };
-
-    const handleContinue = () => {
-        if (layoutDebugEnabled) {
-            logTagScroll('handleContinue self → desiring');
-        }
-        if (selfTags != null) {
-            define_profile_info(selfTags, desiringTags || []);
-            // Delay optimistic UI update until after scroll completes
-            setTimeout(() => {
-                setServerselfTags(selfTags || []);
-            }, 800); // Delay to allow scroll animation to complete
-        }
-        setSelectionPhase('desiring');
-        triggerPhaseIntro();
-        
-        // Add scroll behavior after a short delay to ensure phase transition is complete
-        setTimeout(() => {
-            desiringTagsRef.current?.scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }, 100);
-    };
-
-    const handleSave = () => {
-        if (layoutDebugEnabled) {
-            logTagScroll('handleSave tags complete');
-        }
-        if (desiringTags != null) {
-            define_profile_info(selfTags || [], desiringTags);
-            if (!isReadyAnimating.current) {
-                isReadyAnimating.current = true;
-                setShowReadyAnimation(true);
-                setTagsCompleted(true);
-            }
-        } else {
-            // No tags to save — just scroll back up
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-        setShowTagsFocusOverlay(false); // Dismiss the focus overlay
-    };
-
-    const handleBack = () => {
-        setSelectionPhase('self');
-        triggerPhaseIntro();
-    };
-
-    const triggerPhaseIntro = () => {
-        if (layoutDebugEnabled) {
-            logTagScroll('PHASE_INTRO_SHOW', { selectionPhase });
-        }
-        if (phaseIntroTimeoutRef.current) {
-            clearTimeout(phaseIntroTimeoutRef.current);
-        }
-        setShowPhaseIntro(true);
-        phaseIntroTimeoutRef.current = setTimeout(() => {
-            if (layoutDebugEnabled) {
-                logTagScroll('PHASE_INTRO_HIDE', { selectionPhase });
-            }
-            setShowPhaseIntro(false);
-        }, 2300); // Unmount at 2.3s + 0.3s exit animation = 2.6s total
-    };
-
-    const scrollToTagsSection = useCallback((delayMs = DEMO_TAG_PREP_SETTLE_MS) => {
-        if (!tagsSectionRef.current || tagAutoScrollDoneRef.current) return;
-
-        tagAutoScrollDoneRef.current = true;
-        if (tagScrollTimerRef.current) clearTimeout(tagScrollTimerRef.current);
-        if (isDemoLobby) {
-            logTagScroll('SCROLL_SCHEDULED', {
-                delayMs,
-                tagsSectionTop: tagsSectionRef.current.getBoundingClientRect().top,
-            });
-        }
-        tagScrollTimerRef.current = setTimeout(() => {
-            const topBefore = tagsSectionRef.current?.getBoundingClientRect().top;
-            if (isDemoLobby) {
-                logTagScroll('SCROLL_EXECUTING scrollIntoView', {
-                    tagsSectionTopBefore: topBefore,
-                    scrollYBefore: window.scrollY,
-                });
-            }
-            tagsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            setShowTagsFocusOverlay(true);
-            triggerPhaseIntro();
-            tagScrollTimerRef.current = null;
-            if (isDemoLobby) {
-                requestAnimationFrame(() => {
-                    logTagScroll('SCROLL_AFTER_FRAME', {
-                        tagsSectionTop: tagsSectionRef.current?.getBoundingClientRect().top,
-                        scrollY: window.scrollY,
-                    });
-                });
-            }
-        }, delayMs);
-    }, [isDemoLobby, selectionPhase]);
-
-    const dismissDemoTagPrepAndScroll = useCallback((reason = 'stable') => {
-        if (demoTagPrepCompleteRef.current) return;
-        if (isDemoLobby) {
-            logTagScroll('DEMO_PREP dismiss', { reason });
-        }
-        demoTagPrepCompleteRef.current = true;
-        setShowDemoTagPrepOverlay(false);
-        if (demoTagPrepSettleTimerRef.current) clearTimeout(demoTagPrepSettleTimerRef.current);
-        if (demoTagPrepFallbackTimerRef.current) clearTimeout(demoTagPrepFallbackTimerRef.current);
-        demoTagPrepSettleTimerRef.current = setTimeout(() => {
-            scrollToTagsSection(0);
-            demoTagPrepSettleTimerRef.current = null;
-        }, DEMO_TAG_PREP_SETTLE_MS);
-    }, [isDemoLobby, scrollToTagsSection]);
-
-    // Cleanup phase intro timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (phaseIntroTimeoutRef.current) {
-                clearTimeout(phaseIntroTimeoutRef.current);
-            }
-        };
-    }, []);
-
     // Add this state to track if we should show the animation
     const [showLobbyCountdown, setShowLobbyCountdown] = useState(false);
     
@@ -1089,15 +944,8 @@ const LobbyScreen = () => {
     // Add this handler for when the tutorial completes
     const handleTutorialComplete = () => {
         setShowTutorial(false);
-        if (isDemoLobby) {
-            demoTutorialCompleteRef.current = true;
-            // Admin first-QR start: lobby is usually active during tutorial — keep
-            // demoTagPrepCompleteRef false so prep overlay waits for layout-stable scroll.
-            // Still checkin (e.g. start failed): unblock immediate tryScrollToTags.
-            if (lobbyState !== 'active') {
-                demoTagPrepCompleteRef.current = true;
-            }
-        }
+        // Required tag modal opens from the effect below once the tutorial is
+        // closed and the first poll says requires_tags && !eligible_for_pairing.
         checkAuth();
     };
 
@@ -1166,17 +1014,17 @@ const LobbyScreen = () => {
 
     useEffect(() => {
         if (!layoutDebugEnabled) return;
-        const showCompleteInterests = tagsState.length > 0 &&
-            (serverselfTags.length === 0 || serverdesiringTags.length === 0);
+        const showNotReadyHeader = lobbyPollReceived && requiresTags && !eligibleForPairing;
         logLobbyLayout('RENDER: lobby-header', {
             lobbyState,
-            showCompleteInterests,
-            showMissingTagsButton: showCompleteInterests,
+            showNotReadyHeader,
+            requiresTags,
+            eligibleForPairing,
             tagsCount: tagsState.length,
             selfTagsCount: serverselfTags.length,
             desiringTagsCount: serverdesiringTags.length,
         });
-    }, [layoutDebugEnabled, lobbyState, tagsState, serverselfTags, serverdesiringTags]);
+    }, [layoutDebugEnabled, lobbyState, tagsState, serverselfTags, serverdesiringTags, lobbyPollReceived, requiresTags, eligibleForPairing]);
 
     useEffect(() => {
         if (!layoutDebugEnabled) return;
@@ -1198,11 +1046,9 @@ const LobbyScreen = () => {
         if (!layoutDebugEnabled) return;
         const prevLen = prevTagsStateLenRef.current;
         if (prevLen === tagsState.length) return;
-        logLobbyLayout('RENDER: tags-section', {
+        logLobbyLayout('RENDER: tags-summary', {
             tagsCountFrom: prevLen,
             tagsCountTo: tagsState.length,
-            tagsSectionWillMount: tagsState.length > 0,
-            demoSubheaderWillMount: isDemoLobby && tagsState.length > 0,
         });
         prevTagsStateLenRef.current = tagsState.length;
     }, [layoutDebugEnabled, tagsState.length, isDemoLobby]);
@@ -1247,29 +1093,6 @@ const LobbyScreen = () => {
         logLobbyLayout('RENDER: lobby-countdown', { showLobbyCountdown, lobbyState });
     }, [layoutDebugEnabled, showLobbyCountdown, lobbyState]);
 
-    useEffect(() => {
-        if (!layoutDebugEnabled) return;
-        logTagScroll('TAG_UI_STATE', {
-            showTagsFocusOverlay,
-            showPhaseIntro,
-            selectionPhase,
-            tagsSectionVisible: tagsState.length > 0,
-            demoSubheaderVisible: isDemoLobby && tagsState.length > 0,
-            needsTagSelection: tagsState.length > 0 &&
-                (!serverselfTags.length || !serverdesiringTags.length),
-            tagAutoScrollDone: tagAutoScrollDoneRef.current,
-        });
-    }, [
-        layoutDebugEnabled,
-        showTagsFocusOverlay,
-        showPhaseIntro,
-        selectionPhase,
-        tagsState,
-        serverselfTags,
-        serverdesiringTags,
-        isDemoLobby,
-    ]);
-
     useLayoutEffect(() => {
         if (!layoutDebugEnabled) return;
         const measure = (ref) => ref.current?.getBoundingClientRect().height ?? 0;
@@ -1278,7 +1101,6 @@ const LobbyScreen = () => {
             timer: measure(timerContainerRef),
             playerCount: measure(playerCountRef),
             profiles: measure(profilesContainerRef),
-            tagsSection: measure(tagsSectionRef),
         };
         const prev = layoutHeightsRef.current;
         const changed = Object.keys(next).filter(
@@ -1301,12 +1123,9 @@ const LobbyScreen = () => {
                 context: {
                     lobbyState,
                     roundTimeLeft,
-                    showCompleteInterests: tagsState.length > 0 &&
-                        (!serverselfTags.length || !serverdesiringTags.length),
+                    showNotReady: lobbyPollReceived && requiresTags && !eligibleForPairing,
                     player_count,
                     hasOpponentProfile: !!opponentProfile,
-                    showTagsFocusOverlay,
-                    showPhaseIntro,
                     showLobbyCountdown,
                 },
             });
@@ -1322,159 +1141,121 @@ const LobbyScreen = () => {
         serverdesiringTags,
         opponentProfile,
         player_count,
-        showTagsFocusOverlay,
-        showPhaseIntro,
         showLobbyCountdown,
         showSoundPrompt,
         soundEnabled,
         userProfile,
+        lobbyPollReceived,
+        requiresTags,
+        eligibleForPairing,
     ]);
 
-    const tryScrollToTags = useCallback(() => {
-        const needsTagSelection = tagsState?.length > 0 &&
-            (!serverselfTags?.length || !serverdesiringTags?.length);
-        const isSoundPromptBlocking = !soundEnabled && showSoundPrompt &&
-            lobbyState !== 'checkin' && lobbyState !== null && !isPlaying;
-
-        if (layoutDebugEnabled && needsTagSelection) {
-            logTagScroll('tryScrollToTags called', {
-                needsTagSelection,
-                tagAutoScrollDone: tagAutoScrollDoneRef.current,
-                isSoundPromptBlocking,
-                hasTagsSectionRef: !!tagsSectionRef.current,
-            });
+    const presentOrQueueOverlay = (kind) => {
+        if (kind === 'findPerson') {
+            if (demoFindPersonPopupShownRef.current) return;
+            demoFindPersonPopupShownRef.current = true;
         }
-
-        if (isDemoLobby && !demoTagPrepCompleteRef.current) {
-            if (layoutDebugEnabled && needsTagSelection) {
-                logTagScroll('SCROLL_BLOCKED', { reason: 'demo_prep_overlay' });
+        if (isReadyAnimating.current) {
+            if (!queuedOverlaysRef.current.includes(kind)) {
+                queuedOverlaysRef.current.push(kind);
             }
             return;
         }
+        if (kind === 'match') {
+            isAnimating.current = true;
+            setShowMatchAnimation(true);
+            return;
+        }
+        if (kind === 'findPerson') {
+            setShowDemoFindPersonPopup(true);
+        }
+    };
+    presentOrQueueOverlayRef.current = presentOrQueueOverlay;
 
-        if (!needsTagSelection || tagAutoScrollDoneRef.current || isSoundPromptBlocking) {
-            if (layoutDebugEnabled && needsTagSelection) {
-                const reason = !needsTagSelection ? 'tags_complete'
-                    : tagAutoScrollDoneRef.current ? 'already_scrolled'
-                    : isSoundPromptBlocking ? 'sound_prompt'
-                    : 'unknown';
-                logTagScroll('SCROLL_BLOCKED', { reason });
+    // Same condition as the sound-prompt render below.
+    const soundPromptVisible = !(
+        (soundEnabled || !showSoundPrompt) ||
+        (lobbyState == null) ||
+        isPlaying ||
+        isDemoLobby
+    );
+    const showNotReady = lobbyPollReceived && requiresTags && !eligibleForPairing;
+    const showEditMatching = requiresTags
+        && (lobbyState === 'checkin' || lobbyState === 'active' || lobbyState === 'interrim')
+        && !tagModalOpen;
+
+    useEffect(() => {
+        if (tagModalOpenRef.current) return;
+        if (!tutorialGateReady || !pollReceivedRef.current || !requiresTags || eligibleForPairing) return;
+        if (showTutorial || soundPromptVisible || savingTagsRef.current) return;
+        tagModalOpenRef.current = true;
+        setTagModalMode('required');
+        setTagModalOpen(true);
+    }, [tutorialGateReady, lobbyPollReceived, requiresTags, eligibleForPairing, showTutorial, soundPromptVisible, tagModalOpen]);
+
+    const openEditMatching = () => {
+        setTagModalMode('edit');
+        tagModalOpenRef.current = true;
+        setTagModalOpen(true);
+    };
+
+    const handleTagModalDismiss = () => {
+        if (tagModalMode !== 'edit') return;
+        tagModalOpenRef.current = false;
+        setTagModalOpen(false);
+    };
+
+    const handleTagModalFinish = async (nextSelfTags, nextDesiringTags) => {
+        if (!canSaveTags(nextSelfTags, nextDesiringTags)) {
+            return { ok: false, error: 'Pick at least one tag on each side.' };
+        }
+        savingTagsRef.current = true;
+        const result = await define_profile_info(nextSelfTags, nextDesiringTags);
+        if (!result.ok) {
+            savingTagsRef.current = false;
+            if (result.unauthorized) {
+                const params = new URLSearchParams(window.location.search);
+                const codeParam = params.get('code') || code;
+                if (codeParam) {
+                    navigate(`/signup?redirect=lobby&code=${codeParam}`);
+                } else {
+                    navigate('/signup?redirect=lobby');
+                }
             }
-            return;
+            return result;
         }
-        if (!tagsSectionRef.current) {
-            if (layoutDebugEnabled) {
-                logTagScroll('SCROLL_BLOCKED', { reason: 'tags_section_ref_missing' });
-            }
-            return;
+        lastSaveResolvedSeqRef.current = lobbyPollSeqRef.current;
+        eligibleForPairingRef.current = true;
+        setEligibleForPairing(true);
+        setServerselfTags(nextSelfTags);
+        setServerdesiringTags(nextDesiringTags);
+        tagModalOpenRef.current = false;
+        setTagModalOpen(false);
+        savingTagsRef.current = false;
+        setReadyAnimationText(tagModalMode === 'edit'
+            ? { mainText: 'Tags saved', subText: 'Your new tags count from your next pairing.' }
+            : null);
+        if (!isReadyAnimating.current) {
+            isReadyAnimating.current = true;
+            setShowReadyAnimation(true);
         }
-
-        scrollToTagsSection(isDemoLobby ? DEMO_TAG_PREP_SETTLE_MS : 0);
-    }, [tagsState, serverselfTags, serverdesiringTags, soundEnabled, showSoundPrompt, lobbyState, isPlaying, layoutDebugEnabled, isDemoLobby, scrollToTagsSection]);
-
-    // Eligible (tags complete): reset auto-scroll so a future incomplete state can scroll again
-    useEffect(() => {
-        const needsTagSelection = tagsState?.length > 0 &&
-            (!serverselfTags?.length || !serverdesiringTags?.length);
-        if (!needsTagSelection) {
-            tagAutoScrollDoneRef.current = false;
-            setShowTagsFocusOverlay(false);
-        }
-    }, [tagsState, serverselfTags, serverdesiringTags]);
-
-    // Scroll to tags when user is ineligible (incomplete tag selection) and blockers are clear
-    useEffect(() => {
-        tryScrollToTags();
-    }, [tryScrollToTags]);
-
-    // Demo tag lobbies: prep overlay after tutorial, when active + tags need selection
-    useEffect(() => {
-        if (!isDemoLobby) return;
-        if (showTutorial) {
-            setShowDemoTagPrepOverlay(false);
-            return;
-        }
-        if (lobbyState !== 'active') {
-            setShowDemoTagPrepOverlay(false);
-            return;
-        }
-        const needsTagSelection = tagsState.length > 0 &&
-            (!serverselfTags?.length || !serverdesiringTags?.length);
-        if (!needsTagSelection) {
-            setShowDemoTagPrepOverlay(false);
-            return;
-        }
-        if (!demoTagPrepCompleteRef.current) {
-            setShowDemoTagPrepOverlay(true);
-        }
-    }, [isDemoLobby, showTutorial, lobbyState, tagsState, serverselfTags, serverdesiringTags]);
-
-    // Faster polling while demo prep overlay is active
-    useEffect(() => {
-        if (!showDemoTagPrepOverlay) return;
         fetchLobbyData();
-        const interval = setInterval(fetchLobbyData, DEMO_TAG_PREP_POLL_MS);
-        return () => clearInterval(interval);
-    }, [showDemoTagPrepOverlay]);
+        return { ok: true };
+    };
 
-    // Dismiss prep overlay once sound is resolved and active-round layout is stable
-    useEffect(() => {
-        if (!showDemoTagPrepOverlay || demoTagPrepCompleteRef.current) return;
-
-        const soundResolved = (soundEnabled || !showSoundPrompt) ||
-            lobbyState == null || isPlaying;
-        const layoutStable = lobbyState === 'active' &&
-            roundTimeLeft > 0 &&
-            tagsState.length > 0;
-
-        if (soundResolved && layoutStable) {
-            dismissDemoTagPrepAndScroll('layout_stable');
-        }
-    }, [
-        showDemoTagPrepOverlay,
-        soundEnabled,
-        showSoundPrompt,
-        lobbyState,
-        isPlaying,
-        roundTimeLeft,
-        tagsState,
-        dismissDemoTagPrepAndScroll,
-    ]);
-
-    // Fallback: never leave demo users stuck on prep overlay
-    useEffect(() => {
-        if (!showDemoTagPrepOverlay || demoTagPrepCompleteRef.current) return;
-        demoTagPrepFallbackTimerRef.current = setTimeout(() => {
-            dismissDemoTagPrepAndScroll('fallback_timeout');
-        }, DEMO_TAG_PREP_MAX_WAIT_MS);
-        return () => {
-            if (demoTagPrepFallbackTimerRef.current) {
-                clearTimeout(demoTagPrepFallbackTimerRef.current);
-                demoTagPrepFallbackTimerRef.current = null;
+    const handleReadyAnimationEnd = () => {
+        setShowReadyAnimation(false);
+        isReadyAnimating.current = false;
+        const queued = queuedOverlaysRef.current.splice(0);
+        queued.forEach((kind) => {
+            if (kind === 'match') {
+                isAnimating.current = true;
+                setShowMatchAnimation(true);
+            } else if (kind === 'findPerson') {
+                setShowDemoFindPersonPopup(true);
             }
-        };
-    }, [showDemoTagPrepOverlay, dismissDemoTagPrepAndScroll]);
-
-    // Fallback scroll retry when tags arrive after tutorial closes (common path fires via general effect)
-    useEffect(() => {
-        if (prevShowTutorialRef.current && !showTutorial) {
-            if (layoutDebugEnabled) {
-                logTagScroll('TUTORIAL_CLOSED retry in 350ms');
-            }
-            const timer = setTimeout(() => tryScrollToTags(), 350);
-            prevShowTutorialRef.current = showTutorial;
-            return () => clearTimeout(timer);
-        }
-        prevShowTutorialRef.current = showTutorial;
-    }, [showTutorial, tryScrollToTags, layoutDebugEnabled]);
-
-    useEffect(() => {
-        return () => {
-            if (tagScrollTimerRef.current) clearTimeout(tagScrollTimerRef.current);
-            if (demoTagPrepSettleTimerRef.current) clearTimeout(demoTagPrepSettleTimerRef.current);
-            if (demoTagPrepFallbackTimerRef.current) clearTimeout(demoTagPrepFallbackTimerRef.current);
-        };
-    }, []);
+        });
+    };
 
     // Handle email backup modal close
     const handleEmailBackupModalClose = () => {
@@ -1650,16 +1431,8 @@ const LobbyScreen = () => {
 
                 <div className="lobby-header" ref={lobbyHeaderRef} style={{marginTop: '-30px'}} key={lobbyState}>
                     <h2>
-                        {tagsState.length > 0 && (serverselfTags.length == 0 || serverdesiringTags.length == 0) ? (
-                            <>
-                                You're not ready, complete your interests.
-                                <button 
-                                    className="missing-tags-button"
-                                    onClick={() => tagsSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                                >
-                                    Complete Interests
-                                </button>
-                            </>
+                        {showNotReady ? (
+                            "You're not ready yet. Finish your interests."
                         ) : lobbyState === "active" && opponentProfile ? (
                             <span className="lobby-pop-burst">
                                 Go find {opponentProfile.name}!
@@ -1896,6 +1669,12 @@ const LobbyScreen = () => {
                     </div>
                 )}
 
+                {showEditMatching && (
+                    <div className="edit-matching-pill-row">
+                        <EditMatchingPill onClick={openEditMatching} />
+                    </div>
+                )}
+
                 {/* Display tags in checkin or active state */}
                 {(lobbyState === "checkin" || lobbyState === "active") && (
                     <div className="selected-tags-container">
@@ -1937,98 +1716,6 @@ const LobbyScreen = () => {
                     </button>
                 )}
 
-                {/* Tags Focus Overlay - dims the rest of the page when tags need attention */}
-                {showTagsFocusOverlay && <div className="tags-focus-overlay" />}
-
-                {/* Only show tags section if there are custom tags available */}
-                {Array.isArray(tagsState) && tagsState.length > 0 && (
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-                        if (selectionPhase === 'self') {
-                            handleContinue();
-                        } else {
-                            handleSave();
-                        }
-                    }}>
-                        <div className={`tags-section ${showTagsFocusOverlay ? 'focused' : ''}`} ref={tagsSectionRef}>
-                            {/* Phase Intro Overlay */}
-                            <TagsPhaseIntroOverlay isVisible={showPhaseIntro} phase={selectionPhase} />
-
-                            {/* Progress Bar Tabs */}
-                            <div className="progress-bar-container">
-                                <div 
-                                    className={`self-progress-bar-tab ${selectionPhase === 'self' ? 'active' : ''} ${serverselfTags.length > 0 ? 'complete' : ''}`}
-                                    onClick={() => {
-                                        if (selectionPhase !== 'self') {
-                                            setSelectionPhase('self');
-                                            triggerPhaseIntro();
-                                        }
-                                    }}
-                                >
-                                    Who are you?
-                                </div>
-                                <div 
-                                    className={`desiring-progress-bar-tab ${selectionPhase === 'desiring' ? 'active' : ''} ${serverdesiringTags.length > 0 ? 'complete' : ''}`}
-                                    onClick={() => {
-                                        if (serverselfTags.length > 0 && selectionPhase !== 'desiring') {
-                                            setSelectionPhase('desiring');
-                                            triggerPhaseIntro();
-                                        }
-                                    }}
-                                >
-                                    Who do you want to meet?
-                                </div>
-                            </div>
-
-                            {/* Tag Selection Groups */}
-                            <div className={`tag-group ${selectionPhase === 'self' ? 'active' : 'hidden'}`}>
-                                <h2 className="tag-phase-heading">Who are you?</h2>
-                                {isDemoLobby && (
-                                    <p className="demo-tag-selection-subheader">Select tags to see how pairing works.</p>
-                                )}
-                                <AnimatedTagList
-                                    tags={tagsState}
-                                    selectedTags={(selfTags != null) ? selfTags : serverselfTags}
-                                    onTagChange={(tag) => handleTagChange('self', tag)}
-                                    showGradients={true}
-                                    enableArrowNavigation={selectionPhase === 'self'}
-                                    displayScrollbar={true}
-                                    maxHeight={350}
-                                />
-                            </div>
-
-                            <div className={`tag-group ${selectionPhase === 'desiring' ? 'active' : 'hidden'}`} ref={desiringTagsRef}>
-                                <h2 className="tag-phase-heading">Who do you want to meet?</h2>
-                                {isDemoLobby && (
-                                    <p className="demo-tag-selection-subheader">Select tags to see how pairing works.</p>
-                                )}
-                                <AnimatedTagList
-                                    tags={tagsState}
-                                    selectedTags={(desiringTags != null) ? desiringTags : serverdesiringTags}
-                                    onTagChange={(tag) => handleTagChange('desiring', tag)}
-                                    showGradients={true}
-                                    enableArrowNavigation={selectionPhase === 'desiring'}
-                                    displayScrollbar={true}
-                                    maxHeight={350}
-                                />
-                            </div>
-
-                            <button 
-                                type="submit" 
-                                className="tag-selection-button"
-                                ref={continueButtonRef}
-                            >
-                                {selectionPhase === 'self' ? 'Continue' : 'Save'}
-                            </button>
-                            {tagLimitWarning && (
-                                <div className="tag-limit-warning">
-                                    {tagLimitWarning}
-                                </div>
-                            )}
-                        </div>
-                    </form>
-                )}
-
                 {/* <div className="bottom-buttons" style={{
                     display: 'flex',
                     justifyContent: 'center',
@@ -2043,16 +1730,10 @@ const LobbyScreen = () => {
                 </div> */}
             </div>
 
-            {showDemoTagPrepOverlay && (
-                <div className="demo-tag-prep-overlay">
-                    <LoadingSpinner size={50} message="Getting your demo ready..." />
-                </div>
-            )}
-
-            {(soundEnabled || !showSoundPrompt) || (lobbyState == null) || isPlaying || isDemoLobby ? null : <SoundPrompt />}
+            {soundPromptVisible ? <SoundPrompt /> : null}
 
             {/* Add the animation component */}
-            {showLobbyCountdown && !(tagsState.length > 0 && serverdesiringTags.length === 0) && (
+            {showLobbyCountdown && !showNotReady && (
                 <LobbyCountdown onComplete={handleLobbyCountdownComplete} />
             )}
 
@@ -2091,20 +1772,22 @@ const LobbyScreen = () => {
                 }
             />
 
+            <TagPickerModal
+                isOpen={tagModalOpen}
+                mode={tagModalMode}
+                availableTags={tagsState}
+                initialSelfTags={serverselfTags}
+                initialDesiringTags={serverdesiringTags}
+                isDemo={isDemoLobby}
+                onFinish={handleTagModalFinish}
+                onDismiss={handleTagModalDismiss}
+            />
+
             {/* Add the ready animation component */}
-            <UserIsReadyAnimation 
-                isVisible={showReadyAnimation} 
-                onAnimationEnd={() => {
-                    setShowReadyAnimation(false);
-                    isReadyAnimating.current = false;
-                    // Scroll to top after animation completes
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    // Update server tags after scroll finishes to avoid layout shift interruption
-                    setTimeout(() => {
-                        setServerselfTags(selfTags || []);
-                        setServerdesiringTags(desiringTags);
-                    }, 600);
-                }} 
+            <UserIsReadyAnimation
+                isVisible={showReadyAnimation}
+                onAnimationEnd={handleReadyAnimationEnd}
+                {...(readyAnimationText || {})}
             />
 
             {/* Email Backup Modal - saves email as backup sign-in method */}
